@@ -21,14 +21,12 @@ class EloquentFamilies extends Model
     {
         return [
             'activo' => 'boolean',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-            'deleted_at' => 'datetime',
         ];
     }
 
     public function getKeyName(): string
-    {   
+    {
         return 'id';
     }
 }
+
