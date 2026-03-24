@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::table('user', function (Blueprint $table) {
             $table->string('role');
             $table->string('image_src');
+            $table->biginteger('restaurant_id')->references('id')->on('restaurants');
+            $table->string('pin');
             $table->softDeletes('deleted_at')->after('update_at');
         });
     }
