@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('zones', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->nullable()->unique();
-            $table->string('name');
-            $table->timestamps();
-            $table->softDeletes('deleted_at', precision: 0);
+        Schema::table('user', function (Blueprint $table) {
+            $table->string('role');
+            $table->string('image_src');
+            $table->softDeletes('deleted_at')->after('update_at');
+
         });
     }
 
@@ -25,6 +24,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('zones');
+        Schema::table('user', function (Blueprint $table) {
+            //
+        });
     }
 };

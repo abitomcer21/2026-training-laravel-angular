@@ -13,17 +13,16 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('uuid');
-            $table->bigInteger('family_id');
-            $table->bigInteger('tax_id');
+            $table->uuid('uuid')->nullable()->unique();
+            $table->foreign('family_id')->references('id')->on('families');
+            $table->foreign('tax_id')->references('id')->on('taxes');
             $table->string('image_src');
             $table->string('name');
             $table->integer('price');
             $table->integer('stock');
-            $table->booler('active');
-            $table->timestamp('created_at');
-            $table->timestamp('update_at');
-            $table->timestamps('deleted_at');
+            $table->booler('active');            
+            $table->timestamps();
+            $table->softDeletes('deleted_at', precision: 0);
         });
     }
 

@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('tables', function (Blueprint $table) {
             $table->id();
-            $table->string('uuid');
+            $table->uuid('uuid')->nullable()->unique();
             $table->string('name');
-            $table->timestamp('created_at');
-            $table->timestamp('update_at');
-            $table->timestamps('deleted_at');
-        });
+            $table->foreign('zone_id')->references('id')->on('zones');
+            $table->timestamps();
+            $table->softDeletes('deleted_at', precision: 0);});
     }
 
     /**
