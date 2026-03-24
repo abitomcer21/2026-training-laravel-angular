@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('price');
             $table->integer('stock');
-            $table->booler('active');            
+            $table->boolean('active');
             $table->timestamps();
             $table->softDeletes('deleted_at');
         });
