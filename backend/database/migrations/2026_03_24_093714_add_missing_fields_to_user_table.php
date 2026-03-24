@@ -15,7 +15,6 @@ return new class extends Migration
             $table->string('role');
             $table->string('image_src');
             $table->softDeletes('deleted_at')->after('update_at');
-
         });
     }
 

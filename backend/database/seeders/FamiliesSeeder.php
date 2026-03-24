@@ -9,9 +9,7 @@ use Illuminate\Support\Str;
 
 class FamiliesSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+
     public function run(): void
     {
         $now = now();
