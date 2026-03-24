@@ -6,6 +6,18 @@ use App\User\Domain\Interfaces\PasswordHasherInterface;
 use App\User\Domain\Interfaces\UserRepositoryInterface;
 use App\User\Infrastructure\Persistence\Repositories\EloquentUserRepository;
 use App\User\Infrastructure\Services\LaravelPasswordHasher;
+use App\Families\Domain\Interfaces\FamiliesRepositoryInterface;
+use App\Families\Infraestructure\Persistence\Repositories\EloquentFamiliesRepository;
+use App\Products\Domain\Interfaces\ProductsRepositoryInterface;
+use App\Products\Infraestructure\Persistence\Repositories\EloquentProductsRepository;
+use App\Taxes\Domain\Interfaces\TaxesRepositoryInterface;
+use App\Taxes\Infraestructure\Persistence\Repositories\EloquentTaxesRepository;
+use App\Zones\Domain\Interfaces\ZonesRepositoryInterface;
+use App\Zones\Infraestructure\Persistence\Repositories\EloquentZonesRepository;
+use App\Tables\Domain\Interfaces\TablesRepositoryInterface;
+use App\Tables\Infraestructure\Persistence\Repositories\EloquentTablesRepository;
+use App\Sales\Domain\Interfaces\SalesRepositoryInterface;
+use App\Sales\Infraestructure\Persistence\Repositories\EloquentSalesRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,6 +29,12 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
         $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
+        $this->app->bind(FamiliesRepositoryInterface::class, EloquentFamiliesRepository::class);
+        $this->app->bind(ProductsRepositoryInterface::class, EloquentProductsRepository::class);
+        $this->app->bind(TaxesRepositoryInterface::class, EloquentTaxesRepository::class);
+        $this->app->bind(ZonesRepositoryInterface::class, EloquentZonesRepository::class);
+        $this->app->bind(TablesRepositoryInterface::class, EloquentTablesRepository::class);
+        $this->app->bind(SalesRepositoryInterface::class, EloquentSalesRepository::class);
     }
 
     /**
