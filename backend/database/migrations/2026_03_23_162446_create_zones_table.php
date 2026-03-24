@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('uuid')->nullable()->unique();
             $table->string('name');
             $table->timestamps();
-            $table->softDeletes('deleted_at', precision: 0);
+            $table->softDeletes('deleted_at');
         });
     }
 

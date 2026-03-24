@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamp('closed_at')->nullable();
             $table->integer('total');
             $table->timestamps();
-            $table->softDeletes('deleted_at', precision: 0);
+            $table->softDeletes('deleted_at');
 
         });
     }

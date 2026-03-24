@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tables', function (Blueprint $table) {
+        Schema::create('restaurant', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
             $table->string('name');
-            $table->foreign('zone_id')->references('id')->on('zones');
+            $table->string('legal_name');
+            $table->string('tax_id');
+            $table->string('email');
+            $table->string('password');
             $table->timestamps();
-            $table->softDeletes('deleted_at');});
+            $table->softDeletes('deleted_at');
+        });
     }
 
     /**
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tables');
+        Schema::dropIfExists('restaurant');
     }
 };
