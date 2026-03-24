@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Zones\Domain\Interfaces;
+
+use App\Zones\Domain\Entity\Zones;
+
+interface ZonesRepositoryInterface
+{
+    public function save(Zones $zones): void;
+
+    public function findById(string $id): ?Zones;
+}
