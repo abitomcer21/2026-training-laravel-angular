@@ -2,12 +2,20 @@
 
 namespace App\Restaurants\Infraestructure\Persistence\Models;
 
+use Database\Factories\RestaurantFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EloquentRestaurants extends Model
+class EloquentRestaurant extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
+
+    protected static function newFactory(): Factory
+    {
+        return RestaurantFactory::new();
+    }
 
     protected $table = 'restaurants';
 

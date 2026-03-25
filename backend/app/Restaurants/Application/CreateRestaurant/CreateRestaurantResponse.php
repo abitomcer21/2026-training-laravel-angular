@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Restaurants\Application\CreateRestaurantes;
+namespace App\Restaurants\Application\CreateRestaurant;
 
-use App\Restaurants\Domain\Entity\Restaurants;
+use App\Restaurants\Domain\Entity\Restaurant;
 
-final readonly class CreateRestaurantesResponse
+final readonly class CreateRestaurantResponse
 {
     public function __construct(
         public string $id,
@@ -16,16 +16,16 @@ final readonly class CreateRestaurantesResponse
         public string $updatedAt,
     ) {}
 
-    public static function create(Restaurants $restaurants): self
+    public static function create(Restaurant $restaurant): self
     {
         return new self(
-            id: $restaurants->id()->value(),
-            name: $restaurants->name(),
-            legalName: $restaurants->legalName(),
-            taxId: $restaurants->taxId(),
-            email: $restaurants->email(),
-            createdAt: $restaurants->createdAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $restaurants->updatedAt()->format(\DateTimeInterface::ATOM),
+            id: $restaurant->id()->value(),
+            name: $restaurant->name(),
+            legalName: $restaurant->legalName(),
+            taxId: $restaurant->taxId(),
+            email: $restaurant->email()->value(),
+            createdAt: $restaurant->createdAt()->format(\DateTimeInterface::ATOM),
+            updatedAt: $restaurant->updatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
 

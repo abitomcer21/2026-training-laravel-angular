@@ -2,14 +2,14 @@
 
 namespace App\Restaurants\Infraestructure\Entrypoint\Http;
 
-use App\Restaurants\Application\CreateRestaurantes\CreateRestaurantes;
+use App\Restaurants\Application\CreateRestaurant\CreateRestaurant;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PostController
 {
     public function __construct(
-        private CreateRestaurantes $createRestaurantes,
+        private CreateRestaurant $createRestaurant,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
@@ -22,7 +22,7 @@ class PostController
             'password' => ['required', 'string', 'min:8', 'max:255'],
         ]);
 
-        $response = ($this->createRestaurantes)(
+        $response = ($this->createRestaurant)(
             $validated['name'],
             $validated['legal_name'],
             $validated['tax_id'],

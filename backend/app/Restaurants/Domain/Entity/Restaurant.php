@@ -10,7 +10,7 @@ use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Shared\Domain\ValueObject\Email;
 use App\Shared\Domain\ValueObject\Uuid;
 
-class Restaurants
+class Restaurant
 {
     private function __construct(
         private Uuid $id,
@@ -89,12 +89,12 @@ class Restaurants
         return $this->taxId->value();
     }
 
-    public function email(): string
+    public function email(): Email
     {
-        return $this->email->value();
+        return $this->email;
     }
 
-    public function password(): string
+    public function passwordHash(): string
     {
         return $this->password->value();
     }

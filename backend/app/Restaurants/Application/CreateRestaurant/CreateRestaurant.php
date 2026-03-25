@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Restaurants\Application\CreateRestaurantes;
+namespace App\Restaurants\Application\CreateRestaurant;
 
-use App\Restaurants\Domain\Entity\Restaurants;
-use App\Restaurants\Domain\Interfaces\RestaurantsRepositoryInterface;
+use App\Restaurants\Domain\Entity\Restaurant;
+use App\Restaurants\Domain\Interfaces\RestaurantRepositoryInterface;
 use App\Restaurants\Domain\ValueObject\RestaurantLegalName;
 use App\Restaurants\Domain\ValueObject\RestaurantName;
 use App\Restaurants\Domain\ValueObject\RestaurantPassword;
 use App\Restaurants\Domain\ValueObject\RestaurantTaxId;
+use App\Restaurants\Domain\Interfaces\RestaurantPasswordHasherInterface;
 use App\Shared\Domain\ValueObject\Email;
-use App\User\Domain\Interfaces\PasswordHasherInterface;
 
-class CreateRestaurantes
+class CreateRestaurant
 {
     public function __construct(
-        private RestaurantsRepositoryInterface $restaurantsRepository,
-        private PasswordHasherInterface $passwordHasher,
+        private RestaurantRepositoryInterface $restaurantRepository,
+        private RestaurantPasswordHasherInterface $passwordHasher,
     ) {}
 
     public function __invoke(
@@ -24,8 +24,8 @@ class CreateRestaurantes
         string $taxId,
         string $email,
         string $plainPassword,
-    ): CreateRestaurantesResponse {
-        $restaurants = Restaurants::dddCreate(
+    ): CreateRestaurantResponse {
+        $restaurant = Restaurant::dddCreate(
             RestaurantName::create($name),
             RestaurantLegalName::create($legalName),
             RestaurantTaxId::create($taxId),
@@ -33,8 +33,8 @@ class CreateRestaurantes
             RestaurantPassword::create($this->passwordHasher->hash($plainPassword)),
         );
 
-        $this->restaurantsRepository->save($restaurants);
+        $this->restaurantRepository->save($restaurant);
 
-        return CreateRestaurantesResponse::create($restaurants);
+        return CreateRestaurantResponse::create($restaurant);
     }
 }
