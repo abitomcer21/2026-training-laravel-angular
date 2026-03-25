@@ -58,7 +58,7 @@ class UserFactory extends Factory
         ]);
     }
 
-    public function forRestaurant($restaurant): static
+    public function forRestaurant(EloquentRestaurant|int $restaurant): static
     {
         return $this->state(fn (array $attributes) => [
             'restaurant_id' => $restaurant instanceof EloquentRestaurant ? $restaurant->id : $restaurant,

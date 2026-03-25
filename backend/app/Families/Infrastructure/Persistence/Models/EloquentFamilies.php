@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EloquentFamilies extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $table = 'families';
 
@@ -19,6 +20,11 @@ class EloquentFamilies extends Model
         'name',
         'activo',
     ];
+
+    public function getKeyName(): string
+    {
+        return 'id';
+    }
 
     protected static function newFactory(): FamilyFactory
     {
@@ -30,11 +36,6 @@ class EloquentFamilies extends Model
         return [
             'activo' => 'boolean',
         ];
-    }
-
-    public function getKeyName(): string
-    {
-        return 'id';
     }
 }
 
