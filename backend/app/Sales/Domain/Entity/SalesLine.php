@@ -12,7 +12,7 @@ class SalesLine
 {
     private Uuid $uuid;
     private Uuid $saleId;
-    private Uuid $productId;
+    private Uuid $orderLineId;
     private Uuid $userId;
     private Quantity $quantity;
     private SalesLinePrice $price;
@@ -23,7 +23,7 @@ class SalesLine
     private function __construct(
         Uuid $uuid,
         Uuid $saleId,
-        Uuid $productId,
+        Uuid $orderLineId,
         Uuid $userId,
         Quantity $quantity,
         SalesLinePrice $price,
@@ -33,7 +33,7 @@ class SalesLine
     ) {
         $this->uuid = $uuid;
         $this->saleId = $saleId;
-        $this->productId = $productId;
+        $this->orderLineId = $orderLineId;
         $this->userId = $userId;
         $this->quantity = $quantity;
         $this->price = $price;
@@ -44,7 +44,7 @@ class SalesLine
 
     public static function dddCreate(
         Uuid $saleId,
-        Uuid $productId,
+        Uuid $orderLineId,
         Uuid $userId,
         Quantity $quantity,
         SalesLinePrice $price,
@@ -53,7 +53,7 @@ class SalesLine
         return new self(
             Uuid::generate(),
             $saleId,
-            $productId,
+            $orderLineId,
             $userId,
             $quantity,
             $price,
@@ -66,7 +66,7 @@ class SalesLine
     public static function fromPersistence(
         string $uuid,
         string $saleId,
-        string $productId,
+        string $orderLineId,
         string $userId,
         int $quantity,
         int $price,
@@ -78,7 +78,7 @@ class SalesLine
         return new self(
             Uuid::create($uuid),
             Uuid::create($saleId),
-            Uuid::create($productId),
+            Uuid::create($orderLineId),
             Uuid::create($userId),
             Quantity::create($quantity),
             SalesLinePrice::create($price),
@@ -98,9 +98,9 @@ class SalesLine
         return $this->saleId;
     }
 
-    public function productId(): Uuid
+    public function orderLineId(): Uuid
     {
-        return $this->productId;
+        return $this->orderLineId;
     }
 
     public function userId(): Uuid

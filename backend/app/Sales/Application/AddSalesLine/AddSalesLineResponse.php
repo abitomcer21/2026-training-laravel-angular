@@ -9,7 +9,7 @@ class AddSalesLineResponse
     public function __construct(
         public readonly string $uuid,
         public readonly string $saleId,
-        public readonly string $productId,
+        public readonly string $orderLineId,
         public readonly string $userId,
         public readonly int $quantity,
         public readonly int $price,
@@ -24,7 +24,7 @@ class AddSalesLineResponse
         return new self(
             uuid: $salesLine->uuid()->value(),
             saleId: $salesLine->saleId()->value(),
-            productId: $salesLine->productId()->value(),
+            orderLineId: $salesLine->orderLineId()->value(),
             userId: $salesLine->userId()->value(),
             quantity: $salesLine->quantity()->value(),
             price: $salesLine->price()->value(),
@@ -40,7 +40,7 @@ class AddSalesLineResponse
         return [
             'uuid' => $this->uuid,
             'sale_id' => $this->saleId,
-            'product_id' => $this->productId,
+            'order_line_id' => $this->orderLineId,
             'user_id' => $this->userId,
             'quantity' => $this->quantity,
             'price' => $this->price,

@@ -17,7 +17,7 @@ class AddLineController
     {
         $validated = $request->validate([
             'sale_id' => 'required|string|uuid',
-            'product_id' => 'required|string|uuid',
+            'order_line_id' => 'required|string|uuid',
             'user_id' => 'required|string|uuid',
             'quantity' => 'required|integer|min:1',
             'price' => 'required|integer|min:0',
@@ -26,7 +26,7 @@ class AddLineController
 
         $addSalesLineRequest = new AddSalesLineRequest(
             saleId: $validated['sale_id'],
-            productId: $validated['product_id'],
+            orderLineId: $validated['order_line_id'],
             userId: $validated['user_id'],
             quantity: $validated['quantity'],
             price: $validated['price'],

@@ -2,9 +2,9 @@
 
 namespace App\Sales\Infrastructure\Persistence\Models;
 
+use App\Order\Infrastructure\Persistence\Models\EloquentOrderLine;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Products\Infrastructure\Persistence\Models\EloquentProducts;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
 
 class EloquentSalesLine extends Model
@@ -15,8 +15,9 @@ class EloquentSalesLine extends Model
 
     protected $fillable = [
         'uuid',
+        'restaurant_id',
         'sale_id',
-        'product_id',
+        'order_line_id',
         'user_id',
         'quantity',
         'price',
@@ -37,9 +38,9 @@ class EloquentSalesLine extends Model
         return $this->belongsTo(EloquentSales::class, 'sale_id');
     }
 
-    public function product()
+    public function orderLine()
     {
-        return $this->belongsTo(EloquentProducts::class, 'product_id');
+        return $this->belongsTo(EloquentOrderLine::class, 'order_line_id');
     }
 
     public function user()

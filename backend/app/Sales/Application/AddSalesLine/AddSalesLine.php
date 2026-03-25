@@ -8,33 +8,25 @@ use App\Sales\Domain\ValueObject\Quantity;
 use App\Sales\Domain\ValueObject\SalesLinePrice;
 use App\Sales\Domain\ValueObject\SalesLineTaxPercentage;
 use App\Shared\Domain\ValueObject\Uuid;
-use App\Products\Domain\Interfaces\ProductsRepositoryInterface;
 use App\User\Domain\Interfaces\UserRepositoryInterface;
 
 class AddSalesLine
 {
     public function __construct(
         private SalesRepositoryInterface $salesRepository,
-        private ProductsRepositoryInterface $productsRepository,
         private UserRepositoryInterface $userRepository,
     ) {}
 
     public function execute(AddSalesLineRequest $request): AddSalesLineResponse
     {
         $saleId = Uuid::create($request->saleId);
-        $productId = Uuid::create($request->productId);
+        $orderLineId = Uuid::create($request->orderLineId);
         $userId = Uuid::create($request->userId);
 
         // Validate sale exists
         $sale = $this->salesRepository->findById($request->saleId);
         if (!$sale) {
             throw new \InvalidArgumentException('Sale not found.');
-        }
-
-        // Validate product exists
-        $product = $this->productsRepository->findById($request->productId);
-        if (!$product) {
-            throw new \InvalidArgumentException('Product not found.');
         }
 
         // Validate user exists
@@ -49,7 +41,7 @@ class AddSalesLine
 
         $salesLine = SalesLine::dddCreate(
             $saleId,
-            $productId,
+            $orderLineId,
             $userId,
             $quantity,
             $price,

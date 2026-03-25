@@ -12,9 +12,9 @@ use App\Sales\Infrastructure\Persistence\Models\EloquentSales;
 use App\Sales\Infrastructure\Persistence\Models\EloquentSalesLine;
 use App\Shared\Domain\ValueObject\Uuid;
 use App\Shared\Domain\ValueObject\DomainDateTime;
+use App\Order\Infrastructure\Persistence\Models\EloquentOrderLine;
 use App\Tables\Infrastructure\Persistence\Models\EloquentTables;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
-use App\Products\Infrastructure\Persistence\Models\EloquentProducts;
 
 class EloquentSalesRepository implements SalesRepositoryInterface
 {
@@ -71,15 +71,22 @@ class EloquentSalesRepository implements SalesRepositoryInterface
 
     public function saveSalesLine(SalesLine $line): void
     {
-        $saleId = EloquentSales::where('uuid', $line->saleId()->value())->first()?->id;
-        $productId = EloquentProducts::where('uuid', $line->productId()->value())->first()?->id;
+        $sale = EloquentSales::where('uuid', $line->saleId()->value())->first();
+        $saleId = $sale?->id;
+        $restaurantId = $sale?->restaurant_id;
+        $orderLineId = EloquentOrderLine::where('uuid', $line->orderLineId()->value())->first()?->id;
         $userId = EloquentUser::where('uuid', $line->userId()->value())->first()?->id;
+
+        if ($saleId === null || $restaurantId === null || $orderLineId === null || $userId === null) {
+            throw new \InvalidArgumentException('Cannot create sales line with invalid related ids.');
+        }
 
         EloquentSalesLine::updateOrCreate(
             ['uuid' => $line->uuid()->value()],
             [
+                'restaurant_id' => $restaurantId,
                 'sale_id' => $saleId,
-                'product_id' => $productId,
+                'order_line_id' => $orderLineId,
                 'user_id' => $userId,
                 'quantity' => $line->quantity()->value(),
                 'price' => $line->price()->value(),
@@ -117,13 +124,17 @@ class EloquentSalesRepository implements SalesRepositoryInterface
     private function reconstructSalesLineFromEloquent(EloquentSalesLine $eloquentLine): SalesLine
     {
         $saleUuid = EloquentSales::find($eloquentLine->sale_id)?->uuid;
-        $productUuid = EloquentProducts::find($eloquentLine->product_id)?->uuid;
+        $orderLineUuid = EloquentOrderLine::find($eloquentLine->order_line_id)?->uuid;
         $userUuid = EloquentUser::find($eloquentLine->user_id)?->uuid;
+
+        if ($saleUuid === null || $orderLineUuid === null || $userUuid === null) {
+            throw new \InvalidArgumentException('Cannot reconstruct sales line with missing related records.');
+        }
 
         return SalesLine::fromPersistence(
             $eloquentLine->uuid,
             $saleUuid,
-            $productUuid,
+            $orderLineUuid,
             $userUuid,
             $eloquentLine->quantity,
             $eloquentLine->price,
