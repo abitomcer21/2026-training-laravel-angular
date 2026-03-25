@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tables', function (Blueprint $table) {
+        Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
-            $table->bigInteger('restaurant_id')->references('id')->on('restaurant');
-            $table->foreign('zone_id')->references('id')->on('zones');
-            $table->string('name');
+            $table->bigInteger('restaurant_id')->references('id')->on('restaurants');
+            $table->bigInteger('order_id')->references('id')->on('orders');
+            $table->bigInteger('user_id')->references('id')->on('users');
+            $table->integer('ticket_number');
+            $table->timestamp('value_date');
+            $table->integer('total');
             $table->timestamps();
             $table->softDeletes('deleted_at');
+
         });
     }
 
@@ -27,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tables');
+        Schema::dropIfExists('sales');
     }
 };

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('sales_lines', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->bigInteger('resturant_id')->references('id')->on('restaurant');
+            $table->bigInteger('resturant_id')->references('id')->on('restaurants');
             $table->bigInteger('sale_id')->references('id')->on('sales');
             $table->bigInteger('order_line_id')->references('id')->on('order_lines');
             $table->bigInteger('user_id')->references('id')->on('users');

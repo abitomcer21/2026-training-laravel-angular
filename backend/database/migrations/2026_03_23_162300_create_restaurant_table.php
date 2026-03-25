@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('taxes', function (Blueprint $table) {
+        Schema::create('restaurants', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
-            $table->bigInteger('restaurant_id')->references('id')->on('restaurant');
             $table->string('name');
-            $table->integer('percentage');
+            $table->string('legal_name');
+            $table->string('tax_id');
+            $table->string('email');
+            $table->string('password');
             $table->timestamps();
             $table->softDeletes('deleted_at');
         });
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('taxes');
+        Schema::dropIfExists('restaurants');
     }
 };

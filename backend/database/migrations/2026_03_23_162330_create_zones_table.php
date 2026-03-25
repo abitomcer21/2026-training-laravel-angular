@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('user', function (Blueprint $table) {
-            $table->string('uuid')->unique()->after('id');
-            $table->string('role');
-            $table->string('image_src');
+        Schema::create('zones', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('uuid')->nullable()->unique();
             $table->bigInteger('restaurant_id')->references('id')->on('restaurants');
-            $table->string('pin');
-            $table->softDeletes('deleted_at')->after('update_at');
+            $table->string('name');
+            $table->timestamps();
+            $table->softDeletes('deleted_at');
         });
     }
 
@@ -26,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('user', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('zones');
     }
 };

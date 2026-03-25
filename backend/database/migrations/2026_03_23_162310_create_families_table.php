@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('restaurant', function (Blueprint $table) {
+        Schema::create('families', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
+            $table->bigInteger('restaurant_id')->references('id')->on('restaurants');
             $table->string('name');
-            $table->string('legal_name');
-            $table->string('tax_id');
-            $table->string('email');
-            $table->string('password');
+            $table->boolean('activo');
             $table->timestamps();
             $table->softDeletes('deleted_at');
         });
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('restaurant');
+        Schema::dropIfExists('families');
     }
 };
