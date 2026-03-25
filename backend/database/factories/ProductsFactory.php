@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use App\Families\Infrastructure\Persistence\Models\EloquentFamilies;
-use App\Products\Infraestructure\Persistence\Models\EloquentProducts;
-use App\Restaurants\Infraestructure\Persistence\Models\EloquentRestaurant;
-use App\Taxes\Infraestructure\Persistence\Models\EloquentTaxes;
+use App\Products\Infrastructure\Persistence\Models\EloquentProducts;
+use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
+use App\Taxes\Infrastructure\Persistence\Models\EloquentTaxes;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

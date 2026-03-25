@@ -7,9 +7,9 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use App\Tables\Infraestructure\Persistence\Models\EloquentTables;
+use App\Tables\Infrastructure\Persistence\Models\EloquentTables;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
-use App\Products\Infraestructure\Persistence\Models\EloquentProducts;
+use App\Products\Infrastructure\Persistence\Models\EloquentProducts;
 
 class SalesSeeder extends Seeder
 {

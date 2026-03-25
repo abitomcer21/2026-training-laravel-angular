@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Families\Infraestructure\Persistence\Repositories;
+namespace App\Families\Infrastructure\Persistence\Repositories;
 
 use App\Families\Domain\Entity\Families;
 use App\Families\Domain\Interfaces\FamiliesRepositoryInterface;
-use App\Families\Infraestructure\Persistence\Models\EloquentFamilies;
+use App\Families\Infrastructure\Persistence\Models\EloquentFamilies;
 
 class EloquentFamiliesRepository implements FamiliesRepositoryInterface
 {

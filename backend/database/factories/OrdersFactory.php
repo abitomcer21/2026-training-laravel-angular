@@ -4,8 +4,8 @@ namespace Database\Factories;
 
 use App\Model;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Order\Insfraestructure\Persistence\Models\EloquentOrder;
-use App\Restaurants\Infraestructure\Persistence\Models\EloquentRestaurant;
+use App\Order\Infrastructure\Persistence\Models\EloquentOrder;
+use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Support\Str;
 

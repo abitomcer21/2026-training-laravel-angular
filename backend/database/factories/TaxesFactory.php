@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Restaurants\Infraestructure\Persistence\Models\EloquentRestaurant;
-use App\Taxes\Infraestructure\Persistence\Models\EloquentTaxes;
+use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
+use App\Taxes\Infrastructure\Persistence\Models\EloquentTaxes;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

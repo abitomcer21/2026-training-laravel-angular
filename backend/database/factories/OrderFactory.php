@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Order\Insfraestructure\Persistence\Models\EloquentOrder;
-use App\Restaurants\Infraestructure\Persistence\Models\EloquentRestaurant;
-use App\Tables\Infraestructure\Persistence\Models\EloquentTables;
+use App\Order\Infrastructure\Persistence\Models\EloquentOrder;
+use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
+use App\Tables\Infrastructure\Persistence\Models\EloquentTables;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;

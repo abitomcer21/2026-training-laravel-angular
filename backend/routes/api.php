@@ -2,12 +2,12 @@
 
 use App\User\Infrastructure\Entrypoint\Http\PostController as UserPostController;
 use App\Families\Infrastructure\Entrypoint\Http\PostController as FamiliesPostController;
-use App\Products\Infraestructure\Entrypoint\Http\PostController as ProductsPostController;
-use App\Taxes\Infraestructure\Entrypoint\Http\PostController as TaxesPostController;
-use App\Zones\Infraestructure\Entrypoint\Http\PostController as ZonesPostController;
-use App\Tables\Infraestructure\Entrypoint\Http\PostController as TablesPostController;
-use App\Sales\Infraestructure\Entrypoint\Http\PostController as SalesPostController;
-use App\Sales\Infraestructure\Entrypoint\Http\AddLineController;
+use App\Products\Infrastructure\Entrypoint\Http\PostController as ProductsPostController;
+use App\Taxes\Infrastructure\Entrypoint\Http\PostController as TaxesPostController;
+use App\Zones\Infrastructure\Entrypoint\Http\PostController as ZonesPostController;
+use App\Tables\Infrastructure\Entrypoint\Http\PostController as TablesPostController;
+use App\Sales\Infrastructure\Entrypoint\Http\PostController as SalesPostController;
+use App\Sales\Infrastructure\Entrypoint\Http\AddLineController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/users', UserPostController::class);

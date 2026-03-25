@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
-use App\Restaurants\Infraestructure\Persistence\Models\EloquentRestaurant;
+use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
