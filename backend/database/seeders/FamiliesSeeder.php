@@ -42,13 +42,13 @@ class FamiliesSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-             [
+            [
                 'uuid' => (string)Str::uuid(),
                 'name' => 'Familia 5',
                 'activo' => false,
                 'created_at' => $now,
                 'updated_at' => $now,
-            ], 
+            ],
             [
                 'uuid' => (string)Str::uuid(),
                 'name' => 'Familia 6',

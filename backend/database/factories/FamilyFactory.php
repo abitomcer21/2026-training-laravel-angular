@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Model;
+use App\Families\Infraestructure\Persistence\Models\EloquentFamilies;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
- * @extends Factory<Model>
+ * @extends Factory<EloquentFamilies>
  */
 class FamilyFactory extends Factory
 {
@@ -18,7 +19,10 @@ class FamilyFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'uuid' => (string) Str::uuid(),
+            'restaurant_id' => fake()->numberBetween(1, 10),
+            'name' => fake()->word(),
+            'activo' => fake()->boolean(),
         ];
     }
 }
