@@ -3,50 +3,65 @@
 namespace Database\Factories;
 
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
+use App\Restaurants\Infraestructure\Persistence\Models\EloquentRestaurant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-/**
- * @extends Factory<EloquentUser>
- */
 class UserFactory extends Factory
 {
     protected $model = EloquentUser::class;
 
-    /**
-     * The current password being used by the factory.
-     */
     protected static ?string $password;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
             'uuid' => (string) Str::uuid(),
-            'restaurant_id' => fake()->numberBetween(1, 10),
-            'role' => fake()->randomElement(['admin', 'waiter', 'chef']),
-            'image_src' => fake()->imageUrl(),
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'restaurant_id' => EloquentRestaurant::factory(),
+            'role' => $this->faker->randomElement(['admin', 'waiter', 'chef']),
+            'image_src' => $this->faker->imageUrl(),
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'pin' => fake()->numerify('####'),
+            'pin' => (string) $this->faker->unique()->numberBetween(1000, 9999),
             'remember_token' => Str::random(10),
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+        ]);
+    }
+
+    public function waiter(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'waiter',
+        ]);
+    }
+
+    public function chef(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'chef',
+        ]);
+    }
+
+    public function forRestaurant($restaurant): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'restaurant_id' => $restaurant instanceof EloquentRestaurant ? $restaurant->id : $restaurant,
         ]);
     }
 }
