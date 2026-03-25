@@ -14,12 +14,11 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
-            $table->unsignedBigInteger('restaurante_id');
-            $table->foreign('restaurante_id')->references('id')->on('restaurants');
+            $table->foreignId('restaurant_id')->constrained('restaurants');
             $table->string('status');
-            $table->bigInteger('table_id')->references('id')->on('tables');
-            $table->bigInteger('opened_by_user_id')->references('id')->on('users');
-            $table->bigInteger('closed_by_user_id')->references('id')->on('users')->nullable();
+            $table->foreignId('table_id')->constrained('tables');
+            $table->foreignId('opened_by_user_id')->constrained('users');
+            $table->foreignId('closed_by_user_id')->nullable()->constrained('users');
             $table->integer('diners'); 
             $table->timestamp('opened_at');
             $table->timestamp('closed_at')->nullable();

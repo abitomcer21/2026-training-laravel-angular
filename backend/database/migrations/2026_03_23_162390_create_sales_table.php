@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
-            $table->bigInteger('restaurant_id')->references('id')->on('restaurants');
-            $table->bigInteger('order_id')->references('id')->on('orders');
-            $table->bigInteger('user_id')->references('id')->on('users');
+            $table->foreignId('restaurant_id')->constrained('restaurants');
+            $table->foreignId('order_id')->constrained('orders');
+            $table->foreignId('user_id')->constrained('users');
             $table->integer('ticket_number');
             $table->timestamp('value_date');
             $table->integer('total');

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('families', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
-            $table->bigInteger('restaurant_id')->references('id')->on('restaurants');
+            $table->foreignId('restaurant_id')->constrained('restaurants');
             $table->string('name');
             $table->boolean('activo');
             $table->timestamps();

@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('order_lines', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
-            $table->unsignedBigInteger('restaurante_id');
-            $table->foreign('restaurante_id')->references('id')->on('restaurants');
-            $table->bigInteger('order_id')->references('id')->on('orders');
-            $table->bigInteger('product_id')->references('id')->on('products');
-            $table->bigInteger('user_id')->references('id')->on('users');
+            $table->foreignId('restaurant_id')->constrained('restaurants');
+            $table->foreignId('order_id')->constrained('orders');
+            $table->foreignId('product_id')->constrained('products');
+            $table->foreignId('user_id')->constrained('users');
             $table->integer('quantity');
             $table->integer('price');
             $table->integer('tax_percentage');

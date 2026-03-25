@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('role');
             $table->string('image_src');
-            $table->bigInteger('restaurant_id')->references('id')->on('restaurants');
+            $table->foreignId('restaurant_id')->constrained('restaurants');
             $table->string('pin');
             $table->softDeletes('deleted_at')->after('updated_at');
         });
@@ -26,7 +26,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropForeign(['restaurant_id']);
+            $table->dropColumn('restaurant_id');
+            $table->dropColumn('role');
+            $table->dropColumn('image_src');
+            $table->dropColumn('pin');
+            $table->dropSoftDeletes();
         });
     }
 };
