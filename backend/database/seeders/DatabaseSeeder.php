@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Families\Infraestructure\Persistence\Models\EloquentFamilies;
+use App\Families\Infrastructure\Persistence\Models\EloquentFamilies;
 use App\Restaurants\Infraestructure\Persistence\Models\EloquentRestaurant;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;

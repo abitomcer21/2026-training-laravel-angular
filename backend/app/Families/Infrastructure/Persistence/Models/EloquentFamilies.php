@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Families\Infraestructure\Persistence\Models;
+namespace App\Families\Infrastructure\Persistence\Models;
 
 use Database\Factories\FamilyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
