@@ -22,6 +22,8 @@ use App\Tables\Domain\Interfaces\TablesRepositoryInterface;
 use App\Tables\Infraestructure\Persistence\Repositories\EloquentTablesRepository;
 use App\Sales\Domain\Interfaces\SalesRepositoryInterface;
 use App\Sales\Infraestructure\Persistence\Repositories\EloquentSalesRepository;
+use App\Order\Domain\Interfaces\OrderRepositoryInterface;
+use App\Order\Insfraestructure\Persistence\Repositories\EloquentOrderRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -41,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ZonesRepositoryInterface::class, EloquentZonesRepository::class);
         $this->app->bind(TablesRepositoryInterface::class, EloquentTablesRepository::class);
         $this->app->bind(SalesRepositoryInterface::class, EloquentSalesRepository::class);
+        $this->app->bind(OrderRepositoryInterface::class, EloquentOrderRepository::class);
     }
 
     /**

@@ -2,38 +2,43 @@
 
 namespace App\Sales\Infraestructure\Persistence\Models;
 
+use Database\Factories\SalesFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EloquentSales extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $table = 'sales';
 
     protected $fillable = [
         'uuid',
-        'table_id',
-        'opened_by_user_id',
-        'closed_by_user_id',
-        'status',
-        'diners',
-        'opened_at',
-        'closed_at',
+        'restaurant_id',
+        'order_id',
+        'user_id',
         'ticket_number',
+        'value_date',
         'total',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'opened_at' => 'datetime',
-            'closed_at' => 'datetime',
-        ];
-    }
 
     public function getKeyName(): string
     {
         return 'id';
     }
+
+    protected static function newFactory(): SalesFactory
+    {
+        return SalesFactory::new();
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'value_date' => 'datetime',
+        ];
+    }
 }
+
