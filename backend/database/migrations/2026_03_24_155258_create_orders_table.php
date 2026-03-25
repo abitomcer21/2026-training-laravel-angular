@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
             $table->foreign('restaurante_id')->references('id')->on('restaurants');
+            $table->string('status');
             $table->bigInteger('table_id')->references('id')->on('tables');
             $table->bigInteger('opened_by_user_id')->references('id')->on('users');
             $table->bigInteger('closed_by_user_id')->references('id')->on('users')->nullable();

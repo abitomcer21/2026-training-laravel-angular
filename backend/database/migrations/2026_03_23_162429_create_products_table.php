@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
+            $table->bigInteger('restaurant_id')->references('id')->on('restaurant');
             $table->foreign('family_id')->references('id')->on('families');
             $table->foreign('tax_id')->references('id')->on('taxes');
             $table->string('image_src');

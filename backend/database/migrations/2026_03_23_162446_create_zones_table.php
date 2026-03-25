@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('zones', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
+            $table->bigInteger('restaurant_id')->references('id')->on('restaurant');
             $table->string('name');
             $table->timestamps();
             $table->softDeletes('deleted_at');

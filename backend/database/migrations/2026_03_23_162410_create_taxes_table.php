@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('taxes', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
+            $table->bigInteger('restaurant_id')->references('id')->on('restaurant');
             $table->string('name');
-            $table->integer('percentage');            
+            $table->integer('percentage');
             $table->timestamps();
             $table->softDeletes('deleted_at');
         });

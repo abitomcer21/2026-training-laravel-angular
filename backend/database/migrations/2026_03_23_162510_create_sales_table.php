@@ -14,14 +14,11 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
+            $table->bigInteger('restaurant_id')->references('id')->on('restaurant');
+            $table->bigInteger('order_id')->references('id')->on('orders');
+            $table->bigInteger('user_id')->references('id')->on('users');
             $table->integer('ticket_number');
-            $table->varchar('status');
-            $table->foreign('table_id')->references('id')->on('tables');
-            $table->foreign('opened_by_user_id')->references('id')->on('users');
-            $table->foreign('closed_by_user_id')->references('id')->on('users')->nullable();
-            $table->int('diners');
-            $table->timestamps('opened_at');
-            $table->timestamp('closed_at')->nullable();
+            $table->timestamp('value_date');
             $table->integer('total');
             $table->timestamps();
             $table->softDeletes('deleted_at');
