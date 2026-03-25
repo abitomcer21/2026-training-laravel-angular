@@ -2,17 +2,21 @@
 
 namespace App\Taxes\Infraestructure\Persistence\Models;
 
+use Database\Factories\TaxesFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EloquentTaxes extends Model
 {
+    use HasFactory;
     use SoftDeletes;
 
     protected $table = 'taxes';
 
     protected $fillable = [
         'uuid',
+        'restaurant_id',
         'name',
         'percentage',
     ];
@@ -21,4 +25,10 @@ class EloquentTaxes extends Model
     {
         return 'id';
     }
+
+    protected static function newFactory(): TaxesFactory
+    {
+        return TaxesFactory::new();
+    }
 }
+
