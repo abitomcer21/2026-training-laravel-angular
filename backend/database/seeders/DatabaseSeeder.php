@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Families\Infraestructure\Persistence\Models\EloquentFamilies;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,7 +19,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+    // User::factory(10)->create();
+
 
         $restaurantId = DB::table('restaurants')->insertGetId([
             'uuid' => (string) Str::uuid(),
