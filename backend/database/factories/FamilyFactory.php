@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Families\Infraestructure\Persistence\Models\EloquentFamilies;
+use App\Restaurants\Infraestructure\Persistence\Models\EloquentRestaurant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -11,18 +12,22 @@ use Illuminate\Support\Str;
  */
 class FamilyFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = EloquentFamilies::class;
+
     public function definition(): array
     {
         return [
             'uuid' => (string) Str::uuid(),
-            'restaurant_id' => fake()->numberBetween(1, 10),
+            'restaurant_id' => EloquentRestaurant::factory(),
             'name' => fake()->word(),
             'activo' => fake()->boolean(),
         ];
+    }
+
+    public function forRestaurant(EloquentRestaurant|int $restaurant): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'restaurant_id' => $restaurant instanceof EloquentRestaurant ? $restaurant->id : $restaurant,
+        ]);
     }
 }
