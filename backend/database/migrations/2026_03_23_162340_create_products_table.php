@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
             $table->bigInteger('restaurant_id')->references('id')->on('restaurants');
+            $table->unsignedBigInteger('family_id');
+            $table->unsignedBigInteger('tax_id');
             $table->foreign('family_id')->references('id')->on('families');
             $table->foreign('tax_id')->references('id')->on('taxes');
             $table->string('image_src');

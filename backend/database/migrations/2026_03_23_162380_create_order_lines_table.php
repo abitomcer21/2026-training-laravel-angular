@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('order_lines', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
+            $table->unsignedBigInteger('restaurante_id');
             $table->foreign('restaurante_id')->references('id')->on('restaurants');
             $table->bigInteger('order_id')->references('id')->on('orders');
             $table->bigInteger('product_id')->references('id')->on('products');

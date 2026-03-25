@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
             $table->bigInteger('restaurant_id')->references('id')->on('restaurants');
+            $table->unsignedBigInteger('zone_id');
             $table->foreign('zone_id')->references('id')->on('zones');
             $table->string('name');
             $table->timestamps();

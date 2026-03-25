@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('uuid')->unique()->after('id');
             $table->string('role');
             $table->string('image_src');
             $table->bigInteger('restaurant_id')->references('id')->on('restaurants');
