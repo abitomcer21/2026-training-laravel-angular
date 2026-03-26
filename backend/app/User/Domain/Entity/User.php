@@ -15,12 +15,24 @@ class User
         private UserName $name,
         private Email $email,
         private PasswordHash $passwordHash,
+        private string $role,
+        private ?string $imageSrc,
+        private ?int $restaurantId,
+        private string $pin,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-    ) {}
+    ) {
+    }
 
-    public static function dddCreate(Email $email, UserName $name, PasswordHash $passwordHash): self
-    {
+    public static function dddCreate(
+        Email $email,
+        UserName $name,
+        PasswordHash $passwordHash,
+        string $role,
+        string $pin,
+        ?string $imageSrc = null,
+        ?int $restaurantId = null,
+    ): self {
         $now = DomainDateTime::now();
 
         return new self(
@@ -28,6 +40,10 @@ class User
             $name,
             $email,
             $passwordHash,
+            $role,
+            $imageSrc,
+            $restaurantId,
+            $pin,
             $now,
             $now,
         );
@@ -40,12 +56,20 @@ class User
         string $passwordHash,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
+        string $role = 'customer',
+        ?string $imageSrc = null,
+        ?int $restaurantId = null,
+        string $pin = '',
     ): self {
         return new self(
             Uuid::create($id),
             UserName::create($name),
             Email::create($email),
             PasswordHash::create($passwordHash),
+            $role,
+            $imageSrc,
+            $restaurantId,
+            $pin,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
         );
@@ -69,6 +93,26 @@ class User
     public function passwordHash(): string
     {
         return $this->passwordHash->value();
+    }
+
+    public function role(): string
+    {
+        return $this->role;
+    }
+
+    public function imageSrc(): ?string
+    {
+        return $this->imageSrc;
+    }
+
+    public function restaurantId(): ?int
+    {
+        return $this->restaurantId;
+    }
+
+    public function pin(): string
+    {
+        return $this->pin;
     }
 
     public function createdAt(): DomainDateTime

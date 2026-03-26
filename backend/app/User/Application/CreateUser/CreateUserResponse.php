@@ -10,9 +10,14 @@ final readonly class CreateUserResponse
         public string $id,
         public string $name,
         public string $email,
+        public string $role,
+        public string $pin,
+        public ?string $imageSrc,
+        public ?int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
-    ) {}
+    ) {
+    }
 
     public static function create(User $user): self
     {
@@ -20,20 +25,25 @@ final readonly class CreateUserResponse
             id: $user->id()->value(),
             name: $user->name(),
             email: $user->email()->value(),
+            role: $user->role(),
+            pin: $user->pin(),
+            imageSrc: $user->imageSrc(),
+            restaurantId: $user->restaurantId(),
             createdAt: $user->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $user->updatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
 
-    /**
-     * @return array<string, string>
-     */
     public function toArray(): array
     {
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'role' => $this->role,
+            'pin' => $this->pin,
+            'image_src' => $this->imageSrc,
+            'restaurant_id' => $this->restaurantId,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
         ];

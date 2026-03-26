@@ -16,17 +16,21 @@ class UserFactory extends Factory
 
     public function definition(): array
     {
+        $firstName = $this->faker->firstName();
+        $lastName  = $this->faker->lastName();
+        $slug      = strtolower($firstName . '.' . $lastName);
+
         return [
-            'uuid' => (string) Str::uuid(),
-            'restaurant_id' => EloquentRestaurant::factory(),
-            'role' => $this->faker->randomElement(['admin', 'waiter', 'chef']),
-            'image_src' => $this->faker->imageUrl(),
-            'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'pin' => (string) $this->faker->unique()->numberBetween(1000, 9999),
-            'remember_token' => Str::random(10),
+            'uuid'               => (string) Str::uuid(),
+            'restaurant_id'      => EloquentRestaurant::factory(),
+            'role'               => $this->faker->randomElement(['admin', 'waiter', 'chef']),
+            'image_src'          => null,
+            'name'               => "$firstName $lastName",
+            'email'              => "$slug@restaurant.test",
+            'email_verified_at'  => now(),
+            'password'           => static::$password ??= Hash::make('password'),
+            'pin'                => (string) $this->faker->unique()->numberBetween(1000, 9999),
+            'remember_token'     => Str::random(10),
         ];
     }
 

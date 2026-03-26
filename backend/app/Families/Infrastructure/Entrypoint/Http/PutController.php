@@ -2,23 +2,26 @@
 
 namespace App\Families\Infrastructure\Entrypoint\Http;
 
-use App\Families\Application\CreateFamily\CreateFamily;
+use App\Families\Application\UpdateFamily\UpdateFamily;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class PostController
+class PutController
 {
     public function __construct(
-        private CreateFamily $createFamily,
+        private UpdateFamily $updateFamily,
     ) {}
 
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make([
+            ...$request->all(),
+            'id' => $id,
+        ], [
+            'id' => ['required', 'uuid'],
             'name' => ['required', 'string', 'max:255'],
             'activo' => ['required', 'boolean'],
-            'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
         ]);
 
         if ($validator->fails()) {
@@ -30,12 +33,18 @@ class PostController
 
         $validated = $validator->validated();
 
-        $response = ($this->createFamily)(
+        $response = ($this->updateFamily)(
+            $id,
             $validated['name'],
             $validated['activo'],
-            $validated['restaurant_id'],
         );
 
-        return new JsonResponse($response->toArray(), 201);
+        if ($response === null) {
+            return new JsonResponse([
+                'message' => 'Family not found',
+            ], 404);
+        }
+
+        return new JsonResponse($response->toArray(), 200);
     }
 }

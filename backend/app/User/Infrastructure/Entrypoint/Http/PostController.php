@@ -15,15 +15,23 @@ class PostController
     public function __invoke(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'name'          => ['required', 'string', 'max:255'],
+            'email'         => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password'      => ['required', 'string', 'min:8', 'confirmed'],
+            'role'          => ['required', 'string'],
+            'pin'           => ['required', 'string', 'regex:/^\d{4,6}$/'],
+            'image_src'     => ['nullable', 'string'],
+            'restaurant_id' => ['nullable', 'integer'],
         ]);
 
         $response = ($this->createUser)(
             $validated['email'],
             $validated['name'],
             $validated['password'],
+            $validated['role'],
+            $validated['pin'],
+            $validated['image_src'] ?? null,
+            $validated['restaurant_id'] ?? null,
         );
 
         return new JsonResponse($response->toArray(), 201);

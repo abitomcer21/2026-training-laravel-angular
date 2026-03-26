@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role');
-            $table->string('image_src');
-            $table->foreignId('restaurant_id')->constrained('restaurants');
-            $table->string('pin');
+            $table->string('role')->after('password');
+            $table->string('image_src')->after('role')->nullable();
+            $table->foreignId('restaurant_id')->constrained('restaurants')->after('image_src')->nullable();
+            $table->string('pin')->after('restaurant_id')->nullable();
             $table->softDeletes('deleted_at')->after('updated_at');
         });
     }

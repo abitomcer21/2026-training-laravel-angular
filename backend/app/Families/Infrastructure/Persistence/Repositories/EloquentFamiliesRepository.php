@@ -2,24 +2,28 @@
 
 namespace App\Families\Infrastructure\Persistence\Repositories;
 
-use App\Families\Domain\Entity\Families;
-use App\Families\Domain\Interfaces\FamiliesRepositoryInterface;
+use App\Families\Domain\Entity\Family;
+use App\Families\Domain\Interfaces\FamilyRepositoryInterface;
 use App\Families\Infrastructure\Persistence\Models\EloquentFamilies;
 
-class EloquentFamiliesRepository implements FamiliesRepositoryInterface
+class EloquentFamiliesRepository implements FamilyRepositoryInterface
 {
-    public function save(Families $families): void
+    public function save(Family $family): void
     {
         EloquentFamilies::updateOrCreate(
-            ['uuid' => $families->id()->value()],
+            ['uuid' => $family->id()->value()],
             [
-                'name' => $families->name(),
-                'activo' => $families->status()->value(),
+                'restaurant_id' => $family->restaurantId(),
+                'name'          => $family->name(),
+                'activo'        => $family->status()->value(),
+                'created_at'    => $family->createdAt()->value(),
+                'updated_at'    => $family->updatedAt()->value(),
+                'deleted_at'    => $family->deletedAt()?->value(),
             ],
         );
     }
 
-    public function findById(string $id): ?Families
+    public function findById(string $id): ?Family
     {
         $eloquentFamilies = EloquentFamilies::where('uuid', $id)->first();
 
@@ -27,13 +31,14 @@ class EloquentFamiliesRepository implements FamiliesRepositoryInterface
             return null;
         }
 
-        return Families::fromPersistence(
+        return Family::fromPersistence(
             $eloquentFamilies->uuid,
             $eloquentFamilies->name,
             $eloquentFamilies->activo,
-            $eloquentFamilies->created_at,
-            $eloquentFamilies->updated_at,
-            $eloquentFamilies->deleted_at,
+            $eloquentFamilies->restaurant_id,
+            $eloquentFamilies->created_at->toDateTimeImmutable(),
+            $eloquentFamilies->updated_at->toDateTimeImmutable(),
+            $eloquentFamilies->deleted_at?->toDateTimeImmutable(),
         );
     }
 }

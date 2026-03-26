@@ -7,18 +7,20 @@ use App\Families\Domain\ValueObject\FamilyStatus;
 use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Shared\Domain\ValueObject\Uuid;
 
-class Families
+class Family
 {
     private function __construct(
         private Uuid $id,
         private FamilyName $name,
         private FamilyStatus $status,
+        private int $restaurantId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
         private ?DomainDateTime $deletedAt = null,
-    ) {}
+    ) {
+    }
 
-    public static function dddCreate(FamilyName $name, FamilyStatus $status): self
+    public static function dddCreate(FamilyName $name, FamilyStatus $status, int $restaurantId): self
     {
         $now = DomainDateTime::now();
 
@@ -26,6 +28,7 @@ class Families
             Uuid::generate(),
             $name,
             $status,
+            $restaurantId,
             $now,
             $now,
         );
@@ -35,6 +38,7 @@ class Families
         string $id,
         string $name,
         bool $activo,
+        int $restaurantId,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
         ?\DateTimeImmutable $deletedAt = null,
@@ -43,6 +47,7 @@ class Families
             Uuid::create($id),
             FamilyName::create($name),
             FamilyStatus::create($activo),
+            $restaurantId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
             $deletedAt ? DomainDateTime::create($deletedAt) : null,
@@ -64,6 +69,11 @@ class Families
         return $this->status;
     }
 
+    public function restaurantId(): int
+    {
+        return $this->restaurantId;
+    }
+
     public function createdAt(): DomainDateTime
     {
         return $this->createdAt;
@@ -77,5 +87,23 @@ class Families
     public function deletedAt(): ?DomainDateTime
     {
         return $this->deletedAt;
+    }
+
+    public function updateName(FamilyName $name): void
+    {
+        $this->name = $name;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updateStatus(FamilyStatus $status): void
+    {
+        $this->status = $status;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function markAsDeleted(): void
+    {
+        $this->deletedAt = DomainDateTime::now();
+        $this->updatedAt = DomainDateTime::now();
     }
 }

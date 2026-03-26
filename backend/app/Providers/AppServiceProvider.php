@@ -6,7 +6,7 @@ use App\User\Domain\Interfaces\PasswordHasherInterface;
 use App\User\Domain\Interfaces\UserRepositoryInterface;
 use App\User\Infrastructure\Persistence\Repositories\EloquentUserRepository;
 use App\User\Infrastructure\Services\LaravelPasswordHasher;
-use App\Families\Domain\Interfaces\FamiliesRepositoryInterface;
+use App\Families\Domain\Interfaces\FamilyRepositoryInterface;
 use App\Families\Infrastructure\Persistence\Repositories\EloquentFamiliesRepository;
 use App\Products\Domain\Interfaces\ProductsRepositoryInterface;
 use App\Products\Infrastructure\Persistence\Repositories\EloquentProductsRepository;
@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
         $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
-        $this->app->bind(FamiliesRepositoryInterface::class, EloquentFamiliesRepository::class);
+        $this->app->bind(FamilyRepositoryInterface::class, EloquentFamiliesRepository::class);
         $this->app->bind(RestaurantRepositoryInterface::class, EloquentRestaurantRepository::class);
         $this->app->bind(RestaurantPasswordHasherInterface::class, LaravelRestaurantPasswordHasher::class);
         $this->app->bind(ProductsRepositoryInterface::class, EloquentProductsRepository::class);
