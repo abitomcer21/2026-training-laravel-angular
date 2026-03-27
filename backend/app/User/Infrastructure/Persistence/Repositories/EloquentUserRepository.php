@@ -51,4 +51,22 @@ class EloquentUserRepository implements UserRepositoryInterface
             $model->pin,
         );
     }
+
+    public function all(): array
+    {
+        return $this->model->newQuery()->get()->map(
+            fn (EloquentUser $model) => User::fromPersistence(
+                $model->uuid,
+                $model->name,
+                $model->email,
+                $model->password,
+                $model->created_at->toDateTimeImmutable(),
+                $model->updated_at->toDateTimeImmutable(),
+                $model->role,
+                $model->image_src,
+                $model->restaurant_id,
+                $model->pin,
+            )
+        )->toArray();
+    }
 }

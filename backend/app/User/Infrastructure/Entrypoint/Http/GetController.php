@@ -1,17 +1,16 @@
 <?php
 
-namespace App\Families\Infrastructure\Entrypoint\Http;
+namespace App\User\Infrastructure\Entrypoint\Http;
 
-use App\Families\Application\GetFamily\GetFamily;
+use App\User\Application\GetUser\GetUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
 class GetController
 {
     public function __construct(
-        private GetFamily $getFamily,
-    ) {
-    }
+        private GetUser $getUser,
+    ) {}
 
     public function __invoke(string $id): JsonResponse
     {
@@ -28,14 +27,13 @@ class GetController
             ], 422);
         }
 
-        $response = ($this->getFamily)($id);
-
-        if ($response === null) {
+        try {
+            $response = ($this->getUser)($id);
+            return new JsonResponse($response->toArray(), 200);
+        } catch (\Exception $exception) {
             return new JsonResponse([
-                'message' => 'Error not found',
+                'message' => 'User not found',
             ], 404);
         }
-
-        return new JsonResponse($response->toArray(), 200);
     }
 }

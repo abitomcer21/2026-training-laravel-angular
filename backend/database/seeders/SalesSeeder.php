@@ -24,7 +24,7 @@ class SalesSeeder extends Seeder
             return;
         }
 
-        $ticketNumber = 1000;
+        $ticketNumber = 1;
 
         foreach ($closedOrders as $order) {
             $user = EloquentUser::query()->find($order->closed_by_user_id ?? $order->opened_by_user_id);

@@ -9,9 +9,7 @@ use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-/**
- * @extends Factory<EloquentSales>
- */
+
 class SalesFactory extends Factory
 {
     protected $model = EloquentSales::class;

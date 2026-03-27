@@ -8,12 +8,14 @@ use App\User\Domain\Interfaces\PasswordHasherInterface;
 use App\User\Domain\Interfaces\UserRepositoryInterface;
 use App\User\Domain\ValueObject\PasswordHash;
 use App\User\Domain\ValueObject\UserName;
+use App\User\Domain\ValueObject\Pin;
 
 class CreateUser
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private PasswordHasherInterface $passwordHasher,
+
     ) {}
 
     public function __invoke(
@@ -29,7 +31,19 @@ class CreateUser
         $nameVO = UserName::create($name);
         $passwordHashVO = PasswordHash::create($this->passwordHasher->hash($plainPassword));
 
-        $user = User::dddCreate($emailVO, $nameVO, $passwordHashVO, $role, $pin, $imageSrc, $restaurantId);
+        $pinVO = Pin::create($pin);
+
+        $user = User::dddCreate(
+            email: $emailVO,
+            name: $nameVO,
+            passwordHash: $passwordHashVO,
+            role: $role,
+            pin: $pinVO,
+            imageSrc: $imageSrc,
+            restaurantId: $restaurantId,
+        );
+
+
         $this->userRepository->save($user);
 
         return CreateUserResponse::create($user);

@@ -7,6 +7,7 @@ use App\Shared\Domain\ValueObject\Email;
 use App\Shared\Domain\ValueObject\Uuid;
 use App\User\Domain\ValueObject\PasswordHash;
 use App\User\Domain\ValueObject\UserName;
+USE App\User\Domain\ValueObject\Pin;
 
 class User
 {
@@ -18,7 +19,7 @@ class User
         private string $role,
         private ?string $imageSrc,
         private ?int $restaurantId,
-        private string $pin,
+        private Pin $pin,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
     ) {
@@ -29,7 +30,7 @@ class User
         UserName $name,
         PasswordHash $passwordHash,
         string $role,
-        string $pin,
+        Pin $pin,
         ?string $imageSrc = null,
         ?int $restaurantId = null,
     ): self {
@@ -56,10 +57,10 @@ class User
         string $passwordHash,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        string $role = 'customer',
+        string $role = 'admin',
         ?string $imageSrc = null,
         ?int $restaurantId = null,
-        string $pin = '',
+        string $pin = '0000',
     ): self {
         return new self(
             Uuid::create($id),
@@ -69,7 +70,7 @@ class User
             $role,
             $imageSrc,
             $restaurantId,
-            $pin,
+            Pin::create($pin),
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
         );
@@ -112,7 +113,7 @@ class User
 
     public function pin(): string
     {
-        return $this->pin;
+        return $this->pin->value();
     }
 
     public function createdAt(): DomainDateTime

@@ -1,0 +1,32 @@
+<?php
+
+namespace App\User\Domain\ValueObject;
+
+class Pin
+{
+    private const LENGTH = 4;
+
+    private string $value;
+
+
+    private function __construct(string $value)
+    {
+        if (!preg_match('/^\d{' . self::LENGTH . '}$/', $value)) {
+            throw new \InvalidArgumentException(
+                sprintf('Pin must be exactly %d digits.', self::LENGTH)
+            );
+        }
+        $this->value = $value;
+    }
+
+    public static function create(string $value): self
+    {
+        return new self($value);
+    }
+
+    public function value(): string
+    {
+        return $this->value;
+    }
+}
+

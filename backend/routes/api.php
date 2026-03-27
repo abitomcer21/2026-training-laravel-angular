@@ -1,5 +1,7 @@
 <?php
 
+use App\User\Infrastructure\Entrypoint\Http\GetController as UserGetController;
+use App\User\Infrastructure\Entrypoint\Http\GetAllController as UserGetAllController;
 use App\User\Infrastructure\Entrypoint\Http\PostController as UserPostController;
 use App\Families\Infrastructure\Entrypoint\Http\DeleteController as FamiliesDeleteController;
 use App\Families\Infrastructure\Entrypoint\Http\GetController as FamiliesGetController;
@@ -14,13 +16,5 @@ use App\Sales\Infrastructure\Entrypoint\Http\AddLineController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/users', UserPostController::class);
-Route::post('/families', FamiliesPostController::class);
-Route::get('/families/{id}', FamiliesGetController::class);
-Route::put('/families/{id}', FamiliesPutController::class);
-Route::delete('/families/{id}', FamiliesDeleteController::class);
-Route::post('/products', ProductsPostController::class);
-Route::post('/taxes', TaxesPostController::class);
-Route::post('/zones', ZonesPostController::class);
-Route::post('/tables', TablesPostController::class);
-Route::post('/sales', SalesPostController::class);
-Route::post('/sales/{sale_id}/lines', AddLineController::class);
+Route::get('/users', UserGetAllController::class);
+Route::get('/users/{id}', UserGetController::class);

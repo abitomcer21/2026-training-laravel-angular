@@ -19,9 +19,9 @@ class PostController
             'email'         => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password'      => ['required', 'string', 'min:8', 'confirmed'],
             'role'          => ['required', 'string'],
-            'pin'           => ['required', 'string', 'regex:/^\d{4,6}$/'],
+            'pin'           => ['required', 'string', 'regex:/^\d{4}$/'],
             'image_src'     => ['nullable', 'string'],
-            'restaurant_id' => ['nullable', 'integer'],
+            'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
         ]);
 
         $response = ($this->createUser)(
@@ -31,7 +31,7 @@ class PostController
             $validated['role'],
             $validated['pin'],
             $validated['image_src'] ?? null,
-            $validated['restaurant_id'] ?? null,
+            $validated['restaurant_id'],
         );
 
         return new JsonResponse($response->toArray(), 201);
