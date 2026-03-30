@@ -1,6 +1,6 @@
 <?php
 
-namespace App\User\Application\GetUsers;
+namespace App\User\Application\GetAllUsers;
 
 use App\User\Domain\Entity\User;
 
@@ -24,7 +24,7 @@ final readonly class GetAllUsersResponse
                 'id' => $user->id()->value(),
                 'name' => $user->name(),
                 'email' => $user->email()->value(),
-                'role' => $user->role(),
+                'role' => $user->role()->value(),
                 'pin' => $user->pin(),
                 'image_src' => $user->imageSrc(),
                 'restaurant_id' => $user->restaurantId(),

@@ -2,7 +2,7 @@
 
 namespace App\User\Infrastructure\Entrypoint\Http;
 
-use App\User\Application\GetUsers\GetAllUsers;
+use App\User\Application\GetAllUsers\GetAllUsers;
 use Illuminate\Http\JsonResponse;
 
 final class GetAllController

@@ -2,22 +2,28 @@
 
 namespace App\User\Infrastructure\Entrypoint\Http;
 
-use App\User\Application\GetUser\GetUser;
+use App\User\Application\UpdateUser\UpdateUser;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class GetController
+class PutController
 {
     public function __construct(
-        private GetUser $getUser,
-    ) {}
+        private UpdateUser $updateUser,
+    ) {
+    }
 
-    public function __invoke(string $id): JsonResponse
+    public function __invoke(Request $request, string $id): JsonResponse
     {
         $validator = Validator::make([
+            ...$request->all(),
             'id' => $id,
         ], [
             'id' => ['required', 'uuid'],
+            'name' => ['required', 'string', 'max:255'],
+            'role' => ['required', 'string', 'in:admin,cashier,waiter,chef'],
+            'pin' => ['required', 'string', 'regex:/^\d{4}$/'],
         ]);
 
         if ($validator->fails()) {
@@ -27,7 +33,14 @@ class GetController
             ], 422);
         }
 
-        $response = ($this->getUser)($id);
+        $validated = $validator->validated();
+
+        $response = ($this->updateUser)(
+            $id,
+            $validated['name'],
+            $validated['role'],
+            $validated['pin'],
+        );
 
         if ($response === null) {
             return new JsonResponse([

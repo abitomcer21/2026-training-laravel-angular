@@ -1,9 +1,8 @@
 <?php
 
-namespace App\User\Application\GetUsers;
+namespace App\User\Application\GetAllUsers;
 
 use App\User\Domain\Interfaces\UserRepositoryInterface;
-use App\User\Application\GetUsers\GetAllUsersResponse;
 
 
 class GetAllUsers

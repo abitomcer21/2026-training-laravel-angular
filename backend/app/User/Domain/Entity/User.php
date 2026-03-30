@@ -5,9 +5,10 @@ namespace App\User\Domain\Entity;
 use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Shared\Domain\ValueObject\Email;
 use App\Shared\Domain\ValueObject\Uuid;
+use App\User\Domain\ValueObject\Pin;
 use App\User\Domain\ValueObject\PasswordHash;
 use App\User\Domain\ValueObject\UserName;
-USE App\User\Domain\ValueObject\Pin;
+use App\User\Domain\ValueObject\Role;
 
 class User
 {
@@ -16,20 +17,20 @@ class User
         private UserName $name,
         private Email $email,
         private PasswordHash $passwordHash,
-        private string $role,
+        private Role $role,
         private ?string $imageSrc,
         private ?int $restaurantId,
         private Pin $pin,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-    ) {
-    }
+        private ?DomainDateTime $deletedAt = null,
+    ) {}
 
     public static function dddCreate(
         Email $email,
         UserName $name,
         PasswordHash $passwordHash,
-        string $role,
+        Role $role,
         Pin $pin,
         ?string $imageSrc = null,
         ?int $restaurantId = null,
@@ -57,22 +58,24 @@ class User
         string $passwordHash,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        string $role = 'admin',
+        ?string $role = null,
         ?string $imageSrc = null,
         ?int $restaurantId = null,
         string $pin = '0000',
+        ?\DateTimeImmutable $deletedAt = null,
     ): self {
         return new self(
             Uuid::create($id),
             UserName::create($name),
             Email::create($email),
             PasswordHash::create($passwordHash),
-            $role,
+            Role::create($role ?? Role::ADMIN),
             $imageSrc,
             $restaurantId,
             Pin::create($pin),
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
+            $deletedAt ? DomainDateTime::create($deletedAt) : null,
         );
     }
 
@@ -96,7 +99,7 @@ class User
         return $this->passwordHash->value();
     }
 
-    public function role(): string
+    public function role(): Role
     {
         return $this->role;
     }
@@ -121,8 +124,37 @@ class User
         return $this->createdAt;
     }
 
+    public function updateName(UserName $name): void
+    {
+        $this->name = $name;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updatePin(Pin $pin): void
+    {
+        $this->pin = $pin;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updateRole(Role $role): void
+    {
+        $this->role = $role;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
     public function updatedAt(): DomainDateTime
     {
         return $this->updatedAt;
+    }
+
+    public function markAsDeleted(): void
+    {
+        $this->deletedAt = DomainDateTime::now();
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function deletedAt(): ?DomainDateTime
+    {
+        return $this->deletedAt;
     }
 }

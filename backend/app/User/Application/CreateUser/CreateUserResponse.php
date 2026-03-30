@@ -25,7 +25,7 @@ final readonly class CreateUserResponse
             id: $user->id()->value(),
             name: $user->name(),
             email: $user->email()->value(),
-            role: $user->role(),
+            role: $user->role()->value(),
             pin: $user->pin(),
             imageSrc: $user->imageSrc(),
             restaurantId: $user->restaurantId(),

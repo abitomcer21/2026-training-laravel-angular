@@ -1,24 +1,22 @@
 <?php
 
-namespace App\User\Application\GetUser;
+namespace App\User\Application\UpdateUser;
 
 use App\User\Domain\Entity\User;
-use App\User\Domain\ValueObject\Role;
 
 
-final readonly class GetUserResponse
+final readonly class UpdateUserResponse
 {
     public function __construct(
         public string $id,
         public string $name,
         public string $email,
-        private Role $role,
+        public string $role,
+        public string $pin,
         public ?string $imageSrc,
         public ?int $restaurantId,
-        public string $pin,
         public string $createdAt,
         public string $updatedAt,
-        public ?string $deletedAt = null,
     ) {}
 
     public static function create(User $user): self
@@ -27,13 +25,12 @@ final readonly class GetUserResponse
             id: $user->id()->value(),
             name: $user->name(),
             email: $user->email()->value(),
-            role: $user->role(),
+            role: $user->role()->value(),
+            pin: $user->pin(),
             imageSrc: $user->imageSrc(),
             restaurantId: $user->restaurantId(),
-            pin: $user->pin(),
             createdAt: $user->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $user->updatedAt()->format(\DateTimeInterface::ATOM),
-            deletedAt: $user->deletedAt() ? $user->deletedAt()->format(\DateTimeInterface::ATOM) : null,
         );
     }
 
@@ -43,13 +40,12 @@ final readonly class GetUserResponse
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'role' => $this->role->value(),
+            'role' => $this->role,
             'pin' => $this->pin,
             'image_src' => $this->imageSrc,
             'restaurant_id' => $this->restaurantId,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
-            'deleted_at' => $this->deletedAt,
         ];
     }
 }

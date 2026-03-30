@@ -9,6 +9,7 @@ use App\User\Domain\Interfaces\UserRepositoryInterface;
 use App\User\Domain\ValueObject\PasswordHash;
 use App\User\Domain\ValueObject\UserName;
 use App\User\Domain\ValueObject\Pin;
+use App\User\Domain\ValueObject\Role;
 
 class CreateUser
 {
@@ -29,6 +30,7 @@ class CreateUser
     ): CreateUserResponse {
         $emailVO = Email::create($email);
         $nameVO = UserName::create($name);
+        $roleVO = Role::create($role);
         $passwordHashVO = PasswordHash::create($this->passwordHasher->hash($plainPassword));
 
         $pinVO = Pin::create($pin);
@@ -37,7 +39,7 @@ class CreateUser
             email: $emailVO,
             name: $nameVO,
             passwordHash: $passwordHashVO,
-            role: $role,
+            role: $roleVO,
             pin: $pinVO,
             imageSrc: $imageSrc,
             restaurantId: $restaurantId,

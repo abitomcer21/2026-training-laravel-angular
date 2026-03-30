@@ -1,16 +1,17 @@
 <?php
-
 namespace App\User\Infrastructure\Entrypoint\Http;
 
-use App\User\Application\GetUser\GetUser;
+use App\User\Application\DeleteUser\DeleteUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
-class GetController
+class DeleteController 
 {
     public function __construct(
-        private GetUser $getUser,
-    ) {}
+        private DeleteUser $deleteUser,
+    ){
+
+    }
 
     public function __invoke(string $id): JsonResponse
     {
@@ -27,14 +28,14 @@ class GetController
             ], 422);
         }
 
-        $response = ($this->getUser)($id);
+        $deleted = ($this->deleteUser)($id);
 
-        if ($response === null) {
+        if (!$deleted) {
             return new JsonResponse([
                 'message' => 'User not found',
             ], 404);
         }
 
-        return new JsonResponse($response->toArray(), 200);
+        return new JsonResponse(null, 204);
     }
 }

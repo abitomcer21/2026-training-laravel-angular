@@ -14,20 +14,26 @@ class EloquentUserRepository implements UserRepositoryInterface
 
     public function save(User $user): void
     {
-        $this->model->newQuery()->updateOrCreate(
-            ['uuid' => $user->id()->value()],
-            [
-                'role' => $user->role(),
-                'image_src' => $user->imageSrc(),
-                'restaurant_id' => $user->restaurantId(),
-                'name' => $user->name(),
-                'email' => $user->email()->value(),
-                'password' => $user->passwordHash(),
-                'pin' => $user->pin(),
-                'created_at' => $user->createdAt()->value(),
-                'updated_at' => $user->updatedAt()->value(),
-            ],
-        );
+        $model = $this->model->newQuery()->firstOrNew(['uuid' => $user->id()->value()]);
+
+        if (!$model->exists) {
+            $model->created_at = $user->createdAt()->value();
+        }
+
+        $model->fill([
+            'role' => $user->role()->value(),
+            'image_src' => $user->imageSrc(),
+            'restaurant_id' => $user->restaurantId(),
+            'name' => $user->name(),
+            'email' => $user->email()->value(),
+            'password' => $user->passwordHash(),
+            'pin' => $user->pin(),
+        ]);
+
+        $model->updated_at = $user->updatedAt()->value();
+        $model->deleted_at = $user->deletedAt()?->value();
+
+        $model->save();
     }
 
     public function findById(string $id): ?User
@@ -49,6 +55,7 @@ class EloquentUserRepository implements UserRepositoryInterface
             $model->image_src,
             $model->restaurant_id,
             $model->pin,
+            $model->deleted_at?->toDateTimeImmutable(),
         );
     }
 
@@ -66,6 +73,7 @@ class EloquentUserRepository implements UserRepositoryInterface
                 $model->image_src,
                 $model->restaurant_id,
                 $model->pin,
+                $model->deleted_at?->toDateTimeImmutable(),
             )
         )->toArray();
     }

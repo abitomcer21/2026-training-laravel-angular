@@ -29,4 +29,3 @@ class Pin
         return $this->value;
     }
 }
-
