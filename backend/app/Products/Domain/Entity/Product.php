@@ -10,7 +10,7 @@ use App\Products\Domain\ValueObject\Stock;
 use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Shared\Domain\ValueObject\Uuid;
 
-class Products
+class Product
 {
     private function __construct(
         private Uuid $id,

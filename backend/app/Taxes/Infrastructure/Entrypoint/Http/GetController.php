@@ -1,27 +1,23 @@
 <?php
 
-namespace App\Families\Infrastructure\Entrypoint\Http;
+namespace App\Taxes\Infrastructure\Entrypoint\Http;
 
-use App\Families\Application\UpdateFamily\UpdateFamily;
+use App\Taxes\Application\GetTaxes\GetTaxes;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class PutController
+class GetController
 {
     public function __construct(
-        private UpdateFamily $updateFamily,
+        private GetTaxes $getTaxes,
     ) {}
 
-    public function __invoke(Request $request, string $id): JsonResponse
+    public function __invoke(string $id): JsonResponse
     {
         $validator = Validator::make([
-            ...$request->all(),
             'id' => $id,
         ], [
             'id' => ['required', 'uuid'],
-            'name' => ['required', 'string', 'max:255'],
-            'active' => ['required', 'boolean'],
         ]);
 
         if ($validator->fails()) {
@@ -31,17 +27,11 @@ class PutController
             ], 422);
         }
 
-        $validated = $validator->validated();
-
-        $response = ($this->updateFamily)(
-            $id,
-            $validated['name'],
-            $validated['active'],
-        );
+        $response = ($this->getTaxes)($id);
 
         if ($response === null) {
             return new JsonResponse([
-                'message' => 'Family not found',
+                'message' => 'Taxes not found',
             ], 404);
         }
 

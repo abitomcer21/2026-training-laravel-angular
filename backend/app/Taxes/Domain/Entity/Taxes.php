@@ -2,9 +2,9 @@
 
 namespace App\Taxes\Domain\Entity;
 
-use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Shared\Domain\ValueObject\Uuid;
 use App\Taxes\Domain\ValueObject\TaxName;
+use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Taxes\Domain\ValueObject\TaxPercentage;
 
 class Taxes
@@ -13,12 +13,13 @@ class Taxes
         private Uuid $id,
         private TaxName $name,
         private TaxPercentage $percentage,
+        private int $restaurantId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
         private ?DomainDateTime $deletedAt = null,
     ) {}
 
-    public static function dddCreate(TaxName $name, TaxPercentage $percentage): self
+    public static function dddCreate(TaxName $name, TaxPercentage $percentage, int $restaurantId): self
     {
         $now = DomainDateTime::now();
 
@@ -26,6 +27,7 @@ class Taxes
             Uuid::generate(),
             $name,
             $percentage,
+            $restaurantId,
             $now,
             $now,
         );
@@ -35,6 +37,7 @@ class Taxes
         string $id,
         string $name,
         int $percentage,
+        int $restaurantId,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
         ?\DateTimeImmutable $deletedAt = null,
@@ -43,6 +46,7 @@ class Taxes
             Uuid::create($id),
             TaxName::create($name),
             TaxPercentage::create($percentage),
+            $restaurantId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
             $deletedAt ? DomainDateTime::create($deletedAt) : null,
@@ -64,6 +68,11 @@ class Taxes
         return $this->percentage;
     }
 
+    public function restaurantId(): int
+    {
+        return $this->restaurantId;
+    }
+
     public function createdAt(): DomainDateTime
     {
         return $this->createdAt;
@@ -78,4 +87,19 @@ class Taxes
     {
         return $this->deletedAt;
     }
+
+    public function updateDetails(TaxName $name, TaxPercentage $percentage): void
+{
+    $this->name = $name;
+    $this->percentage = $percentage;
+    $this->updatedAt = DomainDateTime::now();
+}
+
+    public function markAsDeleted(): void
+    {
+        $this->deletedAt = DomainDateTime::now();
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    
 }

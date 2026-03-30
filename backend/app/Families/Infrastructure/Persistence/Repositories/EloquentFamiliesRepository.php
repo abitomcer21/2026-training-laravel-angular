@@ -15,7 +15,7 @@ class EloquentFamiliesRepository implements FamilyRepositoryInterface
             [
                 'restaurant_id' => $family->restaurantId(),
                 'name'          => $family->name(),
-                'activo'        => $family->status()->value(),
+                'active'        => $family->status()->value(),
                 'created_at'    => $family->createdAt()->value(),
                 'updated_at'    => $family->updatedAt()->value(),
                 'deleted_at'    => $family->deletedAt()?->value(),
@@ -34,7 +34,7 @@ class EloquentFamiliesRepository implements FamilyRepositoryInterface
         return Family::fromPersistence(
             $eloquentFamilies->uuid,
             $eloquentFamilies->name,
-            $eloquentFamilies->activo,
+            $eloquentFamilies->active,
             $eloquentFamilies->restaurant_id,
             $eloquentFamilies->created_at->toDateTimeImmutable(),
             $eloquentFamilies->updated_at->toDateTimeImmutable(),

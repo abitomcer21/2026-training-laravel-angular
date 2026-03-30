@@ -18,7 +18,7 @@ class EloquentFamilies extends Model
         'uuid',
         'restaurant_id',
         'name',
-        'activo',
+        'active',
     ];
 
     public function getKeyName(): string
@@ -34,7 +34,7 @@ class EloquentFamilies extends Model
     protected function casts(): array
     {
         return [
-            'activo' => 'boolean',
+            'active' => 'boolean',
         ];
     }
 }

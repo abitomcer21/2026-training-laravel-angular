@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Families\Infrastructure\Persistence\Models\EloquentFamilies;
-use App\Products\Infrastructure\Persistence\Models\EloquentProducts;
+use App\Products\Infrastructure\Persistence\Models\EloquentProduct;
 use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
 use App\Taxes\Infrastructure\Persistence\Models\EloquentTaxes;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 class ProductsFactory extends Factory
 {
-    protected $model = EloquentProducts::class;
+    protected $model = EloquentProduct::class;
 
     public function definition(): array
     {

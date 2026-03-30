@@ -17,7 +17,7 @@ class PostController
     {
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
-            'activo' => ['required', 'boolean'],
+            'active' => ['required', 'boolean'],
             'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
         ]);
 
@@ -32,7 +32,7 @@ class PostController
 
         $response = ($this->createFamily)(
             $validated['name'],
-            $validated['activo'],
+            $validated['active'],
             $validated['restaurant_id'],
         );
 

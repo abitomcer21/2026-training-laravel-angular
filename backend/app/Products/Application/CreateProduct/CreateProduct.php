@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Products\Application\CreateProducts;
+namespace App\Products\Application\CreateProduct;
 
-use App\Products\Domain\Entity\Products;
-use App\Products\Domain\Interfaces\ProductsRepositoryInterface;
+use App\Products\Domain\Entity\Product;
+use App\Products\Domain\Interfaces\ProductRepositoryInterface;
 use App\Products\Domain\ValueObject\ImageSrc;
 use App\Products\Domain\ValueObject\Price;
 use App\Products\Domain\ValueObject\ProductName;
@@ -11,11 +11,12 @@ use App\Products\Domain\ValueObject\ProductStatus;
 use App\Products\Domain\ValueObject\Stock;
 use App\Shared\Domain\ValueObject\Uuid;
 
-class CreateProducts
+class CreateProduct
 {
     public function __construct(
-        private ProductsRepositoryInterface $productsRepository,
-    ) {}
+        private ProductRepositoryInterface $productRepository,
+    ) {
+    }
 
     public function __invoke(
         string $familyId,
@@ -25,13 +26,13 @@ class CreateProducts
         int $stock,
         string $imageSrc,
         bool $active,
-    ): CreateProductsResponse {
+    ): CreateProductResponse {
         $nameVO = ProductName::create($name);
         $priceVO = Price::create($price);
         $stockVO = Stock::create($stock);
         $imageSrcVO = ImageSrc::create($imageSrc);
         $statusVO = ProductStatus::create($active);
-        $products = Products::dddCreate(
+        $product = Product::dddCreate(
             Uuid::create($familyId),
             Uuid::create($taxId),
             $nameVO,
@@ -40,8 +41,8 @@ class CreateProducts
             $imageSrcVO,
             $statusVO,
         );
-        $this->productsRepository->save($products);
+        $this->productRepository->save($product);
 
-        return CreateProductsResponse::create($products);
+        return CreateProductResponse::create($product);
     }
 }

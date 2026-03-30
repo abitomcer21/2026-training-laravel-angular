@@ -1,18 +1,15 @@
 <?php
 
-namespace App\Taxes\Application\CreateTaxes;
-
+namespace App\Taxes\Application\UpdateTaxes;
 use App\Taxes\Domain\Entity\Taxes;
 
-final readonly class CreateTaxesResponse
+final readonly class UpdateTaxesResponse
 {
     public function __construct(
-        public string $id,
-        public string $name,
-        public int $percentage,
-        public int $restaurantId,
-        public string $createdAt,
-        public string $updatedAt,
+        private string $id,
+        private string $name,
+        private int $percentage,
+        public ?int $restaurantId,
     ) {}
 
     public static function create(Taxes $taxes): self
@@ -22,14 +19,9 @@ final readonly class CreateTaxesResponse
             name: $taxes->name(),
             percentage: $taxes->percentage()->value(),
             restaurantId: $taxes->restaurantId(),
-            createdAt: $taxes->createdAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $taxes->updatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function toArray(): array
     {
         return [
@@ -37,8 +29,6 @@ final readonly class CreateTaxesResponse
             'name' => $this->name,
             'percentage' => $this->percentage,
             'restaurant_id' => $this->restaurantId,
-            'created_at' => $this->createdAt,
-            'updated_at' => $this->updatedAt,
         ];
     }
 }

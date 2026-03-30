@@ -37,7 +37,7 @@ class Family
     public static function fromPersistence(
         string $id,
         string $name,
-        bool $activo,
+        bool $active,
         int $restaurantId,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
@@ -46,7 +46,7 @@ class Family
         return new self(
             Uuid::create($id),
             FamilyName::create($name),
-            FamilyStatus::create($activo),
+            FamilyStatus::create($active),
             $restaurantId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),

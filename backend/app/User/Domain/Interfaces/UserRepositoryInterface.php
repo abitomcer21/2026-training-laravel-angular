@@ -10,8 +10,5 @@ interface UserRepositoryInterface
 
     public function findById(string $id): ?User;
 
-    /**
-     * @return User[]
-     */
     public function all(): array;
 }

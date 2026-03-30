@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Products\Application\CreateProducts;
+namespace App\Products\Application\CreateProduct;
 
-use App\Products\Domain\Entity\Products;
+use App\Products\Domain\Entity\Product;
 
-final readonly class CreateProductsResponse
+final readonly class CreateProductResponse
 {
     public function __construct(
         public string $id,
@@ -19,19 +19,19 @@ final readonly class CreateProductsResponse
         public string $updatedAt,
     ) {}
 
-    public static function create(Products $products): self
+    public static function create(Product $product): self
     {
         return new self(
-            id: $products->id()->value(),
-            familyId: $products->familyId()->value(),
-            taxId: $products->taxId()->value(),
-            name: $products->name(),
-            price: $products->price()->value(),
-            stock: $products->stock()->value(),
-            imageSrc: $products->imageSrc(),
-            active: $products->status()->isActive(),
-            createdAt: $products->createdAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $products->updatedAt()->format(\DateTimeInterface::ATOM),
+            id: $product->id()->value(),
+            familyId: $product->familyId()->value(),
+            taxId: $product->taxId()->value(),
+            name: $product->name(),
+            price: $product->price()->value(),
+            stock: $product->stock()->value(),
+            imageSrc: $product->imageSrc(),
+            active: $product->status()->isActive(),
+            createdAt: $product->createdAt()->format(\DateTimeInterface::ATOM),
+            updatedAt: $product->updatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
 

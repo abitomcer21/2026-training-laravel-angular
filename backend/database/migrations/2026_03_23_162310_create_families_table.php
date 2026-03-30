@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('uuid')->nullable()->unique();
             $table->foreignId('restaurant_id')->constrained('restaurants');
             $table->string('name');
-            $table->boolean('activo');
+            $table->boolean('active');
             $table->timestamps();
             $table->softDeletes('deleted_at');
         });

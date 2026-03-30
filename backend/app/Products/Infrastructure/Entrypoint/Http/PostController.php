@@ -2,15 +2,16 @@
 
 namespace App\Products\Infrastructure\Entrypoint\Http;
 
-use App\Products\Application\CreateProducts\CreateProducts;
+use App\Products\Application\CreateProduct\CreateProduct;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PostController
 {
     public function __construct(
-        private CreateProducts $createProducts,
-    ) {}
+        private CreateProduct $createProduct,
+    ) {
+    }
 
     public function __invoke(Request $request): JsonResponse
     {
@@ -24,7 +25,7 @@ class PostController
             'active' => ['required', 'boolean'],
         ]);
 
-        $response = ($this->createProducts)(
+        $response = ($this->createProduct)(
             $validated['family_id'],
             $validated['tax_id'],
             $validated['name'],

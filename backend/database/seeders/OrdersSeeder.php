@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Order\Infrastructure\Persistence\Models\EloquentOrder;
 use App\Order\Infrastructure\Persistence\Models\EloquentOrderLine;
-use App\Products\Infrastructure\Persistence\Models\EloquentProducts;
+use App\Products\Infrastructure\Persistence\Models\EloquentProduct;
 use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
 use App\Tables\Infrastructure\Persistence\Models\EloquentTables;
 use App\Taxes\Infrastructure\Persistence\Models\EloquentTaxes;
@@ -27,7 +27,7 @@ class OrdersSeeder extends Seeder
         }
 
         $tables = EloquentTables::query()->where('restaurant_id', $restaurant->id)->get();
-        $products = EloquentProducts::query()->where('restaurant_id', $restaurant->id)->get();
+        $products = EloquentProduct::query()->where('restaurant_id', $restaurant->id)->get();
         $taxes = EloquentTaxes::query()->where('restaurant_id', $restaurant->id)->get()->keyBy('id');
         $users = EloquentUser::query()
             ->where('restaurant_id', $restaurant->id)

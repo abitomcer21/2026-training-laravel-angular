@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Families\Infrastructure\Persistence\Models\EloquentFamilies;
-use App\Products\Infrastructure\Persistence\Models\EloquentProducts;
+use App\Products\Infrastructure\Persistence\Models\EloquentProduct;
 use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
 use App\Taxes\Infrastructure\Persistence\Models\EloquentTaxes;
 use Illuminate\Database\Seeder;
@@ -12,7 +12,7 @@ class ProductsSeeder extends Seeder
 {
     public function run(): void
     {
-        if (EloquentProducts::query()->exists()) {
+        if (EloquentProduct::query()->exists()) {
             return;
         }
 
@@ -30,7 +30,7 @@ class ProductsSeeder extends Seeder
         }
 
         for ($i = 0; $i < 20; $i++) {
-            EloquentProducts::factory()
+            EloquentProduct::factory()
                 ->forRestaurant($restaurant)
                 ->forFamily($families->random())
                 ->forTax($taxes->random())

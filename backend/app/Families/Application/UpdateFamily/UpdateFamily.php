@@ -12,7 +12,7 @@ class UpdateFamily
         private FamilyRepositoryInterface $familyRepository,
     ) {}
 
-    public function __invoke(string $id, string $name, bool $activo): ?UpdateFamilyResponse
+    public function __invoke(string $id, string $name, bool $active): ?UpdateFamilyResponse
     {
         $family = $this->familyRepository->findById($id);
 
@@ -21,7 +21,7 @@ class UpdateFamily
         }
 
         $family->updateName(FamilyName::create($name));
-        $family->updateStatus(FamilyStatus::create($activo));
+        $family->updateStatus(FamilyStatus::create($active));
         $this->familyRepository->save($family);
 
         return UpdateFamilyResponse::create($family);
