@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Products\Application\CreateProduct;
+namespace App\Products\Application\GetProductById;
 
 use App\Products\Domain\Entity\Product;
 
-final readonly class CreateProductResponse
+final readonly class GetProductByIdResponse
 {
     public function __construct(
         public string $id,
@@ -15,8 +15,10 @@ final readonly class CreateProductResponse
         public int $stock,
         public string $imageSrc,
         public bool $active,
+        public ?int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
+        public ?string $deletedAt = null,
     ) {}
 
     public static function create(Product $product): self
@@ -30,8 +32,10 @@ final readonly class CreateProductResponse
             stock: $product->stock()->value(),
             imageSrc: $product->imageSrc(),
             active: $product->status()->isActive(),
+            restaurantId: $product->restaurantId(),
             createdAt: $product->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $product->updatedAt()->format(\DateTimeInterface::ATOM),
+            deletedAt: $product->deletedAt() ? $product->deletedAt()->format(\DateTimeInterface::ATOM) : null,
         );
     }
 
@@ -46,8 +50,10 @@ final readonly class CreateProductResponse
             'stock' => $this->stock,
             'image_src' => $this->imageSrc,
             'active' => $this->active,
+            'restaurant_id' => $this->restaurantId,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
+            'deleted_at' => $this->deletedAt,
         ];
     }
 }

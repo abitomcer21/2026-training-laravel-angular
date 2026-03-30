@@ -1,15 +1,15 @@
 <?php
-namespace App\User\Application\GetUser;
+namespace App\User\Application\GetUserById;
 
 use App\User\Domain\Interfaces\UserRepositoryInterface;
 
-class GetUser
+class GetUserById
 {
     public function __construct(
         private UserRepositoryInterface $userRepository,
     ) {}
 
-    public function __invoke(string $id): ?GetUserResponse
+    public function __invoke(string $id): ?GetUserByIdResponse
     {
         $user = $this->userRepository->findById($id);
         
@@ -17,6 +17,6 @@ class GetUser
             return null;
         }
 
-        return GetUserResponse::create($user);
+        return GetUserByIdResponse::create($user);
     }
 }

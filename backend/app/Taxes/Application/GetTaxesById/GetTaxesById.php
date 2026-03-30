@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Taxes\Application\GetTaxes;
+namespace App\Taxes\Application\GetTaxesById;
 use App\Taxes\Domain\Interfaces\TaxesRepositoryInterface;
 
-class GetTaxes
+class GetTaxesById
 {
     public function __construct(
         private TaxesRepositoryInterface $taxesRepository,
     ) {}
 
-    public function __invoke(string $id): ?GetTaxesResponse
+    public function __invoke(string $id): ?GetTaxesByIdResponse
     {
         $taxes = $this->taxesRepository->findById($id);
         
@@ -17,6 +17,6 @@ class GetTaxes
             return null;
         }
 
-        return GetTaxesResponse::create($taxes);
+        return GetTaxesByIdResponse::create($taxes);
     }
 }

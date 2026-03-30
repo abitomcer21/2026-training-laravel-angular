@@ -1,17 +1,16 @@
 <?php
 
-namespace App\Families\Infrastructure\Entrypoint\Http;
+namespace App\Taxes\Infrastructure\Entrypoint\Http;
 
-use App\Families\Application\GetFamily\GetFamily;
+use App\Taxes\Application\GetTaxesById\GetTaxesById;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
-class GetController
+class GetByIdController
 {
     public function __construct(
-        private GetFamily $getFamily,
-    ) {
-    }
+        private GetTaxesById $getTaxesById,
+    ) {}
 
     public function __invoke(string $id): JsonResponse
     {
@@ -28,11 +27,11 @@ class GetController
             ], 422);
         }
 
-        $response = ($this->getFamily)($id);
+        $response = ($this->getTaxesById)($id);
 
         if ($response === null) {
             return new JsonResponse([
-                'message' => 'Error not found',
+                'message' => 'Taxes not found',
             ], 404);
         }
 

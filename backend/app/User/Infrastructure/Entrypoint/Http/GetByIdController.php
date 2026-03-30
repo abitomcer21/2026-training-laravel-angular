@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Taxes\Infrastructure\Entrypoint\Http;
+namespace App\User\Infrastructure\Entrypoint\Http;
 
-use App\Taxes\Application\GetTaxes\GetTaxes;
+use App\User\Application\GetUserById\GetUserById;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
-class GetController
+class GetByIdController
 {
     public function __construct(
-        private GetTaxes $getTaxes,
+        private GetUserById $getUserById,
     ) {}
 
     public function __invoke(string $id): JsonResponse
@@ -27,11 +27,11 @@ class GetController
             ], 422);
         }
 
-        $response = ($this->getTaxes)($id);
+        $response = ($this->getUserById)($id);
 
         if ($response === null) {
             return new JsonResponse([
-                'message' => 'Taxes not found',
+                'message' => 'User not found',
             ], 404);
         }
 

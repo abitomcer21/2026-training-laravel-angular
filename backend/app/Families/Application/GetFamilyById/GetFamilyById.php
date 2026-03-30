@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Families\Application\GetFamily;
+namespace App\Families\Application\GetFamilyById;
 
 use App\Families\Domain\Interfaces\FamilyRepositoryInterface;
 
-class GetFamily
+class GetFamilyById
 {
     public function __construct(
         private FamilyRepositoryInterface $familyRepository,
     ) {}
 
-    public function __invoke(string $id): ?GetFamilyResponse
+    public function __invoke(string $id): ?GetFamilyByIdResponse
     {
         $family = $this->familyRepository->findById($id);
 
@@ -18,6 +18,6 @@ class GetFamily
             return null;
         }
 
-        return GetFamilyResponse::create($family);
+        return GetFamilyByIdResponse::create($family);
     }
 }

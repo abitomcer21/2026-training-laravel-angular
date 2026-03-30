@@ -6,17 +6,11 @@ use App\User\Domain\Entity\User;
 
 final readonly class GetAllUsersResponse
 {
-    /**
-     * @param array<int, array<string, mixed>> $users
-     */
     public function __construct(
         public array $users,
         public int $total,
     ) {}
 
-    /**
-     * @param User[] $usersEntities
-     */
     public static function create(array $usersEntities): self
     {
         $users = array_map(

@@ -22,6 +22,8 @@ final readonly class GetAllTaxesResponse
                 'name' => $tax->name(),
                 'percentage' => $tax->percentage()->value(),
                 'restaurant_id' => $tax->restaurantId(),
+                'created_at' => $tax->createdAt()->format(\DateTimeInterface::ATOM),
+                'updated_at' => $tax->updatedAt()->format(\DateTimeInterface::ATOM),     
             ],
             $taxes,
         );

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\User\Application\GetUser;
+namespace App\User\Application\GetUserById;
 
 use App\User\Domain\Entity\User;
 use App\User\Domain\ValueObject\Role;
 
 
-final readonly class GetUserResponse
+final readonly class GetUserByIdResponse
 {
     public function __construct(
         public string $id,

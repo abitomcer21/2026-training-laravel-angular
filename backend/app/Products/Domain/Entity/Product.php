@@ -21,6 +21,7 @@ class Product
         private Stock $stock,
         private ImageSrc $imageSrc,
         private ProductStatus $status,
+        private ?int $restaurantId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
         private ?DomainDateTime $deletedAt = null,
@@ -34,6 +35,7 @@ class Product
         Stock $stock,
         ImageSrc $imageSrc,
         ProductStatus $status,
+        ?int $restaurantId = null,
     ): self {
         $now = DomainDateTime::now();
 
@@ -46,6 +48,7 @@ class Product
             $stock,
             $imageSrc,
             $status,
+            $restaurantId,
             $now,
             $now,
         );
@@ -60,6 +63,7 @@ class Product
         int $stock,
         string $imageSrc,
         bool $active,
+        ?int $restaurantId = null,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
         ?\DateTimeImmutable $deletedAt = null,
@@ -73,6 +77,7 @@ class Product
             Stock::create($stock),
             ImageSrc::create($imageSrc),
             ProductStatus::create($active),
+            $restaurantId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
             $deletedAt ? DomainDateTime::create($deletedAt) : null,
@@ -119,6 +124,12 @@ class Product
         return $this->status;
     }
 
+        public function restaurantId(): ?int
+    {
+        return $this->restaurantId;
+    }
+
+
     public function createdAt(): DomainDateTime
     {
         return $this->createdAt;
@@ -132,5 +143,11 @@ class Product
     public function deletedAt(): ?DomainDateTime
     {
         return $this->deletedAt;
+    }
+
+       public function markAsDeleted(): void
+    {
+        $this->deletedAt = DomainDateTime::now();
+        $this->updatedAt = DomainDateTime::now();
     }
 }

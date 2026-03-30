@@ -17,19 +17,17 @@ class AddSalesLine
         private UserRepositoryInterface $userRepository,
     ) {}
 
-    public function execute(AddSalesLineRequest $request): AddSalesLineResponse
+    public function __invoke(AddSalesLineRequest $request): AddSalesLineResponse
     {
         $saleId = Uuid::create($request->saleId);
         $orderLineId = Uuid::create($request->orderLineId);
         $userId = Uuid::create($request->userId);
 
-        // Validate sale exists
         $sale = $this->salesRepository->findById($request->saleId);
         if (!$sale) {
             throw new \InvalidArgumentException('Sale not found.');
         }
 
-        // Validate user exists
         $user = $this->userRepository->findById($request->userId);
         if (!$user) {
             throw new \InvalidArgumentException('User not found.');
