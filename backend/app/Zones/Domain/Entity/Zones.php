@@ -11,18 +11,22 @@ class Zones
     private function __construct(
         private Uuid $id,
         private ZoneName $name,
+        private ?int $restaurantId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
         private ?DomainDateTime $deletedAt = null,
     ) {}
 
-    public static function dddCreate(ZoneName $name): self
-    {
+    public static function dddCreate(
+        ZoneName $name,
+        ?int $restaurantId = null,
+    ): self {
         $now = DomainDateTime::now();
 
         return new self(
             Uuid::generate(),
             $name,
+            $restaurantId,
             $now,
             $now,
         );
@@ -31,6 +35,7 @@ class Zones
     public static function fromPersistence(
         string $id,
         string $name,
+        ?int $restaurantId = null,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
         ?\DateTimeImmutable $deletedAt = null,
@@ -38,6 +43,7 @@ class Zones
         return new self(
             Uuid::create($id),
             ZoneName::create($name),
+            $restaurantId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
             $deletedAt ? DomainDateTime::create($deletedAt) : null,
@@ -54,9 +60,20 @@ class Zones
         return $this->name->value();
     }
 
+    public function restaurantId(): ?int
+    {
+        return $this->restaurantId;
+    }
+
     public function createdAt(): DomainDateTime
     {
         return $this->createdAt;
+    }
+
+    public function updateName(ZoneName $name): void
+    {
+        $this->name = $name;
+        $this->updatedAt = DomainDateTime::now();
     }
 
     public function updatedAt(): DomainDateTime
@@ -67,5 +84,11 @@ class Zones
     public function deletedAt(): ?DomainDateTime
     {
         return $this->deletedAt;
+    }
+
+    public function markAsDeleted(): void
+    {
+        $this->deletedAt = DomainDateTime::now();
+        $this->updatedAt = DomainDateTime::now();
     }
 }

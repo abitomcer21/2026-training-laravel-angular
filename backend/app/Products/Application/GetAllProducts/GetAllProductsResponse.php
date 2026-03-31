@@ -11,10 +11,10 @@ final readonly class GetAllProductsResponse
         public int $total,
     ) {}
 
-    public static function create(array $productEntities): self
+    public static function create(array $products): self
     {
-        $products = array_map(
-            fn (Product $product) => [
+        $productsData = array_map(
+            static fn (Product $product): array => [
                 'id' => $product->id()->value(),
                 'family_id' => $product->familyId()->value(),
                 'tax_id' => $product->taxId()->value(),
@@ -27,12 +27,12 @@ final readonly class GetAllProductsResponse
                 'created_at' => $product->createdAt()->format(\DateTimeInterface::ATOM),
                 'updated_at' => $product->updatedAt()->format(\DateTimeInterface::ATOM),
             ],
-            $productEntities
+            $products,
         );
 
         return new self(
-            products: $products,
-            total: count($products),
+            products: $productsData,
+            total: count($productsData),
         );
     }
 

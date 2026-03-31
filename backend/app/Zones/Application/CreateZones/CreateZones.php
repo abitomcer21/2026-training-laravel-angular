@@ -12,12 +12,15 @@ class CreateZones
         private ZonesRepositoryInterface $zonesRepository,
     ) {}
 
-    public function __invoke(string $name): CreateZonesResponse
-    {
+    public function __invoke(
+        string $name,
+        ?int $restaurantId = null,
+    ): CreateZonesResponse {
         $nameVO = ZoneName::create($name);
-        $zones = Zones::dddCreate($nameVO);
-        $this->zonesRepository->save($zones);
+        $zone = Zones::dddCreate($nameVO, $restaurantId);
 
-        return CreateZonesResponse::create($zones);
+        $this->zonesRepository->save($zone);
+
+        return CreateZonesResponse::create($zone);
     }
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Families\Application\GetAllFamily;
 
@@ -11,21 +11,30 @@ final readonly class GetAllFamilyResponse
         public int $total,
     ) {}
 
-    public static function create(array $familiesEntities): self
+    public static function create(array $families): self
     {
-        $families = array_map(
-            fn (Family $family) => [
+        $familiesData = array_map(
+            static fn (Family $family): array => [
                 'id' => $family->id()->value(),
                 'name' => $family->name(),
+                'restaurant_id' => $family->restaurantId(),
                 'created_at' => $family->createdAt()->format(\DateTimeInterface::ATOM),
                 'updated_at' => $family->updatedAt()->format(\DateTimeInterface::ATOM),
             ],
-            $familiesEntities
+            $families,
         );
 
         return new self(
-            families: $families,
-            total: count($families),
+            families: $familiesData,
+            total: count($familiesData),
         );
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'families' => $this->families,
+            'total' => $this->total,
+        ];
     }
 }

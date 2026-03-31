@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Zones\Application\CreateZones;
+namespace App\Zones\Application\UpdateZones;
 
 use App\Zones\Domain\Entity\Zones;
 
-final readonly class CreateZonesResponse
+final readonly class UpdateZonesResponse
 {
     public function __construct(
         public string $id,
@@ -12,23 +12,23 @@ final readonly class CreateZonesResponse
         public ?int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
-    ) {}
+    ){}
 
-    public static function create(Zones $zone): self
+    public static function create(Zones $zones): self
     {
         return new self(
-            id: $zone->id()->value(),
-            name: $zone->name(),
-            restaurantId: $zone->restaurantId(),
-            createdAt: $zone->createdAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $zone->updatedAt()->format(\DateTimeInterface::ATOM),
+            id: $zones->id()->value(),
+            name: $zones->name(),
+            restaurantId: $zones->restaurantId(),
+            createdAt: $zones->createdAt()->format(\DateTimeInterface::ATOM),
+            updatedAt: $zones->updatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
 
     public function toArray(): array
     {
         return [
-            'id' => $this->id,
+            'id'=> $this->id,
             'name' => $this->name,
             'restaurant_id' => $this->restaurantId,
             'created_at' => $this->createdAt,

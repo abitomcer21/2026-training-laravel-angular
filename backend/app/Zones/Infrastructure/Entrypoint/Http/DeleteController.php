@@ -1,16 +1,14 @@
 <?php
 
-namespace App\User\Infrastructure\Entrypoint\Http;
+namespace App\Zones\Infrastructure\Entrypoint\Http;
 
-use App\User\Application\DeleteUser\DeleteUser;
+use App\Zones\Application\Deletezones\DeleteZones;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
 class DeleteController
 {
-    public function __construct(
-        private DeleteUser $deleteUser,
-    ) {}
+    public function __construct(private DeleteZones $deleteZone) {}
 
     public function __invoke(string $id): JsonResponse
     {
@@ -27,14 +25,13 @@ class DeleteController
             ], 422);
         }
 
-        $deleted = ($this->deleteUser)($id);
+        $deleteZone = ($this->deleteZone)($id);
 
-        if (!$deleted) {
+        if (!$deleteZone) {
             return new JsonResponse([
-                'message' => 'User not found',
+                'message' => 'Zone not found',
             ], 404);
         }
-
         return new JsonResponse(null, 204);
     }
 }

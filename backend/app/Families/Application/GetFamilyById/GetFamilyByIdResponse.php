@@ -13,8 +13,7 @@ final readonly class GetFamilyByIdResponse
         public int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
-    ) {
-    }
+    ) {}
 
     public static function create(Family $family): self
     {

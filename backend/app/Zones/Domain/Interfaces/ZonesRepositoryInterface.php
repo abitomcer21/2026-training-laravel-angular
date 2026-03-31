@@ -9,4 +9,6 @@ interface ZonesRepositoryInterface
     public function save(Zones $zones): void;
 
     public function findById(string $id): ?Zones;
+
+    public function all(): array;
 }

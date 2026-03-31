@@ -11,10 +11,10 @@ final readonly class GetAllUsersResponse
         public int $total,
     ) {}
 
-    public static function create(array $usersEntities): self
+    public static function create(array $users): self
     {
-        $users = array_map(
-            fn (User $user) => [
+        $usersData = array_map(
+            static fn (User $user): array => [
                 'id' => $user->id()->value(),
                 'name' => $user->name(),
                 'email' => $user->email()->value(),
@@ -25,12 +25,12 @@ final readonly class GetAllUsersResponse
                 'created_at' => $user->createdAt()->format(\DateTimeInterface::ATOM),
                 'updated_at' => $user->updatedAt()->format(\DateTimeInterface::ATOM),
             ],
-            $usersEntities
+            $users,
         );
 
         return new self(
-            users: $users,
-            total: count($users),
+            users: $usersData,
+            total: count($usersData),
         );
     }
 
