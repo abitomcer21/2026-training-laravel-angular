@@ -2,7 +2,7 @@
 
 namespace App\Zones\Infrastructure\Entrypoint\Http;
 
-use App\Zones\Application\Deletezones\DeleteZones;
+use App\Zones\Application\DeleteZone\DeleteZones;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 

@@ -16,10 +16,12 @@ class PostController
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
         ]);
 
         $response = ($this->createZones)(
             $validated['name'],
+            $validated['restaurant_id'],
         );
 
         return new JsonResponse($response->toArray(), 201);

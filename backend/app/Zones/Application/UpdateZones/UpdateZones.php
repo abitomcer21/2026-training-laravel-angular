@@ -21,7 +21,7 @@ class UpdateZones
         $zones->updateName(ZoneName::create($name));
         $this->zonesRepository->save($zones);
 
-        return updateZonesResponse::create($zones);
+        return UpdateZonesResponse::create($zones);
     }
 
 }

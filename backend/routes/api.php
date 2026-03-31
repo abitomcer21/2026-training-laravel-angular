@@ -23,6 +23,12 @@ use App\Taxes\Infrastructure\Entrypoint\Http\GetByIdController as TaxesGetByIdCo
 use App\Taxes\Infrastructure\Entrypoint\Http\DeleteController as TaxesDeleteController;
 use App\Taxes\Infrastructure\Entrypoint\Http\PutController as TaxesPutController;
 
+use App\Zones\Infrastructure\Entrypoint\Http\PostController as ZonesPostController;
+use App\Zones\Infrastructure\Entrypoint\Http\GetAllController as ZonesGetAllController;
+use App\Zones\Infrastructure\Entrypoint\Http\GetByIdController as ZonesGetByIdController;
+use App\Zones\Infrastructure\Entrypoint\Http\PutController as ZonesPutController;
+use App\Zones\Infrastructure\Entrypoint\Http\DeleteController as ZonesDeleteController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::post('/users', UserPostController::class);
@@ -47,3 +53,9 @@ Route::get('/taxes', TaxesGetAllController::class);
 Route::get('/taxes/{id}', TaxesGetByIdController::class);
 Route::put('/taxes/{id}', TaxesPutController::class);
 Route::delete('/taxes/{id}', TaxesDeleteController::class);
+
+Route::post('/zones', ZonesPostController::class);
+Route::get('/zones', ZonesGetAllController::class);
+Route::get('/zones/{id}', ZonesGetByIdController::class);
+Route::put('/zones/{id}', ZonesPutController::class);
+Route::delete('/zones/{id}', ZonesDeleteController::class);
