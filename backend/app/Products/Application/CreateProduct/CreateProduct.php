@@ -4,11 +4,11 @@ namespace App\Products\Application\CreateProduct;
 
 use App\Products\Domain\Entity\Product;
 use App\Products\Domain\Interfaces\ProductRepositoryInterface;
-use App\Products\Domain\ValueObject\ImageSrc;
-use App\Products\Domain\ValueObject\Price;
+use App\Products\Domain\ValueObject\ProductImageSrc;
 use App\Products\Domain\ValueObject\ProductName;
+use App\Products\Domain\ValueObject\ProductPrice;
 use App\Products\Domain\ValueObject\ProductStatus;
-use App\Products\Domain\ValueObject\Stock;
+use App\Products\Domain\ValueObject\ProductStock;
 use App\Shared\Domain\ValueObject\Uuid;
 
 class CreateProduct
@@ -26,13 +26,13 @@ class CreateProduct
         int $stock,
         string $imageSrc,
         bool $active,
-        
     ): CreateProductResponse {
         $nameVO = ProductName::create($name);
-        $priceVO = Price::create($price);
-        $stockVO = Stock::create($stock);
-        $imageSrcVO = ImageSrc::create($imageSrc);
+        $priceVO = ProductPrice::create($price);
+        $stockVO = ProductStock::create($stock);
+        $imageSrcVO = ProductImageSrc::create($imageSrc);
         $statusVO = ProductStatus::create($active);
+
         $product = Product::dddCreate(
             Uuid::create($familyId),
             Uuid::create($taxId),

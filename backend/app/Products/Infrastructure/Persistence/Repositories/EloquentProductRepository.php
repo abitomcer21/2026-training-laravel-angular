@@ -41,9 +41,33 @@ class EloquentProductRepository implements ProductRepositoryInterface
             $eloquentProduct->stock,
             $eloquentProduct->image_src,
             (bool) $eloquentProduct->active,
+            $eloquentProduct->restaurant_id,
             $eloquentProduct->created_at->toDateTimeImmutable(),
             $eloquentProduct->updated_at->toDateTimeImmutable(),
             $eloquentProduct->deleted_at?->toDateTimeImmutable(),
         );
+    }
+
+    public function all(): array
+    {
+        return EloquentProduct::query()
+            ->get()
+            ->map(
+                fn (EloquentProduct $eloquentProduct) => Product::fromPersistence(
+                    $eloquentProduct->uuid,
+                    $eloquentProduct->family_id,
+                    $eloquentProduct->tax_id,
+                    $eloquentProduct->name,
+                    $eloquentProduct->price,
+                    $eloquentProduct->stock,
+                    $eloquentProduct->image_src,
+                    (bool) $eloquentProduct->active,
+                    $eloquentProduct->restaurant_id,
+                    $eloquentProduct->created_at->toDateTimeImmutable(),
+                    $eloquentProduct->updated_at->toDateTimeImmutable(),
+                    $eloquentProduct->deleted_at?->toDateTimeImmutable(),
+                )
+            )
+            ->all();
     }
 }

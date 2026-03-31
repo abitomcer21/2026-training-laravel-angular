@@ -2,11 +2,11 @@
 
 namespace App\Products\Domain\Entity;
 
-use App\Products\Domain\ValueObject\ImageSrc;
-use App\Products\Domain\ValueObject\Price;
+use App\Products\Domain\ValueObject\ProductPrice;
 use App\Products\Domain\ValueObject\ProductName;
+use App\Products\Domain\ValueObject\ProductImageSrc;
 use App\Products\Domain\ValueObject\ProductStatus;
-use App\Products\Domain\ValueObject\Stock;
+use App\Products\Domain\ValueObject\ProductStock;
 use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Shared\Domain\ValueObject\Uuid;
 
@@ -17,9 +17,9 @@ class Product
         private Uuid $familyId,
         private Uuid $taxId,
         private ProductName $name,
-        private Price $price,
-        private Stock $stock,
-        private ImageSrc $imageSrc,
+        private ProductPrice $price,
+        private ProductStock $stock,
+        private ProductImageSrc $imageSrc,
         private ProductStatus $status,
         private ?int $restaurantId,
         private DomainDateTime $createdAt,
@@ -31,9 +31,9 @@ class Product
         Uuid $familyId,
         Uuid $taxId,
         ProductName $name,
-        Price $price,
-        Stock $stock,
-        ImageSrc $imageSrc,
+        ProductPrice $price,
+        ProductStock $stock,
+        ProductImageSrc $imageSrc,
         ProductStatus $status,
         ?int $restaurantId = null,
     ): self {
@@ -73,9 +73,9 @@ class Product
             Uuid::create($familyId),
             Uuid::create($taxId),
             ProductName::create($name),
-            Price::create($price),
-            Stock::create($stock),
-            ImageSrc::create($imageSrc),
+            ProductPrice::create($price),
+            ProductStock::create($stock),
+            ProductImageSrc::create($imageSrc),
             ProductStatus::create($active),
             $restaurantId,
             DomainDateTime::create($createdAt),
@@ -104,12 +104,12 @@ class Product
         return $this->name->value();
     }
 
-    public function price(): Price
+    public function price(): ProductPrice
     {
         return $this->price;
     }
 
-    public function stock(): Stock
+    public function stock(): ProductStock
     {
         return $this->stock;
     }
@@ -124,9 +124,44 @@ class Product
         return $this->status;
     }
 
-        public function restaurantId(): ?int
+    public function restaurantId(): ?int
     {
         return $this->restaurantId;
+    }
+
+    public function updateName(ProductName $name): void
+    {
+        $this->name = $name;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updatePrice(ProductPrice $price): void
+    {
+        $this->price = $price;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updateImageSrc(ProductImageSrc $imageSrc): void
+    {
+        $this->imageSrc = $imageSrc;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updateImagenSRC(ProductImageSrc $imageSrc): void
+    {
+        $this->updateImageSrc($imageSrc);
+    }
+
+    public function updateStock(ProductStock $stock): void
+    {
+        $this->stock = $stock;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updateStatus(ProductStatus $status): void
+    {
+        $this->status = $status;
+        $this->updatedAt = DomainDateTime::now();
     }
 
 
@@ -145,7 +180,7 @@ class Product
         return $this->deletedAt;
     }
 
-       public function markAsDeleted(): void
+    public function markAsDeleted(): void
     {
         $this->deletedAt = DomainDateTime::now();
         $this->updatedAt = DomainDateTime::now();

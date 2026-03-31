@@ -2,7 +2,7 @@
 
 namespace App\Products\Domain\ValueObject;
 
-class Stock
+class ProductStock
 {
     private int $quantity;
 

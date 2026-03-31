@@ -2,16 +2,27 @@
 
 namespace App\Products\Domain\ValueObject;
 
-class ImageSrc
+class ProductImageSrc
 {
+    private const MAX_LENGTH = 255;
+
     private string $path;
 
     private function __construct(string $path)
     {
-        if (trim($path) === '') {
+        $trimmedPath = trim($path);
+
+        if ($trimmedPath === '') {
             throw new \InvalidArgumentException('Image path cannot be empty.');
         }
-        $this->path = trim($path);
+
+        if (mb_strlen($trimmedPath) > self::MAX_LENGTH) {
+            throw new \InvalidArgumentException(
+                sprintf('Image path cannot exceed %d characters.', self::MAX_LENGTH)
+            );
+        }
+
+        $this->path = $trimmedPath;
     }
 
     public static function create(string $path): self
