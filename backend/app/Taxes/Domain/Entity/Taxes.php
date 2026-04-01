@@ -16,7 +16,6 @@ class Taxes
         private int $restaurantId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-        private ?DomainDateTime $deletedAt = null,
     ) {}
 
     public static function dddCreate(TaxName $name, TaxPercentage $percentage, int $restaurantId): self
@@ -40,7 +39,6 @@ class Taxes
         int $restaurantId,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        ?\DateTimeImmutable $deletedAt = null,
     ): self {
         return new self(
             Uuid::create($id),
@@ -49,7 +47,6 @@ class Taxes
             $restaurantId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
-            $deletedAt ? DomainDateTime::create($deletedAt) : null,
         );
     }
 
@@ -83,11 +80,6 @@ class Taxes
         return $this->updatedAt;
     }
 
-    public function deletedAt(): ?DomainDateTime
-    {
-        return $this->deletedAt;
-    }
-
     public function updateDetails(TaxName $name, TaxPercentage $percentage): void
 {
     $this->name = $name;
@@ -95,11 +87,4 @@ class Taxes
     $this->updatedAt = DomainDateTime::now();
 }
 
-    public function markAsDeleted(): void
-    {
-        $this->deletedAt = DomainDateTime::now();
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    
 }

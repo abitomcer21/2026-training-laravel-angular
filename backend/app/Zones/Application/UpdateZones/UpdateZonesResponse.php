@@ -9,7 +9,7 @@ final readonly class UpdateZonesResponse
     public function __construct(
         public string $id,
         public string $name,
-        public ?int $restaurantId,
+        public int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
     ){}

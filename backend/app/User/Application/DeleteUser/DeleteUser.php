@@ -13,14 +13,11 @@ class DeleteUser
 
     public function __invoke (string $id): bool
     {
-        $user = $this->userRepository->findById($id);
-
-        if (!$user) {
+        if (!$this->userRepository->findById($id)) {
             return false;
         }
 
-        $user->markAsDeleted();
-        $this->userRepository->save($user);
+        $this->userRepository->delete($id);
 
         return true;
     }

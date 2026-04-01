@@ -12,14 +12,11 @@ class DeleteZones
 
     public function __invoke(string $id): bool
     {
-        $zones = $this->zonesRepository->findById($id);
-
-        if (!$zones) {
+        if (!$this->zonesRepository->findById($id)) {
             return false;
         }
 
-        $zones->markAsDeleted();
-        $this->zonesRepository->save($zones);
+        $this->zonesRepository->delete($id);
 
         return true;
     }

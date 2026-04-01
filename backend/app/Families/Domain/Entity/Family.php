@@ -16,7 +16,6 @@ class Family
         private int $restaurantId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-        private ?DomainDateTime $deletedAt = null,
     ) {
     }
 
@@ -41,7 +40,6 @@ class Family
         int $restaurantId,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        ?\DateTimeImmutable $deletedAt = null,
     ): self {
         return new self(
             Uuid::create($id),
@@ -50,7 +48,6 @@ class Family
             $restaurantId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
-            $deletedAt ? DomainDateTime::create($deletedAt) : null,
         );
     }
 
@@ -84,11 +81,6 @@ class Family
         return $this->updatedAt;
     }
 
-    public function deletedAt(): ?DomainDateTime
-    {
-        return $this->deletedAt;
-    }
-
     public function updateName(FamilyName $name): void
     {
         $this->name = $name;
@@ -101,9 +93,4 @@ class Family
         $this->updatedAt = DomainDateTime::now();
     }
 
-    public function markAsDeleted(): void
-    {
-        $this->deletedAt = DomainDateTime::now();
-        $this->updatedAt = DomainDateTime::now();
-    }
 }

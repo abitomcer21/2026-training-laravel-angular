@@ -14,7 +14,7 @@ final readonly class UpdateUserResponse
         public string $role,
         public string $pin,
         public ?string $imageSrc,
-        public ?int $restaurantId,
+        public int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
     ) {}

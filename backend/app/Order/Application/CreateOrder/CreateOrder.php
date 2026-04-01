@@ -13,14 +13,15 @@ class CreateOrder
     ) {}
 
     public function __invoke(
-        string $restaurantId,
+        int $restaurantId,
         string $tableId,
         string $openedByUserId,
+        $closedByUserId,
         string $status,
         int $diners,
     ): CreateOrderResponse {
         $statusVO = OrderStatus::create($status);
-        $order = Order::dddCreate($restaurantId, $tableId, $openedByUserId, $statusVO, $diners);
+        $order = Order::dddCreate($restaurantId, $tableId, $openedByUserId, $closedByUserId, $statusVO, $diners);
         $this->orderRepository->save($order);
 
         return CreateOrderResponse::create($order);

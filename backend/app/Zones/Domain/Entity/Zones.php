@@ -11,15 +11,14 @@ class Zones
     private function __construct(
         private Uuid $id,
         private ZoneName $name,
-        private ?int $restaurantId,
+        private int $restaurantId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-        private ?DomainDateTime $deletedAt = null,
     ) {}
 
     public static function dddCreate(
         ZoneName $name,
-        ?int $restaurantId = null,
+        int $restaurantId,
     ): self {
         $now = DomainDateTime::now();
 
@@ -35,10 +34,9 @@ class Zones
     public static function fromPersistence(
         string $id,
         string $name,
-        ?int $restaurantId = null,
+        int $restaurantId,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        ?\DateTimeImmutable $deletedAt = null,
     ): self {
         return new self(
             Uuid::create($id),
@@ -46,7 +44,6 @@ class Zones
             $restaurantId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
-            $deletedAt ? DomainDateTime::create($deletedAt) : null,
         );
     }
 
@@ -60,7 +57,7 @@ class Zones
         return $this->name->value();
     }
 
-    public function restaurantId(): ?int
+    public function restaurantId(): int
     {
         return $this->restaurantId;
     }
@@ -81,14 +78,4 @@ class Zones
         return $this->updatedAt;
     }
 
-    public function deletedAt(): ?DomainDateTime
-    {
-        return $this->deletedAt;
-    }
-
-    public function markAsDeleted(): void
-    {
-        $this->deletedAt = DomainDateTime::now();
-        $this->updatedAt = DomainDateTime::now();
-    }
 }

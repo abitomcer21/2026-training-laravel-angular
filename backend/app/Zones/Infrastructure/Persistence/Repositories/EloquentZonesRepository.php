@@ -23,11 +23,10 @@ class EloquentZonesRepository implements ZonesRepositoryInterface
 
         $model->fill([
             'name' => $zones->name(),
-            'restaurant_id' => $zones->restaurantId() ?? $model->restaurant_id,
+            'restaurant_id' => $zones->restaurantId(),
         ]);
 
         $model->updated_at = $zones->updatedAt()->value();
-        $model->deleted_at = $zones->deletedAt()?->value();
 
         $model->save();
     }
@@ -46,23 +45,24 @@ class EloquentZonesRepository implements ZonesRepositoryInterface
             $eloquentZone->restaurant_id,
             $eloquentZone->created_at->toDateTimeImmutable(),
             $eloquentZone->updated_at->toDateTimeImmutable(),
-            $eloquentZone->deleted_at?->toDateTimeImmutable(),
         );
     }
 
     public function all(): array
     {
-        $zones = $this->model->newQuery()->get()->map(
+        return $this->model->newQuery()->get()->map(
             fn (EloquentZones $zone): Zones => Zones::fromPersistence(
                 $zone->uuid,
                 $zone->name,
                 $zone->restaurant_id,
                 $zone->created_at->toDateTimeImmutable(),
                 $zone->updated_at->toDateTimeImmutable(),
-                $zone->deleted_at?->toDateTimeImmutable(),
             ),
-        );
+        )->toArray();
+    }
 
-        return $zones->toArray();
+    public function delete(string $id): void
+    {
+        $this->model->newQuery()->where('uuid', $id)->delete();
     }
 }

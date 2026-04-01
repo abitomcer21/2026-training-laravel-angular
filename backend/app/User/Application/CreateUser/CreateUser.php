@@ -25,8 +25,8 @@ class CreateUser
         string $plainPassword,
         string $role,
         string $pin,
+        int $restaurantId,
         ?string $imageSrc = null,
-        ?int $restaurantId = null,
     ): CreateUserResponse {
         $emailVO = Email::create($email);
         $nameVO = UserName::create($name);
@@ -41,8 +41,8 @@ class CreateUser
             passwordHash: $passwordHashVO,
             role: $roleVO,
             pin: $pinVO,
-            imageSrc: $imageSrc,
             restaurantId: $restaurantId,
+            imageSrc: $imageSrc,
         );
 
 

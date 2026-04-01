@@ -10,5 +10,7 @@ interface TaxesRepositoryInterface
 
     public function findById(string $id): ?Taxes;
 
-        public function all(): array;
+    public function all(): array;
+
+    public function delete(string $id): void;
 }

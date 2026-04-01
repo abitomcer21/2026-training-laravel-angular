@@ -8,11 +8,16 @@ use App\Products\Infrastructure\Persistence\Models\EloquentProduct;
 
 class EloquentProductRepository implements ProductRepositoryInterface
 {
+    public function __construct(
+        private EloquentProduct $model,
+    ) {}
+
     public function save(Product $product): void
     {
-        EloquentProduct::updateOrCreate(
+        $this->model->newQuery()->updateOrCreate(
             ['uuid' => $product->id()->value()],
             [
+                'restaurant_id' => $product->restaurantId(),
                 'family_id' => $product->familyId()->value(),
                 'tax_id' => $product->taxId()->value(),
                 'name' => $product->name(),
@@ -26,7 +31,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
     public function findById(string $id): ?Product
     {
-        $eloquentProduct = EloquentProduct::where('uuid', $id)->first();
+        $eloquentProduct = $this->model->newQuery()->where('uuid', $id)->first();
 
         if (!$eloquentProduct) {
             return null;
@@ -44,30 +49,30 @@ class EloquentProductRepository implements ProductRepositoryInterface
             $eloquentProduct->restaurant_id,
             $eloquentProduct->created_at->toDateTimeImmutable(),
             $eloquentProduct->updated_at->toDateTimeImmutable(),
-            $eloquentProduct->deleted_at?->toDateTimeImmutable(),
         );
     }
 
     public function all(): array
     {
-        return EloquentProduct::query()
-            ->get()
-            ->map(
-                fn (EloquentProduct $eloquentProduct) => Product::fromPersistence(
-                    $eloquentProduct->uuid,
-                    $eloquentProduct->family_id,
-                    $eloquentProduct->tax_id,
-                    $eloquentProduct->name,
-                    $eloquentProduct->price,
-                    $eloquentProduct->stock,
-                    $eloquentProduct->image_src,
-                    (bool) $eloquentProduct->active,
-                    $eloquentProduct->restaurant_id,
-                    $eloquentProduct->created_at->toDateTimeImmutable(),
-                    $eloquentProduct->updated_at->toDateTimeImmutable(),
-                    $eloquentProduct->deleted_at?->toDateTimeImmutable(),
-                )
-            )
-            ->all();
+        return $this->model->newQuery()->get()->map(
+            fn (EloquentProduct $eloquentProduct): Product => Product::fromPersistence(
+                $eloquentProduct->uuid,
+                $eloquentProduct->family_id,
+                $eloquentProduct->tax_id,
+                $eloquentProduct->name,
+                $eloquentProduct->price,
+                $eloquentProduct->stock,
+                $eloquentProduct->image_src,
+                (bool) $eloquentProduct->active,
+                $eloquentProduct->restaurant_id,
+                $eloquentProduct->created_at->toDateTimeImmutable(),
+                $eloquentProduct->updated_at->toDateTimeImmutable(),
+            ),
+        )->toArray();
+    }
+
+    public function delete(string $id): void
+    {
+        $this->model->newQuery()->where('uuid', $id)->delete();
     }
 }

@@ -30,8 +30,8 @@ class PostController
             $validated['password'],
             $validated['role'],
             $validated['pin'],
-            $validated['image_src'] ?? null,
             $validated['restaurant_id'],
+            $validated['image_src'] ?? null,
         );
 
         return new JsonResponse($response->toArray(), 201);

@@ -10,23 +10,23 @@ class Order
 {
     private function __construct(
         private Uuid $id,
-        private string $restaurantId,
+        private int $restaurantId,
         private string $tableId,
         private string $openedByUserId,
-        private ?string $closedByUserId,
+        private string $closedByUserId,
         private OrderStatus $status,
         private int $diners,
         private DomainDateTime $openedAt,
         private ?DomainDateTime $closedAt,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-        private ?DomainDateTime $deletedAt,
     ) {}
 
     public static function dddCreate(
-        string $restaurantId,
+        int $restaurantId,
         string $tableId,
         string $openedByUserId,
+        string $closedByUserId,
         OrderStatus $status,
         int $diners,
     ): self {
@@ -37,7 +37,7 @@ class Order
             $restaurantId,
             $tableId,
             $openedByUserId,
-            null,
+            $closedByUserId,
             $status,
             $diners,
             $now,
@@ -50,17 +50,16 @@ class Order
 
     public static function fromPersistence(
         string $id,
-        string $restaurantId,
+        int $restaurantId,
         string $tableId,
         string $openedByUserId,
-        ?string $closedByUserId,
+        string $closedByUserId,
         string $status,
         int $diners,
         \DateTimeImmutable $openedAt,
-        ?\DateTimeImmutable $closedAt,
+        \DateTimeImmutable $closedAt,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        ?\DateTimeImmutable $deletedAt,
     ): self {
         return new self(
             Uuid::create($id),
@@ -74,7 +73,6 @@ class Order
             $closedAt !== null ? DomainDateTime::create($closedAt) : null,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
-            $deletedAt !== null ? DomainDateTime::create($deletedAt) : null,
         );
     }
 
@@ -83,7 +81,7 @@ class Order
         return $this->id;
     }
 
-    public function restaurantId(): string
+    public function restaurantId(): int
     {
         return $this->restaurantId;
     }
@@ -131,10 +129,5 @@ class Order
     public function updatedAt(): DomainDateTime
     {
         return $this->updatedAt;
-    }
-
-    public function deletedAt(): ?DomainDateTime
-    {
-        return $this->deletedAt;
     }
 }

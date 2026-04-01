@@ -14,11 +14,10 @@ final readonly class GetUserByIdResponse
         public string $email,
         private Role $role,
         public ?string $imageSrc,
-        public ?int $restaurantId,
+        public int $restaurantId,
         public string $pin,
         public string $createdAt,
         public string $updatedAt,
-        public ?string $deletedAt = null,
     ) {}
 
     public static function create(User $user): self
@@ -33,7 +32,6 @@ final readonly class GetUserByIdResponse
             pin: $user->pin(),
             createdAt: $user->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $user->updatedAt()->format(\DateTimeInterface::ATOM),
-            deletedAt: $user->deletedAt() ? $user->deletedAt()->format(\DateTimeInterface::ATOM) : null,
         );
     }
 
@@ -49,7 +47,6 @@ final readonly class GetUserByIdResponse
             'restaurant_id' => $this->restaurantId,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
-            'deleted_at' => $this->deletedAt,
         ];
     }
 }

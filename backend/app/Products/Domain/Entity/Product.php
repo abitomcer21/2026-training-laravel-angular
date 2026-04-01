@@ -21,10 +21,9 @@ class Product
         private ProductStock $stock,
         private ProductImageSrc $imageSrc,
         private ProductStatus $status,
-        private ?int $restaurantId,
+        private int $restaurantId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-        private ?DomainDateTime $deletedAt = null,
     ) {}
 
     public static function dddCreate(
@@ -35,7 +34,7 @@ class Product
         ProductStock $stock,
         ProductImageSrc $imageSrc,
         ProductStatus $status,
-        ?int $restaurantId = null,
+        int $restaurantId,
     ): self {
         $now = DomainDateTime::now();
 
@@ -63,10 +62,9 @@ class Product
         int $stock,
         string $imageSrc,
         bool $active,
-        ?int $restaurantId = null,
+        int $restaurantId,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        ?\DateTimeImmutable $deletedAt = null,
     ): self {
         return new self(
             Uuid::create($id),
@@ -80,7 +78,6 @@ class Product
             $restaurantId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
-            $deletedAt ? DomainDateTime::create($deletedAt) : null,
         );
     }
 
@@ -124,7 +121,7 @@ class Product
         return $this->status;
     }
 
-    public function restaurantId(): ?int
+    public function restaurantId(): int
     {
         return $this->restaurantId;
     }
@@ -175,14 +172,4 @@ class Product
         return $this->updatedAt;
     }
 
-    public function deletedAt(): ?DomainDateTime
-    {
-        return $this->deletedAt;
-    }
-
-    public function markAsDeleted(): void
-    {
-        $this->deletedAt = DomainDateTime::now();
-        $this->updatedAt = DomainDateTime::now();
-    }
 }

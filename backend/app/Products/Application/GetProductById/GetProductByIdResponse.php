@@ -15,10 +15,9 @@ final readonly class GetProductByIdResponse
         public int $stock,
         public string $imageSrc,
         public bool $active,
-        public ?int $restaurantId,
+        public int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
-        public ?string $deletedAt = null,
     ) {}
 
     public static function create(Product $product): self
@@ -35,7 +34,6 @@ final readonly class GetProductByIdResponse
             restaurantId: $product->restaurantId(),
             createdAt: $product->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $product->updatedAt()->format(\DateTimeInterface::ATOM),
-            deletedAt: $product->deletedAt() ? $product->deletedAt()->format(\DateTimeInterface::ATOM) : null,
         );
     }
 
@@ -53,7 +51,6 @@ final readonly class GetProductByIdResponse
             'restaurant_id' => $this->restaurantId,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
-            'deleted_at' => $this->deletedAt,
         ];
     }
 }

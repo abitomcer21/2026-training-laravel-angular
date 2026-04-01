@@ -11,4 +11,6 @@ interface ZonesRepositoryInterface
     public function findById(string $id): ?Zones;
 
     public function all(): array;
+
+    public function delete(string $id): void;
 }

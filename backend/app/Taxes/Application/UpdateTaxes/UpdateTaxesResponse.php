@@ -9,7 +9,7 @@ final readonly class UpdateTaxesResponse
         private string $id,
         private string $name,
         private int $percentage,
-        public ?int $restaurantId,
+        public int $restaurantId,
     ) {}
 
     public static function create(Taxes $taxes): self

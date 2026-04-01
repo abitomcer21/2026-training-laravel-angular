@@ -11,4 +11,6 @@ interface FamilyRepositoryInterface
     public function findById(string $id): ?Family;
 
     public function all(): array;
+
+    public function delete(string $id): void;
 }

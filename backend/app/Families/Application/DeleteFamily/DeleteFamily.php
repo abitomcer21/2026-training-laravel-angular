@@ -12,15 +12,14 @@ class DeleteFamily
 
     public function __invoke(string $id): bool
     {
-        $family = $this->familyRepository->findById($id);
-
-        if (!$family) {
+        if (!$this->familyRepository->findById($id)) {
             return false;
         }
 
-        $family->markAsDeleted();
-        $this->familyRepository->save($family);
+        $this->familyRepository->delete($id);
 
         return true;
     }
 }
+
+

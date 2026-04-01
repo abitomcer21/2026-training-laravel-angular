@@ -14,7 +14,7 @@ class CreateZones
 
     public function __invoke(
         string $name,
-        ?int $restaurantId = null,
+        int $restaurantId,
     ): CreateZonesResponse {
         $nameVO = ZoneName::create($name);
         $zone = Zones::dddCreate($nameVO, $restaurantId);

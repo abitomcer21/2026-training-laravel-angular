@@ -13,14 +13,11 @@ class DeleteProduct
 
     public function __invoke (string $id): bool
     {
-        $product = $this->productRepository->findById($id);
-
-        if (!$product) {
+        if (!$this->productRepository->findById($id)) {
             return false;
         }
 
-        $product->markAsDeleted();
-        $this->productRepository->save($product);
+        $this->productRepository->delete($id);
 
         return true;
     }

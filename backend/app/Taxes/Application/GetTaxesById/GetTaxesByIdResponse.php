@@ -10,7 +10,7 @@ final readonly class GetTaxesByIdResponse
         private string $id,
         private string $name,
         private int $percentage,
-        public ?int $restaurantId,
+        public int $restaurantId,
         private string $createdAt,
         private string $updatedAt,
     ) {}

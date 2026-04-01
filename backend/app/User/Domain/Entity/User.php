@@ -19,11 +19,10 @@ class User
         private PasswordHash $passwordHash,
         private Role $role,
         private ?string $imageSrc,
-        private ?int $restaurantId,
+        private int $restaurantId,
         private Pin $pin,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-        private ?DomainDateTime $deletedAt = null,
     ) {}
 
     public static function dddCreate(
@@ -32,8 +31,8 @@ class User
         PasswordHash $passwordHash,
         Role $role,
         Pin $pin,
+        int $restaurantId,
         ?string $imageSrc = null,
-        ?int $restaurantId = null,
     ): self {
         $now = DomainDateTime::now();
 
@@ -58,11 +57,10 @@ class User
         string $passwordHash,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
+        int $restaurantId,
         ?string $role = null,
         ?string $imageSrc = null,
-        ?int $restaurantId = null,
         string $pin = '0000',
-        ?\DateTimeImmutable $deletedAt = null,
     ): self {
         return new self(
             Uuid::create($id),
@@ -75,7 +73,6 @@ class User
             Pin::create($pin),
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
-            $deletedAt ? DomainDateTime::create($deletedAt) : null,
         );
     }
 
@@ -109,7 +106,7 @@ class User
         return $this->imageSrc;
     }
 
-    public function restaurantId(): ?int
+    public function restaurantId(): int
     {
         return $this->restaurantId;
     }
@@ -147,14 +144,4 @@ class User
         return $this->updatedAt;
     }
 
-    public function markAsDeleted(): void
-    {
-        $this->deletedAt = DomainDateTime::now();
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function deletedAt(): ?DomainDateTime
-    {
-        return $this->deletedAt;
-    }
 }

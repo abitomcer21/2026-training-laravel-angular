@@ -21,6 +21,7 @@ class CreateProduct
     public function __invoke(
         string $familyId,
         string $taxId,
+        int $restaurantId,
         string $name,
         int $price,
         int $stock,
@@ -41,6 +42,7 @@ class CreateProduct
             $stockVO,
             $imageSrcVO,
             $statusVO,
+            $restaurantId,
         );
         $this->productRepository->save($product);
 

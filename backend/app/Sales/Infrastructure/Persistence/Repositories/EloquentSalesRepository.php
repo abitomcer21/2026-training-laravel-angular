@@ -5,26 +5,26 @@ namespace App\Sales\Infrastructure\Persistence\Repositories;
 use App\Sales\Domain\Entity\Sales;
 use App\Sales\Domain\Entity\SalesLine;
 use App\Sales\Domain\Interfaces\SalesRepositoryInterface;
-use App\Sales\Domain\ValueObject\Quantity;
-use App\Sales\Domain\ValueObject\SalesLinePrice;
-use App\Sales\Domain\ValueObject\SalesLineTaxPercentage;
 use App\Sales\Infrastructure\Persistence\Models\EloquentSales;
 use App\Sales\Infrastructure\Persistence\Models\EloquentSalesLine;
-use App\Shared\Domain\ValueObject\Uuid;
-use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Order\Infrastructure\Persistence\Models\EloquentOrderLine;
 use App\Tables\Infrastructure\Persistence\Models\EloquentTables;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
 
 class EloquentSalesRepository implements SalesRepositoryInterface
 {
+    public function __construct(
+        private EloquentSales $model,
+        private EloquentSalesLine $salesLineModel,
+    ) {}
+
     public function save(Sales $sales): void
     {
         $tableId = EloquentTables::where('uuid', $sales->tableId()->value())->first()?->id;
         $openedByUserId = EloquentUser::where('uuid', $sales->openedByUserId()->value())->first()?->id;
         $closedByUserId = $sales->closedByUserId() ? EloquentUser::where('uuid', $sales->closedByUserId()->value())->first()?->id : null;
 
-        EloquentSales::updateOrCreate(
+        $this->model->newQuery()->updateOrCreate(
             ['uuid' => $sales->id()->value()],
             [
                 'table_id' => $tableId,
@@ -42,7 +42,7 @@ class EloquentSalesRepository implements SalesRepositoryInterface
 
     public function findById(string $id): ?Sales
     {
-        $eloquentSale = EloquentSales::where('uuid', $id)->first();
+        $eloquentSale = $this->model->newQuery()->where('uuid', $id)->first();
 
         if (!$eloquentSale) {
             return null;
@@ -71,7 +71,7 @@ class EloquentSalesRepository implements SalesRepositoryInterface
 
     public function saveSalesLine(SalesLine $line): void
     {
-        $sale = EloquentSales::where('uuid', $line->saleId()->value())->first();
+        $sale = $this->model->newQuery()->where('uuid', $line->saleId()->value())->first();
         $saleId = $sale?->id;
         $restaurantId = $sale?->restaurant_id;
         $orderLineId = EloquentOrderLine::where('uuid', $line->orderLineId()->value())->first()?->id;
@@ -81,7 +81,7 @@ class EloquentSalesRepository implements SalesRepositoryInterface
             throw new \InvalidArgumentException('Cannot create sales line with invalid related ids.');
         }
 
-        EloquentSalesLine::updateOrCreate(
+        $this->salesLineModel->newQuery()->updateOrCreate(
             ['uuid' => $line->uuid()->value()],
             [
                 'restaurant_id' => $restaurantId,
@@ -97,13 +97,13 @@ class EloquentSalesRepository implements SalesRepositoryInterface
 
     public function findSalesLinesBySaleId(string $saleId): array
     {
-        $eloquentSales = EloquentSales::where('uuid', $saleId)->first();
+        $eloquentSales = $this->model->newQuery()->where('uuid', $saleId)->first();
 
         if (!$eloquentSales) {
             return [];
         }
 
-        $eloquentLines = EloquentSalesLine::where('sale_id', $eloquentSales->id)->get();
+        $eloquentLines = $this->salesLineModel->newQuery()->where('sale_id', $eloquentSales->id)->get();
 
         return $eloquentLines->map(function (EloquentSalesLine $eloquentLine) {
             return $this->reconstructSalesLineFromEloquent($eloquentLine);
@@ -112,7 +112,7 @@ class EloquentSalesRepository implements SalesRepositoryInterface
 
     public function findSalesLineById(string $id): ?SalesLine
     {
-        $eloquentLine = EloquentSalesLine::where('uuid', $id)->first();
+        $eloquentLine = $this->salesLineModel->newQuery()->where('uuid', $id)->first();
 
         if (!$eloquentLine) {
             return null;
@@ -123,7 +123,7 @@ class EloquentSalesRepository implements SalesRepositoryInterface
 
     private function reconstructSalesLineFromEloquent(EloquentSalesLine $eloquentLine): SalesLine
     {
-        $saleUuid = EloquentSales::find($eloquentLine->sale_id)?->uuid;
+        $saleUuid = $this->model->newQuery()->find($eloquentLine->sale_id)?->uuid;
         $orderLineUuid = EloquentOrderLine::find($eloquentLine->order_line_id)?->uuid;
         $userUuid = EloquentUser::find($eloquentLine->user_id)?->uuid;
 

@@ -12,14 +12,11 @@ class DeleteTaxes
 
     public function __invoke(string $id): bool
     {
-        $taxes = $this->taxesRepository->findById($id);
-
-        if (!$taxes) {
+        if (!$this->taxesRepository->findById($id)) {
             return false;
         }
 
-        $taxes->markAsDeleted();
-        $this->taxesRepository->save($taxes);
+        $this->taxesRepository->delete($id);
 
         return true;
     }

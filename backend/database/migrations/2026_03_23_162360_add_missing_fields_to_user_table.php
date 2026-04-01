@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('role')->after('password');
             $table->string('image_src')->after('role')->nullable();
-            $table->foreignId('restaurant_id')->constrained('restaurants')->after('image_src')->nullable();
+            $table->foreignId('restaurant_id')->constrained('restaurants')->after('image_src');
             $table->string('pin')->after('restaurant_id')->nullable();
             $table->softDeletes('deleted_at')->after('updated_at');
         });

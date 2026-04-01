@@ -31,7 +31,6 @@ class EloquentUserRepository implements UserRepositoryInterface
         ]);
 
         $model->updated_at = $user->updatedAt()->value();
-        $model->deleted_at = $user->deletedAt()?->value();
 
         $model->save();
     }
@@ -51,30 +50,33 @@ class EloquentUserRepository implements UserRepositoryInterface
             $model->password,
             $model->created_at->toDateTimeImmutable(),
             $model->updated_at->toDateTimeImmutable(),
+            $model->restaurant_id,
             $model->role,
             $model->image_src,
-            $model->restaurant_id,
             $model->pin,
-            $model->deleted_at?->toDateTimeImmutable(),
         );
     }
 
     public function all(): array
     {
         return $this->model->newQuery()->get()->map(
-            fn (EloquentUser $model) => User::fromPersistence(
+            fn (EloquentUser $model): User => User::fromPersistence(
                 $model->uuid,
                 $model->name,
                 $model->email,
                 $model->password,
                 $model->created_at->toDateTimeImmutable(),
                 $model->updated_at->toDateTimeImmutable(),
+                $model->restaurant_id,
                 $model->role,
                 $model->image_src,
-                $model->restaurant_id,
                 $model->pin,
-                $model->deleted_at?->toDateTimeImmutable(),
-            )
+            ),
         )->toArray();
+    }
+
+    public function delete(string $id): void
+    {
+        $this->model->newQuery()->where('uuid', $id)->delete();
     }
 }

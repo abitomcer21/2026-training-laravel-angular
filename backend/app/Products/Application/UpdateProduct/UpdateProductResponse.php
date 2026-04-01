@@ -15,7 +15,7 @@ final readonly class UpdateProductResponse
         public int $stock,
         public string $imageSrc,
         public bool $active,
-        public ?int $restaurantId,
+        public int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
     ) {}

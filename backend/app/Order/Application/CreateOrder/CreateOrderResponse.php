@@ -8,7 +8,7 @@ final readonly class CreateOrderResponse
 {
     public function __construct(
         public string $id,
-        public string $restaurantId,
+        public int $restaurantId,
         public string $tableId,
         public string $openedByUserId,
         public ?string $closedByUserId,

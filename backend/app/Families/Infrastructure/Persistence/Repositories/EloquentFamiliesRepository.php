@@ -8,9 +8,13 @@ use App\Families\Infrastructure\Persistence\Models\EloquentFamilies;
 
 class EloquentFamiliesRepository implements FamilyRepositoryInterface
 {
+    public function __construct(
+        private EloquentFamilies $model,
+    ) {}
+
     public function save(Family $family): void
     {
-        EloquentFamilies::updateOrCreate(
+        $this->model->newQuery()->updateOrCreate(
             ['uuid' => $family->id()->value()],
             [
                 'restaurant_id' => $family->restaurantId(),
@@ -18,14 +22,13 @@ class EloquentFamiliesRepository implements FamilyRepositoryInterface
                 'active'        => $family->status()->value(),
                 'created_at'    => $family->createdAt()->value(),
                 'updated_at'    => $family->updatedAt()->value(),
-                'deleted_at'    => $family->deletedAt()?->value(),
             ],
         );
     }
 
     public function findById(string $id): ?Family
     {
-        $eloquentFamilies = EloquentFamilies::where('uuid', $id)->first();
+        $eloquentFamilies = $this->model->newQuery()->where('uuid', $id)->first();
 
         if (!$eloquentFamilies) {
             return null;
@@ -38,7 +41,25 @@ class EloquentFamiliesRepository implements FamilyRepositoryInterface
             $eloquentFamilies->restaurant_id,
             $eloquentFamilies->created_at->toDateTimeImmutable(),
             $eloquentFamilies->updated_at->toDateTimeImmutable(),
-            $eloquentFamilies->deleted_at?->toDateTimeImmutable(),
         );
+    }
+
+    public function all(): array
+    {
+        return $this->model->newQuery()->get()->map(
+            fn (EloquentFamilies $family): Family => Family::fromPersistence(
+                $family->uuid,
+                $family->name,
+                $family->active,
+                $family->restaurant_id,
+                $family->created_at->toDateTimeImmutable(),
+                $family->updated_at->toDateTimeImmutable(),
+            ),
+        )->toArray();
+    }                                                                                                                                            
+
+    public function delete(string $id): void
+    {
+        $this->model->newQuery()->where('uuid', $id)->delete();
     }
 }
