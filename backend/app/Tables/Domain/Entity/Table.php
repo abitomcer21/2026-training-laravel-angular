@@ -6,25 +6,29 @@ use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Shared\Domain\ValueObject\Uuid;
 use App\Tables\Domain\ValueObject\TableName;
 
-class Tables
+class Table
 {
     private function __construct(
         private Uuid $id,
-        private Uuid $zoneId,
         private TableName $name,
+        private int $restaurantId,
+        private int $zoneId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-        private ?DomainDateTime $deletedAt = null,
     ) {}
 
-    public static function dddCreate(Uuid $zoneId, TableName $name): self
-    {
+    public static function dddCreate(
+        TableName $name,
+        int $zoneId,
+        int $restaurantId,
+    ): self {
         $now = DomainDateTime::now();
 
         return new self(
             Uuid::generate(),
-            $zoneId,
             $name,
+            $restaurantId,
+            $zoneId,
             $now,
             $now,
         );
@@ -32,19 +36,19 @@ class Tables
 
     public static function fromPersistence(
         string $id,
-        string $zoneId,
+        int $zoneId,
         string $name,
+        int $restaurantId,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        ?\DateTimeImmutable $deletedAt = null,
     ): self {
         return new self(
             Uuid::create($id),
-            Uuid::create($zoneId),
             TableName::create($name),
+            $restaurantId,
+            $zoneId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
-            $deletedAt ? DomainDateTime::create($deletedAt) : null,
         );
     }
 
@@ -53,9 +57,14 @@ class Tables
         return $this->id;
     }
 
-    public function zoneId(): Uuid
+    public function zoneId(): int
     {
         return $this->zoneId;
+    }
+
+    public function restaurantId(): int
+    {
+        return $this->restaurantId;
     }
 
     public function name(): string
@@ -68,13 +77,15 @@ class Tables
         return $this->createdAt;
     }
 
+    public function updateName(TableName $name): void
+    {
+        $this->name = $name;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
     public function updatedAt(): DomainDateTime
     {
         return $this->updatedAt;
     }
 
-    public function deletedAt(): ?DomainDateTime
-    {
-        return $this->deletedAt;
-    }
 }
