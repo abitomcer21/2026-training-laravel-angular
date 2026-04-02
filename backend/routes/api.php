@@ -11,7 +11,7 @@ use App\Families\Infrastructure\Entrypoint\Http\GetByIdController as FamiliesGet
 use App\Families\Infrastructure\Entrypoint\Http\PostController as FamiliesPostController;
 use App\Families\Infrastructure\Entrypoint\Http\PutController as FamiliesPutController;
 use App\Families\Infrastructure\Entrypoint\Http\ActivateController as FamiliesActivateController;
-use App\Families\Infrastructure\Entrypoint\Http\DeactivateController as FamiliesDeactivateController;
+use App\Families\Infrastructure\Entrypoint\Http\DesactivateController as FamiliesDesactivateController;
 
 use App\Products\Infrastructure\Entrypoint\Http\GetByIdController as ProductsGetByIdController;
 use App\Products\Infrastructure\Entrypoint\Http\GetAllController as ProductsGetAllController;
@@ -49,7 +49,7 @@ Route::post('/families', FamiliesPostController::class);
 Route::get('/families/{id}', FamiliesGetByIdController::class);
 Route::put('/families/{id}', FamiliesPutController::class);
 Route::patch('/families/{id}/activate', FamiliesActivateController::class);
-Route::patch('/families/{id}/deactivate', FamiliesDeactivateController::class);
+Route::patch('/families/{id}/desactivate', FamiliesDesactivateController::class);
 Route::delete('/families/{id}', FamiliesDeleteController::class);
 
 Route::post('/products', ProductsPostController::class);
