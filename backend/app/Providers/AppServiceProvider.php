@@ -29,6 +29,9 @@ use Illuminate\Support\ServiceProvider;
 use App\User\Domain\Interfaces\TokenIssuerInterface;
 use App\User\Infrastructure\Services\SanctumTokenIssuer;
 
+use App\User\Domain\Interfaces\TokenRevokerInterface;
+use App\User\Infrastructure\Services\SanctumTokenRevoker;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -48,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SalesRepositoryInterface::class, EloquentSalesRepository::class);
         $this->app->bind(OrderRepositoryInterface::class, EloquentOrderRepository::class);
         $this->app->bind(TokenIssuerInterface::class, SanctumTokenIssuer::class);
+        $this->app->bind(TokenRevokerInterface::class, SanctumTokenRevoker::class);
     }
 
     /**

@@ -30,6 +30,8 @@ use App\Zones\Infrastructure\Entrypoint\Http\PutController as ZonesPutController
 use App\Zones\Infrastructure\Entrypoint\Http\DeleteController as ZonesDeleteController;
 
 use App\User\Infrastructure\Entrypoint\Http\LoginController;
+use App\User\Infrastructure\Entrypoint\Http\LogoutController;
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -63,3 +65,4 @@ Route::put('/zones/{id}', ZonesPutController::class);
 Route::delete('/zones/{id}', ZonesDeleteController::class);
 
 Route::post('/login', LoginController::class);
+Route::post('/logout', LogoutController::class);
