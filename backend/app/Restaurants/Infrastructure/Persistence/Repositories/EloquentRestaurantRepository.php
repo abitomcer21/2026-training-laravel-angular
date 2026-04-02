@@ -48,4 +48,42 @@ class EloquentRestaurantRepository implements RestaurantRepositoryInterface
             $eloquentRestaurant->deleted_at?->toImmutable(),
         );
     }
+
+    public function findByInternalId(int $id): ?Restaurant
+    {
+        $eloquentRestaurant = $this->model->newQuery()->find($id);
+
+        if (! $eloquentRestaurant) {
+            return null;
+        }
+
+        return Restaurant::fromPersistence(
+            $eloquentRestaurant->uuid,
+            $eloquentRestaurant->name,
+            $eloquentRestaurant->legal_name,
+            $eloquentRestaurant->tax_id,
+            $eloquentRestaurant->email,
+            $eloquentRestaurant->password,
+            $eloquentRestaurant->created_at->toImmutable(),
+            $eloquentRestaurant->updated_at->toImmutable(),
+            $eloquentRestaurant->deleted_at?->toImmutable(),
+        );
+    }
+
+    public function all(): array
+    {
+        return $this->model->newQuery()->get()->map(
+            fn (EloquentRestaurant $eloquentRestaurant): Restaurant => Restaurant::fromPersistence(
+                $eloquentRestaurant->uuid,
+                $eloquentRestaurant->name,
+                $eloquentRestaurant->legal_name,
+                $eloquentRestaurant->tax_id,
+                $eloquentRestaurant->email,
+                $eloquentRestaurant->password,
+                $eloquentRestaurant->created_at->toImmutable(),
+                $eloquentRestaurant->updated_at->toImmutable(),
+                $eloquentRestaurant->deleted_at?->toImmutable(),
+            ),
+        )->toArray();
+    }
 }

@@ -161,6 +161,15 @@ class Product
         $this->updatedAt = DomainDateTime::now();
     }
 
+    public function activate(): void
+    {
+        $this->updateStatus(ProductStatus::active());
+    }
+
+    public function deactivate(): void
+    {
+        $this->updateStatus(ProductStatus::inactive());
+    }
 
     public function createdAt(): DomainDateTime
     {

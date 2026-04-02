@@ -9,4 +9,8 @@ interface RestaurantRepositoryInterface
     public function save(Restaurant $restaurant): void;
 
     public function findById(string $id): ?Restaurant;
+
+    public function findByInternalId(int $id): ?Restaurant;
+
+    public function all(): array;
 }

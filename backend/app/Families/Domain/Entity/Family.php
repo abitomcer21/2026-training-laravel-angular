@@ -93,4 +93,14 @@ class Family
         $this->updatedAt = DomainDateTime::now();
     }
 
+        public function activate(): void
+    {
+        $this->updateStatus(FamilyStatus::active());
+    }
+
+    public function deactivate(): void
+    {
+        $this->updateStatus(FamilyStatus::inactive());
+    }
+
 }

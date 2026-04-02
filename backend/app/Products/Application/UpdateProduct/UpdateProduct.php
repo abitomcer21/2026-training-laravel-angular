@@ -6,7 +6,6 @@ use App\Products\Domain\Interfaces\ProductRepositoryInterface;
 use App\Products\Domain\ValueObject\ProductImageSrc;
 use App\Products\Domain\ValueObject\ProductName;
 use App\Products\Domain\ValueObject\ProductPrice;
-use App\Products\Domain\ValueObject\ProductStatus;
 use App\Products\Domain\ValueObject\ProductStock;
 
 class UpdateProduct
@@ -31,9 +30,14 @@ class UpdateProduct
 
         $product->updateName(ProductName::create($name));
         $product->updatePrice(ProductPrice::create($price));
-    $product->updateImageSrc(ProductImageSrc::create($imageSrc));
+        $product->updateImageSrc(ProductImageSrc::create($imageSrc));
         $product->updateStock(ProductStock::create($stock));
-        $product->updateStatus(ProductStatus::create($active));
+
+        if ($active) {
+            $product->activate();
+        } else {
+            $product->deactivate();
+        }
 
         $this->productRepository->save($product);
 
