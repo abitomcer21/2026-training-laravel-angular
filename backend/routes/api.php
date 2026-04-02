@@ -29,6 +29,8 @@ use App\Zones\Infrastructure\Entrypoint\Http\GetByIdController as ZonesGetByIdCo
 use App\Zones\Infrastructure\Entrypoint\Http\PutController as ZonesPutController;
 use App\Zones\Infrastructure\Entrypoint\Http\DeleteController as ZonesDeleteController;
 
+use App\User\Infrastructure\Entrypoint\Http\LoginController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::post('/users', UserPostController::class);
@@ -59,3 +61,5 @@ Route::get('/zones', ZonesGetAllController::class);
 Route::get('/zones/{id}', ZonesGetByIdController::class);
 Route::put('/zones/{id}', ZonesPutController::class);
 Route::delete('/zones/{id}', ZonesDeleteController::class);
+
+Route::post('/login', LoginController::class);

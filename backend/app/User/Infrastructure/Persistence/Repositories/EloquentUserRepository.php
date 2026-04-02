@@ -57,10 +57,32 @@ class EloquentUserRepository implements UserRepositoryInterface
         );
     }
 
+    public function findByEmail(string $email): ?User
+    {
+        $model = $this->model->newQuery()->where('email', $email)->first();
+
+        if ($model === null) {
+            return null;
+        }
+
+        return User::fromPersistence(
+            $model->uuid,
+            $model->name,
+            $model->email,
+            $model->password,
+            $model->created_at->toDateTimeImmutable(),
+            $model->updated_at->toDateTimeImmutable(),
+            $model->restaurant_id,
+            $model->role,
+            $model->image_src,
+            $model->pin,
+        );
+    }
+
     public function all(): array
     {
         return $this->model->newQuery()->get()->map(
-            fn (EloquentUser $model): User => User::fromPersistence(
+            fn(EloquentUser $model): User => User::fromPersistence(
                 $model->uuid,
                 $model->name,
                 $model->email,

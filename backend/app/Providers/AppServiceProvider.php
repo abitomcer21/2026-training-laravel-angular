@@ -26,6 +26,9 @@ use App\Order\Domain\Interfaces\OrderRepositoryInterface;
 use App\Order\Infrastructure\Persistence\Repositories\EloquentOrderRepository;
 use Illuminate\Support\ServiceProvider;
 
+use App\User\Domain\Interfaces\TokenIssuerInterface;
+use App\User\Infrastructure\Services\SanctumTokenIssuer;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -44,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TablesRepositoryInterface::class, EloquentTablesRepository::class);
         $this->app->bind(SalesRepositoryInterface::class, EloquentSalesRepository::class);
         $this->app->bind(OrderRepositoryInterface::class, EloquentOrderRepository::class);
+        $this->app->bind(TokenIssuerInterface::class, SanctumTokenIssuer::class);
     }
 
     /**
