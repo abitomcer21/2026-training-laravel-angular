@@ -2,8 +2,6 @@
 
 namespace App\User\Application\Auth;
 
-use App\Restaurants\Domain\Interfaces\RestaurantRepositoryInterface;
-use App\User\Domain\Entity\User;
 use App\User\Domain\Interfaces\PasswordHasherInterface;
 use App\User\Domain\Interfaces\TokenIssuerInterface;
 use App\User\Domain\Interfaces\UserRepositoryInterface;
@@ -14,7 +12,6 @@ class LoginUser
         private UserRepositoryInterface $userRepository,
         private PasswordHasherInterface $passwordHasher,
         private TokenIssuerInterface $tokenIssuer,
-        private RestaurantRepositoryInterface $restaurantRepository,
     ) {}
 
     public function __invoke(string $email, string $plainPassword): LoginUserResponse
@@ -35,23 +32,7 @@ class LoginUser
         }
 
         $token = $this->tokenIssuer->issueForUser($user);
-        $restaurants = $this->accessibleRestaurantsFor($user);
 
-        return LoginUserResponse::create($user, $token, $restaurants);
-    }
-
-    private function accessibleRestaurantsFor(User $user): array
-    {
-        if ($user->role()->isAdmin()) {
-            return $this->restaurantRepository->all();
-        }
-
-        $restaurant = $this->restaurantRepository->findByInternalId($user->restaurantId());
-
-        if ($restaurant === null) {
-            return [];
-        }
-
-        return [$restaurant];
+        return LoginUserResponse::create($user, $token);
     }
 }

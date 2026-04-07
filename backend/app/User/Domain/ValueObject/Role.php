@@ -5,6 +5,7 @@ namespace App\User\Domain\ValueObject;
 class Role
 {
     public const ADMIN = 'admin';
+    public const SUPERVISOR = 'supervisor';
     public const CASHIER = 'cashier';
     public const WAITER = 'waiter';
     public const CHEF = 'chef';
@@ -13,7 +14,7 @@ class Role
 
     private function __construct(string $value)
     {
-        if (!in_array($value, [self::ADMIN, self::CASHIER, self::WAITER, self::CHEF], true)) {
+        if (!in_array($value, [self::ADMIN,self::SUPERVISOR, self::CASHIER, self::WAITER, self::CHEF], true)) {
             throw new \InvalidArgumentException('Invalid role value: ' . $value);
         }
         $this->value = $value;
@@ -27,6 +28,11 @@ class Role
     public static function admin(): self
     {
         return new self(self::ADMIN);
+    }
+
+    public static function supervisor():self
+    {
+        return new self(self::SUPERVISOR);
     }
 
     public static function cashier(): self
@@ -57,6 +63,11 @@ class Role
     public function isAdmin(): bool
     {
         return $this->value === self::ADMIN;
+    }
+
+    public function isSupervisor():bool
+    {
+        return $this->value === self::SUPERVISOR;
     }
 
     public function isCashier(): bool
