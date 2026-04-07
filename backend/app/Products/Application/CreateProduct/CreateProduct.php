@@ -9,18 +9,16 @@ use App\Products\Domain\ValueObject\ProductName;
 use App\Products\Domain\ValueObject\ProductPrice;
 use App\Products\Domain\ValueObject\ProductStatus;
 use App\Products\Domain\ValueObject\ProductStock;
-use App\Shared\Domain\ValueObject\Uuid;
 
 class CreateProduct
 {
     public function __construct(
         private ProductRepositoryInterface $productRepository,
-    ) {
-    }
+    ) {}
 
     public function __invoke(
-        string $familyId,
-        string $taxId,
+        int $familyId,
+        int $taxId,
         int $restaurantId,
         string $name,
         int $price,
@@ -35,8 +33,8 @@ class CreateProduct
         $statusVO = ProductStatus::create($active);
 
         $product = Product::dddCreate(
-            Uuid::create($familyId),
-            Uuid::create($taxId),
+            $familyId,
+            $taxId,
             $nameVO,
             $priceVO,
             $stockVO,
@@ -44,6 +42,7 @@ class CreateProduct
             $statusVO,
             $restaurantId,
         );
+
         $this->productRepository->save($product);
 
         return CreateProductResponse::create($product);

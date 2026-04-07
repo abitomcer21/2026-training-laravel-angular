@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Products\Application\DeactivateProduct;
+namespace App\Products\Application\DesactivateProduct;
 
 use App\Products\Application\UpdateProduct\UpdateProductResponse;
 use App\Products\Domain\Interfaces\ProductRepositoryInterface;
 
-final class DeactivateProduct
+final class DesactivateProduct
 {
     public function __construct(
         private ProductRepositoryInterface $productRepository,

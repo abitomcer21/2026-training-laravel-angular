@@ -8,8 +8,8 @@ final readonly class GetProductByIdResponse
 {
     public function __construct(
         public string $id,
-        public string $familyId,
-        public string $taxId,
+        public int $familyId,
+        public int $taxId,
         public string $name,
         public int $price,
         public int $stock,
@@ -24,8 +24,8 @@ final readonly class GetProductByIdResponse
     {
         return new self(
             id: $product->id()->value(),
-            familyId: $product->familyId()->value(),
-            taxId: $product->taxId()->value(),
+            familyId: $product->familyId(),
+            taxId: $product->taxId(),
             name: $product->name(),
             price: $product->price()->value(),
             stock: $product->stock()->value(),

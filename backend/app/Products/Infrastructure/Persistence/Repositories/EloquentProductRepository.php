@@ -18,8 +18,8 @@ class EloquentProductRepository implements ProductRepositoryInterface
             ['uuid' => $product->id()->value()],
             [
                 'restaurant_id' => $product->restaurantId(),
-                'family_id' => $product->familyId()->value(),
-                'tax_id' => $product->taxId()->value(),
+                'family_id' => $product->familyId(),
+                'tax_id' => $product->taxId(),
                 'name' => $product->name(),
                 'price' => $product->price()->value(),
                 'stock' => $product->stock()->value(),

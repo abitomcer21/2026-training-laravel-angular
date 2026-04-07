@@ -2,14 +2,14 @@
 
 namespace App\Products\Infrastructure\Entrypoint\Http;
 
-use App\Products\Application\DeactivateProduct\DeactivateProduct;
+use App\Products\Application\DesactivateProduct\DesactivateProduct;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
-final class DeactivateController
+final class DesactivateController
 {
     public function __construct(
-        private DeactivateProduct $deactivateProduct,
+        private DesactivateProduct $desactivateProduct,
     ) {}
 
     public function __invoke(string $id): JsonResponse
@@ -27,7 +27,7 @@ final class DeactivateController
             ], 422);
         }
 
-        $response = ($this->deactivateProduct)($id);
+        $response = ($this->desactivateProduct)($id);
 
         if ($response === null) {
             return new JsonResponse([

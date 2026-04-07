@@ -10,15 +10,14 @@ class PostController
 {
     public function __construct(
         private CreateProduct $createProduct,
-    ) {
-    }
+    ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
-            'family_id' => ['required', 'uuid'],
-            'tax_id' => ['required', 'uuid'],
+            'family_id' => ['required', 'integer', 'exists:families,id'],
+            'tax_id' => ['required', 'integer', 'exists:taxes,id'],
             'name' => ['required', 'string', 'max:255'],
             'price' => ['required', 'integer', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
