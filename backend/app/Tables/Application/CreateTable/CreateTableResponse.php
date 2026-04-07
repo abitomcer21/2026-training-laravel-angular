@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tables\Application\CreateTables;
+namespace App\Tables\Application\CreateTable;
 
 use App\Tables\Domain\Entity\Table;
 
@@ -13,8 +13,7 @@ final readonly class CreateTableResponse
         public int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
-    )
-    {}
+    ) {}
 
     public static function create(Table $table): self
     {
@@ -39,5 +38,4 @@ final readonly class CreateTableResponse
             'updated_at' => $this->updatedAt,
         ];
     }
-
 }

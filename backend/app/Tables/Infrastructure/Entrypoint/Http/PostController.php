@@ -2,7 +2,7 @@
 
 namespace App\Tables\Infrastructure\Entrypoint\Http;
 
-use App\Tables\Application\CreateTables\CreateTable;
+use App\Tables\Application\CreateTable\CreateTable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

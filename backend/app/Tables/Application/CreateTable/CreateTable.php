@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tables\Application\CreateTables;
+namespace App\Tables\Application\CreateTable;
 
 use App\Tables\Domain\Entity\Table;
 use App\Tables\Domain\Interfaces\TablesRepositoryInterface;
@@ -8,7 +8,9 @@ use App\Tables\Domain\ValueObject\TableName;
 
 class CreateTable
 {
-    public function __construct(private TablesRepositoryInterface $tablesRepository,) {}
+    public function __construct(
+        private TablesRepositoryInterface $tablesRepository,
+    ) {}
 
     public function __invoke(
         int $zoneId,
