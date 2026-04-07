@@ -73,7 +73,7 @@ class EloquentRestaurantRepository implements RestaurantRepositoryInterface
     public function all(): array
     {
         return $this->model->newQuery()->get()->map(
-            fn (EloquentRestaurant $eloquentRestaurant): Restaurant => Restaurant::fromPersistence(
+            fn(EloquentRestaurant $eloquentRestaurant): Restaurant => Restaurant::fromPersistence(
                 $eloquentRestaurant->uuid,
                 $eloquentRestaurant->name,
                 $eloquentRestaurant->legal_name,
@@ -85,5 +85,12 @@ class EloquentRestaurantRepository implements RestaurantRepositoryInterface
                 $eloquentRestaurant->deleted_at?->toImmutable(),
             ),
         )->toArray();
+    }
+
+    public function getInternalIdByUuid(string $uuid): ?int
+    {
+        $restaurant = $this->model->newQuery()->where('uuid', $uuid)->first();
+
+        return $restaurant?->id;
     }
 }

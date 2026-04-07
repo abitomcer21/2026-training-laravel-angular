@@ -10,9 +10,11 @@ use App\Families\Domain\Interfaces\FamilyRepositoryInterface;
 use App\Families\Infrastructure\Persistence\Repositories\EloquentFamiliesRepository;
 use App\Products\Domain\Interfaces\ProductRepositoryInterface;
 use App\Products\Infrastructure\Persistence\Repositories\EloquentProductRepository;
+use App\Restaurants\Domain\Interfaces\RestaurantAdminUserCreatorInterface;
 use App\Restaurants\Domain\Interfaces\RestaurantPasswordHasherInterface;
 use App\Restaurants\Domain\Interfaces\RestaurantRepositoryInterface;
 use App\Restaurants\Infrastructure\Persistence\Repositories\EloquentRestaurantRepository;
+use App\Restaurants\Infrastructure\Services\CreateRestaurantAdminUser;
 use App\Restaurants\Infrastructure\Services\LaravelRestaurantPasswordHasher;
 use App\Taxes\Domain\Interfaces\TaxesRepositoryInterface;
 use App\Taxes\Infrastructure\Persistence\Repositories\EloquentTaxesRepository;
@@ -34,9 +36,7 @@ use App\User\Infrastructure\Services\SanctumTokenRevoker;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
+
     public function register(): void
     {
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
@@ -44,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(FamilyRepositoryInterface::class, EloquentFamiliesRepository::class);
         $this->app->bind(RestaurantRepositoryInterface::class, EloquentRestaurantRepository::class);
         $this->app->bind(RestaurantPasswordHasherInterface::class, LaravelRestaurantPasswordHasher::class);
+        $this->app->bind(RestaurantAdminUserCreatorInterface::class, CreateRestaurantAdminUser::class);
         $this->app->bind(ProductRepositoryInterface::class, EloquentProductRepository::class);
         $this->app->bind(TaxesRepositoryInterface::class, EloquentTaxesRepository::class);
         $this->app->bind(ZonesRepositoryInterface::class, EloquentZonesRepository::class);
@@ -54,9 +55,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TokenRevokerInterface::class, SanctumTokenRevoker::class);
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         //

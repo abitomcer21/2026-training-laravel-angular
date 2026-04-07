@@ -13,4 +13,6 @@ interface RestaurantRepositoryInterface
     public function findByInternalId(int $id): ?Restaurant;
 
     public function all(): array;
+
+    public function getInternalIdByUuid(string $uuid): ?int;
 }

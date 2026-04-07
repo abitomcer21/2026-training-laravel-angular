@@ -7,9 +7,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-/**
- * @extends Factory<EloquentRestaurant>
- */
+
 class RestaurantFactory extends Factory
 {
     protected $model = EloquentRestaurant::class;

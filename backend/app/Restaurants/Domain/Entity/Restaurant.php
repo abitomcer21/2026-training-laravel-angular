@@ -21,7 +21,6 @@ class Restaurant
         private RestaurantPassword $password,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-        private ?DomainDateTime $deletedAt = null,
     ) {}
 
     public static function dddCreate(
@@ -54,7 +53,6 @@ class Restaurant
         string $password,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        ?\DateTimeImmutable $deletedAt = null,
     ): self {
         return new self(
             Uuid::create($id),
@@ -65,7 +63,6 @@ class Restaurant
             RestaurantPassword::create($password),
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
-            $deletedAt ? DomainDateTime::create($deletedAt) : null,
         );
     }
 
@@ -109,8 +106,33 @@ class Restaurant
         return $this->updatedAt;
     }
 
-    public function deletedAt(): ?DomainDateTime
+    public function updateName(RestaurantName $name): void
     {
-        return $this->deletedAt;
+        $this->name = $name;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updateLegalName(RestaurantLegalName $legalName): void
+    {
+        $this->legalName = $legalName;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updateTaxId(RestaurantTaxId $taxId): void
+    {
+        $this->taxId = $taxId;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updateEmail(Email $email): void
+    {
+        $this->email = $email;
+        $this->updatedAt = DomainDateTime::now();
+    }
+
+    public function updatePassword(RestaurantPassword $password): void
+    {
+        $this->password = $password;
+        $this->updatedAt = DomainDateTime::now();
     }
 }
