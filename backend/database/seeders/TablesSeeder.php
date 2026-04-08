@@ -9,25 +9,37 @@ use Illuminate\Database\Seeder;
 
 class TablesSeeder extends Seeder
 {
+    private static array $prefijos = [
+        'Terraza' => 'T',
+        'Comedor' => 'S',
+        'Barra'   => 'B',
+    ];
+
     public function run(): void
     {
         if (EloquentTables::query()->exists()) {
             return;
         }
 
-        $restaurant = EloquentRestaurant::query()->first();
+        $restaurants = EloquentRestaurant::query()->get();
 
-        if ($restaurant === null) {
+        if ($restaurants->isEmpty()) {
             return;
         }
 
-        $zones = EloquentZones::query()->where('restaurant_id', $restaurant->id)->get();
+        foreach ($restaurants as $restaurant) {
+            $zones = EloquentZones::where('restaurant_id', $restaurant->id)->get();
 
-        foreach ($zones as $zone) {
-            EloquentTables::factory(4)
-                ->forRestaurant($restaurant)
-                ->forZone($zone)
-                ->create();
+            foreach ($zones as $zone) {
+                $prefijo = self::$prefijos[$zone->name] ?? 'M';
+
+                for ($i = 1; $i <= 4; $i++) {
+                    EloquentTables::factory()
+                        ->forRestaurant($restaurant)
+                        ->forZone($zone)
+                        ->create(['name' => $prefijo . '-' . str_pad($i, 2, '0', STR_PAD_LEFT)]);
+                }
+            }
         }
     }
 }

@@ -14,22 +14,24 @@ class TaxesSeeder extends Seeder
             return;
         }
 
-        $restaurant = EloquentRestaurant::query()->first();
+        $restaurants = EloquentRestaurant::query()->get();
 
-        if ($restaurant === null) {
+        if ($restaurants->isEmpty()) {
             return;
         }
 
         $taxes = [
             ['name' => 'IVA Superreducido', 'percentage' => 4],
-            ['name' => 'IVA Reducido', 'percentage' => 10],
-            ['name' => 'IVA General', 'percentage' => 21],
+            ['name' => 'IVA Reducido',      'percentage' => 10],
+            ['name' => 'IVA General',       'percentage' => 21],
         ];
 
-        foreach ($taxes as $tax) {
-            EloquentTaxes::factory()
-                ->forRestaurant($restaurant)
-                ->create($tax);
+        foreach ($restaurants as $restaurant) {
+            foreach ($taxes as $tax) {
+                EloquentTaxes::factory()
+                    ->forRestaurant($restaurant)
+                    ->create($tax);
+            }
         }
     }
 }

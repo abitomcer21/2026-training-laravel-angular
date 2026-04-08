@@ -14,12 +14,17 @@ class RestaurantSeeder extends Seeder
             return;
         }
 
-        EloquentRestaurant::factory()->create([
-            'name' => 'Restaurant Demo',
-            'legal_name' => 'Restaurant Demo SL',
-            'tax_id' => 'ESB12345678',
-            'email' => 'info@restaurant.test',
-            'password' => Hash::make('password'),
-        ]);
+        $restaurantes = [
+            ['name' => 'La Taberna',    'legal_name' => 'La Taberna SL',    'tax_id' => 'ESB12345671', 'email' => 'info@taberna.test'],
+            ['name' => 'El Rincón',     'legal_name' => 'El Rincón SL',     'tax_id' => 'ESB12345672', 'email' => 'info@rincon.test'],
+            ['name' => 'Casa Pepe',     'legal_name' => 'Casa Pepe SL',     'tax_id' => 'ESB12345673', 'email' => 'info@casapepe.test'],
+        ];
+
+        foreach ($restaurantes as $datos) {
+            EloquentRestaurant::factory()->create([
+                ...$datos,
+                'password' => Hash::make('password'),
+            ]);
+        }
     }
 }

@@ -14,20 +14,18 @@ class ZonesSeeder extends Seeder
             return;
         }
 
-        $restaurant = EloquentRestaurant::query()->first();
+        $restaurants = EloquentRestaurant::query()->get();
 
-        if ($restaurant === null) {
+        if ($restaurants->isEmpty()) {
             return;
         }
 
-        $zoneNames = ['Terraza', 'Comedor', 'Barra'];
-
-        foreach ($zoneNames as $zoneName) {
-            EloquentZones::factory()
-                ->forRestaurant($restaurant)
-                ->create([
-                    'name' => $zoneName,
-                ]);
+        foreach ($restaurants as $restaurant) {
+            foreach (['Terraza', 'Sala', 'Barra'] as $zoneName) {
+                EloquentZones::factory()
+                    ->forRestaurant($restaurant)
+                    ->create(['name' => $zoneName]);
+            }
         }
     }
 }

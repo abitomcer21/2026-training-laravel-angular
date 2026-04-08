@@ -20,7 +20,7 @@ class FamiliesSeeder extends Seeder
             return;
         }
 
-        EloquentFamilies::factory(6)
+        EloquentFamilies::factory(8)
             ->forRestaurant($restaurant)
             ->create();
     }

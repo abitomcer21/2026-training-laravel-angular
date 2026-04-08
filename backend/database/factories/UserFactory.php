@@ -23,7 +23,7 @@ class UserFactory extends Factory
         return [
             'uuid'               => (string) Str::uuid(),
             'restaurant_id'      => EloquentRestaurant::factory(),
-            'role'               => $this->faker->randomElement(['admin', 'waiter', 'chef']),
+            'role'               => $this->faker->randomElement(['admin', 'supervisor', 'waiter', 'chef']),
             'image_src'          => null,
             'name'               => "$firstName $lastName",
             'email'              => "$slug@restaurant.test",
@@ -36,35 +36,42 @@ class UserFactory extends Factory
 
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
 
     public function admin(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'role' => 'admin',
         ]);
     }
 
     public function waiter(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'role' => 'waiter',
         ]);
     }
 
     public function chef(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'role' => 'chef',
+        ]);
+    }
+    
+    public function supervisor(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'role' => 'supervisor',
         ]);
     }
 
     public function forRestaurant(EloquentRestaurant|int $restaurant): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'restaurant_id' => $restaurant instanceof EloquentRestaurant ? $restaurant->id : $restaurant,
         ]);
     }

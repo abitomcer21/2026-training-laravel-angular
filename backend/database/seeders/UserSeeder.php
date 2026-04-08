@@ -14,29 +14,25 @@ class UserSeeder extends Seeder
             return;
         }
 
-        $restaurant = EloquentRestaurant::query()->first();
+        $restaurants = EloquentRestaurant::query()->get();
 
-        if ($restaurant === null) {
+        if ($restaurants->isEmpty()) {
             return;
         }
 
-        EloquentUser::factory()
-            ->admin()
-            ->forRestaurant($restaurant)
-            ->create([
-                'name' => 'Admin Principal',
-                'email' => 'admin@restaurant.test',
-                'pin' => '1234',
-            ]);
+        foreach ($restaurants as $index => $restaurant) {
+            EloquentUser::factory()
+                ->admin()
+                ->forRestaurant($restaurant)
+                ->create([
+                    'name'  => 'Admin Principal',
+                    'email' => "admin{$index}@restaurant.test",
+                    'pin'   => '1234',
+                ]);
 
-        EloquentUser::factory(3)
-            ->waiter()
-            ->forRestaurant($restaurant)
-            ->create();
-
-        EloquentUser::factory(2)
-            ->chef()
-            ->forRestaurant($restaurant)
-            ->create();
+            EloquentUser::factory(5)->waiter()->forRestaurant($restaurant)->create();
+            EloquentUser::factory(2)->chef()->forRestaurant($restaurant)->create();
+            EloquentUser::factory(4)->supervisor()->forRestaurant($restaurant)->create();
+        }
     }
 }

@@ -20,56 +20,55 @@ class OrdersSeeder extends Seeder
             return;
         }
 
-        $restaurant = EloquentRestaurant::query()->first();
+        $restaurants = EloquentRestaurant::query()->get();
 
-        if ($restaurant === null) {
+        if ($restaurants->isEmpty()) {
             return;
         }
 
-        $tables = EloquentTables::query()->where('restaurant_id', $restaurant->id)->get();
-        $products = EloquentProduct::query()->where('restaurant_id', $restaurant->id)->get();
-        $taxes = EloquentTaxes::query()->where('restaurant_id', $restaurant->id)->get()->keyBy('id');
-        $users = EloquentUser::query()
-            ->where('restaurant_id', $restaurant->id)
-            ->whereIn('role', ['waiter', 'chef'])
-            ->get();
+        foreach ($restaurants as $restaurant) {
+            $tables   = EloquentTables::query()->where('restaurant_id', $restaurant->id)->get();
+            $products = EloquentProduct::query()->where('restaurant_id', $restaurant->id)->get();
+            $taxes    = EloquentTaxes::query()->where('restaurant_id', $restaurant->id)->get()->keyBy('id');
+            $users    = EloquentUser::query()
+                ->where('restaurant_id', $restaurant->id)
+                ->whereIn('role', ['waiter', 'chef'])
+                ->get();
 
-        if ($tables->isEmpty() || $products->isEmpty() || $users->isEmpty()) {
-            return;
-        }
+            if ($tables->isEmpty() || $products->isEmpty() || $users->isEmpty()) {
+                continue;
+            }
 
-        for ($i = 0; $i < 10; $i++) {
-            $status = fake()->randomElement(['open', 'closed']);
-            $openedBy = $users->random();
-            $closedBy = $status === 'closed' ? $users->random() : null;
+            for ($i = 0; $i < 10; $i++) {
+                $status    = fake()->randomElement(['open', 'invoiced']);
+                $openedBy  = $users->random();
+                $closedBy  = $status === 'invoiced' ? $users->random() : null;
 
-            $order = EloquentOrder::factory()
-                ->forRestaurant($restaurant)
-                ->forTable($tables->random())
-                ->forUser($openedBy)
-                ->create([
-                    'status' => $status,
-                    'closed_by_user_id' => $closedBy?->id,
-                    'closed_at' => $status === 'closed' ? now() : null,
-                ]);
+                $order = EloquentOrder::factory()
+                    ->forRestaurant($restaurant)
+                    ->forTable($tables->random())
+                    ->forUser($openedBy)
+                    ->create([
+                        'status'             => $status,
+                        'closed_by_user_id'  => $closedBy?->id,
+                        'closed_at'          => $status === 'invoiced' ? now() : null,
+                    ]);
 
-            $lines = random_int(2, 5);
+                for ($line = 0; $line < random_int(2, 5); $line++) {
+                    $product = $products->random();
+                    $tax     = $taxes->get($product->tax_id);
 
-            for ($line = 0; $line < $lines; $line++) {
-                $product = $products->random();
-                $tax = $taxes->get($product->tax_id);
-                $lineUser = $users->random();
-
-                EloquentOrderLine::create([
-                    'uuid' => (string) Str::uuid(),
-                    'restaurant_id' => $restaurant->id,
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'user_id' => $lineUser->id,
-                    'quantity' => random_int(1, 4),
-                    'price' => $product->price,
-                    'tax_percentage' => $tax?->percentage ?? 21,
-                ]);
+                    EloquentOrderLine::create([
+                        'uuid'           => (string) Str::uuid(),
+                        'restaurant_id'  => $restaurant->id,
+                        'order_id'       => $order->id,
+                        'product_id'     => $product->id,
+                        'user_id'        => $users->random()->id,
+                        'quantity'       => random_int(1, 4),
+                        'price'          => $product->price,
+                        'tax_percentage' => $tax?->percentage ?? 21,
+                    ]);
+                }
             }
         }
     }
