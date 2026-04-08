@@ -10,6 +10,8 @@ interface ProductRepositoryInterface
 
     public function findById(string $id): ?Product;
 
+    public function findByName(string $name): ?Product;
+
     public function all(): array;
 
     public function delete(string $id): void;

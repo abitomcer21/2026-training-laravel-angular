@@ -52,10 +52,33 @@ class EloquentProductRepository implements ProductRepositoryInterface
         );
     }
 
+    public function findByName(string $name): ?Product
+    {
+        $eloquentProduct = $this->model->newQuery()->where('name', $name)->first();
+
+        if (!$eloquentProduct) {
+            return null;
+        }
+
+        return Product::fromPersistence(
+            $eloquentProduct->uuid,
+            $eloquentProduct->family_id,
+            $eloquentProduct->tax_id,
+            $eloquentProduct->name,
+            $eloquentProduct->price,
+            $eloquentProduct->stock,
+            $eloquentProduct->image_src,
+            (bool) $eloquentProduct->active,
+            $eloquentProduct->restaurant_id,
+            $eloquentProduct->created_at->toDateTimeImmutable(),
+            $eloquentProduct->updated_at->toDateTimeImmutable(),
+        );
+    }
+
     public function all(): array
     {
         return $this->model->newQuery()->get()->map(
-            fn (EloquentProduct $eloquentProduct): Product => Product::fromPersistence(
+            fn(EloquentProduct $eloquentProduct): Product => Product::fromPersistence(
                 $eloquentProduct->uuid,
                 $eloquentProduct->family_id,
                 $eloquentProduct->tax_id,
