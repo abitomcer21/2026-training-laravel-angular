@@ -11,7 +11,7 @@ class TablesSeeder extends Seeder
 {
     private static array $prefijos = [
         'Terraza' => 'T',
-        'Comedor' => 'S',
+        'Sala' => 'S',
         'Barra'   => 'B',
     ];
 

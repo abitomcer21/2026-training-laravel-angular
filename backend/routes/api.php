@@ -5,22 +5,21 @@ use App\User\Infrastructure\Entrypoint\Http\GetAllController as UserGetAllContro
 use App\User\Infrastructure\Entrypoint\Http\PostController as UserPostController;
 use App\User\Infrastructure\Entrypoint\Http\PutController as UserPutController;
 use App\User\Infrastructure\Entrypoint\Http\DeleteController as UserDeleteController;
+use App\User\Infrastructure\Entrypoint\Http\GetUserByEmailController as UserGetUserByEmailController;
 
 use App\Families\Infrastructure\Entrypoint\Http\DeleteController as FamiliesDeleteController;
 use App\Families\Infrastructure\Entrypoint\Http\GetByIdController as FamiliesGetByIdController;
 use App\Families\Infrastructure\Entrypoint\Http\PostController as FamiliesPostController;
 use App\Families\Infrastructure\Entrypoint\Http\PutController as FamiliesPutController;
-use App\Families\Infrastructure\Entrypoint\Http\ActivateController as FamiliesActivateController;
-use App\Families\Infrastructure\Entrypoint\Http\DesactivateController as FamiliesDesactivateController;
 use App\Families\Infrastructure\Entrypoint\Http\GetAllController as FamiliesGetAllController;
 
 use App\Products\Infrastructure\Entrypoint\Http\GetByIdController as ProductsGetByIdController;
 use App\Products\Infrastructure\Entrypoint\Http\GetAllController as ProductsGetAllController;
 use App\Products\Infrastructure\Entrypoint\Http\PostController as ProductsPostController;
 use App\Products\Infrastructure\Entrypoint\Http\PutController as ProductsPutController;
-use App\Products\Infrastructure\Entrypoint\Http\ActivateController as ProductsActivateController;
-use App\Products\Infrastructure\Entrypoint\Http\DesactivateController as ProductsDesactivateController;
 use App\Products\Infrastructure\Entrypoint\Http\DeleteController as ProductsDeleteController;
+use App\Products\Infrastructure\Entrypoint\Http\GetByNameController as ProductsGetByNameController;
+use App\Products\Infrastructure\Entrypoint\Http\GetByFamilyController;
 
 use App\Taxes\Infrastructure\Entrypoint\Http\PostController as TaxesPostController;
 use App\Taxes\Infrastructure\Entrypoint\Http\GetAllController as TaxesGetAllController;
@@ -48,11 +47,11 @@ use App\User\Infrastructure\Entrypoint\Http\LoginController;
 use App\User\Infrastructure\Entrypoint\Http\LogoutController;
 use App\User\Infrastructure\Entrypoint\Http\MeController;
 
-
 use Illuminate\Support\Facades\Route;
 
 Route::post('/users', UserPostController::class);
 Route::get('/users', UserGetAllController::class);
+Route::get('/users/email/{email}', UserGetUserByEmailController::class);
 Route::get('/users/{id}', UserGetByIdController::class);
 Route::put('/users/{id}', UserPutController::class);
 Route::delete('/users/{id}', UserDeleteController::class);
@@ -60,18 +59,16 @@ Route::delete('/users/{id}', UserDeleteController::class);
 Route::post('/families', FamiliesPostController::class);
 Route::get('/families/{id}', FamiliesGetByIdController::class);
 Route::put('/families/{id}', FamiliesPutController::class);
-Route::patch('/families/{id}/activate', FamiliesActivateController::class);
-Route::patch('/families/{id}/desactivate', FamiliesDesactivateController::class);
 Route::delete('/families/{id}', FamiliesDeleteController::class);
 Route::get('/families', FamiliesGetAllController::class);
+Route::get('/products/family/{familyId}', GetByFamilyController::class);
 
 Route::post('/products', ProductsPostController::class);
 Route::get('/products', ProductsGetAllController::class);
 Route::get('/products/{id}', ProductsGetByIdController::class);
 Route::put('/products/{id}', ProductsPutController::class);
-Route::patch('/products/{id}/activate', ProductsActivateController::class);
-Route::patch('/products/{id}/desactivate', ProductsDesactivateController::class);
 Route::delete('/products/{id}', ProductsDeleteController::class);
+Route::get('/products/name/{name}', ProductsGetByNameController::class);
 
 Route::post('/taxes', TaxesPostController::class);
 Route::get('/taxes', TaxesGetAllController::class);

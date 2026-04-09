@@ -81,6 +81,28 @@ class Product
         );
     }
 
+    public function updateData(
+        ProductName $name,
+        ProductPrice $price,
+        ProductStock $stock,
+        ProductImageSrc $imageSrc,
+        ProductStatus $status,
+    ): self {
+        return new self(
+            $this->id,
+            $this->taxId,
+            $this->familyId,
+            $name,
+            $price,
+            $stock,
+            $imageSrc,
+            $status,
+            $this->restaurantId,
+            $this->createdAt,
+            DomainDateTime::now(),
+        );
+    }
+
     public function id(): Uuid
     {
         return $this->id;
@@ -124,51 +146,6 @@ class Product
     public function restaurantId(): int
     {
         return $this->restaurantId;
-    }
-
-    public function updateName(ProductName $name): void
-    {
-        $this->name = $name;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updatePrice(ProductPrice $price): void
-    {
-        $this->price = $price;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updateImageSrc(ProductImageSrc $imageSrc): void
-    {
-        $this->imageSrc = $imageSrc;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updateImagenSRC(ProductImageSrc $imageSrc): void
-    {
-        $this->updateImageSrc($imageSrc);
-    }
-
-    public function updateStock(ProductStock $stock): void
-    {
-        $this->stock = $stock;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updateStatus(ProductStatus $status): void
-    {
-        $this->status = $status;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function activate(): void
-    {
-        $this->updateStatus(ProductStatus::active());
-    }
-
-    public function deactivate(): void
-    {
-        $this->updateStatus(ProductStatus::inactive());
     }
 
     public function createdAt(): DomainDateTime

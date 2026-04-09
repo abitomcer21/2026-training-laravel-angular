@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Taxes\Application\UpdateTaxes;
 
@@ -10,22 +10,34 @@ class UpdateTaxes
 {
     public function __construct(
         private TaxesRepositoryInterface $taxesRepository,
-    ){}
+    ) {}
 
-    public function __invoke(string $id, string $name, int $percentage): ?UpdateTaxesResponse
-    {
-        $taxes = $this->taxesRepository->findById($id);
+    public function __invoke(
+        string $id,
+        ?string $name,
+        ?int $percentage
+    ): ?UpdateTaxesResponse {
+        $tax = $this->taxesRepository->findById($id);
 
-        if (!$taxes) {
+        if ($tax === null) {
             return null;
         }
 
-        $nameVO = TaxName::create($name);
-        $percentageVO = TaxPercentage::create($percentage);
+        if ($name === null) {
+            $nameVO = $tax->nameVO();
+        } else {
+            $nameVO = TaxName::create($name);
+        }
 
-        $taxes->updateDetails($nameVO, $percentageVO);
-        $this->taxesRepository->save($taxes);
+        if ($percentage === null) {
+            $percentageVO = $tax->percentage();
+        } else {
+            $percentageVO = TaxPercentage::create($percentage);
+        }
 
-        return UpdateTaxesResponse::create($taxes);
+        $tax = $tax->updateData($nameVO, $percentageVO);
+        $this->taxesRepository->save($tax);
+
+        return UpdateTaxesResponse::create($tax);
     }
 }

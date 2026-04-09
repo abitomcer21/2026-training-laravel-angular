@@ -20,27 +20,49 @@ class UpdateProduct
         int $price,
         int $stock,
         string $imageSrc,
-        bool $active,
+        bool $status,
     ): ?UpdateProductResponse {
+
         $product = $this->productRepository->findById($id);
 
         if (!$product) {
             return null;
         }
 
-        $product->updateName(ProductName::create($name));
-        $product->updatePrice(ProductPrice::create($price));
-        $product->updateImageSrc(ProductImageSrc::create($imageSrc));
-        $product->updateStock(ProductStock::create($stock));
-
-        if ($active) {
-            $product->activate();
+        if ($name === null) {
+            $nameVO = $product->name();
         } else {
-            $product->deactivate();
+            $nameVO = ProductName::create($name);
         }
 
-        $this->productRepository->save($product);
+        if ($price === null) {
+            $priceVO = $product->price();
+        } else {
+            $priceVO = ProductPrice::create($price);
+        }
 
+        if ($stock === null) {
+            $stockVO = $product->stock();
+        } else {
+            $stockVO = ProductStock::create($stock);
+        }
+
+        if ($imageSrc === null) {
+            $imageSrcVO = $product->imageSrc();
+        } else {
+            $imageSrcVO = ProductImageSrc::create($imageSrc);
+        }
+
+        if ($status === null) {
+            $activeVO = $product->status();
+        } else {
+            $activeVO = ProductStock::create($stock);
+        }
+
+
+
+        $product = $product->updateData($nameVO, $priceVO, $stockVO, $imageSrcVO, $activeVO);
+        $this->productRepository->save($product);
         return UpdateProductResponse::create($product);
     }
 }

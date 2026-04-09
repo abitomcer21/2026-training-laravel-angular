@@ -16,8 +16,7 @@ class Family
         private int $restaurantId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-    ) {
-    }
+    ) {}
 
     public static function dddCreate(FamilyName $name, FamilyStatus $status, int $restaurantId): self
     {
@@ -51,6 +50,20 @@ class Family
         );
     }
 
+    public function updateData(
+        FamilyName $name,
+        FamilyStatus $status
+    ): self {
+        return new self(
+            $this->id,
+            $name,
+            $status,
+            $this->restaurantId,
+            $this->createdAt,
+            DomainDateTime::now(),
+        );
+    }
+
     public function id(): Uuid
     {
         return $this->id;
@@ -80,27 +93,4 @@ class Family
     {
         return $this->updatedAt;
     }
-
-    public function updateName(FamilyName $name): void
-    {
-        $this->name = $name;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updateStatus(FamilyStatus $status): void
-    {
-        $this->status = $status;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-        public function activate(): void
-    {
-        $this->updateStatus(FamilyStatus::active());
-    }
-
-    public function deactivate(): void
-    {
-        $this->updateStatus(FamilyStatus::inactive());
-    }
-
 }

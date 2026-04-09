@@ -7,21 +7,25 @@ use App\Zones\Domain\ValueObject\ZoneName;
 
 class UpdateZones
 {
-    public function __construct(private ZonesRepositoryInterface $zonesRepository,)
-    {}
+    public function __construct(private ZonesRepositoryInterface $zonesRepository,) {}
 
     public function __invoke(string $id, string $name): ?UpdateZonesResponse
     {
         $zones = $this->zonesRepository->findById($id);
 
-        if(!$zones){
+        if (!$zones) {
             return null;
         }
 
-        $zones->updateName(ZoneName::create($name));
-        $this->zonesRepository->save($zones);
+        if ($zones === null) {
+            $zonesVO = $zones->name();
+        } else {
+            $zonesVO = ZoneName::create($name);
+        }
 
-        return UpdateZonesResponse::create($zones);
+        $zone = $zones->updateData($zonesVO);
+        $this->zonesRepository->save($zone);
+
+        return UpdateZonesResponse::create($zonesVO);
     }
-
 }

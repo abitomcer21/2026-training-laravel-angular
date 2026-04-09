@@ -16,12 +16,12 @@ class GetUserByEmailResponse
     public static function create($user): self
     {
         return new self(
-            uuid: $user->uuid,
-            name: $user->name,
-            email: $user->email,
-            role: $user->role,
-            imageSrc: $user->image_src,
-            restaurantId: $user->restaurant_id,
+            uuid: $user->id()->value(),
+            name: $user->name(),
+            email: $user->email()->value(),
+            role: $user->role()->value(),
+            imageSrc: $user->imageSrc(),
+            restaurantId: $user->restaurantId(),
         );
     }
 

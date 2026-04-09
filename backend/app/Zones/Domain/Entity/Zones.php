@@ -47,6 +47,19 @@ class Zones
         );
     }
 
+    public function updateData(
+        ZoneName $name,
+    ): self {
+        return new self(
+            $this->id,
+            $name,
+            $this->restaurantId,
+            $this->createdAt,
+            DomainDateTime::now(),
+        );
+    }
+
+
     public function id(): Uuid
     {
         return $this->id;
@@ -65,12 +78,6 @@ class Zones
     public function createdAt(): DomainDateTime
     {
         return $this->createdAt;
-    }
-
-    public function updateName(ZoneName $name): void
-    {
-        $this->name = $name;
-        $this->updatedAt = DomainDateTime::now();
     }
 
     public function updatedAt(): DomainDateTime

@@ -52,6 +52,20 @@ class Table
         );
     }
 
+
+    public function updateData(
+        TableName $name,
+    ): self {
+        return new self(
+            $this->id,
+            $name,
+            $this->restaurantId,
+            $this->zoneId,
+            $this->createdAt,
+            DomainDateTime::now(),
+        );
+    }
+
     public function id(): Uuid
     {
         return $this->id;
@@ -77,15 +91,8 @@ class Table
         return $this->createdAt;
     }
 
-    public function updateName(TableName $name): void
-    {
-        $this->name = $name;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
     public function updatedAt(): DomainDateTime
     {
         return $this->updatedAt;
     }
-
 }

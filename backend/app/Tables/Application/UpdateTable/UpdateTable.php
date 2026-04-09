@@ -19,7 +19,13 @@ class UpdateTable
             return null;
         }
 
-        $table->updateName(TableName::create($name));
+        if($name === null){
+            $nameVO = $table->name();
+        }else {
+            $nameVO = TableName::create($name);
+        }
+
+        $table = $table->updateData($nameVO);
         $this->tablesRepository->save($table);
 
         return UpdateTableResponse::create($table);

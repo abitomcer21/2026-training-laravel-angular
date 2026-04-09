@@ -11,12 +11,12 @@ class GetUserByEmail
         private UserRepositoryInterface $userRepository,
     ) {}
 
-    public function __invoke (string $email): ?GetUserByEmailResponse
-   {
+    public function __invoke(string $email): ?GetUserByEmailResponse
+    {
         $user  = $this->userRepository->findByEmail($email);
-        if(!$user){
+        if (!$user) {
             return null;
         }
         return GetUserByEmailResponse::create($user);
-   } 
+    }
 }

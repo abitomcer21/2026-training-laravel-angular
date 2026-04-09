@@ -15,22 +15,11 @@ class PutController
 
     public function __invoke(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make([
-            ...$request->all(),
-            'id' => $id,
-        ], [
-            'id' => ['required', 'uuid'],
-            'name' => ['required', 'string', 'max:255'],
+
+        $validated = $request->validate([
+            'name'      => ['nullable', 'string', 'max:255'],
         ]);
 
-        if ($validator->fails()) {
-            return new JsonResponse([
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()->toArray(),
-            ], 422);
-        }
-
-        $validated = $validator->validated();
 
         $response = ($this->updateTable)(
             $id,

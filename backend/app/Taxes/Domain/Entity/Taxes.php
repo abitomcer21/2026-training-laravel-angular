@@ -50,9 +50,28 @@ class Taxes
         );
     }
 
+    public function updateData(
+        TaxName $name,
+        TaxPercentage $percentage
+    ): self {
+        return new self(
+            $this->id,
+            $name,
+            $percentage,
+            $this->restaurantId,
+            $this->createdAt,
+            DomainDateTime::now(),
+        );
+    }
+
     public function id(): Uuid
     {
         return $this->id;
+    }
+
+    public function nameVO(): TaxName
+    {
+        return $this->name;
     }
 
     public function name(): string
@@ -79,12 +98,4 @@ class Taxes
     {
         return $this->updatedAt;
     }
-
-    public function updateDetails(TaxName $name, TaxPercentage $percentage): void
-{
-    $this->name = $name;
-    $this->percentage = $percentage;
-    $this->updatedAt = DomainDateTime::now();
-}
-
 }

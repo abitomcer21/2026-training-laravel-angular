@@ -76,6 +76,28 @@ class User
         );
     }
 
+    public function updateData(
+        Email $email,
+        UserName $name,
+        PasswordHash $passwordHash,
+        Role $role,
+        ?string $imageSrc,
+        Pin $pin
+    ): self {
+        return new self(
+            $this->id,
+            $name,
+            $email,
+            $passwordHash,
+            $role,
+            $imageSrc,
+            $this->restaurantId,
+            $pin,
+            $this->createdAt,
+            DomainDateTime::now(),
+        );
+    }
+
     public function id(): Uuid
     {
         return $this->id;
@@ -121,27 +143,8 @@ class User
         return $this->createdAt;
     }
 
-    public function updateName(UserName $name): void
-    {
-        $this->name = $name;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updatePin(Pin $pin): void
-    {
-        $this->pin = $pin;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updateRole(Role $role): void
-    {
-        $this->role = $role;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
     public function updatedAt(): DomainDateTime
     {
-        return $this->updatedAt;
+        return $this->updatedAt();
     }
-
 }

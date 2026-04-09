@@ -13,26 +13,12 @@ class GetUserByEmailController
         private GetUserByEmail $getUserByEmail,
     ) {}
 
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(Request $request, string $email): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'email' => ['required', 'string', 'email', 'max:255'],
-        ]);
-
-        if ($validator->fails()) {
-            return new JsonResponse([
-                'message' => 'Validation failed',
-                'errors'  => $validator->errors()->toArray(),
-            ], 422);
-        }
-
-        $email = $request->input('email');
         $response = ($this->getUserByEmail)($email);
 
         if ($response === null) {
-            return new JsonResponse([
-                'message' => 'User not found',
-            ], 404);
+            return new JsonResponse(['message' => 'User not found'], 404);
         }
 
         return new JsonResponse($response->toArray(), 200);
