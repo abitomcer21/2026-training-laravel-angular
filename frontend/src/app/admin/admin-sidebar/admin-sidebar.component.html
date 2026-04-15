@@ -1,0 +1,18 @@
+<nav class="sidebar">
+  <div class="sidebar-brand">TPV</div>
+  <ul class="sidebar-nav">
+    @for (item of navItems; track item.path) {
+      <li>
+        
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          class="nav-item"
+          [title]="item.label"
+        <a>
+          <span class="nav-icon" [innerHTML]="item.svg"></span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      </li>
+    }
+  </ul>
+</nav>

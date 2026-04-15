@@ -50,31 +50,31 @@ class User
         );
     }
 
-    public static function fromPersistence(
-        string $id,
-        string $name,
-        string $email,
-        string $passwordHash,
-        \DateTimeImmutable $createdAt,
-        \DateTimeImmutable $updatedAt,
-        int $restaurantId,
-        ?string $role = null,
-        ?string $imageSrc = null,
-        string $pin = '0000',
-    ): self {
-        return new self(
-            Uuid::create($id),
-            UserName::create($name),
-            Email::create($email),
-            PasswordHash::create($passwordHash),
-            Role::create($role ?? Role::ADMIN),
-            $imageSrc,
-            $restaurantId,
-            Pin::create($pin),
-            DomainDateTime::create($createdAt),
-            DomainDateTime::create($updatedAt),
-        );
-    }
+public static function fromPersistence(
+    string $id,
+    string $name,
+    string $email,
+    string $passwordHash,
+    string $role,
+    int $restaurantId,
+    string $pin,
+    ?string $imageSrc,
+    \DateTimeImmutable $createdAt,
+    \DateTimeImmutable $updatedAt,
+): self {
+    return new self(
+        Uuid::create($id),
+        UserName::create($name),
+        Email::create($email),
+        PasswordHash::create($passwordHash),
+        Role::create($role),
+        $imageSrc,
+        $restaurantId,
+        Pin::create($pin),
+        DomainDateTime::create($createdAt),
+        DomainDateTime::create($updatedAt),
+    );
+}
 
     public function updateData(
         Email $email,
@@ -103,9 +103,9 @@ class User
         return $this->id;
     }
 
-    public function name(): string
+    public function name(): UserName
     {
-        return $this->name->value();
+        return $this->name;
     }
 
     public function email(): Email
@@ -113,9 +113,9 @@ class User
         return $this->email;
     }
 
-    public function passwordHash(): string
+    public function passwordHash(): PasswordHash
     {
-        return $this->passwordHash->value();
+        return $this->passwordHash;
     }
 
     public function role(): Role
@@ -133,9 +133,9 @@ class User
         return $this->restaurantId;
     }
 
-    public function pin(): string
+    public function pin(): Pin
     {
-        return $this->pin->value();
+        return $this->pin;
     }
 
     public function createdAt(): DomainDateTime
@@ -145,6 +145,6 @@ class User
 
     public function updatedAt(): DomainDateTime
     {
-        return $this->updatedAt();
+        return $this->updatedAt;
     }
 }

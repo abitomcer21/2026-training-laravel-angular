@@ -30,9 +30,9 @@ class UserSeeder extends Seeder
                     'pin'   => '1234',
                 ]);
 
-            EloquentUser::factory(5)->waiter()->forRestaurant($restaurant)->create();
+            EloquentUser::factory(3)->camarero()->forRestaurant($restaurant)->create();
             EloquentUser::factory(2)->chef()->forRestaurant($restaurant)->create();
-            EloquentUser::factory(4)->supervisor()->forRestaurant($restaurant)->create();
+            EloquentUser::factory(1)->supervisor()->forRestaurant($restaurant)->create();
         }
     }
 }

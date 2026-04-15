@@ -17,7 +17,7 @@ class CreateProduct
     ) {}
 
     public function __invoke(
-        int $familyId,
+        int $FamilyId,
         int $taxId,
         int $restaurantId,
         string $name,
@@ -33,7 +33,7 @@ class CreateProduct
         $statusVO = ProductStatus::create($active);
 
         $product = Product::dddCreate(
-            $familyId,
+            $FamilyId,
             $taxId,
             $nameVO,
             $priceVO,

@@ -1,13 +1,13 @@
 <?php
 namespace Database\Factories;
-use App\Families\Infrastructure\Persistence\Models\EloquentFamilies;
+use App\Family\Infrastructure\Persistence\Models\EloquentFamily;
 use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 class FamilyFactory extends Factory
 {
-    protected $model = EloquentFamilies::class;
+    protected $model = EloquentFamily::class;
 
     private static array $nombres = [
         'Entrantes', 'Carnes', 'Pescados', 'Postres', 'Bebidas', 'Vinos', 'Cervezas', 'Cafés',

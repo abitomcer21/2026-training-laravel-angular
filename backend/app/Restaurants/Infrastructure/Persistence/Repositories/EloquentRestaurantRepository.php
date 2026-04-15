@@ -17,11 +17,12 @@ class EloquentRestaurantRepository implements RestaurantRepositoryInterface
         $this->model->newQuery()->updateOrCreate(
             ['uuid' => $restaurant->id()->value()],
             [
-                'name' => $restaurant->name(),
-                'legal_name' => $restaurant->legalName(),
-                'tax_id' => $restaurant->taxId(),
+                'name' => $restaurant->name()->value(),
+                'legal_name' => $restaurant->legalName()->value(),
+                'tax_id' => $restaurant->taxId()->value(),
                 'email' => $restaurant->email()->value(),
-                'password' => $restaurant->passwordHash(),
+                'password' => $restaurant->password()->value(),
+                'image_src' => $restaurant->imageSrc(),
                 'created_at' => $restaurant->createdAt()->value(),
                 'updated_at' => $restaurant->updatedAt()->value(),
             ],
@@ -43,9 +44,9 @@ class EloquentRestaurantRepository implements RestaurantRepositoryInterface
             $eloquentRestaurant->tax_id,
             $eloquentRestaurant->email,
             $eloquentRestaurant->password,
+            $eloquentRestaurant->image_src,
             $eloquentRestaurant->created_at->toImmutable(),
             $eloquentRestaurant->updated_at->toImmutable(),
-            $eloquentRestaurant->deleted_at?->toImmutable(),
         );
     }
 
@@ -64,9 +65,9 @@ class EloquentRestaurantRepository implements RestaurantRepositoryInterface
             $eloquentRestaurant->tax_id,
             $eloquentRestaurant->email,
             $eloquentRestaurant->password,
+            $eloquentRestaurant->image_src,
             $eloquentRestaurant->created_at->toImmutable(),
             $eloquentRestaurant->updated_at->toImmutable(),
-            $eloquentRestaurant->deleted_at?->toImmutable(),
         );
     }
 
@@ -80,9 +81,9 @@ class EloquentRestaurantRepository implements RestaurantRepositoryInterface
                 $eloquentRestaurant->tax_id,
                 $eloquentRestaurant->email,
                 $eloquentRestaurant->password,
+                $eloquentRestaurant->image_src,
                 $eloquentRestaurant->created_at->toImmutable(),
                 $eloquentRestaurant->updated_at->toImmutable(),
-                $eloquentRestaurant->deleted_at?->toImmutable(),
             ),
         )->toArray();
     }

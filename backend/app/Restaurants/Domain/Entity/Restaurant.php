@@ -19,6 +19,7 @@ class Restaurant
         private RestaurantTaxId $taxId,
         private Email $email,
         private RestaurantPassword $password,
+        private ?string $imageSrc,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
     ) {}
@@ -29,6 +30,7 @@ class Restaurant
         RestaurantTaxId $taxId,
         Email $email,
         RestaurantPassword $password,
+        ?string $imageSrc = null,
     ): self {
         $now = DomainDateTime::now();
 
@@ -39,6 +41,7 @@ class Restaurant
             $taxId,
             $email,
             $password,
+            $imageSrc,
             $now,
             $now,
         );
@@ -51,6 +54,7 @@ class Restaurant
         string $taxId,
         string $email,
         string $password,
+        ?string $imageSrc,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
     ): self {
@@ -61,29 +65,51 @@ class Restaurant
             RestaurantTaxId::create($taxId),
             Email::create($email),
             RestaurantPassword::create($password),
+            $imageSrc,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
         );
     }
 
+    public function updateData(
+        RestaurantName $name,
+        RestaurantLegalName $legalName,
+        RestaurantTaxId $taxId,
+        Email $email,
+        ?string $imageSrc,
+    ): self {
+        return new self(
+            $this->id,
+            $name,
+            $legalName,
+            $taxId,
+            $email,
+            $this->password,
+            $imageSrc,
+            $this->createdAt,
+            DomainDateTime::now(),
+        );
+    }
+
+    // Getters
     public function id(): Uuid
     {
         return $this->id;
     }
 
-    public function name(): string
+    public function name(): RestaurantName
     {
-        return $this->name->value();
+        return $this->name;
     }
 
-    public function legalName(): string
+    public function legalName(): RestaurantLegalName
     {
-        return $this->legalName->value();
+        return $this->legalName;
     }
 
-    public function taxId(): string
+    public function taxId(): RestaurantTaxId
     {
-        return $this->taxId->value();
+        return $this->taxId;
     }
 
     public function email(): Email
@@ -91,9 +117,14 @@ class Restaurant
         return $this->email;
     }
 
-    public function passwordHash(): string
+    public function password(): RestaurantPassword
     {
-        return $this->password->value();
+        return $this->password;
+    }
+
+    public function imageSrc(): ?string
+    {
+        return $this->imageSrc;
     }
 
     public function createdAt(): DomainDateTime
@@ -104,35 +135,5 @@ class Restaurant
     public function updatedAt(): DomainDateTime
     {
         return $this->updatedAt;
-    }
-
-    public function updateName(RestaurantName $name): void
-    {
-        $this->name = $name;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updateLegalName(RestaurantLegalName $legalName): void
-    {
-        $this->legalName = $legalName;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updateTaxId(RestaurantTaxId $taxId): void
-    {
-        $this->taxId = $taxId;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updateEmail(Email $email): void
-    {
-        $this->email = $email;
-        $this->updatedAt = DomainDateTime::now();
-    }
-
-    public function updatePassword(RestaurantPassword $password): void
-    {
-        $this->password = $password;
-        $this->updatedAt = DomainDateTime::now();
     }
 }

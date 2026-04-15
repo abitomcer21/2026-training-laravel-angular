@@ -17,7 +17,7 @@ class GetUserByEmailResponse
     {
         return new self(
             uuid: $user->id()->value(),
-            name: $user->name(),
+            name: $user->name()->value(),
             email: $user->email()->value(),
             role: $user->role()->value(),
             imageSrc: $user->imageSrc(),

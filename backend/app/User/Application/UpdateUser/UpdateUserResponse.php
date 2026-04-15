@@ -22,10 +22,10 @@ final readonly class UpdateUserResponse
     {
         return new self(
             id: $user->id()->value(),
-            name: $user->name(),
+            name: $user->name()->value(),
             email: $user->email()->value(),
             role: $user->role()->value(),
-            pin: $user->pin(),
+            pin: $user->pin()->value(),
             imageSrc: $user->imageSrc(),
             restaurantId: $user->restaurantId(),
             createdAt: $user->createdAt()->format(\DateTimeInterface::ATOM),

@@ -20,9 +20,9 @@ final readonly class GetMyRestaurantResponse
     {
         return new self(
             id: $restaurant->id()->value(),
-            name: $restaurant->name(),
-            legalName: $restaurant->legalName(),
-            taxId: $restaurant->taxId(),
+            name: $restaurant->name()->value(),
+            legalName: $restaurant->legalName()->value(),
+            taxId: $restaurant->taxId()->value(),
             email: $restaurant->email()->value(),
             createdAt: $restaurant->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $restaurant->updatedAt()->format(\DateTimeInterface::ATOM),

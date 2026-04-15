@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Families\Infrastructure\Persistence\Models\EloquentFamilies;
+use App\Family\Infrastructure\Persistence\Models\EloquentFamily;
 use App\Products\Infrastructure\Persistence\Models\EloquentProduct;
 use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
-use App\Taxes\Infrastructure\Persistence\Models\EloquentTaxes;
+use App\Tax\Infrastructure\Persistence\Models\EloquentTax;
 use Database\Factories\ProductsFactory;
 use Illuminate\Database\Seeder;
 
@@ -24,21 +24,21 @@ class ProductsSeeder extends Seeder
         }
 
         foreach ($restaurants as $restaurant) {
-            $tax = EloquentTaxes::query()->where('restaurant_id', $restaurant->id)->first();
-            $familias = EloquentFamilies::where('restaurant_id', $restaurant->id)->pluck('id', 'name');
+            $tax = EloquentTax::query()->where('restaurant_id', $restaurant->id)->first();
+            $familias = EloquentFamily::where('restaurant_id', $restaurant->id)->pluck('id', 'name');
 
             if (!$tax || $familias->isEmpty()) {
                 continue;
             }
 
             foreach (ProductsFactory::getCatalogo() as $item) {
-                if (!isset($familias[$item['family']])) {
+                if (!isset($familias[$item['Family']])) {
                     continue;
                 }
 
                 EloquentProduct::factory()
                     ->forRestaurant($restaurant)
-                    ->forFamily($familias[$item['family']])
+                    ->forFamily($familias[$item['Family']])
                     ->forTax($tax)
                     ->create([
                         'name'  => $item['name'],

@@ -32,41 +32,42 @@ class UpdateUser
             return null;
         }
 
-        if ($email === null) {
-            $emailVO = $user->email();
-        } else {
-            $emailVO = Email::create($email);
-        }
+        $emailVO = $email !== null 
+            ? Email::create($email) 
+            : $user->email();
 
-        if ($name === null) {
-            $nameVO = UserName::create($user->name());
-        } else {
-            $nameVO = UserName::create($name);
-        }
+        $nameVO = $name !== null 
+            ? UserName::create($name) 
+            : $user->name();
 
-        if ($plainPassword === null) {
-            $passwordHashVO = PasswordHash::create($user->passwordHash());
-        } else {
-            $passwordHashVO = PasswordHash::create($this->passwordHasher->hash($plainPassword));
-        }
+        $roleVO = $role !== null 
+            ? Role::create($role) 
+            : $user->role();
 
-        if ($role === null) {
-            $roleVO = $user->role();
+        $pinVO = $pin !== null 
+            ? Pin::create($pin) 
+            : $user->pin();
+
+        if ($plainPassword !== null) {
+            $hashedPassword = $this->passwordHasher->hash($plainPassword);
+            $passwordHashVO = PasswordHash::create($hashedPassword);
         } else {
-            $roleVO = Role::create($role);
+            $passwordHashVO = PasswordHash::create($user->passwordHash()->value());
         }
 
         $resolvedImage = $imageSrc ?? $user->imageSrc();
 
-        if ($pin === null) {
-            $pinVO = Pin::create($user->pin());
-        } else {
-            $pinVO = Pin::create($pin);
-        }
+        $updatedUser = $user->updateData(
+            $emailVO,
+            $nameVO,
+            $passwordHashVO,
+            $roleVO,
+            $resolvedImage,
+            $pinVO,
+        );
 
-        $user->updateData($emailVO, $nameVO, $passwordHashVO, $roleVO, $resolvedImage, $pinVO);
-        $this->userRepository->save($user);
+        $this->userRepository->save($updatedUser);
 
-        return UpdateUserResponse::create($user);
+        return UpdateUserResponse::create($updatedUser);
     }
 }

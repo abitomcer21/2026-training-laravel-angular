@@ -7,7 +7,7 @@ use App\Order\Infrastructure\Persistence\Models\EloquentOrderLine;
 use App\Products\Infrastructure\Persistence\Models\EloquentProduct;
 use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
 use App\Tables\Infrastructure\Persistence\Models\EloquentTables;
-use App\Taxes\Infrastructure\Persistence\Models\EloquentTaxes;
+use App\Tax\Infrastructure\Persistence\Models\EloquentTax;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -29,7 +29,7 @@ class OrdersSeeder extends Seeder
         foreach ($restaurants as $restaurant) {
             $tables   = EloquentTables::query()->where('restaurant_id', $restaurant->id)->get();
             $products = EloquentProduct::query()->where('restaurant_id', $restaurant->id)->get();
-            $taxes    = EloquentTaxes::query()->where('restaurant_id', $restaurant->id)->get()->keyBy('id');
+            $taxes    = EloquentTax::query()->where('restaurant_id', $restaurant->id)->get()->keyBy('id');
             $users    = EloquentUser::query()
                 ->where('restaurant_id', $restaurant->id)
                 ->whereIn('role', ['waiter', 'chef'])

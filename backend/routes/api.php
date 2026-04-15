@@ -7,11 +7,11 @@ use App\User\Infrastructure\Entrypoint\Http\PutController as UserPutController;
 use App\User\Infrastructure\Entrypoint\Http\DeleteController as UserDeleteController;
 use App\User\Infrastructure\Entrypoint\Http\GetUserByEmailController as UserGetUserByEmailController;
 
-use App\Families\Infrastructure\Entrypoint\Http\DeleteController as FamiliesDeleteController;
-use App\Families\Infrastructure\Entrypoint\Http\GetByIdController as FamiliesGetByIdController;
-use App\Families\Infrastructure\Entrypoint\Http\PostController as FamiliesPostController;
-use App\Families\Infrastructure\Entrypoint\Http\PutController as FamiliesPutController;
-use App\Families\Infrastructure\Entrypoint\Http\GetAllController as FamiliesGetAllController;
+use App\Family\Infrastructure\Entrypoint\Http\DeleteController as FamilyDeleteController;
+use App\Family\Infrastructure\Entrypoint\Http\GetByIdController as FamilyGetByIdController;
+use App\Family\Infrastructure\Entrypoint\Http\PostController as FamilyPostController;
+use App\Family\Infrastructure\Entrypoint\Http\PutController as FamilyPutController;
+use App\Family\Infrastructure\Entrypoint\Http\GetAllController as FamilyGetAllController;
 
 use App\Products\Infrastructure\Entrypoint\Http\GetByIdController as ProductsGetByIdController;
 use App\Products\Infrastructure\Entrypoint\Http\GetAllController as ProductsGetAllController;
@@ -21,11 +21,11 @@ use App\Products\Infrastructure\Entrypoint\Http\DeleteController as ProductsDele
 use App\Products\Infrastructure\Entrypoint\Http\GetByNameController as ProductsGetByNameController;
 use App\Products\Infrastructure\Entrypoint\Http\GetByFamilyController;
 
-use App\Taxes\Infrastructure\Entrypoint\Http\PostController as TaxesPostController;
-use App\Taxes\Infrastructure\Entrypoint\Http\GetAllController as TaxesGetAllController;
-use App\Taxes\Infrastructure\Entrypoint\Http\GetByIdController as TaxesGetByIdController;
-use App\Taxes\Infrastructure\Entrypoint\Http\DeleteController as TaxesDeleteController;
-use App\Taxes\Infrastructure\Entrypoint\Http\PutController as TaxesPutController;
+use App\Tax\Infrastructure\Entrypoint\Http\PostController as TaxPostController;
+use App\Tax\Infrastructure\Entrypoint\Http\GetAllController as TaxGetAllController;
+use App\Tax\Infrastructure\Entrypoint\Http\GetByIdController as TaxGetByIdController;
+use App\Tax\Infrastructure\Entrypoint\Http\DeleteController as TaxDeleteController;
+use App\Tax\Infrastructure\Entrypoint\Http\PutController as TaxPutController;
 
 use App\Zones\Infrastructure\Entrypoint\Http\PostController as ZonesPostController;
 use App\Zones\Infrastructure\Entrypoint\Http\GetAllController as ZonesGetAllController;
@@ -40,7 +40,6 @@ use App\Tables\Infrastructure\Entrypoint\Http\PutController as TablesPutControll
 use App\Tables\Infrastructure\Entrypoint\Http\DeleteController as TablesDeleteController;
 
 use App\Restaurants\Infrastructure\Entrypoint\Http\PostController as RestaurantsPostController;
-use App\Restaurants\Infrastructure\Entrypoint\Http\PutController as RestaurantsPutController;
 use App\Restaurants\Infrastructure\Entrypoint\Http\GetMyRestaurantController;
 
 use App\User\Infrastructure\Entrypoint\Http\LoginController;
@@ -56,11 +55,11 @@ Route::get('/users/{id}', UserGetByIdController::class);
 Route::put('/users/{id}', UserPutController::class);
 Route::delete('/users/{id}', UserDeleteController::class);
 
-Route::post('/families', FamiliesPostController::class);
-Route::get('/families/{id}', FamiliesGetByIdController::class);
-Route::put('/families/{id}', FamiliesPutController::class);
-Route::delete('/families/{id}', FamiliesDeleteController::class);
-Route::get('/families', FamiliesGetAllController::class);
+Route::post('/family', FamilyPostController::class);
+Route::get('/family/{id}', FamilyGetByIdController::class);
+Route::put('/family/{id}', FamilyPutController::class);
+Route::delete('/family/{id}', FamilyDeleteController::class);
+Route::get('/family', FamilyGetAllController::class);
 Route::get('/products/family/{familyId}', GetByFamilyController::class);
 
 Route::post('/products', ProductsPostController::class);
@@ -70,11 +69,11 @@ Route::put('/products/{id}', ProductsPutController::class);
 Route::delete('/products/{id}', ProductsDeleteController::class);
 Route::get('/products/name/{name}', ProductsGetByNameController::class);
 
-Route::post('/taxes', TaxesPostController::class);
-Route::get('/taxes', TaxesGetAllController::class);
-Route::get('/taxes/{id}', TaxesGetByIdController::class);
-Route::put('/taxes/{id}', TaxesPutController::class);
-Route::delete('/taxes/{id}', TaxesDeleteController::class);
+Route::post('/tax', TaxPostController::class);
+Route::get('/tax', TaxGetAllController::class);
+Route::get('/tax/{id}', TaxGetByIdController::class);
+Route::put('/tax/{id}', TaxPutController::class);
+Route::delete('/tax/{id}', TaxDeleteController::class);
 
 Route::post('/zones', ZonesPostController::class);
 Route::get('/zones', ZonesGetAllController::class);
@@ -89,7 +88,6 @@ Route::put('/tables/{id}', TablesPutController::class);
 Route::delete('/tables/{id}', TablesDeleteController::class);
 
 Route::post('/restaurants', RestaurantsPostController::class);
-Route::put('/restaurants/{id}', RestaurantsPutController::class);
 Route::get('/my-restaurant', GetMyRestaurantController::class);
 
 Route::post('/login', LoginController::class);

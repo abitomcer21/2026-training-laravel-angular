@@ -24,7 +24,7 @@ class LoginUser
 
         $isValidPassword = $this->passwordHasher->verify(
             $plainPassword,
-            $user->passwordHash(),
+            $user->passwordHash()->value(),
         );
 
         if (! $isValidPassword) {

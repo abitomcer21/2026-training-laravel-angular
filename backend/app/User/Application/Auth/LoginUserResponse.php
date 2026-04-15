@@ -19,7 +19,7 @@ class LoginUserResponse
     {
         return new self(
             token: $token,
-            name: $user->name(),
+            name: $user->name()->value(),
             email: $user->email()->value(),
             role: $user->role()->value(),
             imageSrc: $user->imageSrc(),

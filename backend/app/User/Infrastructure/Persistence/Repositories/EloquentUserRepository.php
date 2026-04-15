@@ -24,16 +24,16 @@ class EloquentUserRepository implements UserRepositoryInterface
             'role' => $user->role()->value(),
             'image_src' => $user->imageSrc(),
             'restaurant_id' => $user->restaurantId(),
-            'name' => $user->name(),
+            'name' => $user->name()->value(),
             'email' => $user->email()->value(),
-            'password' => $user->passwordHash(),
-            'pin' => $user->pin(),
+            'password' => $user->passwordHash()->value(),
+            'pin' => $user->pin()->value(),
         ]);
 
         $model->updated_at = $user->updatedAt()->value();
-
         $model->save();
     }
+
 
     public function findById(string $id): ?User
     {
@@ -48,12 +48,12 @@ class EloquentUserRepository implements UserRepositoryInterface
             $model->name,
             $model->email,
             $model->password,
+            $model->role,
+            $model->restaurant_id,
+            $model->pin,
+            $model->image_src,
             $model->created_at->toDateTimeImmutable(),
             $model->updated_at->toDateTimeImmutable(),
-            $model->restaurant_id,
-            $model->role,
-            $model->image_src,
-            $model->pin,
         );
     }
 
@@ -70,12 +70,12 @@ class EloquentUserRepository implements UserRepositoryInterface
             $model->name,
             $model->email,
             $model->password,
+            $model->role,
+            $model->restaurant_id,
+            $model->pin,
+            $model->image_src,
             $model->created_at->toDateTimeImmutable(),
             $model->updated_at->toDateTimeImmutable(),
-            $model->restaurant_id,
-            $model->role,
-            $model->image_src,
-            $model->pin,
         );
     }
 
@@ -87,12 +87,12 @@ class EloquentUserRepository implements UserRepositoryInterface
                 $model->name,
                 $model->email,
                 $model->password,
+                $model->role,
+                $model->restaurant_id,
+                $model->pin,
+                $model->image_src,
                 $model->created_at->toDateTimeImmutable(),
                 $model->updated_at->toDateTimeImmutable(),
-                $model->restaurant_id,
-                $model->role,
-                $model->image_src,
-                $model->pin,
             ),
         )->toArray();
     }

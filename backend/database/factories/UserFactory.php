@@ -23,7 +23,7 @@ class UserFactory extends Factory
         return [
             'uuid'               => (string) Str::uuid(),
             'restaurant_id'      => EloquentRestaurant::factory(),
-            'role'               => $this->faker->randomElement(['admin', 'supervisor', 'waiter', 'chef']),
+            'role'               => $this->faker->randomElement(['admin', 'supervisor', 'camarero', 'chef']),
             'image_src'          => null,
             'name'               => "$firstName $lastName",
             'email'              => "$slug@restaurant.test",
@@ -48,10 +48,10 @@ class UserFactory extends Factory
         ]);
     }
 
-    public function waiter(): static
+    public function camarero(): static
     {
         return $this->state(fn(array $attributes) => [
-            'role' => 'waiter',
+            'role' => 'camarero',
         ]);
     }
 

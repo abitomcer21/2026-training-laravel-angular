@@ -14,7 +14,7 @@ class Product
 {
     private function __construct(
         private Uuid $id,
-        private int $familyId,
+        private int $FamilyId,
         private int $taxId,
         private ProductName $name,
         private ProductPrice $price,
@@ -27,7 +27,7 @@ class Product
     ) {}
 
     public static function dddCreate(
-        int $familyId,
+        int $FamilyId,
         int $taxId,
         ProductName $name,
         ProductPrice $price,
@@ -40,7 +40,7 @@ class Product
 
         return new self(
             Uuid::generate(),
-            $familyId,
+            $FamilyId,
             $taxId,
             $name,
             $price,
@@ -55,7 +55,7 @@ class Product
 
     public static function fromPersistence(
         string $id,
-        int $familyId,
+        int $FamilyId,
         int $taxId,
         string $name,
         int $price,
@@ -68,7 +68,7 @@ class Product
     ): self {
         return new self(
             Uuid::create($id),
-            $familyId,
+            $FamilyId,
             $taxId,
             ProductName::create($name),
             ProductPrice::create($price),
@@ -91,7 +91,7 @@ class Product
         return new self(
             $this->id,
             $this->taxId,
-            $this->familyId,
+            $this->FamilyId,
             $name,
             $price,
             $stock,
@@ -108,9 +108,9 @@ class Product
         return $this->id;
     }
 
-    public function familyId(): int
+    public function FamilyId(): int
     {
-        return $this->familyId;
+        return $this->FamilyId;
     }
 
     public function taxId(): int
@@ -118,9 +118,9 @@ class Product
         return $this->taxId;
     }
 
-    public function name(): string
+    public function name(): ProductName
     {
-        return $this->name->value();
+        return $this->name;
     }
 
     public function price(): ProductPrice

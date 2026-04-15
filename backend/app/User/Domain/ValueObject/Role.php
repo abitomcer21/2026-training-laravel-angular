@@ -6,15 +6,14 @@ class Role
 {
     public const ADMIN = 'admin';
     public const SUPERVISOR = 'supervisor';
-    public const CASHIER = 'cashier';
-    public const WAITER = 'waiter';
+    public const CAMARERO = 'camarero';
     public const CHEF = 'chef';
 
     private string $value;
 
     private function __construct(string $value)
     {
-        if (!in_array($value, [self::ADMIN,self::SUPERVISOR, self::CASHIER, self::WAITER, self::CHEF], true)) {
+        if (!in_array($value, [self::ADMIN,self::SUPERVISOR, self::CAMARERO, self::CHEF], true)) {
             throw new \InvalidArgumentException('Invalid role value: ' . $value);
         }
         $this->value = $value;
@@ -35,15 +34,11 @@ class Role
         return new self(self::SUPERVISOR);
     }
 
-    public static function cashier(): self
+    public static function camarero(): self
     {
-        return new self(self::CASHIER);
+        return new self(self::CAMARERO);
     }
 
-    public static function waiter(): self
-    {
-        return new self(self::WAITER);
-    }
 
     public static function chef(): self
     {
@@ -70,14 +65,9 @@ class Role
         return $this->value === self::SUPERVISOR;
     }
 
-    public function isCashier(): bool
+    public function isCamarero(): bool
     {
-        return $this->value === self::CASHIER;
-    }
-
-    public function isWaiter(): bool
-    {
-        return $this->value === self::WAITER;
+        return $this->value === self::CAMARERO;
     }
 
     public function isChef(): bool

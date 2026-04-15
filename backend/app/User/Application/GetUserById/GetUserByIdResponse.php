@@ -24,12 +24,12 @@ final readonly class GetUserByIdResponse
     {
         return new self(
             id: $user->id()->value(),
-            name: $user->name(),
+            name: $user->name()->value(),
             email: $user->email()->value(),
             role: $user->role(),
             imageSrc: $user->imageSrc(),
             restaurantId: $user->restaurantId(),
-            pin: $user->pin(),
+            pin: $user->pin()->value(),
             createdAt: $user->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $user->updatedAt()->format(\DateTimeInterface::ATOM),
         );

@@ -12,7 +12,7 @@ interface ProductRepositoryInterface
 
     public function findByName(string $name): ?Product;
 
-    public function findByFamilyId(int $familyId): array;
+    public function findByFamilyId(int $FamilyId): array;
 
     public function all(): array;
 

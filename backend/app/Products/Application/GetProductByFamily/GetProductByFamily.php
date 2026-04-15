@@ -10,9 +10,9 @@ class GetProductByFamily
         private ProductRepositoryInterface $productRepository,
     ) {}
 
-    public function __invoke(int $familyId): GetProductByFamilyResponse
+    public function __invoke(int $FamilyId): GetProductByFamilyResponse
     {
-        $products = $this->productRepository->findByFamilyId($familyId);
+        $products = $this->productRepository->findByFamilyId($FamilyId);
 
         return GetProductByFamilyResponse::fromProducts($products);
     }

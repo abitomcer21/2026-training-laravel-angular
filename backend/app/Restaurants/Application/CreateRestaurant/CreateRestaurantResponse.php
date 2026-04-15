@@ -19,19 +19,16 @@ final readonly class CreateRestaurantResponse
     public static function create(Restaurant $restaurant): self
     {
         return new self(
-            id: $restaurant->id()->value(),
-            name: $restaurant->name(),
-            legalName: $restaurant->legalName(),
-            taxId: $restaurant->taxId(),
-            email: $restaurant->email()->value(),
-            createdAt: $restaurant->createdAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $restaurant->updatedAt()->format(\DateTimeInterface::ATOM),
+            $restaurant->id()->value(),
+            $restaurant->name()->value(),
+            $restaurant->legalName()->value(),
+            $restaurant->taxId()->value(),
+            $restaurant->email()->value(),
+            $restaurant->createdAt()->format(\DateTimeInterface::ATOM),
+            $restaurant->updatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function toArray(): array
     {
         return [

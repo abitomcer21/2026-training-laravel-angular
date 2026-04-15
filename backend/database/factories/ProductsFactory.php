@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Families\Infrastructure\Persistence\Models\EloquentFamilies;
+use App\Family\Infrastructure\Persistence\Models\EloquentFamily;
 use App\Products\Infrastructure\Persistence\Models\EloquentProduct;
 use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
-use App\Taxes\Infrastructure\Persistence\Models\EloquentTaxes;
+use App\Tax\Infrastructure\Persistence\Models\EloquentTax;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -16,20 +16,20 @@ class ProductsFactory extends Factory
     public static function getCatalogo(): array
     {
         return [
-            ['name' => 'Coca-Cola',      'price' => 250,  'family' => 'Bebidas'],
-            ['name' => 'Agua mineral',   'price' => 150,  'family' => 'Bebidas'],
-            ['name' => 'Cerveza',        'price' => 200,  'family' => 'Cervezas'],
-            ['name' => 'Vino tinto',     'price' => 350,  'family' => 'Vinos'],
-            ['name' => 'Café solo',      'price' => 150,  'family' => 'Cafés'],
-            ['name' => 'Cortado',        'price' => 160,  'family' => 'Cafés'],
-            ['name' => 'Croquetas',      'price' => 800,  'family' => 'Entrantes'],
-            ['name' => 'Jamón ibérico',  'price' => 1600, 'family' => 'Entrantes'],
-            ['name' => 'Solomillo',      'price' => 2200, 'family' => 'Carnes'],
-            ['name' => 'Chuletón',       'price' => 2800, 'family' => 'Carnes'],
-            ['name' => 'Lubina',         'price' => 1800, 'family' => 'Pescados'],
-            ['name' => 'Merluza',        'price' => 1600, 'family' => 'Pescados'],
-            ['name' => 'Tiramisú',       'price' => 600,  'family' => 'Postres'],
-            ['name' => 'Flan casero',    'price' => 500,  'family' => 'Postres'],
+            ['name' => 'Coca-Cola',      'price' => 250,  'Family' => 'Bebidas'],
+            ['name' => 'Agua mineral',   'price' => 150,  'Family' => 'Bebidas'],
+            ['name' => 'Cerveza',        'price' => 200,  'Family' => 'Cervezas'],
+            ['name' => 'Vino tinto',     'price' => 350,  'Family' => 'Vinos'],
+            ['name' => 'Café solo',      'price' => 150,  'Family' => 'Cafés'],
+            ['name' => 'Cortado',        'price' => 160,  'Family' => 'Cafés'],
+            ['name' => 'Croquetas',      'price' => 800,  'Family' => 'Entrantes'],
+            ['name' => 'Jamón ibérico',  'price' => 1600, 'Family' => 'Entrantes'],
+            ['name' => 'Solomillo',      'price' => 2200, 'Family' => 'Carnes'],
+            ['name' => 'Chuletón',       'price' => 2800, 'Family' => 'Carnes'],
+            ['name' => 'Lubina',         'price' => 1800, 'Family' => 'Pescados'],
+            ['name' => 'Merluza',        'price' => 1600, 'Family' => 'Pescados'],
+            ['name' => 'Tiramisú',       'price' => 600,  'Family' => 'Postres'],
+            ['name' => 'Flan casero',    'price' => 500,  'Family' => 'Postres'],
         ];
     }
 
@@ -38,8 +38,8 @@ class ProductsFactory extends Factory
         return [
             'uuid'          => (string) Str::uuid(),
             'restaurant_id' => EloquentRestaurant::factory(),
-            'family_id'     => EloquentFamilies::factory(),
-            'tax_id'        => EloquentTaxes::factory(),
+            'Family_id'     => EloquentFamily::factory(),
+            'tax_id'        => EloquentTax::factory(),
             'image_src'     => fake()->imageUrl(),
             'name'          => fake()->word(),
             'price'         => fake()->numberBetween(100, 3000),
@@ -55,17 +55,17 @@ class ProductsFactory extends Factory
         ]);
     }
 
-    public function forFamily(EloquentFamilies|int $family): static
+    public function forFamily(EloquentFamily|int $Family): static
     {
         return $this->state(fn(array $attributes) => [
-            'family_id' => $family instanceof EloquentFamilies ? $family->id : $family,
+            'Family_id' => $Family instanceof EloquentFamily ? $Family->id : $Family,
         ]);
     }
 
-    public function forTax(EloquentTaxes|int $tax): static
+    public function forTax(EloquentTax|int $tax): static
     {
         return $this->state(fn(array $attributes) => [
-            'tax_id' => $tax instanceof EloquentTaxes ? $tax->id : $tax,
+            'tax_id' => $tax instanceof EloquentTax ? $tax->id : $tax,
         ]);
     }
 }

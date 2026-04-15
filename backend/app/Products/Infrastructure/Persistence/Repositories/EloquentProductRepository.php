@@ -18,7 +18,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
             ['uuid' => $product->id()->value()],
             [
                 'restaurant_id' => $product->restaurantId(),
-                'family_id' => $product->familyId(),
+                'Family_id' => $product->FamilyId(),
                 'tax_id' => $product->taxId(),
                 'name' => $product->name(),
                 'price' => $product->price()->value(),
@@ -39,7 +39,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
         return Product::fromPersistence(
             $eloquentProduct->uuid,
-            $eloquentProduct->family_id,
+            $eloquentProduct->Family_id,
             $eloquentProduct->tax_id,
             $eloquentProduct->name,
             $eloquentProduct->price,
@@ -62,7 +62,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
         return Product::fromPersistence(
             $eloquentProduct->uuid,
-            $eloquentProduct->family_id,
+            $eloquentProduct->Family_id,
             $eloquentProduct->tax_id,
             $eloquentProduct->name,
             $eloquentProduct->price,
@@ -75,14 +75,14 @@ class EloquentProductRepository implements ProductRepositoryInterface
         );
     }
 
-    public function findByFamilyId(int $familyId): array
+    public function findByFamilyId(int $FamilyId): array
     {
         return $this->model->newQuery()
-            ->where('family_id', $familyId)
+            ->where('Family_id', $FamilyId)
             ->get()
             ->map(fn($eloquentProduct) => Product::fromPersistence(
                 $eloquentProduct->uuid,
-                $eloquentProduct->family_id,
+                $eloquentProduct->Family_id,
                 $eloquentProduct->tax_id,
                 $eloquentProduct->name,
                 $eloquentProduct->price,
@@ -100,7 +100,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
         return $this->model->newQuery()->get()->map(
             fn(EloquentProduct $eloquentProduct): Product => Product::fromPersistence(
                 $eloquentProduct->uuid,
-                $eloquentProduct->family_id,
+                $eloquentProduct->Family_id,
                 $eloquentProduct->tax_id,
                 $eloquentProduct->name,
                 $eloquentProduct->price,

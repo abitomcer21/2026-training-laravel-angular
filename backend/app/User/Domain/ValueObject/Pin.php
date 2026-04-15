@@ -6,26 +6,30 @@ class Pin
 {
     private const LENGTH = 4;
 
-    private string $value;
+    private ?string $value;
 
-
-    private function __construct(string $value)
+    private function __construct(?string $value)
     {
-        if (!preg_match('/^\d{' . self::LENGTH . '}$/', $value)) {
+        if ($value !== null && !preg_match('/^\d{' . self::LENGTH . '}$/', $value)) {
             throw new \InvalidArgumentException(
-                sprintf('Pin must be exactly %d digits.', self::LENGTH)
+                sprintf('Pin must be exactly %d digits or null.', self::LENGTH)
             );
         }
         $this->value = $value;
     }
 
-    public static function create(string $value): self
+    public static function create(?string $value): self
     {
         return new self($value);
     }
 
-    public function value(): string
+    public function value(): ?string
     {
         return $this->value;
+    }
+    
+    public function hasPin(): bool
+    {
+        return $this->value !== null;
     }
 }

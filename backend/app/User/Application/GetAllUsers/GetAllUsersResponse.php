@@ -16,10 +16,10 @@ final readonly class GetAllUsersResponse
         $usersData = array_map(
             static fn (User $user): array => [
                 'id' => $user->id()->value(),
-                'name' => $user->name(),
+                'name' => $user->name()->value(),
                 'email' => $user->email()->value(),
                 'role' => $user->role()->value(),
-                'pin' => $user->pin(),
+                'pin' => $user->pin()->value(),
                 'image_src' => $user->imageSrc(),
                 'restaurant_id' => $user->restaurantId(),
                 'created_at' => $user->createdAt()->format(\DateTimeInterface::ATOM),
