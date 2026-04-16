@@ -4,7 +4,7 @@ namespace App\User\Application\Auth;
 
 use App\User\Domain\Entity\User;
 
-class LoginUserResponse
+final readonly class LoginUserResponse
 {
     public function __construct(
         public string $token,
