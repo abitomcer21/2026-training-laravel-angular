@@ -16,12 +16,12 @@ final readonly class GetAllProductsResponse
         $productsData = array_map(
             static fn (Product $product): array => [
                 'id' => $product->id()->value(),
-                'Family_id' => $product->FamilyId(),
+                'family_id' => $product->familyId(),
                 'tax_id' => $product->taxId(),
-                'name' => $product->name(),
+                'name' => $product->name()->value(),
                 'price' => $product->price()->value(),
                 'stock' => $product->stock()->value(),
-                'image_src' => $product->imageSrc(),
+                'image_src' => $product->imageSrc()->value(),
                 'active' => $product->status()->isActive(),
                 'restaurant_id' => $product->restaurantId(),
                 'created_at' => $product->createdAt()->format(\DateTimeInterface::ATOM),

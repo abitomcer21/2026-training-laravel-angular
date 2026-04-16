@@ -28,7 +28,7 @@ final readonly class CreateProductResponse
             name: $product->name()->value(),
             price: $product->price()->value(),
             stock: $product->stock()->value(),
-            imageSrc: $product->imageSrc(),
+            imageSrc: $product->imageSrc()->value(),
             active: $product->status()->isActive(),
             createdAt: $product->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $product->updatedAt()->format(\DateTimeInterface::ATOM),

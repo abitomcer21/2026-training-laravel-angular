@@ -7,6 +7,8 @@ use App\Products\Domain\ValueObject\ProductImageSrc;
 use App\Products\Domain\ValueObject\ProductName;
 use App\Products\Domain\ValueObject\ProductPrice;
 use App\Products\Domain\ValueObject\ProductStock;
+use App\Products\Domain\ValueObject\ProductStatus;
+
 
 class UpdateProduct
 {
@@ -16,11 +18,11 @@ class UpdateProduct
 
     public function __invoke(
         string $id,
-        string $name,
-        int $price,
-        int $stock,
-        string $imageSrc,
-        bool $status,
+        ?string $name,
+        ?int $price,
+        ?int $stock,
+        ?string $imageSrc,
+        ?bool $status,
     ): ?UpdateProductResponse {
 
         $product = $this->productRepository->findById($id);
@@ -56,7 +58,7 @@ class UpdateProduct
         if ($status === null) {
             $activeVO = $product->status();
         } else {
-            $activeVO = ProductStock::create($stock);
+            $activeVO = ProductStatus::create($status);
         }
 
 

@@ -16,8 +16,8 @@ class PostController
     {
         $validated = $request->validate([
             'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
-            'Family_id' => ['required', 'integer', 'exists:Family,id'],
-            'tax_id' => ['required', 'integer', 'exists:tax,id'],
+            'family_id' => ['required', 'integer', 'exists:families,id'],
+            'tax_id' => ['required', 'integer', 'exists:taxes,id'],
             'name' => ['required', 'string', 'max:255'],
             'price' => ['required', 'integer', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
@@ -26,7 +26,7 @@ class PostController
         ]);
 
         $response = ($this->createProduct)(
-            $validated['Family_id'],
+            $validated['family_id'],
             $validated['tax_id'],
             $validated['restaurant_id'],
             $validated['name'],

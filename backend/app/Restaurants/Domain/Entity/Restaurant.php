@@ -91,7 +91,6 @@ class Restaurant
         );
     }
 
-    // Getters
     public function id(): Uuid
     {
         return $this->id;

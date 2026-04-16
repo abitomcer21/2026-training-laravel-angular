@@ -8,7 +8,7 @@ final readonly class UpdateProductResponse
 {
     public function __construct(
         public string $id,
-        public int $FamilyId,
+        public int $familyId,
         public int $taxId,
         public string $name,
         public int $price,
@@ -24,12 +24,12 @@ final readonly class UpdateProductResponse
     {
         return new self(
             id: $product->id()->value(),
-            FamilyId: $product->FamilyId(),
+            familyId: $product->familyId(),
             taxId: $product->taxId(),
-            name: $product->name(),
+            name: $product->name()->value(),
             price: $product->price()->value(),
             stock: $product->stock()->value(),
-            imageSrc: $product->imageSrc(),
+            imageSrc: $product->imageSrc()->value(),
             active: $product->status()->isActive(),
             restaurantId: $product->restaurantId(),
             createdAt: $product->createdAt()->format(\DateTimeInterface::ATOM),
@@ -41,7 +41,7 @@ final readonly class UpdateProductResponse
     {
         return [
             'id' => $this->id,
-            'Family_id' => $this->FamilyId,
+            'family_id' => $this->familyId,
             'tax_id' => $this->taxId,
             'name' => $this->name,
             'price' => $this->price,

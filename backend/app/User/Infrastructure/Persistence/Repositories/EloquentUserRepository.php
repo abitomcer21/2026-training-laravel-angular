@@ -14,7 +14,8 @@ class EloquentUserRepository implements UserRepositoryInterface
 
     public function save(User $user): void
     {
-        $model = $this->model->newQuery()->firstOrNew(['uuid' => $user->id()->value()]);
+        $model = $this->model->newQuery()->firstOrNew(
+            ['uuid' => $user->id()->value()]);
 
         if (!$model->exists) {
             $model->created_at = $user->createdAt()->value();

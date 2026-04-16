@@ -10,9 +10,9 @@ class GetByFamilyController
         private GetProductByFamily $getProductByFamily,
     ) {}
 
-    public function __invoke(int $FamilyId): JsonResponse
+    public function __invoke(int $familyId): JsonResponse
     {
-        $response = ($this->getProductByFamily)($FamilyId);
+        $response = ($this->getProductByFamily)($familyId);
 
         return new JsonResponse($response->toArray(), 200);
     }
