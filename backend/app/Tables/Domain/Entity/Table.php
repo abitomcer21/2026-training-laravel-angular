@@ -52,7 +52,6 @@ class Table
         );
     }
 
-
     public function updateData(
         TableName $name,
     ): self {

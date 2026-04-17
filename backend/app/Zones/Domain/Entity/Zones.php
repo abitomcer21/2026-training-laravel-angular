@@ -59,7 +59,6 @@ class Zones
         );
     }
 
-
     public function id(): Uuid
     {
         return $this->id;
@@ -84,5 +83,4 @@ class Zones
     {
         return $this->updatedAt;
     }
-
 }

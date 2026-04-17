@@ -10,8 +10,7 @@ class PostController
 {
     public function __construct(
         private CreateTable $createTable,
-    ) {
-    }
+    ) {}
 
     public function __invoke(Request $request): JsonResponse
     {

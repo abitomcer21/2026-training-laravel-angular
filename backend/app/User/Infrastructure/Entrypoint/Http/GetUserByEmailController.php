@@ -5,7 +5,6 @@ namespace App\User\Infrastructure\Entrypoint\Http;
 use App\User\Application\GetUserByEmail\GetUserByEmail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class GetUserByEmailController
 {

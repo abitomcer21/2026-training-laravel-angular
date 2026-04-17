@@ -2,12 +2,10 @@
 
 namespace App\Providers;
 
-use App\User\Domain\Interfaces\PasswordHasherInterface;
-use App\User\Domain\Interfaces\UserRepositoryInterface;
-use App\User\Infrastructure\Persistence\Repositories\EloquentUserRepository;
-use App\User\Infrastructure\Services\LaravelPasswordHasher;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
 use App\Family\Infrastructure\Persistence\Repositories\EloquentFamilyRepository;
+use App\Order\Domain\Interfaces\OrderRepositoryInterface;
+use App\Order\Infrastructure\Persistence\Repositories\EloquentOrderRepository;
 use App\Products\Domain\Interfaces\ProductRepositoryInterface;
 use App\Products\Infrastructure\Persistence\Repositories\EloquentProductRepository;
 use App\Restaurants\Domain\Interfaces\RestaurantAdminUserCreatorInterface;
@@ -16,27 +14,26 @@ use App\Restaurants\Domain\Interfaces\RestaurantRepositoryInterface;
 use App\Restaurants\Infrastructure\Persistence\Repositories\EloquentRestaurantRepository;
 use App\Restaurants\Infrastructure\Services\CreateRestaurantAdminUser;
 use App\Restaurants\Infrastructure\Services\LaravelRestaurantPasswordHasher;
-use App\Tax\Domain\Interfaces\TaxRepositoryInterface;
-use App\Tax\Infrastructure\Persistence\Repositories\EloquentTaxRepository;
-use App\Zones\Domain\Interfaces\ZonesRepositoryInterface;
-use App\Zones\Infrastructure\Persistence\Repositories\EloquentZonesRepository;
-use App\Tables\Domain\Interfaces\TablesRepositoryInterface;
-use App\Tables\Infrastructure\Persistence\Repositories\EloquentTablesRepository;
 use App\Sales\Domain\Interfaces\SalesRepositoryInterface;
 use App\Sales\Infrastructure\Persistence\Repositories\EloquentSalesRepository;
-use App\Order\Domain\Interfaces\OrderRepositoryInterface;
-use App\Order\Infrastructure\Persistence\Repositories\EloquentOrderRepository;
-use Illuminate\Support\ServiceProvider;
-
+use App\Tables\Domain\Interfaces\TablesRepositoryInterface;
+use App\Tables\Infrastructure\Persistence\Repositories\EloquentTablesRepository;
+use App\Tax\Domain\Interfaces\TaxRepositoryInterface;
+use App\Tax\Infrastructure\Persistence\Repositories\EloquentTaxRepository;
+use App\User\Domain\Interfaces\PasswordHasherInterface;
 use App\User\Domain\Interfaces\TokenIssuerInterface;
-use App\User\Infrastructure\Services\SanctumTokenIssuer;
-
 use App\User\Domain\Interfaces\TokenRevokerInterface;
+use App\User\Domain\Interfaces\UserRepositoryInterface;
+use App\User\Infrastructure\Persistence\Repositories\EloquentUserRepository;
+use App\User\Infrastructure\Services\LaravelPasswordHasher;
+use App\User\Infrastructure\Services\SanctumTokenIssuer;
 use App\User\Infrastructure\Services\SanctumTokenRevoker;
+use App\Zones\Domain\Interfaces\ZonesRepositoryInterface;
+use App\Zones\Infrastructure\Persistence\Repositories\EloquentZonesRepository;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-
     public function register(): void
     {
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);

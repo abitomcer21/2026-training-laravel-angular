@@ -15,13 +15,13 @@ class UpdateTable
     {
         $table = $this->tablesRepository->findById($id);
 
-        if (!$table) {
+        if (! $table) {
             return null;
         }
 
-        if($name === null){
+        if ($name === null) {
             $nameVO = $table->name();
-        }else {
+        } else {
             $nameVO = TableName::create($name);
         }
 

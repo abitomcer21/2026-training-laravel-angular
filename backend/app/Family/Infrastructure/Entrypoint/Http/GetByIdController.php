@@ -10,8 +10,7 @@ class GetByIdController
 {
     public function __construct(
         private GetFamilyById $getFamilyById,
-    ) {
-    }
+    ) {}
 
     public function __invoke(string $id): JsonResponse
     {

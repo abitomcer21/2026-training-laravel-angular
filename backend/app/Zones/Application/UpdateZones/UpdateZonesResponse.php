@@ -12,7 +12,7 @@ final readonly class UpdateZonesResponse
         public int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
-    ){}
+    ) {}
 
     public static function create(Zones $zones): self
     {
@@ -28,7 +28,7 @@ final readonly class UpdateZonesResponse
     public function toArray(): array
     {
         return [
-            'id'=> $this->id,
+            'id' => $this->id,
             'name' => $this->name,
             'restaurant_id' => $this->restaurantId,
             'created_at' => $this->createdAt,

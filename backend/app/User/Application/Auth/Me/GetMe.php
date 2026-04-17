@@ -14,7 +14,7 @@ class GetMe
     {
         $user = $this->userRepository->findById($uuid);
 
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 

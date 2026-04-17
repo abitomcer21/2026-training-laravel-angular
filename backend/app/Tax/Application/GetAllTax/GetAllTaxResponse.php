@@ -6,17 +6,15 @@ use App\Tax\Domain\Entity\Tax;
 
 final readonly class GetAllTaxResponse
 {
-
     public function __construct(
         public array $tax,
         public int $total,
     ) {}
 
-
     public static function create(array $tax): self
     {
         $taxData = array_map(
-            static fn(Tax $tax): array => [
+            static fn (Tax $tax): array => [
                 'id' => $tax->id()->value(),
                 'name' => $tax->name(),
                 'percentage' => $tax->percentage()->value(),
@@ -32,7 +30,6 @@ final readonly class GetAllTaxResponse
             total: count($taxData),
         );
     }
-
 
     public function toArray(): array
     {

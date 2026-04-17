@@ -5,7 +5,6 @@ namespace App\Tables\Infrastructure\Entrypoint\Http;
 use App\Tables\Application\UpdateTable\UpdateTable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class PutController
 {
@@ -17,9 +16,8 @@ class PutController
     {
 
         $validated = $request->validate([
-            'name'      => ['nullable', 'string', 'max:255'],
+            'name' => ['nullable', 'string', 'max:255'],
         ]);
-
 
         $response = ($this->updateTable)(
             $id,

@@ -15,8 +15,8 @@ class TaxSeeder extends Seeder
         }
 
         $restaurantId = DB::table('restaurants')->first()?->id;
-        
-        if (!$restaurantId) {
+
+        if (! $restaurantId) {
             return;
         }
 

@@ -36,35 +36,35 @@ class ProductsFactory extends Factory
     public function definition(): array
     {
         return [
-            'uuid'          => (string) Str::uuid(),
+            'uuid' => (string) Str::uuid(),
             'restaurant_id' => EloquentRestaurant::factory(),
-            'Family_id'     => EloquentFamily::factory(),
-            'tax_id'        => EloquentTax::factory(),
-            'image_src'     => fake()->imageUrl(),
-            'name'          => fake()->word(),
-            'price'         => fake()->numberBetween(100, 3000),
-            'stock'         => fake()->numberBetween(10, 100),
-            'active'        => fake()->boolean(80),
+            'Family_id' => EloquentFamily::factory(),
+            'tax_id' => EloquentTax::factory(),
+            'image_src' => fake()->imageUrl(),
+            'name' => fake()->word(),
+            'price' => fake()->numberBetween(100, 3000),
+            'stock' => fake()->numberBetween(10, 100),
+            'active' => fake()->boolean(80),
         ];
     }
 
     public function forRestaurant(EloquentRestaurant|int $restaurant): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'restaurant_id' => $restaurant instanceof EloquentRestaurant ? $restaurant->id : $restaurant,
         ]);
     }
 
     public function forFamily(EloquentFamily|int $Family): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'Family_id' => $Family instanceof EloquentFamily ? $Family->id : $Family,
         ]);
     }
 
     public function forTax(EloquentTax|int $tax): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'tax_id' => $tax instanceof EloquentTax ? $tax->id : $tax,
         ]);
     }

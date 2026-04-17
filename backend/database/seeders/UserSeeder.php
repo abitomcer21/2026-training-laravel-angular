@@ -25,9 +25,9 @@ class UserSeeder extends Seeder
                 ->admin()
                 ->forRestaurant($restaurant)
                 ->create([
-                    'name'  => 'Admin Principal',
+                    'name' => 'Admin Principal',
                     'email' => "admin{$index}@restaurant.test",
-                    'pin'   => '1234',
+                    'pin' => '1234',
                 ]);
 
             EloquentUser::factory(3)->camarero()->forRestaurant($restaurant)->create();

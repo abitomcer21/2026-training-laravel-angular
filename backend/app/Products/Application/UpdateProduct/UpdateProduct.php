@@ -6,9 +6,8 @@ use App\Products\Domain\Interfaces\ProductRepositoryInterface;
 use App\Products\Domain\ValueObject\ProductImageSrc;
 use App\Products\Domain\ValueObject\ProductName;
 use App\Products\Domain\ValueObject\ProductPrice;
-use App\Products\Domain\ValueObject\ProductStock;
 use App\Products\Domain\ValueObject\ProductStatus;
-
+use App\Products\Domain\ValueObject\ProductStock;
 
 class UpdateProduct
 {
@@ -27,7 +26,7 @@ class UpdateProduct
 
         $product = $this->productRepository->findById($id);
 
-        if (!$product) {
+        if (! $product) {
             return null;
         }
 
@@ -61,10 +60,9 @@ class UpdateProduct
             $activeVO = ProductStatus::create($status);
         }
 
-
-
         $product = $product->updateData($nameVO, $priceVO, $stockVO, $imageSrcVO, $activeVO);
         $this->productRepository->save($product);
+
         return UpdateProductResponse::create($product);
     }
 }

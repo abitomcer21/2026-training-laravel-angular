@@ -8,8 +8,7 @@ class GetAllFamily
 {
     public function __construct(
         private FamilyRepositoryInterface $familyRepository,
-    )
-    {}
+    ) {}
 
     public function __invoke(): GetAllFamilyResponse
     {

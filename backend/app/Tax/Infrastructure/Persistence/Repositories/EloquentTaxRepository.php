@@ -6,7 +6,6 @@ use App\Tax\Domain\Entity\Tax;
 use App\Tax\Domain\Interfaces\TaxRepositoryInterface;
 use App\Tax\Infrastructure\Persistence\Models\EloquentTax;
 
-
 class EloquentTaxRepository implements TaxRepositoryInterface
 {
     public function __construct(
@@ -19,10 +18,10 @@ class EloquentTaxRepository implements TaxRepositoryInterface
             ['uuid' => $tax->id()->value()],
             [
                 'restaurant_id' => $tax->restaurantId(),
-                'name'          => $tax->name(),
-                'percentage'    => $tax->percentage()->value(),
-                'created_at'    => $tax->createdAt()->value(),
-                'updated_at'    => $tax->updatedAt()->value(),
+                'name' => $tax->name(),
+                'percentage' => $tax->percentage()->value(),
+                'created_at' => $tax->createdAt()->value(),
+                'updated_at' => $tax->updatedAt()->value(),
             ],
         );
     }
@@ -31,7 +30,7 @@ class EloquentTaxRepository implements TaxRepositoryInterface
     {
         $eloquentTax = $this->model->newQuery()->where('uuid', $id)->first();
 
-        if (!$eloquentTax) {
+        if (! $eloquentTax) {
             return null;
         }
 

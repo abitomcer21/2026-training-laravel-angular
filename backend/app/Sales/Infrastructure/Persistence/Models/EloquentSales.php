@@ -41,4 +41,3 @@ class EloquentSales extends Model
         ];
     }
 }
-

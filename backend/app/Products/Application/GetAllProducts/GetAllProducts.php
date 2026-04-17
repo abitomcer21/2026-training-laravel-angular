@@ -8,7 +8,7 @@ class GetAllProducts
 {
     public function __construct(
         private ProductRepositoryInterface $productRepository,
-    ){}
+    ) {}
 
     public function __invoke(): GetAllProductsResponse
     {

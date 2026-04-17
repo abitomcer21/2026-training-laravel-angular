@@ -1,17 +1,16 @@
 <?php
+
 namespace App\Tax\Infrastructure\Entrypoint\Http;
 
 use App\Tax\Application\DeleteTax\DeleteTax;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
-class DeleteController 
+class DeleteController
 {
     public function __construct(
         private DeleteTax $deleteTax,
-    ){
-
-    }
+    ) {}
 
     public function __invoke(string $id): JsonResponse
     {
@@ -30,7 +29,7 @@ class DeleteController
 
         $deleted = ($this->deleteTax)($id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return new JsonResponse([
                 'message' => 'Tax not found',
             ], 404);

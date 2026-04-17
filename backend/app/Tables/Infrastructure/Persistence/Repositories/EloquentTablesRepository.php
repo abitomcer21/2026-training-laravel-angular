@@ -16,7 +16,7 @@ class EloquentTablesRepository implements TablesRepositoryInterface
     {
         $model = $this->model->newQuery()->firstOrNew(['uuid' => $tables->id()->value()]);
 
-        if (!$model->exists) {
+        if (! $model->exists) {
             $model->created_at = $tables->createdAt()->value();
         }
 
@@ -35,7 +35,7 @@ class EloquentTablesRepository implements TablesRepositoryInterface
     {
         $eloquentTable = $this->model->newQuery()->where('uuid', $id)->first();
 
-        if (!$eloquentTable) {
+        if (! $eloquentTable) {
             return null;
         }
 

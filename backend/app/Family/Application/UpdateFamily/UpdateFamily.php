@@ -20,7 +20,7 @@ class UpdateFamily
 
         $family = $this->familyRepository->findById($id);
 
-        if (!$family) {
+        if (! $family) {
             return null;
         }
 

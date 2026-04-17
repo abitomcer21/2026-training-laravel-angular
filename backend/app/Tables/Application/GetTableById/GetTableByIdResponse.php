@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Tables\Application\GetTableById;
 
 use App\Tables\Domain\Entity\Table;
@@ -12,8 +13,7 @@ final readonly class GetTableByIdResponse
         public int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
-    )
-    {}
+    ) {}
 
     public static function create(Table $table): self
     {

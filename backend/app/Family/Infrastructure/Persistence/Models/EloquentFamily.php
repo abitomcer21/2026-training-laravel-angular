@@ -38,4 +38,3 @@ class EloquentFamily extends Model
         ];
     }
 }
-

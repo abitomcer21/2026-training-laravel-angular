@@ -27,13 +27,13 @@ class SalesSeeder extends Seeder
             return;
         }
 
-        $ticketNumber        = 1;
+        $ticketNumber = 1;
         $currentRestaurantId = null;
 
         foreach ($closedOrders as $order) {
             if ($currentRestaurantId !== $order->restaurant_id) {
                 $currentRestaurantId = $order->restaurant_id;
-                $ticketNumber        = 1;
+                $ticketNumber = 1;
             }
 
             $user = EloquentUser::query()->find($order->closed_by_user_id ?? $order->opened_by_user_id);
@@ -48,7 +48,7 @@ class SalesSeeder extends Seeder
                 continue;
             }
 
-            $total = $orderLines->sum(fn(EloquentOrderLine $line) => $line->quantity * $line->price);
+            $total = $orderLines->sum(fn (EloquentOrderLine $line) => $line->quantity * $line->price);
 
             $sale = EloquentSales::factory()
                 ->forRestaurant($order->restaurant_id)
@@ -56,19 +56,19 @@ class SalesSeeder extends Seeder
                 ->forUser($user)
                 ->create([
                     'ticket_number' => $ticketNumber++,
-                    'value_date'    => now(),
-                    'total'         => $total,
+                    'value_date' => now(),
+                    'total' => $total,
                 ]);
 
             foreach ($orderLines as $orderLine) {
                 EloquentSalesLine::create([
-                    'uuid'           => (string) Str::uuid(),
-                    'restaurant_id'  => $order->restaurant_id,
-                    'sale_id'        => $sale->id,
-                    'order_line_id'  => $orderLine->id,
-                    'user_id'        => $orderLine->user_id,
-                    'quantity'       => $orderLine->quantity,
-                    'price'          => $orderLine->price,
+                    'uuid' => (string) Str::uuid(),
+                    'restaurant_id' => $order->restaurant_id,
+                    'sale_id' => $sale->id,
+                    'order_line_id' => $orderLine->id,
+                    'user_id' => $orderLine->user_id,
+                    'quantity' => $orderLine->quantity,
+                    'price' => $orderLine->price,
                     'tax_percentage' => $orderLine->tax_percentage,
                 ]);
             }

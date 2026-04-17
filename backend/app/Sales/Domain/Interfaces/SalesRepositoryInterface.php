@@ -20,4 +20,3 @@ interface SalesRepositoryInterface
 
     public function findSalesLineById(string $id): ?SalesLine;
 }
-

@@ -6,13 +6,11 @@ use App\Zones\Domain\Interfaces\ZonesRepositoryInterface;
 
 class DeleteZones
 {
-    public function __construct(private ZonesRepositoryInterface $zonesRepository)
-    {
-    }
+    public function __construct(private ZonesRepositoryInterface $zonesRepository) {}
 
     public function __invoke(string $id): bool
     {
-        if (!$this->zonesRepository->findById($id)) {
+        if (! $this->zonesRepository->findById($id)) {
             return false;
         }
 

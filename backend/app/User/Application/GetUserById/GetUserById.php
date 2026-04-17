@@ -1,4 +1,5 @@
 <?php
+
 namespace App\User\Application\GetUserById;
 
 use App\User\Domain\Interfaces\UserRepositoryInterface;
@@ -12,8 +13,8 @@ class GetUserById
     public function __invoke(string $id): ?GetUserByIdResponse
     {
         $user = $this->userRepository->findById($id);
-        
-        if (!$user) {
+
+        if (! $user) {
             return null;
         }
 

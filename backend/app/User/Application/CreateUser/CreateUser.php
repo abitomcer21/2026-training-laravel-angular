@@ -7,9 +7,9 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Interfaces\PasswordHasherInterface;
 use App\User\Domain\Interfaces\UserRepositoryInterface;
 use App\User\Domain\ValueObject\PasswordHash;
-use App\User\Domain\ValueObject\UserName;
 use App\User\Domain\ValueObject\Pin;
 use App\User\Domain\ValueObject\Role;
+use App\User\Domain\ValueObject\UserName;
 
 class CreateUser
 {
@@ -44,7 +44,6 @@ class CreateUser
             restaurantId: $restaurantId,
             imageSrc: $imageSrc,
         );
-
 
         $this->userRepository->save($user);
 

@@ -5,7 +5,9 @@ namespace App\Order\Domain\ValueObject;
 class OrderStatus
 {
     public const OPEN = 'open';
+
     public const CLOSED = 'closed';
+
     public const CANCELLED = 'cancelled';
 
     private const VALID = [
@@ -18,7 +20,7 @@ class OrderStatus
 
     private function __construct(string $value)
     {
-        if (!in_array($value, self::VALID, true)) {
+        if (! in_array($value, self::VALID, true)) {
             throw new \InvalidArgumentException(
                 sprintf('Invalid order status "%s". Valid values: %s.', $value, implode(', ', self::VALID))
             );

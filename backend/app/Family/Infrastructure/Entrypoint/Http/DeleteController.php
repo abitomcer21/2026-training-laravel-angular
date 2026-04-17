@@ -10,8 +10,7 @@ class DeleteController
 {
     public function __construct(
         private DeleteFamily $deleteFamily,
-    ) {
-    }
+    ) {}
 
     public function __invoke(string $id): JsonResponse
     {
@@ -30,7 +29,7 @@ class DeleteController
 
         $deleted = ($this->deleteFamily)($id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return new JsonResponse([
                 'message' => 'Family not found',
             ], 404);

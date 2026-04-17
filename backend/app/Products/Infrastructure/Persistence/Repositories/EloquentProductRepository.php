@@ -33,7 +33,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     {
         $eloquentProduct = $this->model->newQuery()->where('uuid', $id)->first();
 
-        if (!$eloquentProduct) {
+        if (! $eloquentProduct) {
             return null;
         }
 
@@ -56,7 +56,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     {
         $eloquentProduct = $this->model->newQuery()->where('name', $name)->first();
 
-        if (!$eloquentProduct) {
+        if (! $eloquentProduct) {
             return null;
         }
 
@@ -80,7 +80,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
         return $this->model->newQuery()
             ->where('family_id', $familyId)
             ->get()
-            ->map(fn($eloquentProduct) => Product::fromPersistence(
+            ->map(fn ($eloquentProduct) => Product::fromPersistence(
                 $eloquentProduct->uuid,
                 $eloquentProduct->family_id,
                 $eloquentProduct->tax_id,
@@ -98,7 +98,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     public function all(): array
     {
         return $this->model->newQuery()->get()->map(
-            fn(EloquentProduct $eloquentProduct): Product => Product::fromPersistence(
+            fn (EloquentProduct $eloquentProduct): Product => Product::fromPersistence(
                 $eloquentProduct->uuid,
                 $eloquentProduct->family_id,
                 $eloquentProduct->tax_id,

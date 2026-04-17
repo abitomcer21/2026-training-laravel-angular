@@ -18,10 +18,10 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             ['uuid' => $family->id()->value()],
             [
                 'restaurant_id' => $family->restaurantId(),
-                'name'          => $family->name()->value(),
-                'active'        => $family->status()->value(),
-                'created_at'    => $family->createdAt()->value(),
-                'updated_at'    => $family->updatedAt()->value(),
+                'name' => $family->name()->value(),
+                'active' => $family->status()->value(),
+                'created_at' => $family->createdAt()->value(),
+                'updated_at' => $family->updatedAt()->value(),
             ],
         );
     }
@@ -30,7 +30,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
     {
         $eloquentFamily = $this->model->newQuery()->where('uuid', $id)->first();
 
-        if (!$eloquentFamily) {
+        if (! $eloquentFamily) {
             return null;
         }
 
@@ -56,7 +56,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
                 $family->updated_at->toDateTimeImmutable(),
             ),
         )->toArray();
-    }                                                                                                                                            
+    }
 
     public function delete(string $id): void
     {

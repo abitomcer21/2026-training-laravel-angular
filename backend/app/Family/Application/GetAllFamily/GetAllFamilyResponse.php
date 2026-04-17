@@ -14,7 +14,7 @@ final readonly class GetAllFamilyResponse
     public static function create(array $family): self
     {
         $FamilyData = array_map(
-            static fn(Family $family): array => [
+            static fn (Family $family): array => [
                 'id' => $family->id()->value(),
                 'name' => $family->name()->value(),
                 'active' => $family->status()->isActive(),

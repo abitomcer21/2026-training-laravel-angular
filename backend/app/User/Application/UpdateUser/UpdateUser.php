@@ -32,20 +32,20 @@ class UpdateUser
             return null;
         }
 
-        $emailVO = $email !== null 
-            ? Email::create($email) 
+        $emailVO = $email !== null
+            ? Email::create($email)
             : $user->email();
 
-        $nameVO = $name !== null 
-            ? UserName::create($name) 
+        $nameVO = $name !== null
+            ? UserName::create($name)
             : $user->name();
 
-        $roleVO = $role !== null 
-            ? Role::create($role) 
+        $roleVO = $role !== null
+            ? Role::create($role)
             : $user->role();
 
-        $pinVO = $pin !== null 
-            ? Pin::create($pin) 
+        $pinVO = $pin !== null
+            ? Pin::create($pin)
             : $user->pin();
 
         if ($plainPassword !== null) {

@@ -5,10 +5,10 @@ namespace App\User\Domain\Entity;
 use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Shared\Domain\ValueObject\Email;
 use App\Shared\Domain\ValueObject\Uuid;
-use App\User\Domain\ValueObject\Pin;
 use App\User\Domain\ValueObject\PasswordHash;
-use App\User\Domain\ValueObject\UserName;
+use App\User\Domain\ValueObject\Pin;
 use App\User\Domain\ValueObject\Role;
+use App\User\Domain\ValueObject\UserName;
 
 class User
 {
@@ -50,31 +50,31 @@ class User
         );
     }
 
-public static function fromPersistence(
-    string $id,
-    string $name,
-    string $email,
-    string $passwordHash,
-    string $role,
-    int $restaurantId,
-    string $pin,
-    ?string $imageSrc,
-    \DateTimeImmutable $createdAt,
-    \DateTimeImmutable $updatedAt,
-): self {
-    return new self(
-        Uuid::create($id),
-        UserName::create($name),
-        Email::create($email),
-        PasswordHash::create($passwordHash),
-        Role::create($role),
-        $imageSrc,
-        $restaurantId,
-        Pin::create($pin),
-        DomainDateTime::create($createdAt),
-        DomainDateTime::create($updatedAt),
-    );
-}
+    public static function fromPersistence(
+        string $id,
+        string $name,
+        string $email,
+        string $passwordHash,
+        string $role,
+        int $restaurantId,
+        string $pin,
+        ?string $imageSrc,
+        \DateTimeImmutable $createdAt,
+        \DateTimeImmutable $updatedAt,
+    ): self {
+        return new self(
+            Uuid::create($id),
+            UserName::create($name),
+            Email::create($email),
+            PasswordHash::create($passwordHash),
+            Role::create($role),
+            $imageSrc,
+            $restaurantId,
+            Pin::create($pin),
+            DomainDateTime::create($createdAt),
+            DomainDateTime::create($updatedAt),
+        );
+    }
 
     public function updateData(
         Email $email,

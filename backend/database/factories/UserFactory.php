@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
+use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -17,61 +17,61 @@ class UserFactory extends Factory
     public function definition(): array
     {
         $firstName = $this->faker->firstName();
-        $lastName  = $this->faker->lastName();
-        $slug      = strtolower($firstName . '.' . $lastName);
+        $lastName = $this->faker->lastName();
+        $slug = strtolower($firstName.'.'.$lastName);
 
         return [
-            'uuid'               => (string) Str::uuid(),
-            'restaurant_id'      => EloquentRestaurant::factory(),
-            'role'               => $this->faker->randomElement(['admin', 'supervisor', 'camarero', 'chef']),
-            'image_src'          => null,
-            'name'               => "$firstName $lastName",
-            'email'              => "$slug@restaurant.test",
-            'email_verified_at'  => now(),
-            'password'           => static::$password ??= Hash::make('password'),
-            'pin'                => (string) $this->faker->unique()->numberBetween(1000, 9999),
-            'remember_token'     => Str::random(10),
+            'uuid' => (string) Str::uuid(),
+            'restaurant_id' => EloquentRestaurant::factory(),
+            'role' => $this->faker->randomElement(['admin', 'supervisor', 'camarero', 'chef']),
+            'image_src' => null,
+            'name' => "$firstName $lastName",
+            'email' => "$slug@restaurant.test",
+            'email_verified_at' => now(),
+            'password' => static::$password ??= Hash::make('password'),
+            'pin' => (string) $this->faker->unique()->numberBetween(1000, 9999),
+            'remember_token' => Str::random(10),
         ];
     }
 
     public function unverified(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
 
     public function admin(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'role' => 'admin',
         ]);
     }
 
     public function camarero(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'role' => 'camarero',
         ]);
     }
 
     public function chef(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'role' => 'chef',
         ]);
     }
-    
+
     public function supervisor(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'role' => 'supervisor',
         ]);
     }
 
     public function forRestaurant(EloquentRestaurant|int $restaurant): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'restaurant_id' => $restaurant instanceof EloquentRestaurant ? $restaurant->id : $restaurant,
         ]);
     }

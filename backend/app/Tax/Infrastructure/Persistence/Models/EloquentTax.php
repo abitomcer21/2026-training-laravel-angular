@@ -31,4 +31,3 @@ class EloquentTax extends Model
         return TaxFactory::new();
     }
 }
-

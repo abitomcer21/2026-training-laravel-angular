@@ -2,12 +2,12 @@
 
 namespace App\Sales\Infrastructure\Persistence\Repositories;
 
+use App\Order\Infrastructure\Persistence\Models\EloquentOrderLine;
 use App\Sales\Domain\Entity\Sales;
 use App\Sales\Domain\Entity\SalesLine;
 use App\Sales\Domain\Interfaces\SalesRepositoryInterface;
 use App\Sales\Infrastructure\Persistence\Models\EloquentSales;
 use App\Sales\Infrastructure\Persistence\Models\EloquentSalesLine;
-use App\Order\Infrastructure\Persistence\Models\EloquentOrderLine;
 use App\Tables\Infrastructure\Persistence\Models\EloquentTables;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
 
@@ -44,7 +44,7 @@ class EloquentSalesRepository implements SalesRepositoryInterface
     {
         $eloquentSale = $this->model->newQuery()->where('uuid', $id)->first();
 
-        if (!$eloquentSale) {
+        if (! $eloquentSale) {
             return null;
         }
 
@@ -99,7 +99,7 @@ class EloquentSalesRepository implements SalesRepositoryInterface
     {
         $eloquentSales = $this->model->newQuery()->where('uuid', $saleId)->first();
 
-        if (!$eloquentSales) {
+        if (! $eloquentSales) {
             return [];
         }
 
@@ -114,7 +114,7 @@ class EloquentSalesRepository implements SalesRepositoryInterface
     {
         $eloquentLine = $this->salesLineModel->newQuery()->where('uuid', $id)->first();
 
-        if (!$eloquentLine) {
+        if (! $eloquentLine) {
             return null;
         }
 

@@ -2,22 +2,30 @@
 
 namespace App\Sales\Domain\Entity;
 
-use App\Shared\Domain\ValueObject\Uuid;
-use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Sales\Domain\ValueObject\Quantity;
 use App\Sales\Domain\ValueObject\SalesLinePrice;
 use App\Sales\Domain\ValueObject\SalesLineTaxPercentage;
+use App\Shared\Domain\ValueObject\DomainDateTime;
+use App\Shared\Domain\ValueObject\Uuid;
 
 class SalesLine
 {
     private Uuid $uuid;
+
     private Uuid $saleId;
+
     private Uuid $orderLineId;
+
     private Uuid $userId;
+
     private Quantity $quantity;
+
     private SalesLinePrice $price;
+
     private SalesLineTaxPercentage $taxPercentage;
+
     private DomainDateTime $createdAt;
+
     private ?DomainDateTime $deletedAt;
 
     private function __construct(

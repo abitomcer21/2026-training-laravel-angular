@@ -2,9 +2,9 @@
 
 namespace App\Tax\Domain\Entity;
 
+use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Shared\Domain\ValueObject\Uuid;
 use App\Tax\Domain\ValueObject\TaxName;
-use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Tax\Domain\ValueObject\TaxPercentage;
 
 class Tax

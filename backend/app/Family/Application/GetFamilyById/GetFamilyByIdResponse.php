@@ -30,12 +30,12 @@ final readonly class GetFamilyByIdResponse
     public function toArray(): array
     {
         return [
-            'id'            => $this->id,
-            'name'          => $this->name,
-            'active'        => $this->active,
+            'id' => $this->id,
+            'name' => $this->name,
+            'active' => $this->active,
             'restaurant_id' => $this->restaurantId,
-            'created_at'    => $this->createdAt,
-            'updated_at'    => $this->updatedAt,
+            'created_at' => $this->createdAt,
+            'updated_at' => $this->updatedAt,
         ];
     }
 }

@@ -3,9 +3,9 @@
 namespace App\Sales\Infrastructure\Persistence\Models;
 
 use App\Order\Infrastructure\Persistence\Models\EloquentOrderLine;
+use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\User\Infrastructure\Persistence\Models\EloquentUser;
 
 class EloquentSalesLine extends Model
 {

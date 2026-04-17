@@ -13,7 +13,7 @@ class GetProductByName
     public function __invoke(string $name): ?GetProductByNameResponse
     {
         $product = $this->productRepository->findByName($name);
-        if (!$product) {
+        if (! $product) {
             return null;
         }
 

@@ -1,5 +1,7 @@
 <?php
+
 namespace Database\Factories;
+
 use App\Family\Infrastructure\Persistence\Models\EloquentFamily;
 use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -18,10 +20,10 @@ class FamilyFactory extends Factory
     public function definition(): array
     {
         return [
-            'uuid'          => (string) Str::uuid(),
+            'uuid' => (string) Str::uuid(),
             'restaurant_id' => EloquentRestaurant::factory(),
-            'name'          => self::$nombres[self::$index++ % count(self::$nombres)],
-            'active'        => true,
+            'name' => self::$nombres[self::$index++ % count(self::$nombres)],
+            'active' => true,
         ];
     }
 

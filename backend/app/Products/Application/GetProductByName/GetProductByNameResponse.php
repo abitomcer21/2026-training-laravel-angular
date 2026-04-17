@@ -40,17 +40,17 @@ final readonly class GetProductByNameResponse
     public function toArray(): array
     {
         return [
-            'id'            => $this->id,
-            'name'          => $this->name,
-            'price'         => $this->price,
-            'stock'         => $this->stock,
-            'active'        => $this->active,
+            'id' => $this->id,
+            'name' => $this->name,
+            'price' => $this->price,
+            'stock' => $this->stock,
+            'active' => $this->active,
             'restaurant_id' => $this->restaurantId,
-            'family_id'     => $this->familyId,
-            'tax_id'        => $this->taxId,
-            'image_src'     => $this->imageSrc,
-            'created_at'    => $this->createdAt,
-            'updated_at'    => $this->updatedAt,
+            'family_id' => $this->familyId,
+            'tax_id' => $this->taxId,
+            'image_src' => $this->imageSrc,
+            'created_at' => $this->createdAt,
+            'updated_at' => $this->updatedAt,
         ];
     }
 }

@@ -3,10 +3,10 @@
 namespace Database\Factories;
 
 use App\Model;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Order\Infrastructure\Persistence\Models\EloquentOrder;
 use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
@@ -14,8 +14,6 @@ use Illuminate\Support\Str;
  */
 class OrdersFactory extends Factory
 {
-
-
     protected $model = EloquentOrder::class;
 
     public function definition(): array
@@ -33,14 +31,14 @@ class OrdersFactory extends Factory
 
     public function forRestaurant(EloquentRestaurant|int $restaurant): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'restaurant_id' => $restaurant instanceof EloquentRestaurant ? $restaurant->id : $restaurant,
         ]);
     }
 
     public function forUser(EloquentUser|int $user): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'user_id' => $user instanceof EloquentUser ? $user->id : $user,
         ]);
     }

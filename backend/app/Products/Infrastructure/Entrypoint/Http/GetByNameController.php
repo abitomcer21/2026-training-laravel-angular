@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Products\Infrastructure\Entrypoint\Http;
 
 use App\Products\Application\GetProductByName\GetProductByName;
@@ -22,7 +23,7 @@ class GetByNameController
         if ($validator->fails()) {
             return new JsonResponse([
                 'message' => 'Validation failed',
-                'errors'  => $validator->errors()->toArray(),
+                'errors' => $validator->errors()->toArray(),
             ], 422);
         }
 

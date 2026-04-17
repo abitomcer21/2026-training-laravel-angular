@@ -10,7 +10,7 @@ class Pin
 
     private function __construct(?string $value)
     {
-        if ($value !== null && !preg_match('/^\d{' . self::LENGTH . '}$/', $value)) {
+        if ($value !== null && ! preg_match('/^\d{'.self::LENGTH.'}$/', $value)) {
             throw new \InvalidArgumentException(
                 sprintf('Pin must be exactly %d digits or null.', self::LENGTH)
             );
@@ -27,7 +27,7 @@ class Pin
     {
         return $this->value;
     }
-    
+
     public function hasPin(): bool
     {
         return $this->value !== null;

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Products\Infrastructure\Entrypoint\Http;
 
 use App\Products\Application\GetProductByFamily\GetProductByFamily;

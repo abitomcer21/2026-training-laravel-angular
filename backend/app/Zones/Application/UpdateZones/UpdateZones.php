@@ -7,13 +7,13 @@ use App\Zones\Domain\ValueObject\ZoneName;
 
 class UpdateZones
 {
-    public function __construct(private ZonesRepositoryInterface $zonesRepository,) {}
+    public function __construct(private ZonesRepositoryInterface $zonesRepository) {}
 
     public function __invoke(string $id, string $name): ?UpdateZonesResponse
     {
         $zones = $this->zonesRepository->findById($id);
 
-        if (!$zones) {
+        if (! $zones) {
             return null;
         }
 

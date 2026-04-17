@@ -27,11 +27,12 @@ class DeleteController
 
         $deleteZone = ($this->deleteZone)($id);
 
-        if (!$deleteZone) {
+        if (! $deleteZone) {
             return new JsonResponse([
                 'message' => 'Zone not found',
             ], 404);
         }
+
         return new JsonResponse(null, 204);
     }
 }

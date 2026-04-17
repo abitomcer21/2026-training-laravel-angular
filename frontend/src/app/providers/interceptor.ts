@@ -19,11 +19,22 @@ export class InterceptorProvider implements HttpInterceptor {
    * 
    */
   private setHeader(request: HttpRequest<any>): HttpRequest<any> {
+    // Obtener el token del localStorage
+    const token = localStorage.getItem('token');
+    
+    // Headers base
+    let headers: any = {
+      Accept: 'application/json',
+      'Accept-Language': 'es',
+    };
+    
+    // Añadir token si existe
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     return request.clone({
-      setHeaders: {
-        Accept: 'application/json',
-        'Accept-Language': 'es',
-      }
+      setHeaders: headers
     });
   }
 

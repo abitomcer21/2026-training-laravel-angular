@@ -13,15 +13,16 @@ class GetByIdController
         private GetProductById $getProducById,
     ) {}
 
-    public function __invoke(string $id): JsonResponse {
+    public function __invoke(string $id): JsonResponse
+    {
         $validator = Validator::make([
             'id' => $id,
         ], [
             'id' => ['required', 'uuid'],
         ]);
 
-        if($validator->fails()) {
-            return new JsonResponse ([
+        if ($validator->fails()) {
+            return new JsonResponse([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()->toArray(),
             ], 422);
@@ -29,7 +30,7 @@ class GetByIdController
 
         $response = ($this->getProducById)($id);
 
-        if($response === null){
+        if ($response === null) {
             return new JsonResponse([
                 'message' => 'Product not found',
             ], 404);

@@ -16,8 +16,7 @@ final readonly class CreateUserResponse
         public int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
-    ) {
-    }
+    ) {}
 
     public static function create(User $user): self
     {

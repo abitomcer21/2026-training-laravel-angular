@@ -24,12 +24,12 @@ class AddSalesLine
         $userId = Uuid::create($request->userId);
 
         $sale = $this->salesRepository->findById($request->saleId);
-        if (!$sale) {
+        if (! $sale) {
             throw new \InvalidArgumentException('Sale not found.');
         }
 
         $user = $this->userRepository->findById($request->userId);
-        if (!$user) {
+        if (! $user) {
             throw new \InvalidArgumentException('User not found.');
         }
 

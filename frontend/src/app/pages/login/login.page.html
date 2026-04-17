@@ -1,0 +1,43 @@
+<ion-content>
+  <div class="fondo-imagen"></div>
+  <div class="filtro-azul"></div>
+  
+  <ion-grid class="contenido-grid">
+    <ion-row>
+      <ion-col size="12" size-sm="8" size-md="6" size-lg="4">
+        
+        <ion-card>
+          <ion-card-header class="ion-text-center">
+            <ion-card-title>TPV - Yurest</ion-card-title>
+          </ion-card-header>
+
+          <ion-card-content>
+            <ion-item>
+              <ion-label position="floating">Email</ion-label>
+              <ion-input type="email" [(ngModel)]="email"></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="floating">Contraseña</ion-label>
+              <ion-input type="password" [(ngModel)]="password"></ion-input>
+            </ion-item>
+
+            <ion-button expand="block" (click)="login()" [disabled]="loading">
+              <ion-spinner name="crescent" *ngIf="loading"></ion-spinner>
+              <span *ngIf="!loading">Iniciar sesión</span>
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-toast
+    [isOpen]="showError"
+    message="{{ errorMessage }}"
+    duration="3000"
+    color="danger"
+    (didDismiss)="cerrarError()">
+  </ion-toast>
+</ion-content>

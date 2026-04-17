@@ -17,7 +17,7 @@ class EloquentUserRepository implements UserRepositoryInterface
         $model = $this->model->newQuery()->firstOrNew(
             ['uuid' => $user->id()->value()]);
 
-        if (!$model->exists) {
+        if (! $model->exists) {
             $model->created_at = $user->createdAt()->value();
         }
 
@@ -34,7 +34,6 @@ class EloquentUserRepository implements UserRepositoryInterface
         $model->updated_at = $user->updatedAt()->value();
         $model->save();
     }
-
 
     public function findById(string $id): ?User
     {
@@ -83,7 +82,7 @@ class EloquentUserRepository implements UserRepositoryInterface
     public function all(): array
     {
         return $this->model->newQuery()->get()->map(
-            fn(EloquentUser $model): User => User::fromPersistence(
+            fn (EloquentUser $model): User => User::fromPersistence(
                 $model->uuid,
                 $model->name,
                 $model->email,

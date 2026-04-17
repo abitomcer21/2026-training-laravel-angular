@@ -4,13 +4,13 @@ namespace App\Tables\Application\DeleteTable;
 
 use App\Tables\Domain\Interfaces\TablesRepositoryInterface;
 
-class DeleteTable{
-    public function __construct(private TablesRepositoryInterface $tablesRepository)
-    {}
+class DeleteTable
+{
+    public function __construct(private TablesRepositoryInterface $tablesRepository) {}
 
-    public function __invoke (string $id): bool
+    public function __invoke(string $id): bool
     {
-        if (!$this->tablesRepository->findById($id)) {
+        if (! $this->tablesRepository->findById($id)) {
             return false;
         }
 

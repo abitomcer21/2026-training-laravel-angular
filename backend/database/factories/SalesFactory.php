@@ -9,7 +9,6 @@ use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-
 class SalesFactory extends Factory
 {
     protected $model = EloquentSales::class;
@@ -48,4 +47,3 @@ class SalesFactory extends Factory
         ]);
     }
 }
-

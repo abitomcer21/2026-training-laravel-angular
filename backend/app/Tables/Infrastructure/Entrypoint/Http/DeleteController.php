@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Validator;
 
 final class DeleteController
 {
-
     public function __construct(
         private DeleteTable $deleteTable,
     ) {}
@@ -30,7 +29,7 @@ final class DeleteController
 
         $deleted = ($this->deleteTable)($id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return new JsonResponse([
                 'message' => 'Table not found',
             ], 404);

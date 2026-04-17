@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar class="main-toolbar">
+    <ion-title>Yurest TPV</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrarSesion()" class="logout-button">
+        <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+        <ion-label class="logout-text">Salir</ion-label>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  
+  <!-- Menú superior estilo moderno (como la imagen) -->
+  <div class="nav-modern">
+    <div 
+      *ngFor="let item of menuItems" 
+      class="nav-item"
+      [class.active]="opcionSeleccionada === item.valor"
+      (click)="seleccionarOpcion(item.valor)">
+      <ion-icon [name]="item.icono" class="nav-icon"></ion-icon>
+      <span class="nav-label">{{ item.nombre }}</span>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div *ngIf="opcionSeleccionada === 'productos'">
+    <h2>Gestión de Productos</h2>
+    <p>Aquí irá el listado de productos...</p>
+  </div>
+
+  <div *ngIf="opcionSeleccionada === 'familias'">
+    <h2>Gestión de Familias</h2>
+    <p>Aquí irá el listado de familias...</p>
+  </div>
+
+  <div *ngIf="opcionSeleccionada === 'usuarios'">
+    <h2>Gestión de Usuarios</h2>
+    <p>Aquí irá el listado de usuarios...</p>
+  </div>
+
+  <div *ngIf="opcionSeleccionada === 'zonas'">
+    <h2>Gestión de Zonas</h2>
+    <p>Aquí irá el listado de zonas...</p>
+  </div>
+
+  <div *ngIf="opcionSeleccionada === 'mesas'">
+    <h2>Gestión de Mesas</h2>
+    <p>Aquí irá el listado de mesas...</p>
+  </div>
+
+  <div *ngIf="opcionSeleccionada === 'impuestos'">
+    <h2>Gestión de Impuestos</h2>
+    <p>Aquí irá el listado de impuestos...</p>
+  </div>
+</ion-content>

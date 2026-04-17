@@ -12,7 +12,7 @@ class DeleteFamily
 
     public function __invoke(string $id): bool
     {
-        if (!$this->familyRepository->findById($id)) {
+        if (! $this->familyRepository->findById($id)) {
             return false;
         }
 
@@ -21,5 +21,3 @@ class DeleteFamily
         return true;
     }
 }
-
-

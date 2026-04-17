@@ -12,7 +12,7 @@ class TablesSeeder extends Seeder
     private static array $prefijos = [
         'Terraza' => 'T',
         'Sala' => 'S',
-        'Barra'   => 'B',
+        'Barra' => 'B',
     ];
 
     public function run(): void
@@ -37,7 +37,7 @@ class TablesSeeder extends Seeder
                     EloquentTables::factory()
                         ->forRestaurant($restaurant)
                         ->forZone($zone)
-                        ->create(['name' => $prefijo . '-' . str_pad($i, 2, '0', STR_PAD_LEFT)]);
+                        ->create(['name' => $prefijo.'-'.str_pad($i, 2, '0', STR_PAD_LEFT)]);
                 }
             }
         }

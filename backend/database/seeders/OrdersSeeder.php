@@ -27,10 +27,10 @@ class OrdersSeeder extends Seeder
         }
 
         foreach ($restaurants as $restaurant) {
-            $tables   = EloquentTables::query()->where('restaurant_id', $restaurant->id)->get();
+            $tables = EloquentTables::query()->where('restaurant_id', $restaurant->id)->get();
             $products = EloquentProduct::query()->where('restaurant_id', $restaurant->id)->get();
-            $taxes    = EloquentTax::query()->where('restaurant_id', $restaurant->id)->get()->keyBy('id');
-            $users    = EloquentUser::query()
+            $taxes = EloquentTax::query()->where('restaurant_id', $restaurant->id)->get()->keyBy('id');
+            $users = EloquentUser::query()
                 ->where('restaurant_id', $restaurant->id)
                 ->whereIn('role', ['waiter', 'chef'])
                 ->get();
@@ -40,32 +40,32 @@ class OrdersSeeder extends Seeder
             }
 
             for ($i = 0; $i < 10; $i++) {
-                $status    = fake()->randomElement(['open', 'invoiced']);
-                $openedBy  = $users->random();
-                $closedBy  = $status === 'invoiced' ? $users->random() : null;
+                $status = fake()->randomElement(['open', 'invoiced']);
+                $openedBy = $users->random();
+                $closedBy = $status === 'invoiced' ? $users->random() : null;
 
                 $order = EloquentOrder::factory()
                     ->forRestaurant($restaurant)
                     ->forTable($tables->random())
                     ->forUser($openedBy)
                     ->create([
-                        'status'             => $status,
-                        'closed_by_user_id'  => $closedBy?->id,
-                        'closed_at'          => $status === 'invoiced' ? now() : null,
+                        'status' => $status,
+                        'closed_by_user_id' => $closedBy?->id,
+                        'closed_at' => $status === 'invoiced' ? now() : null,
                     ]);
 
                 for ($line = 0; $line < random_int(2, 5); $line++) {
                     $product = $products->random();
-                    $tax     = $taxes->get($product->tax_id);
+                    $tax = $taxes->get($product->tax_id);
 
                     EloquentOrderLine::create([
-                        'uuid'           => (string) Str::uuid(),
-                        'restaurant_id'  => $restaurant->id,
-                        'order_id'       => $order->id,
-                        'product_id'     => $product->id,
-                        'user_id'        => $users->random()->id,
-                        'quantity'       => random_int(1, 4),
-                        'price'          => $product->price,
+                        'uuid' => (string) Str::uuid(),
+                        'restaurant_id' => $restaurant->id,
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'user_id' => $users->random()->id,
+                        'quantity' => random_int(1, 4),
+                        'price' => $product->price,
                         'tax_percentage' => $tax?->percentage ?? 21,
                     ]);
                 }

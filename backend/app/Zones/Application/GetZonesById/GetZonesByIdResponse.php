@@ -32,8 +32,8 @@ final readonly class GetZonesByIdResponse
             'id' => $this->id,
             'name' => $this->name,
             'restaurant_id' => $this->restaurantId,
-            'created_at'    => $this->createdAt,
-            'updated_at'    => $this->updatedAt,
+            'created_at' => $this->createdAt,
+            'updated_at' => $this->updatedAt,
         ];
     }
 }

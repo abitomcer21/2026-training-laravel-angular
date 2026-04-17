@@ -26,6 +26,7 @@ final readonly class CreateTaxResponse
             updatedAt: $tax->updatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
+
     public function toArray(): array
     {
         return [

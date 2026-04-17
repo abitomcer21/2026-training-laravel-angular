@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Tax\Application\UpdateTax;
+
 use App\Tax\Domain\Entity\Tax;
 
 final readonly class UpdateTaxResponse

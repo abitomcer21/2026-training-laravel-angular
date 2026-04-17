@@ -15,9 +15,9 @@ class CreateFamily
 
     public function __invoke(string $name, bool $active, int $restaurantId): CreateFamilyResponse
     {
-        $nameVO   = FamilyName::create($name);
+        $nameVO = FamilyName::create($name);
         $statusVO = FamilyStatus::create($active);
-        $family   = Family::dddCreate($nameVO, $statusVO, $restaurantId);
+        $family = Family::dddCreate($nameVO, $statusVO, $restaurantId);
         $this->familyRepository->save($family);
 
         return CreateFamilyResponse::create($family);

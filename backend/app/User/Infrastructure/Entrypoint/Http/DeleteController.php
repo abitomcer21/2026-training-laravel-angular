@@ -29,7 +29,7 @@ class DeleteController
 
         $deleted = ($this->deleteUser)($id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return new JsonResponse([
                 'message' => 'User not found',
             ], 404);

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('table_id')->constrained('tables');
             $table->foreignId('opened_by_user_id')->constrained('users');
             $table->foreignId('closed_by_user_id')->nullable()->constrained('users');
-            $table->integer('diners'); 
+            $table->integer('diners');
             $table->timestamp('opened_at');
             $table->timestamp('closed_at')->nullable();
             $table->timestamps();

@@ -2,9 +2,9 @@
 
 namespace App\Products\Domain\Entity;
 
-use App\Products\Domain\ValueObject\ProductPrice;
-use App\Products\Domain\ValueObject\ProductName;
 use App\Products\Domain\ValueObject\ProductImageSrc;
+use App\Products\Domain\ValueObject\ProductName;
+use App\Products\Domain\ValueObject\ProductPrice;
 use App\Products\Domain\ValueObject\ProductStatus;
 use App\Products\Domain\ValueObject\ProductStock;
 use App\Shared\Domain\ValueObject\DomainDateTime;

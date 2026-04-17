@@ -13,5 +13,4 @@ final class GetAllController
 
         return new JsonResponse($response->toArray(), 200);
     }
-
 }

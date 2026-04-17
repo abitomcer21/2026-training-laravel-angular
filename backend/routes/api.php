@@ -1,51 +1,43 @@
 <?php
 
-use App\User\Infrastructure\Entrypoint\Http\GetByIdController as UserGetByIdController;
-use App\User\Infrastructure\Entrypoint\Http\GetAllController as UserGetAllController;
-use App\User\Infrastructure\Entrypoint\Http\PostController as UserPostController;
-use App\User\Infrastructure\Entrypoint\Http\PutController as UserPutController;
-use App\User\Infrastructure\Entrypoint\Http\DeleteController as UserDeleteController;
-use App\User\Infrastructure\Entrypoint\Http\GetUserByEmailController as UserGetUserByEmailController;
-
 use App\Family\Infrastructure\Entrypoint\Http\DeleteController as FamilyDeleteController;
+use App\Family\Infrastructure\Entrypoint\Http\GetAllController as FamilyGetAllController;
 use App\Family\Infrastructure\Entrypoint\Http\GetByIdController as FamilyGetByIdController;
 use App\Family\Infrastructure\Entrypoint\Http\PostController as FamilyPostController;
 use App\Family\Infrastructure\Entrypoint\Http\PutController as FamilyPutController;
-use App\Family\Infrastructure\Entrypoint\Http\GetAllController as FamilyGetAllController;
-
-use App\Products\Infrastructure\Entrypoint\Http\GetByIdController as ProductsGetByIdController;
+use App\Products\Infrastructure\Entrypoint\Http\DeleteController as ProductsDeleteController;
 use App\Products\Infrastructure\Entrypoint\Http\GetAllController as ProductsGetAllController;
+use App\Products\Infrastructure\Entrypoint\Http\GetByFamilyController;
+use App\Products\Infrastructure\Entrypoint\Http\GetByIdController as ProductsGetByIdController;
+use App\Products\Infrastructure\Entrypoint\Http\GetByNameController as ProductsGetByNameController;
 use App\Products\Infrastructure\Entrypoint\Http\PostController as ProductsPostController;
 use App\Products\Infrastructure\Entrypoint\Http\PutController as ProductsPutController;
-use App\Products\Infrastructure\Entrypoint\Http\DeleteController as ProductsDeleteController;
-use App\Products\Infrastructure\Entrypoint\Http\GetByNameController as ProductsGetByNameController;
-use App\Products\Infrastructure\Entrypoint\Http\GetByFamilyController;
-
-use App\Tax\Infrastructure\Entrypoint\Http\PostController as TaxPostController;
-use App\Tax\Infrastructure\Entrypoint\Http\GetAllController as TaxGetAllController;
-use App\Tax\Infrastructure\Entrypoint\Http\GetByIdController as TaxGetByIdController;
-use App\Tax\Infrastructure\Entrypoint\Http\DeleteController as TaxDeleteController;
-use App\Tax\Infrastructure\Entrypoint\Http\PutController as TaxPutController;
-
-use App\Zones\Infrastructure\Entrypoint\Http\PostController as ZonesPostController;
-use App\Zones\Infrastructure\Entrypoint\Http\GetAllController as ZonesGetAllController;
-use App\Zones\Infrastructure\Entrypoint\Http\GetByIdController as ZonesGetByIdController;
-use App\Zones\Infrastructure\Entrypoint\Http\PutController as ZonesPutController;
-use App\Zones\Infrastructure\Entrypoint\Http\DeleteController as ZonesDeleteController;
-
-use App\Tables\Infrastructure\Entrypoint\Http\PostController as TablesPostController;
+use App\Restaurants\Infrastructure\Entrypoint\Http\GetMyRestaurantController;
+use App\Restaurants\Infrastructure\Entrypoint\Http\PostController as RestaurantsPostController;
+use App\Tables\Infrastructure\Entrypoint\Http\DeleteController as TablesDeleteController;
 use App\Tables\Infrastructure\Entrypoint\Http\GetAllController as TablesGetAllController;
 use App\Tables\Infrastructure\Entrypoint\Http\GetByIdController as TablesGetByIdController;
+use App\Tables\Infrastructure\Entrypoint\Http\PostController as TablesPostController;
 use App\Tables\Infrastructure\Entrypoint\Http\PutController as TablesPutController;
-use App\Tables\Infrastructure\Entrypoint\Http\DeleteController as TablesDeleteController;
-
-use App\Restaurants\Infrastructure\Entrypoint\Http\PostController as RestaurantsPostController;
-use App\Restaurants\Infrastructure\Entrypoint\Http\GetMyRestaurantController;
-
+use App\Tax\Infrastructure\Entrypoint\Http\DeleteController as TaxDeleteController;
+use App\Tax\Infrastructure\Entrypoint\Http\GetAllController as TaxGetAllController;
+use App\Tax\Infrastructure\Entrypoint\Http\GetByIdController as TaxGetByIdController;
+use App\Tax\Infrastructure\Entrypoint\Http\PostController as TaxPostController;
+use App\Tax\Infrastructure\Entrypoint\Http\PutController as TaxPutController;
+use App\User\Infrastructure\Entrypoint\Http\DeleteController as UserDeleteController;
+use App\User\Infrastructure\Entrypoint\Http\GetAllController as UserGetAllController;
+use App\User\Infrastructure\Entrypoint\Http\GetByIdController as UserGetByIdController;
+use App\User\Infrastructure\Entrypoint\Http\GetUserByEmailController as UserGetUserByEmailController;
 use App\User\Infrastructure\Entrypoint\Http\LoginController;
 use App\User\Infrastructure\Entrypoint\Http\LogoutController;
 use App\User\Infrastructure\Entrypoint\Http\MeController;
-
+use App\User\Infrastructure\Entrypoint\Http\PostController as UserPostController;
+use App\User\Infrastructure\Entrypoint\Http\PutController as UserPutController;
+use App\Zones\Infrastructure\Entrypoint\Http\DeleteController as ZonesDeleteController;
+use App\Zones\Infrastructure\Entrypoint\Http\GetAllController as ZonesGetAllController;
+use App\Zones\Infrastructure\Entrypoint\Http\GetByIdController as ZonesGetByIdController;
+use App\Zones\Infrastructure\Entrypoint\Http\PostController as ZonesPostController;
+use App\Zones\Infrastructure\Entrypoint\Http\PutController as ZonesPutController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/users', UserPostController::class);

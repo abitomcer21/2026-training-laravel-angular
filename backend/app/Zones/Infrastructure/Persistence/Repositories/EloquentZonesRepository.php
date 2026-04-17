@@ -10,14 +10,13 @@ class EloquentZonesRepository implements ZonesRepositoryInterface
 {
     public function __construct(
         private EloquentZones $model,
-    ) {
-    }
+    ) {}
 
     public function save(Zones $zones): void
     {
         $model = $this->model->newQuery()->firstOrNew(['uuid' => $zones->id()->value()]);
 
-        if (!$model->exists) {
+        if (! $model->exists) {
             $model->created_at = $zones->createdAt()->value();
         }
 
@@ -35,7 +34,7 @@ class EloquentZonesRepository implements ZonesRepositoryInterface
     {
         $eloquentZone = $this->model->newQuery()->where('uuid', $id)->first();
 
-        if (!$eloquentZone) {
+        if (! $eloquentZone) {
             return null;
         }
 

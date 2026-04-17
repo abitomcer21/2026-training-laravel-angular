@@ -11,6 +11,6 @@ final class GetAllController
     {
         $response = $getAllFamily();
 
-        return new JsonResponse($response->toArray(),200);
+        return new JsonResponse($response->toArray(), 200);
     }
 }

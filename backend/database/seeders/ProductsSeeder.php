@@ -27,12 +27,12 @@ class ProductsSeeder extends Seeder
             $tax = EloquentTax::query()->where('restaurant_id', $restaurant->id)->first();
             $familias = EloquentFamily::where('restaurant_id', $restaurant->id)->pluck('id', 'name');
 
-            if (!$tax || $familias->isEmpty()) {
+            if (! $tax || $familias->isEmpty()) {
                 continue;
             }
 
             foreach (ProductsFactory::getCatalogo() as $item) {
-                if (!isset($familias[$item['Family']])) {
+                if (! isset($familias[$item['Family']])) {
                     continue;
                 }
 
@@ -41,7 +41,7 @@ class ProductsSeeder extends Seeder
                     ->forFamily($familias[$item['Family']])
                     ->forTax($tax)
                     ->create([
-                        'name'  => $item['name'],
+                        'name' => $item['name'],
                         'price' => $item['price'],
                     ]);
             }

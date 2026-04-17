@@ -5,13 +5,14 @@ namespace App\Sales\Domain\ValueObject;
 class SalesStatus
 {
     private const OPEN = 'open';
+
     private const CLOSED = 'closed';
 
     private string $status;
 
     private function __construct(string $status)
     {
-        if (!in_array($status, [self::OPEN, self::CLOSED])) {
+        if (! in_array($status, [self::OPEN, self::CLOSED])) {
             throw new \InvalidArgumentException(
                 sprintf('Invalid sales status. Must be one of: %s', implode(', ', [self::OPEN, self::CLOSED]))
             );

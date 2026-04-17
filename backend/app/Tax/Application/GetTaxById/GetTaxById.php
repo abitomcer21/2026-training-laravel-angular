@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Tax\Application\GetTaxById;
+
 use App\Tax\Domain\Interfaces\TaxRepositoryInterface;
 
 class GetTaxById
@@ -12,8 +13,8 @@ class GetTaxById
     public function __invoke(string $id): ?GetTaxByIdResponse
     {
         $tax = $this->taxRepository->findById($id);
-        
-        if (!$tax) {
+
+        if (! $tax) {
             return null;
         }
 

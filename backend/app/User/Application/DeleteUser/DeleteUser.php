@@ -1,19 +1,18 @@
-<?php 
+<?php
 
 namespace App\User\Application\DeleteUser;
 
-use App\User\Domain\Interfaces\UserRepositoryInterface; 
+use App\User\Domain\Interfaces\UserRepositoryInterface;
 
-class DeleteUser 
+class DeleteUser
 {
-
     public function __construct(
         private UserRepositoryInterface $userRepository,
-    ){}
+    ) {}
 
-    public function __invoke (string $id): bool
+    public function __invoke(string $id): bool
     {
-        if (!$this->userRepository->findById($id)) {
+        if (! $this->userRepository->findById($id)) {
             return false;
         }
 

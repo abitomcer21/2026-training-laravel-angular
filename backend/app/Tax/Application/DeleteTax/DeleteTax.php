@@ -8,11 +8,11 @@ class DeleteTax
 {
     public function __construct(
         private TaxRepositoryInterface $taxRepository,
-    ){}
+    ) {}
 
     public function __invoke(string $id): bool
     {
-        if (!$this->taxRepository->findById($id)) {
+        if (! $this->taxRepository->findById($id)) {
             return false;
         }
 
@@ -20,4 +20,4 @@ class DeleteTax
 
         return true;
     }
-}   
+}

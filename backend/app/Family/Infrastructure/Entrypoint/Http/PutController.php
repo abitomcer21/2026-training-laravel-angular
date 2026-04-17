@@ -15,10 +15,9 @@ class PutController
     public function __invoke(Request $request, string $id): JsonResponse
     {
         $validated = $request->validate([
-            'name'      => ['nullable', 'string', 'max:255'],
-            'status'    => ['nullable', 'bool'],
+            'name' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', 'bool'],
         ]);
-
 
         $response = ($this->updateFamily)(
             $id,

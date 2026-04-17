@@ -15,8 +15,8 @@ class PostController
     public function __invoke(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'          => ['required', 'string', 'max:255'],
-            'percentage'    => ['required', 'integer', 'min:0', 'max:100'],
+            'name' => ['required', 'string', 'max:255'],
+            'percentage' => ['required', 'integer', 'min:0', 'max:100'],
             'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
         ]);
 

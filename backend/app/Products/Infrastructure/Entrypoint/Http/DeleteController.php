@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Validator;
 
 final class DeleteController
 {
-
     public function __construct(
         private DeleteProduct $deleteProduct,
     ) {}
@@ -30,7 +29,7 @@ final class DeleteController
 
         $deleted = ($this->deleteProduct)($id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return new JsonResponse([
                 'message' => 'Product not found',
             ], 404);

@@ -36,15 +36,15 @@ final readonly class UpdateUserResponse
     public function toArray(): array
     {
         return [
-            'id'            => $this->id,
-            'name'          => $this->name,
-            'email'         => $this->email,
-            'role'          => $this->role,
-            'pin'           => $this->pin,
-            'image_src'     => $this->imageSrc,
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'role' => $this->role,
+            'pin' => $this->pin,
+            'image_src' => $this->imageSrc,
             'restaurant_id' => $this->restaurantId,
-            'created_at'    => $this->createdAt,
-            'updated_at'    => $this->updatedAt,
+            'created_at' => $this->createdAt,
+            'updated_at' => $this->updatedAt,
         ];
     }
 }

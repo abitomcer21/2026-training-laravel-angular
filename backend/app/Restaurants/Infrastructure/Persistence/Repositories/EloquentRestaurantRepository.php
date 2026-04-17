@@ -116,7 +116,7 @@ class EloquentRestaurantRepository implements RestaurantRepositoryInterface
     public function all(): array
     {
         return $this->model->newQuery()->get()->map(
-            fn(EloquentRestaurant $eloquentRestaurant): Restaurant => Restaurant::fromPersistence(
+            fn (EloquentRestaurant $eloquentRestaurant): Restaurant => Restaurant::fromPersistence(
                 $eloquentRestaurant->uuid,
                 $eloquentRestaurant->name,
                 $eloquentRestaurant->legal_name,
