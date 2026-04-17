@@ -1,115 +1,131 @@
 <?php
 
-namespace App\User\Infrastructure\Persistence\Repositories;
+namespace App\Restaurants\Infrastructure\Persistence\Repositories;
 
-use App\User\Domain\Entity\User;
-use App\User\Domain\Interfaces\UserRepositoryInterface;
-use App\User\Infrastructure\Persistence\Models\EloquentUser;
+use App\Restaurants\Domain\Entity\Restaurant;
+use App\Restaurants\Domain\Interfaces\RestaurantRepositoryInterface;
+use App\Restaurants\Infrastructure\Persistence\Models\EloquentRestaurant;
 
-class EloquentUserRepository implements UserRepositoryInterface
+class EloquentRestaurantRepository implements RestaurantRepositoryInterface
 {
     public function __construct(
-        private EloquentUser $model,
+        private EloquentRestaurant $model,
     ) {}
 
-    public function save(User $user): void
+    public function save(Restaurant $restaurant): void
     {
         $this->model->newQuery()->updateOrCreate(
-            ['uuid' => $user->id()->value()],
+            ['uuid' => $restaurant->id()->value()],
             [
-                'role' => $user->role()->value(),
-                'image_src' => $user->imageSrc(),
-                'restaurant_id' => $user->restaurantId(),
-                'name' => $user->name()->value(),
-                'email' => $user->email()->value(),
-                'password' => $user->passwordHash()->value(),
-                'pin' => $user->pin()->value(),
-                'created_at' => $user->createdAt()->value(),
-                'updated_at' => $user->updatedAt()->value(),
+                'name' => $restaurant->name()->value(),
+                'legal_name' => $restaurant->legalName()->value(),
+                'tax_id' => $restaurant->taxId()->value(),
+                'email' => $restaurant->email()->value(),
+                'password' => $restaurant->password()->value(),
+                'image_src' => $restaurant->imageSrc(),
+                'created_at' => $restaurant->createdAt()->value(),
+                'updated_at' => $restaurant->updatedAt()->value(),
             ],
         );
     }
 
-    public function findById(string $id): ?User
+    public function findById(string $id): ?Restaurant
     {
-        $eloquentUser = $this->model->newQuery()->where('uuid', $id)->first();
+        $eloquentRestaurant = $this->model->newQuery()->where('uuid', $id)->first();
 
-        if (! $eloquentUser) {
+        if (! $eloquentRestaurant) {
             return null;
         }
 
-        return User::fromPersistence(
-            $eloquentUser->uuid,
-            $eloquentUser->name,
-            $eloquentUser->email,
-            $eloquentUser->password,
-            $eloquentUser->role,
-            $eloquentUser->restaurant_id,
-            $eloquentUser->pin,
-            $eloquentUser->image_src,
-            $eloquentUser->created_at->toDateTimeImmutable(),
-            $eloquentUser->updated_at->toDateTimeImmutable(),
+        return Restaurant::fromPersistence(
+            $eloquentRestaurant->uuid,
+            $eloquentRestaurant->name,
+            $eloquentRestaurant->legal_name,
+            $eloquentRestaurant->tax_id,
+            $eloquentRestaurant->email,
+            $eloquentRestaurant->password,
+            $eloquentRestaurant->image_src,
+            $eloquentRestaurant->created_at->toDateTimeImmutable(),
+            $eloquentRestaurant->updated_at->toDateTimeImmutable(),
         );
     }
 
-    public function findByInternalId(int $id): ?User
+    public function findByInternalId(int $id): ?Restaurant
     {
-        $eloquentUser = $this->model->newQuery()->find($id);
+        $eloquentRestaurant = $this->model->newQuery()->find($id);
 
-        if (! $eloquentUser) {
+        if (! $eloquentRestaurant) {
             return null;
         }
 
-        return User::fromPersistence(
-            $eloquentUser->uuid,
-            $eloquentUser->name,
-            $eloquentUser->email,
-            $eloquentUser->password,
-            $eloquentUser->role,
-            $eloquentUser->restaurant_id,
-            $eloquentUser->pin,
-            $eloquentUser->image_src,
-            $eloquentUser->created_at->toDateTimeImmutable(),
-            $eloquentUser->updated_at->toDateTimeImmutable(),
+        return Restaurant::fromPersistence(
+            $eloquentRestaurant->uuid,
+            $eloquentRestaurant->name,
+            $eloquentRestaurant->legal_name,
+            $eloquentRestaurant->tax_id,
+            $eloquentRestaurant->email,
+            $eloquentRestaurant->password,
+            $eloquentRestaurant->image_src,
+            $eloquentRestaurant->created_at->toDateTimeImmutable(),
+            $eloquentRestaurant->updated_at->toDateTimeImmutable(),
         );
     }
 
-    public function findByEmail(string $email): ?User
+    public function findByEmail(string $email): ?Restaurant
     {
-        $eloquentUser = $this->model->newQuery()->where('email', $email)->first();
+        $eloquentRestaurant = $this->model->newQuery()->where('email', $email)->first();
 
-        if (! $eloquentUser) {
+        if (! $eloquentRestaurant) {
             return null;
         }
 
-        return User::fromPersistence(
-            $eloquentUser->uuid,
-            $eloquentUser->name,
-            $eloquentUser->email,
-            $eloquentUser->password,
-            $eloquentUser->role,
-            $eloquentUser->restaurant_id,
-            $eloquentUser->pin,
-            $eloquentUser->image_src,
-            $eloquentUser->created_at->toDateTimeImmutable(),
-            $eloquentUser->updated_at->toDateTimeImmutable(),
+        return Restaurant::fromPersistence(
+            $eloquentRestaurant->uuid,
+            $eloquentRestaurant->name,
+            $eloquentRestaurant->legal_name,
+            $eloquentRestaurant->tax_id,
+            $eloquentRestaurant->email,
+            $eloquentRestaurant->password,
+            $eloquentRestaurant->image_src,
+            $eloquentRestaurant->created_at->toDateTimeImmutable(),
+            $eloquentRestaurant->updated_at->toDateTimeImmutable(),
+        );
+    }
+
+    public function findByTaxId(string $taxId): ?Restaurant
+    {
+        $eloquentRestaurant = $this->model->newQuery()->where('tax_id', $taxId)->first();
+
+        if (! $eloquentRestaurant) {
+            return null;
+        }
+
+        return Restaurant::fromPersistence(
+            $eloquentRestaurant->uuid,
+            $eloquentRestaurant->name,
+            $eloquentRestaurant->legal_name,
+            $eloquentRestaurant->tax_id,
+            $eloquentRestaurant->email,
+            $eloquentRestaurant->password,
+            $eloquentRestaurant->image_src,
+            $eloquentRestaurant->created_at->toDateTimeImmutable(),
+            $eloquentRestaurant->updated_at->toDateTimeImmutable(),
         );
     }
 
     public function all(): array
     {
         return $this->model->newQuery()->get()->map(
-            fn(EloquentUser $eloquentUser): User => User::fromPersistence(
-                $eloquentUser->uuid,
-                $eloquentUser->name,
-                $eloquentUser->email,
-                $eloquentUser->password,
-                $eloquentUser->role,
-                $eloquentUser->restaurant_id,
-                $eloquentUser->pin,
-                $eloquentUser->image_src,
-                $eloquentUser->created_at->toDateTimeImmutable(),
-                $eloquentUser->updated_at->toDateTimeImmutable(),
+            fn(EloquentRestaurant $eloquentRestaurant): Restaurant => Restaurant::fromPersistence(
+                $eloquentRestaurant->uuid,
+                $eloquentRestaurant->name,
+                $eloquentRestaurant->legal_name,
+                $eloquentRestaurant->tax_id,
+                $eloquentRestaurant->email,
+                $eloquentRestaurant->password,
+                $eloquentRestaurant->image_src,
+                $eloquentRestaurant->created_at->toDateTimeImmutable(),
+                $eloquentRestaurant->updated_at->toDateTimeImmutable(),
             ),
         )->toArray();
     }
@@ -121,8 +137,8 @@ class EloquentUserRepository implements UserRepositoryInterface
 
     public function getInternalIdByUuid(string $uuid): ?int
     {
-        $user = $this->model->newQuery()->where('uuid', $uuid)->first();
+        $restaurant = $this->model->newQuery()->where('uuid', $uuid)->first();
 
-        return $user?->id;
+        return $restaurant?->id;
     }
 }
