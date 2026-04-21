@@ -10,9 +10,13 @@ class GetAllUsers
         private UserRepositoryInterface $userRepository,
     ) {}
 
-    public function __invoke(): GetAllUsersResponse
+    public function __invoke(?int $restaurantId = null): GetAllUsersResponse
     {
-        $users = $this->userRepository->all();
+        if ($restaurantId !== null) {
+            $users = $this->userRepository->allByRestaurantIdWithNumericId($restaurantId);
+        } else {
+            $users = $this->userRepository->allWithNumericId();
+        }
 
         return GetAllUsersResponse::create($users);
     }

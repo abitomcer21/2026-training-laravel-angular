@@ -18,7 +18,7 @@ class PutController
             'email' => ['nullable', 'string', 'email', 'max:255'],
             'name' => ['nullable', 'string', 'max:255'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'role' => ['nullable', 'string', 'in:admin,cashier,waiter,chef'],
+            'role' => ['nullable', 'string', 'in:admin,supervisor,camarero,chef'],
             'image_src' => ['nullable', 'string'],
             'pin' => ['nullable', 'string', 'regex:/^\d{4}$/'],
         ]);

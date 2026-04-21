@@ -24,6 +24,7 @@ use App\User\Domain\Interfaces\PasswordHasherInterface;
 use App\User\Domain\Interfaces\TokenIssuerInterface;
 use App\User\Domain\Interfaces\TokenRevokerInterface;
 use App\User\Domain\Interfaces\UserRepositoryInterface;
+use App\User\Application\GetAllUsers\GetAllUsersReadRepositoryInterface;
 use App\User\Infrastructure\Persistence\Repositories\EloquentUserRepository;
 use App\User\Infrastructure\Services\LaravelPasswordHasher;
 use App\User\Infrastructure\Services\SanctumTokenIssuer;
@@ -37,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
+        $this->app->bind(GetAllUsersReadRepositoryInterface::class, EloquentUserRepository::class);
         $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
         $this->app->bind(FamilyRepositoryInterface::class, EloquentFamilyRepository::class);
         $this->app->bind(RestaurantRepositoryInterface::class, EloquentRestaurantRepository::class);

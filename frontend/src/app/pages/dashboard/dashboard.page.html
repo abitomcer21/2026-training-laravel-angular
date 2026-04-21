@@ -1,3 +1,4 @@
+<!-- src/app/pages/dashboard/dashboard.page.html -->
 <ion-header>
   <ion-toolbar class="main-toolbar">
     <ion-title>Yurest TPV</ion-title>
@@ -9,7 +10,6 @@
     </ion-buttons>
   </ion-toolbar>
   
-  <!-- Menú superior estilo moderno (como la imagen) -->
   <div class="nav-modern">
     <div 
       *ngFor="let item of menuItems" 
@@ -23,33 +23,294 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div *ngIf="opcionSeleccionada === 'productos'">
-    <h2>Gestión de Productos</h2>
-    <p>Aquí irá el listado de productos...</p>
+  
+  <!-- ========== USUARIOS ========== -->
+  <div *ngIf="opcionSeleccionada === 'usuarios'">
+    <div class="dashboard-overview">
+      <div class="overview-copy">
+        <p class="eyebrow">Resumen operativo</p>
+        <h2>Usuarios del sistema</h2>
+        <p class="overview-description">Una vista rápida del equipo activo antes de entrar en el detalle de búsqueda y gestión.</p>
+      </div>
+
+      <div class="metric-grid">
+        <article class="metric-card" *ngFor="let metric of dashboardMetrics" [ngClass]="['metric-' + metric.accent]">
+          <div class="metric-icon">
+            <ion-icon [name]="metric.icon"></ion-icon>
+          </div>
+          <div class="metric-body">
+            <span class="metric-label">{{ metric.label }}</span>
+            <strong class="metric-value">{{ metric.value }}</strong>
+            <small class="metric-description">{{ metric.description }}</small>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="users-panel users-panel-main">
+        <!-- Header profesional -->
+        <div class="users-header">
+          <div>
+            <h2>Gestión de usuarios</h2>
+            <p class="header-description">Gestiona los accesos, permisos y datos básicos del sistema.</p>
+          </div>
+        </div>
+
+        <!-- Barra de búsqueda y filtros -->
+        <div class="search-bar">
+          <div class="search-input-wrapper">
+            <ion-icon name="search-outline" class="search-icon"></ion-icon>
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre, email o ID..." 
+              [(ngModel)]="terminoBusqueda"
+              (input)="buscarUsuarios()"
+              class="search-input-field">
+            <button *ngIf="terminoBusqueda" class="clear-btn" (click)="limpiarBusqueda()">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+          
+          <div class="filter-chips">
+            <button 
+              class="chip" 
+              [class.active]="filtroActual === 'nombre'"
+              (click)="filtrarPorTipo('nombre')">
+              Nombre
+            </button>
+            <button 
+              class="chip" 
+              [class.active]="filtroActual === 'email'"
+              (click)="filtrarPorTipo('email')">
+              Email
+            </button>
+            <button 
+              class="chip" 
+              [class.active]="filtroActual === 'id'"
+              (click)="filtrarPorTipo('id')">
+              ID
+            </button>
+          </div>
+        </div>
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando usuarios...</p>
+        </div>
+
+        <!-- Tabla profesional -->
+        <div *ngIf="!loading" class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-id">ID</th>
+                <th class="col-user">Usuario</th>
+                <th class="col-email">Email</th>
+                <th class="col-role">Rol</th>
+                <th class="col-actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of usuariosFiltrados">
+                <td class="col-id">
+                  <span class="id-badge">{{ user.id }}</span>
+                </td>
+                <td class="col-user">
+                  <div class="user-cell">
+                    <div class="user-avatar">
+                      <span>{{ user.name.charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div class="user-info">
+                      <span class="user-name">{{ user.name }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-email">
+                  <a href="mailto:{{ user.email }}" class="email-link">{{ user.email }}</a>
+                </td>
+                <td class="col-role">
+                  <span class="role-tag" [ngClass]="['role-' + user.role]">
+                    {{ user.role }}
+                  </span>
+                </td>
+                <td class="col-actions">
+                  <div class="action-buttons">
+                    <button class="action-btn edit" (click)="editarUsuario(user)" title="Editar">
+                      <ion-icon name="create-outline"></ion-icon>
+                    </button>
+                    <button class="action-btn delete" (click)="confirmarEliminar(user)" title="Eliminar">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="usuariosFiltrados.length === 0">
+                <td colspan="5" class="empty-state-row">
+                  <div class="empty-state-content">
+                    <ion-icon name="people-outline"></ion-icon>
+                    <h4>No hay usuarios</h4>
+                    <p>No se encontraron usuarios con los criterios de búsqueda</p>
+                    <button class="btn-outline" (click)="limpiarBusqueda()">Limpiar búsqueda</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="editor-panel">
+        <div class="editor-panel-header">
+          <div>
+            <p class="eyebrow">{{ panelMode === 'create' ? 'Alta permanente' : 'Edición rápida' }}</p>
+            <h3>{{ panelMode === 'create' ? 'Formulario de registro' : 'Editar usuario' }}</h3>
+          </div>
+          <button *ngIf="panelMode === 'edit'" class="btn-outline btn-small" (click)="salirEdicion()">Volver al alta</button>
+        </div>
+
+        <div *ngIf="panelMode === 'edit' && editingUser; else createFormState" class="editor-form editor-form-edit">
+          <div class="editor-summary">
+            <div class="user-avatar editor-avatar">
+              <span>{{ editingUser.name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div>
+              <strong>{{ editingUser.name }}</strong>
+              <p>{{ editingUser.email }}</p>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="edit-name">Nombre</label>
+            <input id="edit-name" type="text" name="name" [(ngModel)]="editForm.name" class="editor-input">
+          </div>
+
+          <div class="form-field">
+            <label for="edit-email">Email</label>
+            <input id="edit-email" type="email" name="email" [(ngModel)]="editForm.email" class="editor-input">
+          </div>
+
+          <div class="form-field">
+            <label for="edit-pin">PIN</label>
+            <input id="edit-pin" type="tel" name="pin" [(ngModel)]="editForm.pin" maxlength="4" class="editor-input">
+          </div>
+
+          <div class="form-field">
+            <label for="edit-image">Imagen</label>
+            <input id="edit-image" type="text" name="image_src" [(ngModel)]="editForm.image_src" class="editor-input" placeholder="URL de imagen">
+          </div>
+
+          <div class="form-field">
+            <label for="edit-role">Rol</label>
+            <select id="edit-role" name="role" [(ngModel)]="editForm.role" class="editor-input">
+              <option value="admin">Admin</option>
+              <option value="camarero">Camarero</option>
+              <option value="chef">Chef</option>
+              <option value="supervisor">Supervisor</option>
+            </select>
+          </div>
+
+          <div class="editor-actions">
+            <button class="btn-outline" type="button" (click)="salirEdicion()">Cancelar</button>
+            <button class="btn-primary" type="button" (click)="guardarPanel()">Guardar cambios</button>
+          </div>
+        </div>
+
+        <ng-template #createFormState>
+          <div class="editor-form editor-form-create">
+            <div class="editor-summary">
+              <div class="user-avatar editor-avatar editor-avatar-create">
+                <span>+</span>
+              </div>
+              <div>
+                <strong>Alta de usuario</strong>
+                <p>Completa los datos para registrar un nuevo usuario en el sistema.</p>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="create-name">Nombre</label>
+              <input id="create-name" type="text" name="create_name" [(ngModel)]="createForm.name" class="editor-input">
+            </div>
+
+            <div class="form-field">
+              <label for="create-email">Email</label>
+              <input id="create-email" type="email" name="create_email" [(ngModel)]="createForm.email" class="editor-input">
+            </div>
+
+            <div class="form-field">
+              <label for="create-password">Contraseña</label>
+              <input id="create-password" type="password" name="create_password" [(ngModel)]="createForm.password" class="editor-input">
+            </div>
+
+            <div class="form-field">
+              <label for="create-password-confirmation">Confirmar contraseña</label>
+              <input id="create-password-confirmation" type="password" name="create_password_confirmation" [(ngModel)]="createForm.password_confirmation" class="editor-input">
+            </div>
+
+            <div class="form-field">
+              <label for="create-role">Rol</label>
+              <select id="create-role" name="create_role" [(ngModel)]="createForm.role" class="editor-input">
+                <option value="admin">Admin</option>
+                <option value="camarero">Camarero</option>
+                <option value="chef">Chef</option>
+                <option value="supervisor">Supervisor</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="create-pin">PIN</label>
+              <input id="create-pin" type="tel" name="create_pin" [(ngModel)]="createForm.pin" maxlength="4" class="editor-input">
+            </div>
+
+            <div class="form-field">
+              <label for="create-image">Imagen</label>
+              <input id="create-image" type="text" name="create_image_src" [(ngModel)]="createForm.image_src" class="editor-input" placeholder="URL de imagen">
+            </div>
+
+            <div class="form-field">
+              <label for="create-restaurant">Restaurant ID</label>
+              <input id="create-restaurant" type="number" name="create_restaurant_id" [(ngModel)]="createForm.restaurant_id" class="editor-input">
+            </div>
+
+            <div class="editor-actions editor-actions-create">
+              <button class="btn-primary" type="button" (click)="guardarPanel()">Guardar usuario</button>
+            </div>
+          </div>
+        </ng-template>
+      </aside>
+    </div>
+
   </div>
 
+  <!-- ========== FAMILIAS ========== -->
   <div *ngIf="opcionSeleccionada === 'familias'">
     <h2>Gestión de Familias</h2>
     <p>Aquí irá el listado de familias...</p>
   </div>
 
-  <div *ngIf="opcionSeleccionada === 'usuarios'">
-    <h2>Gestión de Usuarios</h2>
-    <p>Aquí irá el listado de usuarios...</p>
+  <!-- ========== PRODUCTOS ========== -->
+  <div *ngIf="opcionSeleccionada === 'productos'">
+    <h2>Gestión de Productos</h2>
+    <p>Aquí irá el listado de productos...</p>
   </div>
 
+  <!-- ========== IMPUESTOS ========== -->
+  <div *ngIf="opcionSeleccionada === 'impuestos'">
+    <h2>Gestión de Impuestos</h2>
+    <p>Aquí irá el listado de impuestos...</p>
+  </div>
+
+  <!-- ========== ZONAS ========== -->
   <div *ngIf="opcionSeleccionada === 'zonas'">
     <h2>Gestión de Zonas</h2>
     <p>Aquí irá el listado de zonas...</p>
   </div>
 
+  <!-- ========== MESAS ========== -->
   <div *ngIf="opcionSeleccionada === 'mesas'">
     <h2>Gestión de Mesas</h2>
     <p>Aquí irá el listado de mesas...</p>
   </div>
 
-  <div *ngIf="opcionSeleccionada === 'impuestos'">
-    <h2>Gestión de Impuestos</h2>
-    <p>Aquí irá el listado de impuestos...</p>
-  </div>
 </ion-content>

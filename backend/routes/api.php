@@ -40,12 +40,21 @@ use App\Zones\Infrastructure\Entrypoint\Http\PostController as ZonesPostControll
 use App\Zones\Infrastructure\Entrypoint\Http\PutController as ZonesPutController;
 use Illuminate\Support\Facades\Route;
 
+Route::post('/login', LoginController::class);
 Route::post('/users', UserPostController::class);
-Route::get('/users', UserGetAllController::class);
-Route::get('/users/email/{email}', UserGetUserByEmailController::class);
-Route::get('/users/{id}', UserGetByIdController::class);
-Route::put('/users/{id}', UserPutController::class);
-Route::delete('/users/{id}', UserDeleteController::class);
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Users management (protegido)
+    Route::get('/users', UserGetAllController::class);
+    Route::get('/users/email/{email}', UserGetUserByEmailController::class);
+    Route::get('/users/{id}', UserGetByIdController::class);
+    Route::put('/users/{id}', UserPutController::class);
+    Route::delete('/users/{id}', UserDeleteController::class);
+    
+    // Logout
+    Route::post('/logout', LogoutController::class);
+    Route::get('/auth/me', MeController::class);
+});
 
 Route::post('/family', FamilyPostController::class);
 Route::get('/family/{id}', FamilyGetByIdController::class);
@@ -83,8 +92,3 @@ Route::post('/restaurants', RestaurantsPostController::class);
 Route::get('/my-restaurant', GetMyRestaurantController::class);
 
 Route::post('/login', LoginController::class);
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', LogoutController::class);
-    Route::get('/auth/me', MeController::class);
-});

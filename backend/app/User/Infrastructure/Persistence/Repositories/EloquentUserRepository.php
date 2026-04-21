@@ -2,11 +2,13 @@
 
 namespace App\User\Infrastructure\Persistence\Repositories;
 
+use App\User\Application\GetAllUsers\GetAllUsersItem;
+use App\User\Application\GetAllUsers\GetAllUsersReadRepositoryInterface;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Interfaces\UserRepositoryInterface;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
 
-class EloquentUserRepository implements UserRepositoryInterface
+class EloquentUserRepository implements UserRepositoryInterface, GetAllUsersReadRepositoryInterface
 {
     public function __construct(
         private EloquentUser $model,
@@ -93,6 +95,48 @@ class EloquentUserRepository implements UserRepositoryInterface
                 $model->image_src,
                 $model->created_at->toDateTimeImmutable(),
                 $model->updated_at->toDateTimeImmutable(),
+            ),
+        )->toArray();
+    }
+
+    public function allWithNumericId(): array
+    {
+        return $this->model->newQuery()->get()->map(
+            fn (EloquentUser $model): GetAllUsersItem => new GetAllUsersItem(
+                $model->id,
+                User::fromPersistence(
+                    $model->uuid,
+                    $model->name,
+                    $model->email,
+                    $model->password,
+                    $model->role,
+                    $model->restaurant_id,
+                    $model->pin,
+                    $model->image_src,
+                    $model->created_at->toDateTimeImmutable(),
+                    $model->updated_at->toDateTimeImmutable(),
+                ),
+            ),
+        )->toArray();
+    }
+
+    public function allByRestaurantIdWithNumericId(int $restaurantId): array
+    {
+        return $this->model->newQuery()->where('restaurant_id', $restaurantId)->get()->map(
+            fn (EloquentUser $model): GetAllUsersItem => new GetAllUsersItem(
+                $model->id,
+                User::fromPersistence(
+                    $model->uuid,
+                    $model->name,
+                    $model->email,
+                    $model->password,
+                    $model->role,
+                    $model->restaurant_id,
+                    $model->pin,
+                    $model->image_src,
+                    $model->created_at->toDateTimeImmutable(),
+                    $model->updated_at->toDateTimeImmutable(),
+                ),
             ),
         )->toArray();
     }

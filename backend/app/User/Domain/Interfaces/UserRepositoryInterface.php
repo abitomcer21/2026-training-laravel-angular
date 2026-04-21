@@ -15,4 +15,8 @@ interface UserRepositoryInterface
     public function delete(string $id): void;
 
     public function findByEmail(string $email): ?User;
+
+    public function allWithNumericId(): array;
+
+    public function allByRestaurantIdWithNumericId(int $restaurantId): array;
 }
