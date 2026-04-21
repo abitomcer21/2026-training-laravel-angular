@@ -18,7 +18,7 @@ class PostController
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'active' => ['required', 'boolean'],
-            'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
+            'restaurant_id' => ['required', 'integer'],
         ]);
 
         if ($validator->fails()) {

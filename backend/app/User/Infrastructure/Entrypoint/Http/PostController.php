@@ -21,7 +21,7 @@ class PostController
             'role' => ['required', 'string', 'in:admin,supervisor,camarero,chef'],
             'pin' => ['required', 'string', 'regex:/^\d{4}$/'],
             'image_src' => ['nullable', 'string'],
-            'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
+            'restaurant_id' => ['required', 'integer'],
         ]);
 
         $response = ($this->createUser)(

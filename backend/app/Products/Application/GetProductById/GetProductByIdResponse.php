@@ -13,7 +13,7 @@ final readonly class GetProductByIdResponse
         public string $name,
         public int $price,
         public int $stock,
-        public string $imageSrc,
+        public ?string $imageSrc,
         public bool $active,
         public int $restaurantId,
         public string $createdAt,

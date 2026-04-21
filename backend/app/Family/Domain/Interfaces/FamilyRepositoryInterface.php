@@ -13,4 +13,6 @@ interface FamilyRepositoryInterface
     public function all(): array;
 
     public function delete(string $id): void;
+
+    public function allByRestaurantId(int $restaurantId): array;
 }

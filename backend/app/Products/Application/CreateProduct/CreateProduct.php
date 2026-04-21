@@ -23,7 +23,7 @@ class CreateProduct
         string $name,
         int $price,
         int $stock,
-        string $imageSrc,
+        ?string $imageSrc,
         bool $active,
     ): CreateProductResponse {
         $nameVO = ProductName::create($name);

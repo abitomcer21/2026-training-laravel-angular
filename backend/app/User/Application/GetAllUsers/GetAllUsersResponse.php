@@ -9,9 +9,6 @@ final readonly class GetAllUsersResponse
         public int $total,
     ) {}
 
-    /**
-     * @param array<int, GetAllUsersItem> $users
-     */
     public static function create(array $users): self
     {
         $usersData = array_map(

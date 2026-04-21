@@ -94,13 +94,13 @@
           </div>
         </div>
         <!-- Loading -->
-        <div *ngIf="loading" class="loading-state">
+        <div *ngIf="usuariosLoading" class="loading-state">
           <div class="spinner"></div>
           <p>Cargando usuarios...</p>
         </div>
 
         <!-- Tabla profesional -->
-        <div *ngIf="!loading" class="table-wrapper">
+        <div *ngIf="!usuariosLoading" class="table-wrapper">
           <table class="data-table">
             <thead>
               <tr>
@@ -268,11 +268,6 @@
               <input id="create-image" type="text" name="create_image_src" [(ngModel)]="createForm.image_src" class="editor-input" placeholder="URL de imagen">
             </div>
 
-            <div class="form-field">
-              <label for="create-restaurant">Restaurant ID</label>
-              <input id="create-restaurant" type="number" name="create_restaurant_id" [(ngModel)]="createForm.restaurant_id" class="editor-input">
-            </div>
-
             <div class="editor-actions editor-actions-create">
               <button class="btn-primary" type="button" (click)="guardarPanel()">Guardar usuario</button>
             </div>
@@ -285,20 +280,635 @@
 
   <!-- ========== FAMILIAS ========== -->
   <div *ngIf="opcionSeleccionada === 'familias'">
-    <h2>Gestión de Familias</h2>
-    <p>Aquí irá el listado de familias...</p>
+    <div class="dashboard-grid">
+      <div class="users-panel users-panel-main">
+        <!-- Header profesional -->
+        <div class="users-header">
+          <div>
+            <h2>Gestión de categorías</h2>
+            <p class="header-description">Organiza los productos en familias o categorías.</p>
+          </div>
+        </div>
+
+        <!-- Barra de búsqueda y filtros -->
+        <div class="search-bar">
+          <div class="search-input-wrapper">
+            <ion-icon name="search-outline" class="search-icon"></ion-icon>
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre, ID..." 
+              [(ngModel)]="terminoBusquedaFamily"
+              (input)="buscarFamilias()"
+              class="search-input-field">
+            <button *ngIf="terminoBusquedaFamily" class="clear-btn" (click)="limpiarBusquedaFamily()">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+          
+          <div class="filter-chips">
+            <button 
+              class="chip" 
+              [class.active]="filtroActualFamily === 'nombre'"
+              (click)="filtrarPorTipoFamily('nombre')">
+              Nombre
+            </button>
+            <button 
+              class="chip" 
+              [class.active]="filtroActualFamily === 'id'"
+              (click)="filtrarPorTipoFamily('id')">
+              ID
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="familiasLoading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando familias...</p>
+        </div>
+
+        <!-- Tabla profesional -->
+        <div *ngIf="!familiasLoading" class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-id">ID</th>
+                <th class="col-user">Nombre</th>
+                <th class="col-role">Estado</th>
+                <th class="col-actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let family of familiasFiltradas; let i = index">
+                <td class="col-id">
+                  <span class="id-badge">{{ i + 1 }}</span>
+                </td>
+                <td class="col-user">
+                  <div class="user-cell">
+                    <div class="user-avatar" style="background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);">
+                      <span>{{ family.name.charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div class="user-info">
+                      <span class="user-name">{{ family.name }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-role">
+                  <div class="toggle-wrapper">
+                    <input 
+                      type="checkbox" 
+                      class="toggle-checkbox" 
+                      [checked]="family.active"
+                      (change)="cambiarEstadoFamily(family)"
+                      [id]="'toggle-' + i">
+                    <label [for]="'toggle-' + i" class="toggle-label">
+                      <span class="toggle-text">{{ family.active ? 'Activa' : 'Inactiva' }}</span>
+                    </label>
+                  </div>
+                </td>
+                <td class="col-actions">
+                  <div class="action-buttons">
+                    <button class="action-btn edit" (click)="editarFamily(family)" title="Editar">
+                      <ion-icon name="create-outline"></ion-icon>
+                    </button>
+                    <button class="action-btn delete" (click)="confirmarEliminarFamily(family)" title="Eliminar">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="familiasFiltradas.length === 0">
+                <td colspan="4" class="empty-state-row">
+                  <div class="empty-state-content">
+                    <ion-icon name="albums-outline"></ion-icon>
+                    <h4>No hay familias</h4>
+                    <p>No se encontraron familias con los criterios de búsqueda</p>
+                    <button class="btn-outline" (click)="limpiarBusquedaFamily()">Limpiar búsqueda</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="editor-panel">
+        <div class="editor-panel-header">
+          <div>
+            <p class="eyebrow">{{ familyPanelMode === 'create' ? 'Alta permanente' : 'Edición rápida' }}</p>
+            <h3>{{ familyPanelMode === 'create' ? 'Nueva familia' : 'Editar familia' }}</h3>
+          </div>
+          <button *ngIf="familyPanelMode === 'edit'" class="btn-outline btn-small" (click)="salirEdicionFamily()">Volver al alta</button>
+        </div>
+
+        <div *ngIf="familyPanelMode === 'edit' && editingFamily; else createFamilyFormState" class="editor-form editor-form-edit">
+          <div class="editor-summary">
+            <div class="user-avatar editor-avatar" style="background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);">
+              <span>{{ editingFamily.name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div>
+              <strong>{{ editingFamily.name }}</strong>
+              <p>UUID: {{ editingFamily.uuid || editingFamily.id }}</p>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="edit-family-name">Nombre</label>
+            <input id="edit-family-name" type="text" name="name" [(ngModel)]="editFamilyForm.name" class="editor-input">
+          </div>
+
+          <div class="form-info">
+            <p><strong>Estado:</strong> {{ editingFamily.active ? 'Activa' : 'Inactiva' }}</p>
+            <small>Edita el estado desde el interruptor en el listado</small>
+          </div>
+
+          <div class="editor-actions">
+            <button class="btn-outline" type="button" (click)="salirEdicionFamily()">Cancelar</button>
+            <button class="btn-primary" type="button" (click)="guardarFamiliaPanel()">Guardar cambios</button>
+          </div>
+        </div>
+
+        <ng-template #createFamilyFormState>
+          <div class="editor-form editor-form-create">
+            <div class="editor-summary">
+              <div class="user-avatar editor-avatar editor-avatar-create">
+                <span>+</span>
+              </div>
+              <div>
+                <strong>Nueva familia</strong>
+                <p>Crea una nueva categoría para organizar productos.</p>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="create-family-name">Nombre</label>
+              <input id="create-family-name" type="text" name="create_name" [(ngModel)]="createFamilyForm.name" class="editor-input">
+            </div>
+
+            <div class="form-field">
+              <label for="create-family-active">Estado inicial</label>
+              <div class="toggle-field">
+                <input 
+                  type="checkbox" 
+                  id="create-family-active"
+                  class="toggle-checkbox" 
+                  [(ngModel)]="createFamilyForm.active"
+                  name="create_active">
+                <label for="create-family-active" class="toggle-label">
+                  <span class="toggle-text">{{ createFamilyForm.active ? 'Activa' : 'Inactiva' }}</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="editor-actions editor-actions-create">
+              <button class="btn-primary" type="button" (click)="guardarFamiliaPanel()">Guardar familia</button>
+            </div>
+          </div>
+        </ng-template>
+      </aside>
+    </div>
   </div>
 
   <!-- ========== PRODUCTOS ========== -->
   <div *ngIf="opcionSeleccionada === 'productos'">
-    <h2>Gestión de Productos</h2>
-    <p>Aquí irá el listado de productos...</p>
+    <div class="dashboard-grid">
+      <div class="users-panel users-panel-main">
+        <!-- Header profesional -->
+        <div class="users-header">
+          <div>
+            <h2>Gestión de productos</h2>
+            <p class="header-description">Administra el catálogo de productos, precios y disponibilidad.</p>
+          </div>
+        </div>
+
+        <!-- Barra de búsqueda y filtros -->
+        <div class="search-bar">
+          <div class="search-input-wrapper">
+            <ion-icon name="search-outline" class="search-icon"></ion-icon>
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre, ID, familia..." 
+              [(ngModel)]="terminoBusquedaProduct"
+              (input)="buscarProductos()"
+              class="search-input-field">
+            <button *ngIf="terminoBusquedaProduct" class="clear-btn" (click)="limpiarBusquedaProduct()">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+          
+          <div class="filter-chips">
+            <button 
+              class="chip" 
+              [class.active]="filtroActualProduct === 'nombre'"
+              (click)="filtrarPorTipoProduct('nombre')">
+              Nombre
+            </button>
+            <button 
+              class="chip" 
+              [class.active]="filtroActualProduct === 'familia'"
+              (click)="filtrarPorTipoProduct('familia')">
+              Familia
+            </button>
+            <button 
+              class="chip" 
+              [class.active]="filtroActualProduct === 'id'"
+              (click)="filtrarPorTipoProduct('id')">
+              ID
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="productosLoading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando productos...</p>
+        </div>
+
+        <!-- Tabla profesional -->
+        <div *ngIf="!productosLoading" class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-id">ID</th>
+                <th class="col-user">Nombre</th>
+                <th class="col-email">Familia</th>
+                <th class="col-role">Precio</th>
+                <th class="col-role">Stock</th>
+                <th class="col-role">Estado</th>
+                <th class="col-actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of productosFiltrados; let i = index">
+                <td class="col-id">
+                  <span class="id-badge">{{ i + 1 }}</span>
+                </td>
+                <td class="col-user">
+                  <div class="user-cell">
+                    <div class="user-avatar" style="background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);">
+                      <span>{{ product.name.charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div class="user-info">
+                      <span class="user-name">{{ product.name }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-email">
+                  {{ obtenerNombreFamilia(product.family_id) }}
+                </td>
+                <td class="col-role">
+                  <span class="price-badge">{{ formatearPrecio(product.price) }}</span>
+                </td>
+                <td class="col-role">
+                  <span class="stock-badge" [ngClass]="product.stock > 0 ? 'stock-available' : 'stock-low'">
+                    {{ product.stock }}
+                  </span>
+                </td>
+                <td class="col-role">
+                  <div class="toggle-wrapper">
+                    <input 
+                      type="checkbox" 
+                      class="toggle-checkbox" 
+                      [checked]="product.active"
+                      (change)="cambiarEstadoProduct(product)"
+                      [id]="'toggle-product-' + i">
+                    <label [for]="'toggle-product-' + i" class="toggle-label">
+                      <span class="toggle-text">{{ product.active ? 'Activo' : 'Inactivo' }}</span>
+                    </label>
+                  </div>
+                </td>
+                <td class="col-actions">
+                  <div class="action-buttons">
+                    <button class="action-btn edit" (click)="editarProduct(product)" title="Editar">
+                      <ion-icon name="create-outline"></ion-icon>
+                    </button>
+                    <button class="action-btn delete" (click)="confirmarEliminarProduct(product)" title="Eliminar">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="productosFiltrados.length === 0">
+                <td colspan="7" class="empty-state-row">
+                  <div class="empty-state-content">
+                    <ion-icon name="restaurant-outline"></ion-icon>
+                    <h4>No hay productos</h4>
+                    <p>No se encontraron productos con los criterios de búsqueda</p>
+                    <button class="btn-outline" (click)="limpiarBusquedaProduct()">Limpiar búsqueda</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="editor-panel">
+        <div class="editor-panel-header">
+          <div>
+            <p class="eyebrow">{{ productPanelMode === 'create' ? 'Alta permanente' : 'Edición rápida' }}</p>
+            <h3>{{ productPanelMode === 'create' ? 'Nuevo producto' : 'Editar producto' }}</h3>
+          </div>
+          <button *ngIf="productPanelMode === 'edit'" class="btn-outline btn-small" (click)="salirEdicionProduct()">Volver al alta</button>
+        </div>
+
+        <div *ngIf="productPanelMode === 'edit' && editingProduct; else createProductFormState" class="editor-form editor-form-edit">
+          <div class="editor-summary">
+            <div class="user-avatar editor-avatar" style="background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);">
+              <span>{{ editingProduct.name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div>
+              <strong>{{ editingProduct.name }}</strong>
+              <p>UUID: {{ editingProduct.uuid || editingProduct.id }}</p>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="edit-product-name">Nombre</label>
+            <input id="edit-product-name" type="text" name="name" [(ngModel)]="editProductForm.name" class="editor-input">
+          </div>
+
+          <div class="form-field">
+            <label for="edit-product-family">Familia</label>
+            <select id="edit-product-family" name="family_id" [(ngModel)]="editProductForm.family_id" class="editor-input">
+              <option *ngFor="let family of familiasParaProductos" [value]="family.id">{{ family.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="edit-product-tax">Impuesto</label>
+            <select id="edit-product-tax" name="tax_id" [(ngModel)]="editProductForm.tax_id" class="editor-input">
+              <option *ngFor="let tax of taxes" [value]="tax.id">{{ tax.name }} ({{ tax.percentage }}%)</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="edit-product-price">Precio unitario (€)</label>
+            <input id="edit-product-price" type="number" name="price" [(ngModel)]="editProductForm.price" class="editor-input" step="0.01" min="0">
+          </div>
+
+          <div class="form-field">
+            <label for="edit-product-stock">Stock</label>
+            <input id="edit-product-stock" type="number" name="stock" [(ngModel)]="editProductForm.stock" class="editor-input" min="0">
+          </div>
+
+          <div class="form-field">
+            <label for="edit-product-image">URL Imagen</label>
+            <input id="edit-product-image" type="text" name="image_src" [(ngModel)]="editProductForm.image_src" class="editor-input">
+          </div>
+
+          <div class="form-info">
+            <p><strong>Estado:</strong> {{ editingProduct.active ? 'Activo' : 'Inactivo' }}</p>
+            <small>Edita el estado desde el interruptor en el listado</small>
+          </div>
+
+          <div class="editor-actions">
+            <button class="btn-outline" type="button" (click)="salirEdicionProduct()">Cancelar</button>
+            <button class="btn-primary" type="button" (click)="guardarProductoPanel()">Guardar cambios</button>
+          </div>
+        </div>
+
+        <ng-template #createProductFormState>
+          <div class="editor-form editor-form-create">
+            <div class="editor-summary">
+              <div class="user-avatar editor-avatar editor-avatar-create">
+                <span>+</span>
+              </div>
+              <div>
+                <strong>Nuevo producto</strong>
+                <p>Añade un nuevo producto al catálogo.</p>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="create-product-name">Nombre *</label>
+              <input id="create-product-name" type="text" name="create_name" [(ngModel)]="createProductForm.name" class="editor-input">
+            </div>
+
+            <div class="form-field">
+              <label for="create-product-family">Familia *</label>
+              <select id="create-product-family" name="create_family_id" [(ngModel)]="createProductForm.family_id" class="editor-input">
+                <option value="0" disabled>Selecciona una familia</option>
+                <option *ngFor="let family of familiasParaProductos" [value]="family.id">{{ family.name }}</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="create-product-tax">Impuesto *</label>
+              <select id="create-product-tax" name="create_tax_id" [(ngModel)]="createProductForm.tax_id" class="editor-input">
+                <option value="0" disabled>Selecciona un impuesto</option>
+                <option *ngFor="let tax of taxes" [value]="tax.id">{{ tax.name }} ({{ tax.percentage }}%)</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="create-product-price">Precio unitario (€) *</label>
+              <input id="create-product-price" type="number" name="create_price" [(ngModel)]="createProductForm.price" class="editor-input" step="0.01" min="0">
+            </div>
+
+            <div class="form-field">
+              <label for="create-product-stock">Stock *</label>
+              <input id="create-product-stock" type="number" name="create_stock" [(ngModel)]="createProductForm.stock" class="editor-input" min="0">
+            </div>
+
+            <div class="form-field">
+              <label for="create-product-image">URL Imagen *</label>
+              <input id="create-product-image" type="text" name="create_image_src" [(ngModel)]="createProductForm.image_src" class="editor-input">
+            </div>
+
+            <div class="form-field">
+              <label for="create-product-active">Estado inicial</label>
+              <div class="toggle-field">
+                <input 
+                  type="checkbox" 
+                  id="create-product-active"
+                  class="toggle-checkbox" 
+                  [(ngModel)]="createProductForm.active"
+                  name="create_active">
+                <label for="create-product-active" class="toggle-label">
+                  <span class="toggle-text">{{ createProductForm.active ? 'Activo' : 'Inactivo' }}</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="editor-actions editor-actions-create">
+              <button class="btn-primary" type="button" (click)="guardarProductoPanel()">Guardar producto</button>
+            </div>
+          </div>
+        </ng-template>
+      </aside>
+    </div>
   </div>
 
   <!-- ========== IMPUESTOS ========== -->
   <div *ngIf="opcionSeleccionada === 'impuestos'">
-    <h2>Gestión de Impuestos</h2>
-    <p>Aquí irá el listado de impuestos...</p>
+    <div class="dashboard-grid">
+      <div class="users-panel users-panel-main">
+        <!-- Header profesional -->
+        <div class="users-header">
+          <div>
+            <h2>Gestión de impuestos</h2>
+            <p class="header-description">Configura los tipos impositivos para aplicar a los productos.</p>
+          </div>
+        </div>
+
+        <!-- Barra de búsqueda y filtros -->
+        <div class="search-bar">
+          <div class="search-input-wrapper">
+            <ion-icon name="search-outline" class="search-icon"></ion-icon>
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre, ID..." 
+              [(ngModel)]="terminoBusquedaTax"
+              (input)="buscarImpuestos()"
+              class="search-input-field">
+            <button *ngIf="terminoBusquedaTax" class="clear-btn" (click)="limpiarBusquedaTax()">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+          
+          <div class="filter-chips">
+            <button 
+              class="chip" 
+              [class.active]="filtroActualTax === 'nombre'"
+              (click)="filtrarPorTipoTax('nombre')">
+              Nombre
+            </button>
+            <button 
+              class="chip" 
+              [class.active]="filtroActualTax === 'id'"
+              (click)="filtrarPorTipoTax('id')">
+              ID
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="impuestosLoading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando impuestos...</p>
+        </div>
+
+        <!-- Tabla profesional -->
+        <div *ngIf="!impuestosLoading" class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-id">ID</th>
+                <th class="col-user">Nombre</th>
+                <th class="col-role">Porcentaje</th>
+                <th class="col-actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let tax of impuestosFiltrados; let i = index">
+                <td class="col-id">
+                  <span class="id-badge">{{ i + 1 }}</span>
+                </td>
+                <td class="col-user">
+                  <div class="user-cell">
+                    <div class="user-avatar" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+                      <span>{{ tax.name.charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div class="user-info">
+                      <span class="user-name">{{ tax.name }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-role">
+                  <span class="percentage-badge">{{ tax.percentage }}%</span>
+                </td>
+                <td class="col-actions">
+                  <div class="action-buttons">
+                    <button class="action-btn edit" (click)="editarTax(tax)" title="Editar">
+                      <ion-icon name="create-outline"></ion-icon>
+                    </button>
+                    <button class="action-btn delete" (click)="confirmarEliminarTax(tax)" title="Eliminar">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="impuestosFiltrados.length === 0">
+                <td colspan="4" class="empty-state-row">
+                  <div class="empty-state-content">
+                    <ion-icon name="cash-outline"></ion-icon>
+                    <h4>No hay impuestos</h4>
+                    <p>No se encontraron impuestos con los criterios de búsqueda</p>
+                    <button class="btn-outline" (click)="limpiarBusquedaTax()">Limpiar búsqueda</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="editor-panel">
+        <div class="editor-panel-header">
+          <div>
+            <p class="eyebrow">{{ taxPanelMode === 'create' ? 'Alta permanente' : 'Edición rápida' }}</p>
+            <h3>{{ taxPanelMode === 'create' ? 'Nuevo impuesto' : 'Editar impuesto' }}</h3>
+          </div>
+          <button *ngIf="taxPanelMode === 'edit'" class="btn-outline btn-small" (click)="salirEdicionTax()">Volver al alta</button>
+        </div>
+
+        <div *ngIf="taxPanelMode === 'edit' && editingTax; else createTaxFormState" class="editor-form editor-form-edit">
+          <div class="editor-summary">
+            <div class="user-avatar editor-avatar" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+              <span>{{ editingTax.name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div>
+              <strong>{{ editingTax.name }}</strong>
+              <p>UUID: {{ editingTax.uuid || editingTax.id }}</p>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="edit-tax-name">Nombre</label>
+            <input id="edit-tax-name" type="text" name="name" [(ngModel)]="editTaxForm.name" class="editor-input">
+          </div>
+
+          <div class="form-field">
+            <label for="edit-tax-percentage">Porcentaje (%)</label>
+            <input id="edit-tax-percentage" type="number" name="percentage" [(ngModel)]="editTaxForm.percentage" class="editor-input" min="0" max="100" step="0.01">
+          </div>
+
+          <div class="editor-actions">
+            <button class="btn-outline" type="button" (click)="salirEdicionTax()">Cancelar</button>
+            <button class="btn-primary" type="button" (click)="guardarImpuestoPanel()">Guardar cambios</button>
+          </div>
+        </div>
+
+        <ng-template #createTaxFormState>
+          <div class="editor-form editor-form-create">
+            <div class="editor-summary">
+              <div class="user-avatar editor-avatar editor-avatar-create">
+                <span>+</span>
+              </div>
+              <div>
+                <strong>Nuevo impuesto</strong>
+                <p>Crea un novo tipo impositivo para los productos.</p>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="create-tax-name">Nombre *</label>
+              <input id="create-tax-name" type="text" name="create_name" [(ngModel)]="createTaxForm.name" class="editor-input">
+            </div>
+
+            <div class="form-field">
+              <label for="create-tax-percentage">Porcentaje (%) *</label>
+              <input id="create-tax-percentage" type="number" name="create_percentage" [(ngModel)]="createTaxForm.percentage" class="editor-input" min="0" max="100" step="0.01">
+            </div>
+
+            <div class="editor-actions editor-actions-create">
+              <button class="btn-primary" type="button" (click)="guardarImpuestoPanel()">Guardar impuesto</button>
+            </div>
+          </div>
+        </ng-template>
+      </aside>
+    </div>
   </div>
 
   <!-- ========== ZONAS ========== -->

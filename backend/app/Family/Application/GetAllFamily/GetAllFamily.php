@@ -10,9 +10,13 @@ class GetAllFamily
         private FamilyRepositoryInterface $familyRepository,
     ) {}
 
-    public function __invoke(): GetAllFamilyResponse
+    public function __invoke(?int $restaurantId = null): GetAllFamilyResponse
     {
-        $family = $this->familyRepository->all();
+        if ($restaurantId !== null) {
+            $family = $this->familyRepository->allByRestaurantId($restaurantId);
+        } else {
+            $family = $this->familyRepository->all();
+        }
 
         return GetAllFamilyResponse::create($family);
     }

@@ -16,13 +16,13 @@ class PutController
     {
         $validated = $request->validate([
             'name' => ['nullable', 'string', 'max:255'],
-            'status' => ['nullable', 'bool'],
+            'active' => ['nullable', 'boolean'],
         ]);
 
         $response = ($this->updateFamily)(
             $id,
             $validated['name'] ?? null,
-            $validated['status'] ?? null,
+            $validated['active'] ?? null,
         );
 
         if ($response === null) {

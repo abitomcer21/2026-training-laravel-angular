@@ -42,6 +42,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', LoginController::class);
 Route::post('/users', UserPostController::class);
+Route::post('/family', FamilyPostController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Users management (protegido)
@@ -50,17 +51,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}', UserGetByIdController::class);
     Route::put('/users/{id}', UserPutController::class);
     Route::delete('/users/{id}', UserDeleteController::class);
+
+    // Family management (protegido)
+    Route::get('/family', FamilyGetAllController::class);
+    Route::get('/family/{id}', FamilyGetByIdController::class);
+    Route::put('/family/{id}', FamilyPutController::class);
+    Route::delete('/family/{id}', FamilyDeleteController::class);
     
     // Logout
     Route::post('/logout', LogoutController::class);
     Route::get('/auth/me', MeController::class);
 });
-
-Route::post('/family', FamilyPostController::class);
-Route::get('/family/{id}', FamilyGetByIdController::class);
-Route::put('/family/{id}', FamilyPutController::class);
-Route::delete('/family/{id}', FamilyDeleteController::class);
-Route::get('/family', FamilyGetAllController::class);
 Route::get('/products/family/{familyId}', GetByFamilyController::class);
 
 Route::post('/products', ProductsPostController::class);

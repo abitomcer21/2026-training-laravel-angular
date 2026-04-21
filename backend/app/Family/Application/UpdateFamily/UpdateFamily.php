@@ -39,6 +39,6 @@ class UpdateFamily
         $Family = $family->updateData($nameVO, $isActive);
         $this->familyRepository->save($Family);
 
-        return UpdateFamilyResponse::create($family);
+        return UpdateFamilyResponse::create($Family);
     }
 }

@@ -998,6 +998,146 @@ select.editor-input {
   padding-right: 36px;
 }
 
+/* TOGGLE SWITCH STYLES */
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 44px;
+  height: 24px;
+  background: #e5e7eb;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.toggle-checkbox::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-checkbox:checked {
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.toggle-checkbox:checked::before {
+  left: 22px;
+}
+
+.toggle-checkbox:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-checkbox:checked:hover {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.toggle-checkbox:focus {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.toggle-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  user-select: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Toggle field in forms */
+.toggle-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-field .toggle-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Form info section */
+.form-info {
+  grid-column: 1 / -1;
+  padding: 14px;
+  background: #f0f9ff;
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #0c4a6e;
+}
+
+.form-info p {
+  margin: 0 0 4px 0;
+  font-weight: 500;
+}
+
+.form-info small {
+  display: block;
+  margin: 0;
+  color: #0c4a6e;
+  opacity: 0.8;
+}
+
+/* PRODUCT SPECIFIC STYLES */
+.price-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #dbeafe;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.stock-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.stock-badge.stock-available {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.stock-badge.stock-low {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.percentage-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #cffafe;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0e7490;
+}
+
 .editor-actions {
   display: flex;
   gap: 10px;

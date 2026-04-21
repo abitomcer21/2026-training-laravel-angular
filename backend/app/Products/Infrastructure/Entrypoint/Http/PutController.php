@@ -2,7 +2,9 @@
 
 namespace App\Products\Infrastructure\Entrypoint\Http;
 
+use App\Family\Infrastructure\Persistence\Models\EloquentFamily;
 use App\Products\Application\UpdateProduct\UpdateProduct;
+use App\Tax\Infrastructure\Persistence\Models\EloquentTax;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

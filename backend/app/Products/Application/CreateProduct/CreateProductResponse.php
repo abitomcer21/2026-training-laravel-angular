@@ -13,7 +13,7 @@ final readonly class CreateProductResponse
         public string $name,
         public int $price,
         public int $stock,
-        public string $imageSrc,
+        public ?string $imageSrc,
         public bool $active,
         public string $createdAt,
         public string $updatedAt,
