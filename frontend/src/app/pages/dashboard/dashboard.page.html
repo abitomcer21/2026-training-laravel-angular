@@ -856,11 +856,10 @@
         <div *ngIf="taxPanelMode === 'edit' && editingTax; else createTaxFormState" class="editor-form editor-form-edit">
           <div class="editor-summary">
             <div class="user-avatar editor-avatar" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
-              <span>{{ editingTax.name.charAt(0).toUpperCase() }}</span>
             </div>
             <div>
-              <strong>{{ editingTax.name }}</strong>
-              <p>UUID: {{ editingTax.uuid || editingTax.id }}</p>
+              <strong>{{ editingTax?.name }}</strong>
+              <p>UUID: {{ editingTax?.uuid || editingTax?.id }}</p>
             </div>
           </div>
 
