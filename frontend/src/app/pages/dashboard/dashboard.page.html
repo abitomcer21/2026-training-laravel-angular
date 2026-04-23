@@ -912,14 +912,344 @@
 
   <!-- ========== ZONAS ========== -->
   <div *ngIf="opcionSeleccionada === 'zonas'">
-    <h2>Gestión de Zonas</h2>
-    <p>Aquí irá el listado de zonas...</p>
+    <div class="dashboard-grid">
+      <div class="users-panel users-panel-main">
+        <!-- Header profesional -->
+        <div class="users-header">
+          <div>
+            <h2>Gestión de zonas</h2>
+            <p class="header-description">Organiza el espacio del restaurante en diferentes zonas o salones.</p>
+          </div>
+        </div>
+
+        <!-- Barra de búsqueda y filtros -->
+        <div class="search-bar">
+          <div class="search-input-wrapper">
+            <ion-icon name="search-outline" class="search-icon"></ion-icon>
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre, ID..." 
+              [(ngModel)]="terminoBusquedaZone"
+              (input)="buscarZonas()"
+              class="search-input-field">
+            <button *ngIf="terminoBusquedaZone" class="clear-btn" (click)="limpiarBusquedaZone()">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+          
+          <div class="filter-chips">
+            <button 
+              class="chip" 
+              [class.active]="filtroActualZone === 'nombre'"
+              (click)="filtrarPorTipoZone('nombre')">
+              Nombre
+            </button>
+            <button 
+              class="chip" 
+              [class.active]="filtroActualZone === 'id'"
+              (click)="filtrarPorTipoZone('id')">
+              ID
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="zonasLoading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando zonas...</p>
+        </div>
+
+        <!-- Tabla profesional -->
+        <div *ngIf="!zonasLoading" class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-id">ID</th>
+                <th class="col-user">Nombre</th>
+                <th class="col-actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let zone of zonasFiltradas; let i = index">
+                <td class="col-id">
+                  <span class="id-badge">{{ i + 1 }}</span>
+                </td>
+                <td class="col-user">
+                  <div class="user-cell">
+                    <div class="user-avatar" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);">
+                      <span>{{ zone.name.charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div class="user-info">
+                      <span class="user-name">{{ zone.name }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-actions">
+                  <div class="action-buttons">
+                    <button class="action-btn edit" (click)="editarZone(zone)" title="Editar">
+                      <ion-icon name="create-outline"></ion-icon>
+                    </button>
+                    <button class="action-btn delete" (click)="confirmarEliminarZone(zone)" title="Eliminar">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="zonasFiltradas.length === 0">
+                <td colspan="3" class="empty-state-row">
+                  <div class="empty-state-content">
+                    <ion-icon name="map-outline"></ion-icon>
+                    <h4>No hay zonas</h4>
+                    <p>No se encontraron zonas con los criterios de búsqueda</p>
+                    <button class="btn-outline" (click)="limpiarBusquedaZone()">Limpiar búsqueda</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="editor-panel">
+        <div class="editor-panel-header">
+          <div>
+            <p class="eyebrow">{{ zonePanelMode === 'create' ? 'Alta permanente' : 'Edición rápida' }}</p>
+            <h3>{{ zonePanelMode === 'create' ? 'Nueva zona' : 'Editar zona' }}</h3>
+          </div>
+          <button *ngIf="zonePanelMode === 'edit'" class="btn-outline btn-small" (click)="salirEdicionZone()">Volver al alta</button>
+        </div>
+
+        <div *ngIf="zonePanelMode === 'edit' && editingZone; else createZoneFormState" class="editor-form editor-form-edit">
+          <div class="editor-summary">
+            <div class="user-avatar editor-avatar" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);">
+              <span>{{ editingZone.name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div>
+              <strong>{{ editingZone.name }}</strong>
+              <p>UUID: {{ editingZone.uuid || editingZone.id }}</p>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="edit-zone-name">Nombre</label>
+            <input id="edit-zone-name" type="text" name="name" [(ngModel)]="editZoneForm.name" class="editor-input">
+          </div>
+
+          <div class="editor-actions">
+            <button class="btn-outline" type="button" (click)="salirEdicionZone()">Cancelar</button>
+            <button class="btn-primary" type="button" (click)="guardarZonaPanel()">Guardar cambios</button>
+          </div>
+        </div>
+
+        <ng-template #createZoneFormState>
+          <div class="editor-form editor-form-create">
+            <div class="editor-summary">
+              <div class="user-avatar editor-avatar editor-avatar-create">
+                <span>+</span>
+              </div>
+              <div>
+                <strong>Nueva zona</strong>
+                <p>Crea una nueva zona o salón para el restaurante.</p>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="create-zone-name">Nombre *</label>
+              <input id="create-zone-name" type="text" name="create_name" [(ngModel)]="createZoneForm.name" class="editor-input" placeholder="Ej: Terraza, Salón principal...">
+            </div>
+
+            <div class="editor-actions editor-actions-create">
+              <button class="btn-primary" type="button" (click)="guardarZonaPanel()">Guardar zona</button>
+            </div>
+          </div>
+        </ng-template>
+      </aside>
+    </div>
   </div>
 
   <!-- ========== MESAS ========== -->
   <div *ngIf="opcionSeleccionada === 'mesas'">
-    <h2>Gestión de Mesas</h2>
-    <p>Aquí irá el listado de mesas...</p>
+    <div class="dashboard-grid">
+      <div class="users-panel users-panel-main">
+        <!-- Header profesional -->
+        <div class="users-header">
+          <div>
+            <h2>Gestión de mesas</h2>
+            <p class="header-description">Configura las mesas disponibles en cada zona del restaurante.</p>
+          </div>
+        </div>
+
+        <!-- Barra de búsqueda y filtros -->
+        <div class="search-bar">
+          <div class="search-input-wrapper">
+            <ion-icon name="search-outline" class="search-icon"></ion-icon>
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre, ID, zona..." 
+              [(ngModel)]="terminoBusquedaTable"
+              (input)="buscarMesas()"
+              class="search-input-field">
+            <button *ngIf="terminoBusquedaTable" class="clear-btn" (click)="limpiarBusquedaTable()">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+          
+          <div class="filter-chips">
+            <button 
+              class="chip" 
+              [class.active]="filtroActualTable === 'nombre'"
+              (click)="filtrarPorTipoTable('nombre')">
+              Nombre
+            </button>
+            <button 
+              class="chip" 
+              [class.active]="filtroActualTable === 'zona'"
+              (click)="filtrarPorTipoTable('zona')">
+              Zona
+            </button>
+            <button 
+              class="chip" 
+              [class.active]="filtroActualTable === 'id'"
+              (click)="filtrarPorTipoTable('id')">
+              ID
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="mesasLoading" class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando mesas...</p>
+        </div>
+
+        <!-- Tabla profesional -->
+        <div *ngIf="!mesasLoading" class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-id">ID</th>
+                <th class="col-user">Nombre</th>
+                <th class="col-email">Zona</th>
+                <th class="col-actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let table of mesasFiltradas; let i = index">
+                <td class="col-id">
+                  <span class="id-badge">{{ i + 1 }}</span>
+                </td>
+                <td class="col-user">
+                  <div class="user-cell">
+                    <div class="user-avatar" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);">
+                      <span>{{ table.name.charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div class="user-info">
+                      <span class="user-name">{{ table.name }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-email">
+                  {{ obtenerNombreZona(table.zone_id) }}
+                </td>
+                <td class="col-actions">
+                  <div class="action-buttons">
+                    <button class="action-btn edit" (click)="editarTable(table)" title="Editar">
+                      <ion-icon name="create-outline"></ion-icon>
+                    </button>
+                    <button class="action-btn delete" (click)="confirmarEliminarTable(table)" title="Eliminar">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="mesasFiltradas.length === 0">
+                <td colspan="4" class="empty-state-row">
+                  <div class="empty-state-content">
+                    <ion-icon name="grid-outline"></ion-icon>
+                    <h4>No hay mesas</h4>
+                    <p>No se encontraron mesas con los criterios de búsqueda</p>
+                    <button class="btn-outline" (click)="limpiarBusquedaTable()">Limpiar búsqueda</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="editor-panel">
+        <div class="editor-panel-header">
+          <div>
+            <p class="eyebrow">{{ tablePanelMode === 'create' ? 'Alta permanente' : 'Edición rápida' }}</p>
+            <h3>{{ tablePanelMode === 'create' ? 'Nueva mesa' : 'Editar mesa' }}</h3>
+          </div>
+          <button *ngIf="tablePanelMode === 'edit'" class="btn-outline btn-small" (click)="salirEdicionTable()">Volver al alta</button>
+        </div>
+
+        <div *ngIf="tablePanelMode === 'edit' && editingTable; else createTableFormState" class="editor-form editor-form-edit">
+          <div class="editor-summary">
+            <div class="user-avatar editor-avatar" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);">
+              <span>{{ editingTable.name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div>
+              <strong>{{ editingTable.name }}</strong>
+              <p>Zona: {{ obtenerNombreZona(editingTable.zone_id) }}</p>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="edit-table-name">Nombre</label>
+            <input id="edit-table-name" type="text" name="name" [(ngModel)]="editTableForm.name" class="editor-input">
+          </div>
+
+          <div class="form-info">
+            <p><strong>Zona asignada:</strong> {{ obtenerNombreZona(editingTable.zone_id) }}</p>
+            <small>La zona se asigna al crear la mesa y no puede modificarse</small>
+          </div>
+
+          <div class="editor-actions">
+            <button class="btn-outline" type="button" (click)="salirEdicionTable()">Cancelar</button>
+            <button class="btn-primary" type="button" (click)="guardarMesaPanel()">Guardar cambios</button>
+          </div>
+        </div>
+
+        <ng-template #createTableFormState>
+          <div class="editor-form editor-form-create">
+            <div class="editor-summary">
+              <div class="user-avatar editor-avatar editor-avatar-create">
+                <span>+</span>
+              </div>
+              <div>
+                <strong>Nueva mesa</strong>
+                <p>Añade una nueva mesa al sistema.</p>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="create-table-name">Nombre *</label>
+              <input id="create-table-name" type="text" name="create_name" [(ngModel)]="createTableForm.name" class="editor-input" placeholder="Ej: Mesa 1, Mesa VIP...">
+            </div>
+
+            <div class="form-field">
+              <label for="create-table-zone">Zona *</label>
+              <select id="create-table-zone" name="create_zone_id" [(ngModel)]="createTableForm.zone_id" class="editor-input">
+                <option value="" disabled>Selecciona una zona</option>
+                <option *ngFor="let zone of zones" [value]="zone.database_id || zone.id">{{ zone.name }}</option>
+              </select>
+            </div>
+
+            <div class="form-info" *ngIf="zones.length === 0">
+              <p><strong>⚠️ No hay zonas disponibles</strong></p>
+              <small>Debes crear al menos una zona antes de crear mesas. Ve a la sección de Zonas.</small>
+            </div>
+
+            <div class="editor-actions editor-actions-create">
+              <button class="btn-primary" type="button" (click)="guardarMesaPanel()" [disabled]="zones.length === 0">Guardar mesa</button>
+            </div>
+          </div>
+        </ng-template>
+      </aside>
+    </div>
   </div>
 
 </ion-content>

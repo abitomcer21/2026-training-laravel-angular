@@ -11,22 +11,23 @@ final readonly class GetAllZonesResponse
         public int $total,
     ) {}
 
-    public static function create(array $zones): self
+    public static function create(array $zonesData): self
     {
-        $zonesData = array_map(
-            static fn (Zones $zone): array => [
-                'id' => $zone->id()->value(),
-                'name' => $zone->name(),
-                'restaurant_id' => $zone->restaurantId(),
-                'created_at' => $zone->createdAt()->format(\DateTimeInterface::ATOM),
-                'updated_at' => $zone->updatedAt()->format(\DateTimeInterface::ATOM),
+        $zones = array_map(
+            static fn (array $item): array => [
+                'database_id' => $item['database_id'],
+                'id' => $item['zone']->id()->value(),
+                'name' => $item['zone']->name(),
+                'restaurant_id' => $item['zone']->restaurantId(),
+                'created_at' => $item['zone']->createdAt()->format(\DateTimeInterface::ATOM),
+                'updated_at' => $item['zone']->updatedAt()->format(\DateTimeInterface::ATOM),
             ],
-            $zones,
+            $zonesData,
         );
 
         return new self(
-            zones: $zonesData,
-            total: count($zonesData),
+            zones: $zones,
+            total: count($zones),
         );
     }
 

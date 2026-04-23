@@ -50,13 +50,16 @@ class EloquentZonesRepository implements ZonesRepositoryInterface
     public function all(): array
     {
         return $this->model->newQuery()->get()->map(
-            fn (EloquentZones $zone): Zones => Zones::fromPersistence(
-                $zone->uuid,
-                $zone->name,
-                $zone->restaurant_id,
-                $zone->created_at->toDateTimeImmutable(),
-                $zone->updated_at->toDateTimeImmutable(),
-            ),
+            fn (EloquentZones $zone): array => [
+                'database_id' => $zone->id,
+                'zone' => Zones::fromPersistence(
+                    $zone->uuid,
+                    $zone->name,
+                    $zone->restaurant_id,
+                    $zone->created_at->toDateTimeImmutable(),
+                    $zone->updated_at->toDateTimeImmutable(),
+                ),
+            ],
         )->toArray();
     }
 

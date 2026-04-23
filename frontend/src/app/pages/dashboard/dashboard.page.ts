@@ -20,6 +20,8 @@ import { UserService, User } from '../../services/api/user.service';
 import { FamilyService, Family } from '../../services/api/family.service';
 import { ProductService, Product } from '../../services/api/product.service';
 import { TaxService, Tax } from '../../services/api/tax.service';
+import { ZoneService, Zone } from '../../services/api/zone.service';
+import { TableService, Table } from '../../services/api/table.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 interface MenuItem {
@@ -92,6 +94,23 @@ interface TaxCreateForm {
   percentage: number;
 }
 
+interface ZoneEditForm {
+  name: string;
+}
+
+interface ZoneCreateForm {
+  name: string;
+}
+
+interface TableEditForm {
+  name: string;
+}
+
+interface TableCreateForm {
+  name: string;
+  zone_id: number | string;
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -113,6 +132,8 @@ export class DashboardPage implements OnInit {
   familiasLoading: boolean = false;
   productosLoading: boolean = false;
   impuestosLoading: boolean = false;
+  zonasLoading: boolean = false;
+  mesasLoading: boolean = false;
   
   usuariosCargados: boolean = false;
   panelMode: 'edit' | 'create' = 'create';
@@ -194,6 +215,33 @@ export class DashboardPage implements OnInit {
   };
   impuestosFiltrados: Tax[] = [];
 
+  // Zonas
+  zones: Zone[] = [];
+  zonasFiltradas: Zone[] = [];
+  zonasCargadas: boolean = false;
+  zonePanelMode: 'edit' | 'create' = 'create';
+  editingZone: Zone | null = null;
+  editZoneForm: ZoneEditForm = {
+    name: '',
+  };
+  createZoneForm: ZoneCreateForm = {
+    name: '',
+  };
+
+  // Mesas
+  tables: Table[] = [];
+  mesasFiltradas: Table[] = [];
+  mesasCargadas: boolean = false;
+  tablePanelMode: 'edit' | 'create' = 'create';
+  editingTable: Table | null = null;
+  editTableForm: TableEditForm = {
+    name: '',
+  };
+  createTableForm: TableCreateForm = {
+    name: '',
+    zone_id: '',
+  };
+
   // Búsqueda
   terminoBusqueda: string = '';
   filtroActual: string = 'nombre';
@@ -203,6 +251,10 @@ export class DashboardPage implements OnInit {
   filtroActualProduct: string = 'nombre';
   terminoBusquedaTax: string = '';
   filtroActualTax: string = 'nombre';
+  terminoBusquedaZone: string = '';
+  filtroActualZone: string = 'nombre';
+  terminoBusquedaTable: string = '';
+  filtroActualTable: string = 'nombre';
 
   menuItems: MenuItem[] = [
     { nombre: 'Usuarios', valor: 'usuarios', icono: 'people-outline' },
@@ -218,6 +270,8 @@ export class DashboardPage implements OnInit {
     private familyService: FamilyService,
     private productService: ProductService,
     private taxService: TaxService,
+    private zoneService: ZoneService,
+    private tableService: TableService,
     private authService: AuthService,
     private alertController: AlertController
   ) {
@@ -265,6 +319,8 @@ export class DashboardPage implements OnInit {
     this.cargarFamilias();
     this.cargarProductos();
     this.cargarImpuestos();
+    this.cargarZonas();
+    this.cargarMesas();
   }
 
   seleccionarOpcion(valor: string) {
@@ -280,6 +336,12 @@ export class DashboardPage implements OnInit {
     }
     if (valor === 'impuestos' && !this.impuestoCargados) {
       this.cargarImpuestos();
+    }
+    if (valor === 'zonas' && !this.zonasCargadas) {
+      this.cargarZonas();
+    }
+    if (valor === 'mesas' && !this.mesasCargadas) {
+      this.cargarMesas();
     }
   }
 
@@ -1010,7 +1072,12 @@ export class DashboardPage implements OnInit {
           const displayId = (index + 1).toString();
           return displayId.includes(termino);
         case 'familia':
-          const family = this.familiasParaProductos.find(f => f.id === product.family_id || f.id?.toString() === product.family_id?.toString());
+          const familyIdStr = product.family_id?.toString() || '';
+          const family = this.familiasParaProductos.find(f => {
+            const fId = f.id?.toString() || '';
+            const fUuid = f.uuid?.toString() || '';
+            return fId === familyIdStr || fUuid === familyIdStr;
+          });
           return family?.name.toLowerCase().includes(termino) || false;
         case 'nombre':
         default:
@@ -1353,13 +1420,33 @@ export class DashboardPage implements OnInit {
     await alert.present();
   }
 
-  obtenerNombreFamilia(familyId: number): string {
-    const family = this.familiasParaProductos.find(f => f.id === familyId || f.id?.toString() === familyId?.toString());
+  obtenerNombreFamilia(familyId: number | string): string {
+    if (!familyId) {
+      return 'Sin familia';
+    }
+    
+    const familyIdStr = familyId.toString();
+    const family = this.familiasParaProductos.find(f => {
+      const fId = f.id?.toString() || '';
+      const fUuid = f.uuid?.toString() || '';
+      return fId === familyIdStr || fUuid === familyIdStr;
+    });
+    
     return family?.name ?? `Familia ${familyId}`;
   }
 
-  obtenerNombreImpuesto(taxId: number): string {
-    const tax = this.taxes.find(t => t.id === taxId || t.id?.toString() === taxId?.toString());
+  obtenerNombreImpuesto(taxId: number | string): string {
+    if (!taxId) {
+      return 'Sin impuesto';
+    }
+    
+    const taxIdStr = taxId.toString();
+    const tax = this.taxes.find(t => {
+      const tId = t.id?.toString() || '';
+      const tUuid = t.uuid?.toString() || '';
+      return tId === taxIdStr || tUuid === taxIdStr;
+    });
+    
     return tax?.name ?? `Impuesto ${taxId}`;
   }
 
@@ -1640,5 +1727,640 @@ export class DashboardPage implements OnInit {
       ]
     });
     await alert.present();
+  }
+
+  // ========== MÉTODOS DE ZONAS ==========
+
+  cargarZonas() {
+    this.zonasLoading = true;
+    const userData = this.authService.getUserData();
+    const userRestaurantId = userData?.restaurant_id;
+
+    console.log('Cargando zonas. Restaurant ID:', userRestaurantId);
+
+    this.zoneService.getZones().subscribe({
+      next: (response: any) => {
+        console.log('Respuesta completa de getZones():', JSON.stringify(response, null, 2));
+        console.log('Tipo de respuesta:', typeof response);
+        console.log('¿Es Array?:', Array.isArray(response));
+        console.log('Propiedades de response:', Object.keys(response || {}));
+        
+        let zones: any[] = [];
+        
+        if (Array.isArray(response)) {
+          zones = response;
+          console.log('Detectado: response es un array');
+        } else if (response?.zones && Array.isArray(response.zones)) {
+          zones = response.zones;
+          console.log('Detectado: response.zones es un array');
+        } else if (response?.Zones && Array.isArray(response.Zones)) {
+          zones = response.Zones;
+          console.log('Detectado: response.Zones es un array');
+        } else if (response?.data?.zones && Array.isArray(response.data.zones)) {
+          zones = response.data.zones;
+          console.log('Detectado: response.data.zones es un array');
+        } else if (response?.data && Array.isArray(response.data)) {
+          zones = response.data;
+          console.log('Detectado: response.data es un array');
+        } else {
+          zones = [];
+          console.warn('No se pudo extraer array de zonas. Response:', response);
+        }
+
+        console.log('Zonas extraídas:', zones);
+        console.log('Cantidad de zonas:', zones.length);
+        if (zones.length > 0) {
+          console.log('Primera zona completa:', JSON.stringify(zones[0], null, 2));
+          console.log('Propiedades de la primera zona:', Object.keys(zones[0]));
+          console.log('database_id de primera zona:', zones[0]?.database_id);
+        }
+
+        if (userRestaurantId) {
+          this.zones = zones.filter(zone => zone.restaurant_id === userRestaurantId);
+        } else {
+          this.zones = zones;
+        }
+
+        console.log('Zonas después de filtrar por restaurant_id:', this.zones.length);
+        if (this.zones.length > 0) {
+          console.log('Primera zona filtrada:', JSON.stringify(this.zones[0], null, 2));
+        }
+
+        this.zonasFiltradas = [...this.zones];
+        this.zonasCargadas = true;
+        this.zonasLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar zonas:', error);
+        this.zones = [];
+        this.zonasFiltradas = [];
+        this.zonasCargadas = false;
+        this.zonasLoading = false;
+      }
+    });
+  }
+
+  buscarZonas() {
+    if (!this.terminoBusquedaZone) {
+      this.zonasFiltradas = [...this.zones];
+      return;
+    }
+
+    const termino = this.terminoBusquedaZone.toLowerCase();
+
+    this.zonasFiltradas = this.zones.filter((zone, index) => {
+      switch (this.filtroActualZone) {
+        case 'id':
+          const displayId = (index + 1).toString();
+          return displayId.includes(termino);
+        case 'nombre':
+        default:
+          return zone.name.toLowerCase().includes(termino);
+      }
+    });
+  }
+
+  filtrarPorTipoZone(tipo: string) {
+    this.filtroActualZone = tipo;
+    this.buscarZonas();
+  }
+
+  limpiarBusquedaZone() {
+    this.terminoBusquedaZone = '';
+    this.zonasFiltradas = [...this.zones];
+  }
+
+  abrirEdicionZone(zone: Zone) {
+    this.zonePanelMode = 'edit';
+    this.editingZone = zone;
+    this.editZoneForm = {
+      name: zone.name,
+    };
+  }
+
+  salirEdicionZone() {
+    this.zonePanelMode = 'create';
+    this.editingZone = null;
+    this.editZoneForm = {
+      name: '',
+    };
+  }
+
+  creatEmptyZoneForm(): ZoneCreateForm {
+    return {
+      name: '',
+    };
+  }
+
+  guardarZonaPanel() {
+    if (this.zonePanelMode === 'edit') {
+      this.guardarEdicionZone();
+      return;
+    }
+
+    if (this.zonePanelMode === 'create') {
+      this.guardarNuevoZone();
+    }
+  }
+
+  async guardarEdicionZone() {
+    if (this.editingZone === null) {
+      return;
+    }
+
+    const payload: any = {
+      name: this.editZoneForm.name.trim() || this.editingZone.name,
+    };
+
+    this.zoneService.updateZone(this.editingZone.id.toString(), payload).subscribe({
+      next: (response: any) => {
+        const zoneIndex = this.zones.findIndex(z => z.id?.toString() === this.editingZone?.id?.toString());
+
+        if (zoneIndex >= 0) {
+          this.zones[zoneIndex] = {
+            ...this.zones[zoneIndex],
+            name: response?.name ?? this.zones[zoneIndex].name,
+            updated_at: response?.updated_at ?? this.zones[zoneIndex].updated_at,
+          };
+          this.zonasFiltradas = [...this.zones];
+        }
+
+        this.mostrarConfirmacionGuardadoZone();
+        this.salirEdicionZone();
+      },
+      error: (error) => {
+        console.error('Error al actualizar:', error);
+        this.mostrarErrorGuardadoZone();
+      }
+    });
+  }
+
+  guardarNuevoZone() {
+    const userData = this.authService.getUserData();
+    const restaurantId = userData?.restaurant_id;
+
+    if (!restaurantId) {
+      console.error('No se pudo obtener el restaurant_id del usuario autenticado');
+      return;
+    }
+
+    if (!this.createZoneForm.name.trim()) {
+      console.error('Faltan campos obligatorios');
+      return;
+    }
+
+    const payload: any = {
+      name: this.createZoneForm.name.trim(),
+      restaurant_id: Number(restaurantId),
+    };
+
+    this.zoneService.createZone(payload).subscribe({
+      next: (response: any) => {
+        const createdZone: Zone = {
+          id: response?.id ?? response?.uuid,
+          uuid: response?.id ?? response?.uuid,
+          name: response?.name ?? this.createZoneForm.name.trim(),
+          restaurant_id: response?.restaurant_id ?? restaurantId,
+        };
+
+        this.zones = [...this.zones, createdZone];
+
+        if (this.terminoBusquedaZone) {
+          this.buscarZonas();
+        } else {
+          this.zonasFiltradas = [...this.zones];
+        }
+
+        this.createZoneForm = this.creatEmptyZoneForm();
+        this.mostrarConfirmacionGuardadoZone();
+      },
+      error: (error) => {
+        console.error('Error al crear:', error);
+        this.mostrarErrorGuardadoZone();
+      }
+    });
+  }
+
+  async confirmarEliminarZone(zone: Zone) {
+    const alert = await this.alertController.create({
+      header: 'Eliminar zona',
+      message: `¿Estás seguro de que quieres eliminar <strong>${zone.name}</strong>?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Eliminar',
+          handler: () => {
+            this.eliminarZone(zone.id);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  eliminarZone(id: string | number) {
+    this.zoneService.deleteZone(id.toString()).subscribe({
+      next: () => {
+        this.cargarZonas();
+      },
+      error: (error) => {
+        console.error('Error al eliminar:', error);
+      }
+    });
+  }
+
+  editarZone(zone: Zone) {
+    this.abrirEdicionZone(zone);
+  }
+
+  async mostrarConfirmacionGuardadoZone() {
+    const alert = await this.alertController.create({
+      header: 'Cambios guardados',
+      message: 'La zona ha sido actualizada correctamente.',
+      buttons: [
+        {
+          text: 'Aceptar',
+          role: 'confirm',
+          cssClass: 'success'
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async mostrarErrorGuardadoZone() {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: 'No se pudieron guardar los cambios. Intenta de nuevo.',
+      buttons: [
+        {
+          text: 'Aceptar',
+          role: 'confirm',
+          cssClass: 'danger'
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  // ========== MÉTODOS DE MESAS ==========
+
+  cargarMesas() {
+    this.mesasLoading = true;
+    const userData = this.authService.getUserData();
+    const userRestaurantId = userData?.restaurant_id;
+
+    // Asegurar que las zonas estén cargadas
+    if (this.zones.length === 0) {
+      this.zoneService.getZones().subscribe({
+        next: (response: any) => {
+          let zones: any[] = [];
+          if (Array.isArray(response)) {
+            zones = response;
+          } else if (response?.zones && Array.isArray(response.zones)) {
+            zones = response.zones;
+          } else if (response?.data && Array.isArray(response.data)) {
+            zones = response.data;
+          }
+          if (userRestaurantId) {
+            this.zones = zones.filter(z => z.restaurant_id === userRestaurantId);
+          } else {
+            this.zones = zones;
+          }
+        }
+      });
+    }
+
+    this.tableService.getTables().subscribe({
+      next: (response: any) => {
+        let tables: any[] = [];
+        if (Array.isArray(response)) {
+          tables = response;
+        } else if (response?.tables && Array.isArray(response.tables)) {
+          tables = response.tables;
+        } else if (response?.data && Array.isArray(response.data)) {
+          tables = response.data;
+        } else {
+          tables = [];
+        }
+
+        if (userRestaurantId) {
+          this.tables = tables.filter(table => table.restaurant_id === userRestaurantId);
+        } else {
+          this.tables = tables;
+        }
+
+        this.mesasFiltradas = [...this.tables];
+        this.mesasCargadas = true;
+        this.mesasLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar mesas:', error);
+        this.tables = [];
+        this.mesasFiltradas = [];
+        this.mesasCargadas = false;
+        this.mesasLoading = false;
+      }
+    });
+  }
+
+  buscarMesas() {
+    if (!this.terminoBusquedaTable) {
+      this.mesasFiltradas = [...this.tables];
+      return;
+    }
+
+    const termino = this.terminoBusquedaTable.toLowerCase();
+
+    this.mesasFiltradas = this.tables.filter((table, index) => {
+      switch (this.filtroActualTable) {
+        case 'id':
+          const displayId = (index + 1).toString();
+          return displayId.includes(termino);
+        case 'zona':
+          const zoneIdStr = table.zone_id?.toString() || '';
+          const zoneIdNum = Number(table.zone_id);
+          const zone = this.zones.find(z => {
+            const zId = z.id?.toString() || '';
+            const zUuid = z.uuid?.toString() || '';
+            const zDbId = z.database_id;
+            return (zDbId && zDbId === zoneIdNum) || 
+                   zId === zoneIdStr || 
+                   zUuid === zoneIdStr;
+          });
+          return zone?.name.toLowerCase().includes(termino) || false;
+        case 'nombre':
+        default:
+          return table.name.toLowerCase().includes(termino);
+      }
+    });
+  }
+
+  filtrarPorTipoTable(tipo: string) {
+    this.filtroActualTable = tipo;
+    this.buscarMesas();
+  }
+
+  limpiarBusquedaTable() {
+    this.terminoBusquedaTable = '';
+    this.mesasFiltradas = [...this.tables];
+  }
+
+  abrirEdicionTable(table: Table) {
+    this.tablePanelMode = 'edit';
+    this.editingTable = table;
+    this.editTableForm = {
+      name: table.name,
+    };
+  }
+
+  salirEdicionTable() {
+    this.tablePanelMode = 'create';
+    this.editingTable = null;
+    this.editTableForm = {
+      name: '',
+    };
+  }
+
+  creatEmptyTableForm(): TableCreateForm {
+    return {
+      name: '',
+      zone_id: '',
+    };
+  }
+
+  guardarMesaPanel() {
+    if (this.tablePanelMode === 'edit') {
+      this.guardarEdicionTable();
+      return;
+    }
+
+    if (this.tablePanelMode === 'create') {
+      this.guardarNuevoTable();
+    }
+  }
+
+  async guardarEdicionTable() {
+    if (this.editingTable === null) {
+      return;
+    }
+
+    const payload: any = {
+      name: this.editTableForm.name.trim() || this.editingTable.name,
+    };
+
+    this.tableService.updateTable(this.editingTable.id.toString(), payload).subscribe({
+      next: (response: any) => {
+        const tableIndex = this.tables.findIndex(t => t.id?.toString() === this.editingTable?.id?.toString());
+
+        if (tableIndex >= 0) {
+          this.tables[tableIndex] = {
+            ...this.tables[tableIndex],
+            name: response?.name ?? this.tables[tableIndex].name,
+            updated_at: response?.updated_at ?? this.tables[tableIndex].updated_at,
+          };
+          this.mesasFiltradas = [...this.tables];
+        }
+
+        this.mostrarConfirmacionGuardadoTable();
+        this.salirEdicionTable();
+      },
+      error: (error) => {
+        console.error('Error al actualizar:', error);
+        this.mostrarErrorGuardadoTable();
+      }
+    });
+  }
+
+  guardarNuevoTable() {
+    const userData = this.authService.getUserData();
+    const restaurantId = userData?.restaurant_id;
+
+    console.log('=== INICIO: guardarNuevoTable ===');
+    console.log('Restaurant ID del usuario:', restaurantId);
+    console.log('Form data:', this.createTableForm);
+    console.log('Zone_id del form:', this.createTableForm.zone_id, 'Tipo:', typeof this.createTableForm.zone_id);
+    console.log('Zonas disponibles:', this.zones);
+
+    if (!restaurantId) {
+      console.error('No se pudo obtener el restaurant_id del usuario autenticado');
+      alert('Error: No se pudo obtener el ID del restaurante.');
+      return;
+    }
+
+    if (!this.createTableForm.name.trim()) {
+      console.error('El nombre de la mesa es obligatorio');
+      alert('Por favor, ingresa un nombre para la mesa.');
+      return;
+    }
+
+    if (!this.createTableForm.zone_id) {
+      console.error('Debe seleccionar una zona');
+      alert('Por favor, selecciona una zona.');
+      return;
+    }
+
+    // Convertir zone_id a número para la comparación
+    const zoneIdNum = Number(this.createTableForm.zone_id);
+    
+    // Verificar que la zona existe buscando por database_id
+    const selectedZone = this.zones.find(z => z.database_id === zoneIdNum);
+
+    console.log('Zone ID numérico:', zoneIdNum);
+    console.log('Zona seleccionada encontrada:', selectedZone);
+
+    if (!selectedZone) {
+      console.error('La zona seleccionada no existe');
+      console.error('Buscando database_id:', zoneIdNum);
+      console.error('IDs disponibles:', this.zones.map(z => ({ name: z.name, database_id: z.database_id })));
+      alert('Por favor, selecciona una zona válida.');
+      return;
+    }
+
+    if (!selectedZone.database_id) {
+      console.error('La zona no tiene database_id:', selectedZone);
+      alert('Error: La zona seleccionada no tiene un ID válido. Por favor, recarga la página.');
+      return;
+    }
+
+    const payload: any = {
+      name: this.createTableForm.name.trim(),
+      zone_id: selectedZone.database_id,
+      restaurant_id: Number(restaurantId),
+    };
+
+    console.log('Creando mesa con payload:', payload);
+    console.log('Tipos:', {
+      zone_id_type: typeof payload.zone_id,
+      zone_id_value: payload.zone_id,
+      restaurant_id_type: typeof payload.restaurant_id,
+      restaurant_id_value: payload.restaurant_id,
+      name_type: typeof payload.name,
+      name_value: payload.name,
+    });
+
+    this.tableService.createTable(payload).subscribe({
+      next: (response: any) => {
+        console.log('Mesa creada exitosamente:', response);
+        const createdTable: Table = {
+          id: response?.id ?? response?.uuid,
+          uuid: response?.id ?? response?.uuid,
+          name: response?.name ?? this.createTableForm.name.trim(),
+          zone_id: response?.zone_id ?? this.createTableForm.zone_id,
+          restaurant_id: response?.restaurant_id ?? restaurantId,
+        };
+
+        this.tables = [...this.tables, createdTable];
+
+        if (this.terminoBusquedaTable) {
+          this.buscarMesas();
+        } else {
+          this.mesasFiltradas = [...this.tables];
+        }
+
+        this.createTableForm = this.creatEmptyTableForm();
+        this.mostrarConfirmacionGuardadoTable();
+      },
+      error: (error) => {
+        console.error('Error al crear mesa:', error);
+        console.error('Error completo:', JSON.stringify(error, null, 2));
+        if (error.error && typeof error.error === 'object') {
+          console.error('Detalles del error:', error.error);
+        }
+        this.mostrarErrorGuardadoTable();
+      }
+    });
+  }
+
+  async confirmarEliminarTable(table: Table) {
+    const alert = await this.alertController.create({
+      header: 'Eliminar mesa',
+      message: `¿Estás seguro de que quieres eliminar <strong>${table.name}</strong>?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Eliminar',
+          handler: () => {
+            this.eliminarTable(table.id);
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  eliminarTable(id: string | number) {
+    this.tableService.deleteTable(id.toString()).subscribe({
+      next: () => {
+        this.cargarMesas();
+      },
+      error: (error) => {
+        console.error('Error al eliminar:', error);
+      }
+    });
+  }
+
+  editarTable(table: Table) {
+    this.abrirEdicionTable(table);
+  }
+
+  async mostrarConfirmacionGuardadoTable() {
+    const alert = await this.alertController.create({
+      header: 'Cambios guardados',
+      message: 'La mesa ha sido actualizada correctamente.',
+      buttons: [
+        {
+          text: 'Aceptar',
+          role: 'confirm',
+          cssClass: 'success'
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async mostrarErrorGuardadoTable() {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: 'No se pudieron guardar los cambios. Intenta de nuevo.',
+      buttons: [
+        {
+          text: 'Aceptar',
+          role: 'confirm',
+          cssClass: 'danger'
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  obtenerNombreZona(zoneId: number | string): string {
+    if (!zoneId) {
+      return 'Sin zona';
+    }
+    
+    const zoneIdStr = zoneId.toString();
+    const zoneIdNum = Number(zoneId);
+    
+    const zone = this.zones.find(z => {
+      const zId = z.id?.toString() || '';
+      const zUuid = z.uuid?.toString() || '';
+      const zDbId = z.database_id;
+      
+      // Buscar por database_id (num\u00e9rico), id (UUID) o uuid
+      return (zDbId && zDbId === zoneIdNum) || 
+             zId === zoneIdStr || 
+             zUuid === zoneIdStr;
+    });
+    
+    return zone?.name ?? `Zona ${zoneId}`;
   }
 }
