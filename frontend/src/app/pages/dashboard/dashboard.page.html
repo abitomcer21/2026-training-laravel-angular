@@ -471,15 +471,55 @@
 
   <!-- ========== PRODUCTOS ========== -->
   <div *ngIf="opcionSeleccionada === 'productos'">
-    <div class="dashboard-grid">
-      <div class="users-panel users-panel-main">
-        <!-- Header profesional -->
-        <div class="users-header">
-          <div>
-            <h2>Gestión de productos</h2>
-            <p class="header-description">Administra el catálogo de productos, precios y disponibilidad.</p>
+    <div class="products-layout">
+      <!-- Aside izquierdo: Filtro por familias -->
+      <aside class="family-filter-sidebar">
+        <div class="sidebar-header">
+          <ion-icon name="albums-outline" class="sidebar-icon"></ion-icon>
+          <h3>Familias</h3>
+        </div>
+        
+        <div class="sidebar-content">
+          <button 
+            class="family-filter-item"
+            [class.active]="familiaSeleccionadaFiltro === null"
+            (click)="filtrarPorFamilia(null)">
+            <ion-icon name="grid-outline" class="filter-icon"></ion-icon>
+            <span class="filter-name">Todas las familias</span>
+            <span class="filter-count">{{ products.length }}</span>
+          </button>
+
+          <div class="family-divider"></div>
+
+          <button 
+            *ngFor="let family of familiasParaProductos"
+            class="family-filter-item"
+            [class.active]="familiaSeleccionadaFiltro === family.id"
+            (click)="filtrarPorFamilia(family.id)">
+            <ion-icon name="pricetag-outline" class="filter-icon"></ion-icon>
+            <span class="filter-name">{{ family.name }}</span>
+            <span class="filter-count">{{ contarProductosPorFamilia(family.id) }}</span>
+          </button>
+
+          <div *ngIf="familiasParaProductos.length === 0" class="sidebar-empty">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <p>No hay familias disponibles</p>
+            <small>Crea familias primero</small>
           </div>
         </div>
+      </aside>
+
+      <!-- Contenido principal -->
+      <div class="products-main-content">
+        <div class="dashboard-grid">
+          <div class="users-panel users-panel-main">
+            <!-- Header profesional -->
+            <div class="users-header">
+              <div>
+                <h2>Gestión de productos</h2>
+                <p class="header-description">Administra el catálogo de productos, precios y disponibilidad.</p>
+              </div>
+            </div>
 
         <!-- Barra de búsqueda y filtros -->
         <div class="search-bar">
@@ -738,6 +778,8 @@
         </ng-template>
       </aside>
     </div>
+      </div> <!-- .products-main-content -->
+    </div> <!-- .products-layout -->
   </div>
 
   <!-- ========== IMPUESTOS ========== -->
@@ -1069,8 +1111,51 @@
 
   <!-- ========== MESAS ========== -->
   <div *ngIf="opcionSeleccionada === 'mesas'">
-    <div class="dashboard-grid">
-      <div class="users-panel users-panel-main">
+    <div class="tables-layout">
+      <!-- Aside lateral: Filtro por zonas -->
+      <aside class="zone-filter-sidebar">
+        <div class="sidebar-header">
+          <ion-icon name="map-outline" class="sidebar-icon"></ion-icon>
+          <h3>Filtrar por zona</h3>
+        </div>
+        
+        <div class="sidebar-content">
+          <!-- Todas las zonas -->
+          <button 
+            class="family-filter-item"
+            [class.active]="zonaSeleccionadaFiltro === null"
+            (click)="filtrarPorZona(null)">
+            <ion-icon name="grid-outline" class="filter-icon"></ion-icon>
+            <span class="filter-name">Todas las zonas</span>
+            <span class="filter-count">{{ tables.length }}</span>
+          </button>
+
+          <div class="family-divider"></div>
+
+          <!-- Lista de zonas -->
+          <button 
+            *ngFor="let zone of zones"
+            class="family-filter-item"
+            [class.active]="zonaSeleccionadaFiltro === (zone.database_id || zone.id)"
+            (click)="filtrarPorZona(zone.database_id || zone.id)">
+            <ion-icon name="location-outline" class="filter-icon"></ion-icon>
+            <span class="filter-name">{{ zone.name }}</span>
+            <span class="filter-count">{{ contarMesasPorZona(zone.database_id || zone.id) }}</span>
+          </button>
+
+          <!-- Estado vacío -->
+          <div *ngIf="zones.length === 0" class="sidebar-empty">
+            <ion-icon name="map-outline"></ion-icon>
+            <p>No hay zonas</p>
+            <small>Crea zonas primero</small>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Contenido principal -->
+      <div class="tables-main-content">
+        <div class="dashboard-grid">
+          <div class="users-panel users-panel-main">
         <!-- Header profesional -->
         <div class="users-header">
           <div>
@@ -1250,6 +1335,8 @@
         </ng-template>
       </aside>
     </div>
+    </div> <!-- Cierra tables-main-content -->
+    </div> <!-- Cierra tables-layout -->
   </div>
 
 </ion-content>

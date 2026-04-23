@@ -178,6 +178,7 @@ export class DashboardPage implements OnInit {
   productosFiltrados: Product[] = [];
   productosCargados: boolean = false;
   productPanelMode: 'edit' | 'create' = 'create';
+  familiaSeleccionadaFiltro: string | number | null = null;
   editingProduct: Product | null = null;
   editProductForm: ProductEditForm = {
     name: '',
@@ -233,6 +234,7 @@ export class DashboardPage implements OnInit {
   mesasFiltradas: Table[] = [];
   mesasCargadas: boolean = false;
   tablePanelMode: 'edit' | 'create' = 'create';
+  zonaSeleccionadaFiltro: string | number | null = null;
   editingTable: Table | null = null;
   editTableForm: TableEditForm = {
     name: '',
@@ -1093,7 +1095,62 @@ export class DashboardPage implements OnInit {
 
   limpiarBusquedaProduct() {
     this.terminoBusquedaProduct = '';
+    this.familiaSeleccionadaFiltro = null;
     this.productosFiltrados = [...this.products];
+  }
+
+  filtrarPorFamilia(familyId: string | number | null) {
+    this.familiaSeleccionadaFiltro = familyId;
+    
+    if (familyId === null) {
+      // Mostrar todos los productos
+      this.productosFiltrados = [...this.products];
+    } else {
+      // Filtrar por familia seleccionada
+      const familyIdStr = familyId.toString();
+      this.productosFiltrados = this.products.filter(product => {
+        const productFamilyId = product.family_id?.toString() || '';
+        return productFamilyId === familyIdStr;
+      });
+    }
+    
+    // Limpiar búsqueda de texto
+    this.terminoBusquedaProduct = '';
+  }
+
+  contarProductosPorFamilia(familyId: string | number): number {
+    const familyIdStr = familyId.toString();
+    return this.products.filter(product => {
+      const productFamilyId = product.family_id?.toString() || '';
+      return productFamilyId === familyIdStr;
+    }).length;
+  }
+
+  filtrarPorZona(zoneId: string | number | null) {
+    this.zonaSeleccionadaFiltro = zoneId;
+    
+    if (zoneId === null) {
+      // Mostrar todas las mesas
+      this.mesasFiltradas = [...this.tables];
+    } else {
+      // Filtrar por zona seleccionada
+      const zoneIdNum = typeof zoneId === 'string' ? parseInt(zoneId, 10) : zoneId;
+      this.mesasFiltradas = this.tables.filter(table => {
+        const tableZoneId = typeof table.zone_id === 'string' ? parseInt(table.zone_id, 10) : table.zone_id;
+        return tableZoneId === zoneIdNum;
+      });
+    }
+    
+    // Limpiar búsqueda de texto
+    this.terminoBusquedaTable = '';
+  }
+
+  contarMesasPorZona(zoneId: string | number): number {
+    const zoneIdNum = typeof zoneId === 'string' ? parseInt(zoneId, 10) : zoneId;
+    return this.tables.filter(table => {
+      const tableZoneId = typeof table.zone_id === 'string' ? parseInt(table.zone_id, 10) : table.zone_id;
+      return tableZoneId === zoneIdNum;
+    }).length;
   }
 
   abrirEdicionProduct(product: Product) {
@@ -2107,6 +2164,7 @@ export class DashboardPage implements OnInit {
 
   limpiarBusquedaTable() {
     this.terminoBusquedaTable = '';
+    this.zonaSeleccionadaFiltro = null;
     this.mesasFiltradas = [...this.tables];
   }
 
