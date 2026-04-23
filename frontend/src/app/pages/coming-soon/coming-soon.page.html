@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar class="main-toolbar">
+    <ion-title>Yurest TPV</ion-title>
+    <ion-button slot="end" (click)="cerrarSesion()" fill="clear" color="light">
+      <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="coming-soon-container">
+    <div class="coming-soon-content">
+      <div class="icon-wrapper">
+        <ion-icon name="construct-outline"></ion-icon>
+      </div>
+      
+      <h1>Proximamente</h1>
+      
+      <p class="welcome-message">
+        Hola <strong>{{ userName }}</strong>
+      </p>
+      
+      <p class="description">
+        El módulo para <strong>{{ userRole }}</strong> está en desarrollo.
+      </p>
+      
+      <div class="info-box">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <p>Esta funcionalidad estará disponible próximamente. Por el momento, solo los administradores tienen acceso al panel de gestión.</p>
+      </div>
+      
+      <ion-button (click)="cerrarSesion()" expand="block" class="logout-btn">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        Cerrar sesión
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

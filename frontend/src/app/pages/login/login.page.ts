@@ -55,10 +55,12 @@ export class LoginPage {
         localStorage.setItem('isLoggedIn', 'true');
         
         const role = response.user.role;
-        if (role === 'admin' || role === 'supervisor') {
+        if (role === 'admin') {
+          // Solo administradores van al dashboard
           this.router.navigate(['/dashboard']);
         } else {
-          this.router.navigate(['/tpv/layout']);
+          // Otros roles (camarero, chef, supervisor) van a página en desarrollo
+          this.router.navigate(['/coming-soon']);
         }
       },
       error: (error) => {

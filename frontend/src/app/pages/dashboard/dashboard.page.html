@@ -47,7 +47,80 @@
       </div>
     </div>
 
-    <div class="dashboard-grid">
+    <!-- Layout con filtro lateral por rol -->
+    <div class="users-layout">
+      <!-- Aside lateral: Filtro por roles -->
+      <aside class="role-filter-sidebar">
+        <div class="sidebar-header">
+          <ion-icon name="people-outline" class="sidebar-icon"></ion-icon>
+          <h3>Filtrar por rol</h3>
+        </div>
+        
+        <div class="sidebar-content">
+          <!-- Todos los roles -->
+          <button 
+            class="family-filter-item"
+            [class.active]="rolSeleccionadoFiltro === null"
+            (click)="filtrarPorRol(null)">
+            <ion-icon name="grid-outline" class="filter-icon"></ion-icon>
+            <span class="filter-name">Todos los usuarios</span>
+            <span class="filter-count">{{ users.length }}</span>
+          </button>
+
+          <div class="family-divider"></div>
+
+          <!-- Admin -->
+          <button 
+            class="family-filter-item"
+            [class.active]="rolSeleccionadoFiltro === 'admin'"
+            (click)="filtrarPorRol('admin')">
+            <ion-icon name="shield-checkmark-outline" class="filter-icon"></ion-icon>
+            <span class="filter-name">Administradores</span>
+            <span class="filter-count">{{ contarUsuariosPorRol('admin') }}</span>
+          </button>
+
+          <!-- Supervisor -->
+          <button 
+            class="family-filter-item"
+            [class.active]="rolSeleccionadoFiltro === 'supervisor'"
+            (click)="filtrarPorRol('supervisor')">
+            <ion-icon name="person-outline" class="filter-icon"></ion-icon>
+            <span class="filter-name">Supervisores</span>
+            <span class="filter-count">{{ contarUsuariosPorRol('supervisor') }}</span>
+          </button>
+
+          <!-- Camarero -->
+          <button 
+            class="family-filter-item"
+            [class.active]="rolSeleccionadoFiltro === 'camarero'"
+            (click)="filtrarPorRol('camarero')">
+            <ion-icon name="restaurant-outline" class="filter-icon"></ion-icon>
+            <span class="filter-name">Camareros</span>
+            <span class="filter-count">{{ contarUsuariosPorRol('camarero') }}</span>
+          </button>
+
+          <!-- Chef -->
+          <button 
+            class="family-filter-item"
+            [class.active]="rolSeleccionadoFiltro === 'chef'"
+            (click)="filtrarPorRol('chef')">
+            <ion-icon name="flame-outline" class="filter-icon"></ion-icon>
+            <span class="filter-name">Chefs</span>
+            <span class="filter-count">{{ contarUsuariosPorRol('chef') }}</span>
+          </button>
+
+          <!-- Estado vacío -->
+          <div *ngIf="users.length === 0" class="sidebar-empty">
+            <ion-icon name="people-outline"></ion-icon>
+            <p>No hay usuarios</p>
+            <small>Crea usuarios primero</small>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Contenido principal -->
+      <div class="users-main-content">
+        <div class="dashboard-grid">
       <div class="users-panel users-panel-main">
         <!-- Header profesional -->
         <div class="users-header">
@@ -275,7 +348,8 @@
         </ng-template>
       </aside>
     </div>
-
+    </div> <!-- Cierra users-main-content -->
+    </div> <!-- Cierra users-layout -->
   </div>
 
   <!-- ========== FAMILIAS ========== -->

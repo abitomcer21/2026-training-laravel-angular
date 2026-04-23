@@ -158,6 +158,7 @@ export class DashboardPage implements OnInit {
   // Datos
   users: User[] = [];
   usuariosFiltrados: User[] = [];
+  rolSeleccionadoFiltro: string | null = null;
 
   // Familias
   families: Family[] = [];
@@ -419,6 +420,7 @@ export class DashboardPage implements OnInit {
 
   limpiarBusqueda() {
     this.terminoBusqueda = '';
+    this.rolSeleccionadoFiltro = null;
     this.usuariosFiltrados = [...this.users];
   }
 
@@ -1151,6 +1153,25 @@ export class DashboardPage implements OnInit {
       const tableZoneId = typeof table.zone_id === 'string' ? parseInt(table.zone_id, 10) : table.zone_id;
       return tableZoneId === zoneIdNum;
     }).length;
+  }
+
+  filtrarPorRol(role: string | null) {
+    this.rolSeleccionadoFiltro = role;
+    
+    if (role === null) {
+      // Mostrar todos los usuarios
+      this.usuariosFiltrados = [...this.users];
+    } else {
+      // Filtrar por rol seleccionado
+      this.usuariosFiltrados = this.users.filter(user => user.role === role);
+    }
+    
+    // Limpiar búsqueda de texto
+    this.terminoBusqueda = '';
+  }
+
+  contarUsuariosPorRol(role: string): number {
+    return this.users.filter(user => user.role === role).length;
   }
 
   abrirEdicionProduct(product: Product) {
