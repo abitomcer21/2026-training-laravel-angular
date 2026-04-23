@@ -2262,10 +2262,8 @@ export class DashboardPage implements OnInit {
       return;
     }
 
-    // Convertir zone_id a número para la comparación
     const zoneIdNum = Number(this.createTableForm.zone_id);
     
-    // Verificar que la zona existe buscando por database_id
     const selectedZone = this.zones.find(z => z.database_id === zoneIdNum);
 
     console.log('Zone ID numérico:', zoneIdNum);
@@ -2413,7 +2411,6 @@ export class DashboardPage implements OnInit {
       const zUuid = z.uuid?.toString() || '';
       const zDbId = z.database_id;
       
-      // Buscar por database_id (num\u00e9rico), id (UUID) o uuid
       return (zDbId && zDbId === zoneIdNum) || 
              zId === zoneIdStr || 
              zUuid === zoneIdStr;
