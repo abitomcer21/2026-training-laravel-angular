@@ -1851,6 +1851,7 @@ export class DashboardPage implements OnInit {
           console.log('Primera zona completa:', JSON.stringify(zones[0], null, 2));
           console.log('Propiedades de la primera zona:', Object.keys(zones[0]));
           console.log('database_id de primera zona:', zones[0]?.database_id);
+          console.log('VERIFICACIÓN: ¿Tiene database_id?', 'database_id' in zones[0], typeof zones[0]?.database_id);
         }
 
         if (userRestaurantId) {
@@ -1862,6 +1863,7 @@ export class DashboardPage implements OnInit {
         console.log('Zonas después de filtrar por restaurant_id:', this.zones.length);
         if (this.zones.length > 0) {
           console.log('Primera zona filtrada:', JSON.stringify(this.zones[0], null, 2));
+          console.log('database_id de primera zona filtrada:', this.zones[0]?.database_id);
         }
 
         this.zonasFiltradas = [...this.zones];
@@ -1994,12 +1996,17 @@ export class DashboardPage implements OnInit {
 
     this.zoneService.createZone(payload).subscribe({
       next: (response: any) => {
+        console.log('Respuesta de createZone:', response);
+        
         const createdZone: Zone = {
           id: response?.id ?? response?.uuid,
           uuid: response?.id ?? response?.uuid,
+          database_id: response?.database_id,
           name: response?.name ?? this.createZoneForm.name.trim(),
           restaurant_id: response?.restaurant_id ?? restaurantId,
         };
+
+        console.log('Zona creada con database_id:', createdZone.database_id);
 
         this.zones = [...this.zones, createdZone];
 
@@ -2283,30 +2290,40 @@ export class DashboardPage implements OnInit {
       return;
     }
 
-    const zoneIdNum = Number(this.createTableForm.zone_id);
-    
-    const selectedZone = this.zones.find(z => z.database_id === zoneIdNum);
+    // El formulario puede contener database_id (número como string) o UUID
+    // Buscar por ambos para encontrar la zona
+    const zoneIdValue = this.createTableForm.zone_id;
+    const selectedZone = this.zones.find(z => 
+      z.id === zoneIdValue || 
+      z.database_id?.toString() === zoneIdValue.toString() ||
+      z.uuid === zoneIdValue
+    );
 
-    console.log('Zone ID numérico:', zoneIdNum);
+    console.log('Zone ID (UUID) del formulario:', this.createTableForm.zone_id);
     console.log('Zona seleccionada encontrada:', selectedZone);
 
     if (!selectedZone) {
       console.error('La zona seleccionada no existe');
-      console.error('Buscando database_id:', zoneIdNum);
-      console.error('IDs disponibles:', this.zones.map(z => ({ name: z.name, database_id: z.database_id })));
+      console.error('Buscando zone id:', this.createTableForm.zone_id);
+      console.error('IDs disponibles:', this.zones.map(z => ({ name: z.name, id: z.id, database_id: z.database_id })));
       alert('Por favor, selecciona una zona válida.');
       return;
     }
 
-    if (!selectedZone.database_id) {
-      console.error('La zona no tiene database_id:', selectedZone);
+    // El backend espera zone_id como integer (database_id)
+    // Intentar usar database_id si está disponible, sino usar el id
+    const zoneIdForBackend = selectedZone.database_id ?? selectedZone.id;
+    
+    if (!zoneIdForBackend) {
+      console.error('La zona no tiene database_id ni id:', selectedZone);
       alert('Error: La zona seleccionada no tiene un ID válido. Por favor, recarga la página.');
       return;
     }
 
+    // Usar el UUID de la zona directamente (el backend acepta string o number)
     const payload: any = {
       name: this.createTableForm.name.trim(),
-      zone_id: selectedZone.database_id,
+      zone_id: zoneIdForBackend,
       restaurant_id: Number(restaurantId),
     };
 

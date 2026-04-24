@@ -21,6 +21,9 @@ class CreateZones
 
         $this->zonesRepository->save($zone);
 
-        return CreateZonesResponse::create($zone);
+        // Obtener el database_id después de guardar
+        $savedZoneData = $this->zonesRepository->findByIdWithDatabaseId($zone->id()->value());
+
+        return CreateZonesResponse::create($zone, $savedZoneData['database_id'] ?? null);
     }
 }

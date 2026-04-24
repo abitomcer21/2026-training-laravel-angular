@@ -47,6 +47,26 @@ class EloquentZonesRepository implements ZonesRepositoryInterface
         );
     }
 
+    public function findByIdWithDatabaseId(string $id): ?array
+    {
+        $eloquentZone = $this->model->newQuery()->where('uuid', $id)->first();
+
+        if (! $eloquentZone) {
+            return null;
+        }
+
+        return [
+            'database_id' => $eloquentZone->id,
+            'zone' => Zones::fromPersistence(
+                $eloquentZone->uuid,
+                $eloquentZone->name,
+                $eloquentZone->restaurant_id,
+                $eloquentZone->created_at->toDateTimeImmutable(),
+                $eloquentZone->updated_at->toDateTimeImmutable(),
+            ),
+        ];
+    }
+
     public function all(): array
     {
         return $this->model->newQuery()->get()->map(
