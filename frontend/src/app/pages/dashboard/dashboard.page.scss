@@ -653,12 +653,12 @@ ion-title {
 }
 
 ion-content {
-  --background: linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%);
+  --background: linear-gradient(180deg, #e3ecf5 0%, #d4e1f0 100%);
   --overflow: hidden;
 }
 
 ion-content::part(background) {
-  background: linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%);
+  background: linear-gradient(180deg, #e3ecf5 0%, #d4e1f0 100%);
 }
 
 ion-content .ion-padding {
@@ -730,6 +730,11 @@ ion-content .ion-padding {
   .metric-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .users-layout {
+    height: calc(100vh - 550px);
+    min-height: 350px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -743,6 +748,18 @@ ion-content .ion-padding {
 
   .users-panel {
     padding: 18px;
+  }
+
+  .users-layout {
+    height: auto;
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 1024px) {
+  ion-content > div > .dashboard-grid {
+    height: auto;
+    min-height: 500px;
   }
 }
 
@@ -828,8 +845,14 @@ ion-content .ion-padding {
   grid-template-columns: minmax(0, 1.9fr) minmax(320px, 0.95fr);
   gap: 20px;
   align-items: stretch;
-  height: calc(100dvh - 360px);
+  height: 100%;
   min-height: 0;
+}
+
+/* Altura fija para pantallas simples sin layout wrapper (familias, impuestos, zonas) */
+ion-content > div > .dashboard-grid {
+  height: calc(100vh - 250px);
+  min-height: 550px;
 }
 
 .users-panel-main,
@@ -868,7 +891,7 @@ ion-content .ion-padding {
   box-shadow: 0 18px 38px rgba(15, 23, 42, 0.06);
   backdrop-filter: blur(10px);
   height: auto;
-  max-height: calc(100dvh - 360px);
+  max-height: 100%;
   overflow-y: auto;
 }
 
@@ -1152,7 +1175,8 @@ select.editor-input {
 }
 
 @media (max-width: 1200px) {
-  .dashboard-grid {
+  .dashboard-grid,
+  ion-content > div > .dashboard-grid {
     grid-template-columns: 1fr;
     height: auto;
     align-items: start;
@@ -1191,8 +1215,8 @@ select.editor-input {
 .products-layout {
   display: flex;
   gap: 24px;
-  height: calc(100vh - 200px);
-  min-height: 600px;
+  height: calc(100vh - 250px);
+  min-height: 550px;
 }
 
 .family-filter-sidebar {
@@ -1375,6 +1399,10 @@ select.editor-input {
   .products-main-content .dashboard-grid {
     height: auto;
   }
+
+  .products-main-content .editor-panel {
+    max-height: none;
+  }
 }
 
 /* ========================================== */
@@ -1384,8 +1412,8 @@ select.editor-input {
 .tables-layout {
   display: flex;
   gap: 24px;
-  height: calc(100vh - 200px);
-  min-height: 600px;
+  height: calc(100vh - 250px);
+  min-height: 550px;
 }
 
 .zone-filter-sidebar {
@@ -1441,6 +1469,10 @@ select.editor-input {
   .tables-main-content .dashboard-grid {
     height: auto;
   }
+
+  .tables-main-content .editor-panel {
+    max-height: none;
+  }
 }
 
 /* ========================================== */
@@ -1450,7 +1482,8 @@ select.editor-input {
 .users-layout {
   display: flex;
   gap: 24px;
-  min-height: 600px;
+  height: calc(100vh - 360px);
+  min-height: 450px;
 }
 
 .role-filter-sidebar {
@@ -1463,7 +1496,6 @@ select.editor-input {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  height: fit-content;
 }
 
 .users-main-content {
@@ -1473,6 +1505,14 @@ select.editor-input {
 
 .users-main-content .dashboard-grid {
   height: 100%;
+}
+
+.users-main-content .editor-panel {
+  height: auto;
+  max-height: calc(100vh - 300px);
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
 }
 
 /* Responsive para usuarios */
@@ -1499,5 +1539,9 @@ select.editor-input {
 
   .users-main-content .dashboard-grid {
     height: auto;
+  }
+
+  .users-main-content .editor-panel {
+    max-height: none;
   }
 }
