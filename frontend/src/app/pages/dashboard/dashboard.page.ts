@@ -22,6 +22,7 @@ import { ProductService, Product } from '../../services/api/product.service';
 import { TaxService, Tax } from '../../services/api/tax.service';
 import { ZoneService, Zone } from '../../services/api/zone.service';
 import { TableService, Table } from '../../services/api/table.service';
+import { RestaurantService, Restaurant } from '../../services/api/restaurant.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 interface MenuItem {
@@ -126,6 +127,7 @@ interface TableCreateForm {
 })
 export class DashboardPage implements OnInit {
   opcionSeleccionada: string = 'usuarios';
+  restaurantName: string = 'Yurest TPV';
   
   // Loading indicators por sección
   usuariosLoading: boolean = false;
@@ -275,6 +277,7 @@ export class DashboardPage implements OnInit {
     private taxService: TaxService,
     private zoneService: ZoneService,
     private tableService: TableService,
+    private restaurantService: RestaurantService,
     private authService: AuthService,
     private alertController: AlertController
   ) {
@@ -317,6 +320,9 @@ export class DashboardPage implements OnInit {
     this.createFamilyForm = this.creatEmptyFamilyForm();
     this.createProductForm = this.creatEmptyProductForm();
     
+    // Cargar nombre del restaurante
+    this.cargarRestaurantName();
+    
     // Cargar todos los datos del restaurante automáticamente
     this.cargarUsuarios();
     this.cargarFamilias();
@@ -324,6 +330,18 @@ export class DashboardPage implements OnInit {
     this.cargarImpuestos();
     this.cargarZonas();
     this.cargarMesas();
+  }
+
+  cargarRestaurantName() {
+    this.restaurantService.getMyRestaurant().subscribe({
+      next: (response: any) => {
+        this.restaurantName = response?.name || 'Yurest TPV';
+      },
+      error: (error) => {
+        console.error('Error al cargar nombre del restaurante:', error);
+        this.restaurantName = 'Yurest TPV';
+      }
+    });
   }
 
   seleccionarOpcion(valor: string) {

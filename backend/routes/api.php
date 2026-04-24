@@ -58,6 +58,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/family/{id}', FamilyPutController::class);
     Route::delete('/family/{id}', FamilyDeleteController::class);
     
+    // Restaurant management (protegido)
+    Route::get('/my-restaurant', GetMyRestaurantController::class);
+    
     // Logout
     Route::post('/logout', LogoutController::class);
     Route::get('/auth/me', MeController::class);
@@ -90,6 +93,5 @@ Route::put('/tables/{id}', TablesPutController::class);
 Route::delete('/tables/{id}', TablesDeleteController::class);
 
 Route::post('/restaurants', RestaurantsPostController::class);
-Route::get('/my-restaurant', GetMyRestaurantController::class);
 
 Route::post('/login', LoginController::class);
