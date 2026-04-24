@@ -19,7 +19,7 @@ class GetProductByFamilyResponse
             'active' => $product->status()->isActive(),
             'restaurant_id' => $product->restaurantId(),
             'tax_id' => $product->taxId(),
-            'Family_id' => $product->FamilyId(),
+            'Family_id' => $product->FamilyId()->value(),
             'created_at' => $product->createdAt()->format(\DateTimeInterface::ATOM),
             'updated_at' => $product->updatedAt()->format(\DateTimeInterface::ATOM),
         ], $products);

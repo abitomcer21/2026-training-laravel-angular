@@ -18,7 +18,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
             ['uuid' => $product->id()->value()],
             [
                 'restaurant_id' => $product->restaurantId(),
-                'family_id' => $product->familyId(),
+                'family_id' => $product->familyId()->value(),
                 'tax_id' => $product->taxId(),
                 'name' => $product->name()->value(),
                 'price' => $product->price()->value(),
@@ -75,7 +75,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
         );
     }
 
-    public function findByFamilyId(int $familyId): array
+    public function findByFamilyId(string $familyId): array
     {
         return $this->model->newQuery()
             ->where('family_id', $familyId)

@@ -8,7 +8,7 @@ final readonly class UpdateProductResponse
 {
     public function __construct(
         public string $id,
-        public int $familyId,
+        public string $familyId,
         public int $taxId,
         public string $name,
         public int $price,
@@ -24,7 +24,7 @@ final readonly class UpdateProductResponse
     {
         return new self(
             id: $product->id()->value(),
-            familyId: $product->familyId(),
+            familyId: $product->familyId()->value(),
             taxId: $product->taxId(),
             name: $product->name()->value(),
             price: $product->price()->value(),

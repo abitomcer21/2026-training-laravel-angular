@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->nullable()->unique();
             $table->foreignId('restaurant_id')->constrained('restaurants');
-            $table->foreignId('family_id')->constrained('families');
+            $table->uuid('family_id');
+            $table->foreign('family_id')->references('uuid')->on('families');
             $table->foreignId('tax_id')->constrained('taxes');
             $table->string('image_src');
             $table->string('name');

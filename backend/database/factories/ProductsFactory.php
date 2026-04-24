@@ -55,10 +55,10 @@ class ProductsFactory extends Factory
         ]);
     }
 
-    public function forFamily(EloquentFamily|int $Family): static
+    public function forFamily(EloquentFamily|string $Family): static
     {
         return $this->state(fn (array $attributes) => [
-            'Family_id' => $Family instanceof EloquentFamily ? $Family->id : $Family,
+            'Family_id' => $Family instanceof EloquentFamily ? $Family->uuid : $Family,
         ]);
     }
 

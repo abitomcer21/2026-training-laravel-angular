@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
   IonButton, IonIcon, IonLabel, IonSpinner, IonAvatar,
@@ -68,7 +69,7 @@ interface FamilyCreateForm {
 
 interface ProductEditForm {
   name: string;
-  family_id: number;
+  family_id: string;
   tax_id: number;
   price: number;
   stock: number;
@@ -77,7 +78,7 @@ interface ProductEditForm {
 
 interface ProductCreateForm {
   name: string;
-  family_id: number;
+  family_id: string;
   tax_id: number;
   price: number;
   stock: number;
@@ -181,11 +182,11 @@ export class DashboardPage implements OnInit {
   productosFiltrados: Product[] = [];
   productosCargados: boolean = false;
   productPanelMode: 'edit' | 'create' = 'create';
-  familiaSeleccionadaFiltro: string | number | null = null;
+  familiaSeleccionadaFiltro: string | null = null;
   editingProduct: Product | null = null;
   editProductForm: ProductEditForm = {
     name: '',
-    family_id: 0,
+    family_id: '',
     tax_id: 0,
     price: 0,
     stock: 0,
@@ -193,7 +194,7 @@ export class DashboardPage implements OnInit {
   };
   createProductForm: ProductCreateForm = {
     name: '',
-    family_id: 0,
+    family_id: '',
     tax_id: 0,
     price: 0,
     stock: 0,
@@ -323,13 +324,9 @@ export class DashboardPage implements OnInit {
     // Cargar nombre del restaurante
     this.cargarRestaurantName();
     
-    // Cargar todos los datos del restaurante automáticamente
+    // OPTIMIZACIÓN: Lazy loading - solo cargar la sección inicial (usuarios)
+    // El resto se cargará bajo demanda cuando el usuario navegue a esa sección
     this.cargarUsuarios();
-    this.cargarFamilias();
-    this.cargarProductos();
-    this.cargarImpuestos();
-    this.cargarZonas();
-    this.cargarMesas();
   }
 
   cargarRestaurantName() {
@@ -690,34 +687,36 @@ export class DashboardPage implements OnInit {
     const userData = this.authService.getUserData();
     const userRestaurantId = userData?.restaurant_id;
 
-    console.log('Cargando familias. Restaurant ID:', userRestaurantId);
-
     this.familyService.getFamilies().subscribe({
       next: (response: any) => {
-        console.log('Respuesta de getFamilies():', response);
         let families: any[] = [];
         if (Array.isArray(response)) {
           families = response;
-          console.log('Detectado: response es un array');
         } else if (response?.family && Array.isArray(response.family)) {
           families = response.family;
-          console.log('Detectado: response.family es un array');
         } else if (response?.Family && Array.isArray(response.Family)) {
           families = response.Family;
-          console.log('Detectado: response.Family es un array');
         } else if (response?.data && Array.isArray(response.data)) {
           families = response.data;
-          console.log('Detectado: response.data es un array');
         } else {
           families = [];
-          console.warn('No se pudo extraer array de familias');
         }
 
-        console.log('Familias antes de filtrar:', families);
+        // Mapear familias para asegurar que tengan database_id
+        families = families.map(f => {
+          // Si no tiene database_id pero el id es numérico, usarlo como database_id
+          if (!f.database_id && f.id && !isNaN(Number(f.id))) {
+            return { ...f, database_id: Number(f.id) };
+          }
+          return f;
+        });
+
+        console.log('Familias cargadas en cargarFamilias:', families);
+        console.log('Primera familia completa:', families[0]);
+        console.log('Todas las propiedades de primera familia:', Object.keys(families[0]));
 
         if (userRestaurantId) {
           this.families = families.filter(family => family.restaurant_id === userRestaurantId);
-          console.log('Familias después de filtrar por restaurant_id:', this.families);
         } else {
           this.families = families;
         }
@@ -726,7 +725,6 @@ export class DashboardPage implements OnInit {
         this.familiasParaProductos = [...this.families];
         this.familiasCargadas = true;
         this.familiasLoading = false;
-        console.log('familiasParaProductos actualizado:', this.familiasParaProductos);
       },
       error: (error) => {
         console.error('Error al cargar familias:', error);
@@ -868,7 +866,6 @@ export class DashboardPage implements OnInit {
       next: (response: any) => {
         const createdFamily: Family = {
           id: response?.id ?? response?.uuid,
-          uuid: response?.id ?? response?.uuid,
           name: response?.name ?? this.createFamilyForm.name.trim(),
           active: response?.active ?? this.createFamilyForm.active,
           restaurant_id: response?.restaurant_id ?? restaurantId,
@@ -993,9 +990,35 @@ export class DashboardPage implements OnInit {
   }
 
   cerrarSesion() {
+    // Limpiar localStorage
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
+    
+    // Limpiar todos los arrays del componente
+    this.users = [];
+    this.usuariosFiltrados = [];
+    this.families = [];
+    this.familiasFiltradas = [];
+    this.familiasParaProductos = [];
+    this.products = [];
+    this.productosFiltrados = [];
+    this.taxes = [];
+    this.impuestosFiltrados = [];
+    this.zones = [];
+    this.zonasFiltradas = [];
+    this.tables = [];
+    this.mesasFiltradas = [];
+    
+    // Resetear flags de carga
+    this.usuariosCargados = false;
+    this.familiasCargadas = false;
+    this.productosCargados = false;
+    this.impuestoCargados = false;
+    this.zonasCargadas = false;
+    this.mesasCargadas = false;
+    
+    // Redirigir a login
     window.location.href = '/login';
   }
 
@@ -1006,48 +1029,90 @@ export class DashboardPage implements OnInit {
     const userData = this.authService.getUserData();
     const userRestaurantId = userData?.restaurant_id;
 
-    // Cargar familias y impuestos también si no están cargados
+    // OPTIMIZACIÓN: Usar forkJoin para cargar dependencias en paralelo
+    const requests: any = {};
+    
     if (this.familiasParaProductos.length === 0) {
-      this.familyService.getFamilies().subscribe({
-        next: (response: any) => {
-          let families: any[] = [];
-          if (Array.isArray(response)) {
-            families = response;
-          } else if (response?.Family && Array.isArray(response.Family)) {
-            families = response.Family;
-          } else if (response?.data && Array.isArray(response.data)) {
-            families = response.data;
-          }
-          if (userRestaurantId) {
-            this.familiasParaProductos = families.filter(f => f.restaurant_id === userRestaurantId);
-          } else {
-            this.familiasParaProductos = families;
-          }
-        }
-      });
+      requests.families = this.familyService.getFamilies();
     }
-
+    
     if (this.taxes.length === 0) {
-      this.taxService.getTaxes().subscribe({
-        next: (response: any) => {
-          let taxes: any[] = [];
-          if (Array.isArray(response)) {
-            taxes = response;
-          } else if (response?.tax && Array.isArray(response.tax)) {
-            taxes = response.tax;
-          } else if (response?.Tax && Array.isArray(response.Tax)) {
-            taxes = response.Tax;
-          } else if (response?.data && Array.isArray(response.data)) {
-            taxes = response.data;
+      requests.taxes = this.taxService.getTaxes();
+    }
+    
+    // Si hay dependencias por cargar, cargarlas primero en paralelo
+    if (Object.keys(requests).length > 0) {
+      forkJoin(requests).subscribe({
+        next: (responses: any) => {
+          // Procesar familias
+          if (responses.families) {
+            let families: any[] = [];
+            if (Array.isArray(responses.families)) {
+              families = responses.families;
+            } else if (responses.families?.Family && Array.isArray(responses.families.Family)) {
+              families = responses.families.Family;
+            } else if (responses.families?.data && Array.isArray(responses.families.data)) {
+              families = responses.families.data;
+            }
+            
+            // Mapear familias para asegurar que tengan database_id
+            families = families.map(f => {
+              // Si no tiene database_id pero el id es numérico, usarlo como database_id
+              if (!f.database_id && f.id && !isNaN(Number(f.id))) {
+                return { ...f, database_id: Number(f.id) };
+              }
+              return f;
+            });
+            
+            console.log('Familias cargadas en cargarProductos (forkJoin):', families);
+            console.log('Primera familia completa:', families[0]);
+            console.log('Todas las propiedades de primera familia:', Object.keys(families[0] || {}));
+            
+            // Guardar en el array principal de families
+            if (userRestaurantId) {
+              this.families = families.filter(f => f.restaurant_id === userRestaurantId);
+              this.familiasParaProductos = [...this.families];
+            } else {
+              this.families = families;
+              this.familiasParaProductos = [...this.families];
+            }
+            this.familiasCargadas = true;
           }
-          if (userRestaurantId) {
-            this.taxes = taxes.filter(t => t.restaurant_id === userRestaurantId);
-          } else {
-            this.taxes = taxes;
+          
+          // Procesar taxes
+          if (responses.taxes) {
+            let taxes: any[] = [];
+            if (Array.isArray(responses.taxes)) {
+              taxes = responses.taxes;
+            } else if (responses.taxes?.tax && Array.isArray(responses.taxes.tax)) {
+              taxes = responses.taxes.tax;
+            } else if (responses.taxes?.Tax && Array.isArray(responses.taxes.Tax)) {
+              taxes = responses.taxes.Tax;
+            } else if (responses.taxes?.data && Array.isArray(responses.taxes.data)) {
+              taxes = responses.taxes.data;
+            }
+            if (userRestaurantId) {
+              this.taxes = taxes.filter(t => t.restaurant_id === userRestaurantId);
+            } else {
+              this.taxes = taxes;
+            }
           }
+          
+          // Ahora cargar productos
+          this.cargarProductosData(userRestaurantId);
+        },
+        error: (error) => {
+          console.error('Error cargando dependencias:', error);
+          this.cargarProductosData(userRestaurantId);
         }
       });
+    } else {
+      // Si ya están cargadas las dependencias, cargar productos directamente
+      this.cargarProductosData(userRestaurantId);
     }
+  }
+  
+  private cargarProductosData(userRestaurantId: number | undefined) {
 
     this.productService.getProducts().subscribe({
       next: (response: any) => {
@@ -1065,6 +1130,11 @@ export class DashboardPage implements OnInit {
         } else {
           this.products = products;
         }
+
+        console.log('Productos cargados:', this.products);
+        console.log('Primer producto family_id:', this.products[0]?.family_id);
+        console.log('Primer producto completo:', this.products[0]);
+        console.log('familiasParaProductos disponibles:', this.familiasParaProductos);
 
         this.productosFiltrados = [...this.products];
         this.productosCargados = true;
@@ -1094,12 +1164,7 @@ export class DashboardPage implements OnInit {
           const displayId = (index + 1).toString();
           return displayId.includes(termino);
         case 'familia':
-          const familyIdStr = product.family_id?.toString() || '';
-          const family = this.familiasParaProductos.find(f => {
-            const fId = f.id?.toString() || '';
-            const fUuid = f.uuid?.toString() || '';
-            return fId === familyIdStr || fUuid === familyIdStr;
-          });
+          const family = this.familiasParaProductos.find(f => f.id === product.family_id);
           return family?.name.toLowerCase().includes(termino) || false;
         case 'nombre':
         default:
@@ -1119,7 +1184,7 @@ export class DashboardPage implements OnInit {
     this.productosFiltrados = [...this.products];
   }
 
-  filtrarPorFamilia(familyId: string | number | null) {
+  filtrarPorFamilia(familyId: string | null) {
     this.familiaSeleccionadaFiltro = familyId;
     
     if (familyId === null) {
@@ -1127,23 +1192,15 @@ export class DashboardPage implements OnInit {
       this.productosFiltrados = [...this.products];
     } else {
       // Filtrar por familia seleccionada
-      const familyIdStr = familyId.toString();
-      this.productosFiltrados = this.products.filter(product => {
-        const productFamilyId = product.family_id?.toString() || '';
-        return productFamilyId === familyIdStr;
-      });
+      this.productosFiltrados = this.products.filter(product => product.family_id === familyId);
     }
     
     // Limpiar búsqueda de texto
     this.terminoBusquedaProduct = '';
   }
 
-  contarProductosPorFamilia(familyId: string | number): number {
-    const familyIdStr = familyId.toString();
-    return this.products.filter(product => {
-      const productFamilyId = product.family_id?.toString() || '';
-      return productFamilyId === familyIdStr;
-    }).length;
+  contarProductosPorFamilia(familyId: string): number {
+    return this.products.filter(product => product.family_id === familyId).length;
   }
 
   filtrarPorZona(zoneId: string | number | null) {
@@ -1210,7 +1267,7 @@ export class DashboardPage implements OnInit {
     this.editingProduct = null;
     this.editProductForm = {
       name: '',
-      family_id: 0,
+      family_id: '',
       tax_id: 0,
       price: 0,
       stock: 0,
@@ -1221,7 +1278,7 @@ export class DashboardPage implements OnInit {
   creatEmptyProductForm(): ProductCreateForm {
     return {
       name: '',
-      family_id: 0,
+      family_id: '',
       tax_id: 0,
       price: 0,
       stock: 0,
@@ -1247,18 +1304,20 @@ export class DashboardPage implements OnInit {
     }
 
     if (!this.editProductForm.name.trim() || !this.editProductForm.family_id || !this.editProductForm.tax_id) {
-      console.error('Faltan campos obligatorios');
+      alert('Faltan campos obligatorios');
       return;
     }
 
     const payload: any = {
       name: this.editProductForm.name.trim(),
-      family_id: this.editProductForm.family_id?.toString() || '',
-      tax_id: this.editProductForm.tax_id?.toString() || '',
+      family_id: this.editProductForm.family_id || '',
+      tax_id: this.editProductForm.tax_id,
       price: Math.round(Number(this.editProductForm.price) * 100),
       stock: Number(this.editProductForm.stock),
       image_src: this.editProductForm.image_src.trim() || null,
     };
+
+    console.log('Guardando edición de producto. Payload:', payload);
 
     this.productService.updateProduct(this.editingProduct.id.toString(), payload).subscribe({
       next: (response: any) => {
@@ -1292,12 +1351,6 @@ export class DashboardPage implements OnInit {
     const userData = this.authService.getUserData();
     const restaurantId = userData?.restaurant_id;
 
-    console.log('=== INICIO: guardarNuevoProduct ===');
-    console.log('Restaurant ID del usuario:', restaurantId);
-    console.log('Form data:', this.createProductForm);
-    console.log('Familias disponibles (familiasParaProductos):', this.familiasParaProductos);
-    console.log('Impuestos disponibles (taxes):', this.taxes);
-
     if (!restaurantId) {
       console.error('No se pudo obtener el restaurant_id del usuario autenticado');
       return;
@@ -1305,69 +1358,59 @@ export class DashboardPage implements OnInit {
 
     // Verify that families and taxes are loaded
     if (!this.familiasParaProductos || this.familiasParaProductos.length === 0) {
-      console.error('No hay familias disponibles. Por favor, crea al menos una familia primero.');
       alert('Debes crear al menos una familia antes de crear productos. Ve a la sección de Familias.');
       return;
     }
 
     if (!this.taxes || this.taxes.length === 0) {
-      console.error('No hay impuestos disponibles. Por favor, crea al menos un impuesto primero.');
       alert('Debes crear al menos un impuesto antes de crear productos. Ve a la sección de Impuestos.');
       return;
     }
 
-    // family_id y tax_id son UUIDs (strings), no números
-    const familyId = this.createProductForm.family_id?.toString() || '';
-    const taxId = this.createProductForm.tax_id?.toString() || '';
+    // family_id es UUID (string)
+    const familyId = this.createProductForm.family_id || '';
+    const taxId = this.createProductForm.tax_id;
     const priceNum = Number(this.createProductForm.price);
     const stockNum = Number(this.createProductForm.stock);
 
-    console.log('IDs extraídos:', { familyId, taxId });
+    console.log('Validando producto:', { familyId, taxId, name: this.createProductForm.name });
 
     // Validate required fields and their numeric values
     if (!this.createProductForm.name.trim()) {
-      console.error('El nombre del producto es obligatorio');
+      alert('El nombre del producto es obligatorio');
       return;
     }
 
     if (!familyId || familyId.trim() === '') {
-      console.error('Debes seleccionar una familia válida', { familyId });
+      alert('Debe seleccionar una familia');
       return;
     }
 
-    if (!taxId || taxId.trim() === '') {
-      console.error('Debes seleccionar un impuesto válido', { taxId });
+    if (!taxId) {
+      alert('Debe seleccionar un impuesto');
       return;
     }
 
     // Verify that selected family and tax actually exist in the loaded data
     const selectedFamily = this.familiasParaProductos.find(f => f.id === familyId);
-    console.log('Buscando familia con ID', familyId, 'en lista:', this.familiasParaProductos);
-    console.log('Familia encontrada:', selectedFamily);
     
     if (!selectedFamily) {
-      console.error(`La familia con ID ${familyId} no existe en la lista disponible`);
-      alert(`Error: La familia seleccionada no es válida. Las familias disponibles son: ${this.familiasParaProductos.map(f => `${f.name} (${f.id})`).join(', ')}`);
+      alert(`Error: La familia seleccionada no es válida.`);
       return;
     }
 
     const selectedTax = this.taxes.find(t => t.id === taxId);
-    console.log('Buscando impuesto con ID', taxId, 'en lista:', this.taxes);
-    console.log('Impuesto encontrado:', selectedTax);
     
     if (!selectedTax) {
-      console.error(`El impuesto con ID ${taxId} no existe`);
-      alert(`Error: El impuesto seleccionado no es válido. Por favor, selecciona un impuesto de la lista.`);
+      alert(`Error: El impuesto seleccionado no es válido.`);
       return;
     }
 
     if (priceNum < 0 || isNaN(priceNum)) {
-      console.error('El precio debe ser un número válido y mayor o igual a 0');
       return;
     }
 
     if (stockNum < 0 || isNaN(stockNum)) {
-      console.error('El stock debe ser un número válido y mayor o igual a 0');
       return;
     }
 
@@ -1387,21 +1430,13 @@ export class DashboardPage implements OnInit {
       restaurant_id: Number(restaurantId),
     };
 
-    console.log('Payload enviado:', payload);
-    console.log('Tipos:', {
-      family_id_type: typeof payload.family_id,
-      family_id_value: payload.family_id,
-      tax_id_type: typeof payload.tax_id,
-      tax_id_value: payload.tax_id,
-      price_type: typeof payload.price,
-      stock_type: typeof payload.stock,
-    });
+    console.log('Enviando payload:', payload);
 
     this.productService.createProduct(payload).subscribe({
       next: (response: any) => {
+        console.log('Respuesta del servidor:', response);
         const createdProduct: Product = {
           id: response?.id ?? response?.uuid,
-          uuid: response?.id ?? response?.uuid,
           name: response?.name ?? this.createProductForm.name.trim(),
           family_id: response?.family_id ?? this.createProductForm.family_id,
           tax_id: response?.tax_id ?? this.createProductForm.tax_id,
@@ -1516,17 +1551,18 @@ export class DashboardPage implements OnInit {
     await alert.present();
   }
 
-  obtenerNombreFamilia(familyId: number | string): string {
+  obtenerNombreFamilia(familyId: string): string {
     if (!familyId) {
       return 'Sin familia';
     }
     
-    const familyIdStr = familyId.toString();
-    const family = this.familiasParaProductos.find(f => {
-      const fId = f.id?.toString() || '';
-      const fUuid = f.uuid?.toString() || '';
-      return fId === familyIdStr || fUuid === familyIdStr;
-    });
+    // Buscar en familiasParaProductos primero
+    let family = this.familiasParaProductos.find(f => f.id === familyId);
+    
+    // Si no se encuentra, buscar en el array general de families
+    if (!family) {
+      family = this.families.find(f => f.id === familyId);
+    }
     
     return family?.name ?? `Familia ${familyId}`;
   }
@@ -1557,37 +1593,23 @@ export class DashboardPage implements OnInit {
     const userData = this.authService.getUserData();
     const userRestaurantId = userData?.restaurant_id;
 
-    console.log('Cargando impuestos. Restaurant ID:', userRestaurantId);
-
     this.taxService.getTaxes().subscribe({
       next: (response: any) => {
-        console.log('Respuesta de getTaxes():', response);
-        console.log('Tipo de respuesta:', Array.isArray(response) ? 'array' : typeof response);
-        console.log('Propiedades de respuesta:', Object.keys(response || {}));
-
         let taxes: any[] = [];
         if (Array.isArray(response)) {
           taxes = response;
-          console.log('Detectado: response es un array');
         } else if (response?.tax && Array.isArray(response.tax)) {
           taxes = response.tax;
-          console.log('Detectado: response.tax es un array');
         } else if (response?.Tax && Array.isArray(response.Tax)) {
           taxes = response.Tax;
-          console.log('Detectado: response.Tax es un array');
         } else if (response?.data && Array.isArray(response.data)) {
           taxes = response.data;
-          console.log('Detectado: response.data es un array');
         } else {
-          console.warn('No se pudo extraer array de impuestos. Response:', response);
           taxes = [];
         }
 
-        console.log('Impuestos antes de filtrar:', taxes);
-
         if (userRestaurantId) {
           this.taxes = taxes.filter(t => t.restaurant_id === userRestaurantId);
-          console.log('Impuestos después de filtrar por restaurant_id:', this.taxes);
         } else {
           this.taxes = taxes;
         }
@@ -1832,56 +1854,28 @@ export class DashboardPage implements OnInit {
     const userData = this.authService.getUserData();
     const userRestaurantId = userData?.restaurant_id;
 
-    console.log('Cargando zonas. Restaurant ID:', userRestaurantId);
-
     this.zoneService.getZones().subscribe({
       next: (response: any) => {
-        console.log('Respuesta completa de getZones():', JSON.stringify(response, null, 2));
-        console.log('Tipo de respuesta:', typeof response);
-        console.log('¿Es Array?:', Array.isArray(response));
-        console.log('Propiedades de response:', Object.keys(response || {}));
-        
         let zones: any[] = [];
         
         if (Array.isArray(response)) {
           zones = response;
-          console.log('Detectado: response es un array');
         } else if (response?.zones && Array.isArray(response.zones)) {
           zones = response.zones;
-          console.log('Detectado: response.zones es un array');
         } else if (response?.Zones && Array.isArray(response.Zones)) {
           zones = response.Zones;
-          console.log('Detectado: response.Zones es un array');
         } else if (response?.data?.zones && Array.isArray(response.data.zones)) {
           zones = response.data.zones;
-          console.log('Detectado: response.data.zones es un array');
         } else if (response?.data && Array.isArray(response.data)) {
           zones = response.data;
-          console.log('Detectado: response.data es un array');
         } else {
           zones = [];
-          console.warn('No se pudo extraer array de zonas. Response:', response);
-        }
-
-        console.log('Zonas extraídas:', zones);
-        console.log('Cantidad de zonas:', zones.length);
-        if (zones.length > 0) {
-          console.log('Primera zona completa:', JSON.stringify(zones[0], null, 2));
-          console.log('Propiedades de la primera zona:', Object.keys(zones[0]));
-          console.log('database_id de primera zona:', zones[0]?.database_id);
-          console.log('VERIFICACIÓN: ¿Tiene database_id?', 'database_id' in zones[0], typeof zones[0]?.database_id);
         }
 
         if (userRestaurantId) {
           this.zones = zones.filter(zone => zone.restaurant_id === userRestaurantId);
         } else {
           this.zones = zones;
-        }
-
-        console.log('Zonas después de filtrar por restaurant_id:', this.zones.length);
-        if (this.zones.length > 0) {
-          console.log('Primera zona filtrada:', JSON.stringify(this.zones[0], null, 2));
-          console.log('database_id de primera zona filtrada:', this.zones[0]?.database_id);
         }
 
         this.zonasFiltradas = [...this.zones];
@@ -2014,8 +2008,6 @@ export class DashboardPage implements OnInit {
 
     this.zoneService.createZone(payload).subscribe({
       next: (response: any) => {
-        console.log('Respuesta de createZone:', response);
-        
         const createdZone: Zone = {
           id: response?.id ?? response?.uuid,
           uuid: response?.id ?? response?.uuid,
@@ -2023,8 +2015,6 @@ export class DashboardPage implements OnInit {
           name: response?.name ?? this.createZoneForm.name.trim(),
           restaurant_id: response?.restaurant_id ?? restaurantId,
         };
-
-        console.log('Zona creada con database_id:', createdZone.database_id);
 
         this.zones = [...this.zones, createdZone];
 
@@ -2284,26 +2274,17 @@ export class DashboardPage implements OnInit {
     const userData = this.authService.getUserData();
     const restaurantId = userData?.restaurant_id;
 
-    console.log('=== INICIO: guardarNuevoTable ===');
-    console.log('Restaurant ID del usuario:', restaurantId);
-    console.log('Form data:', this.createTableForm);
-    console.log('Zone_id del form:', this.createTableForm.zone_id, 'Tipo:', typeof this.createTableForm.zone_id);
-    console.log('Zonas disponibles:', this.zones);
-
     if (!restaurantId) {
-      console.error('No se pudo obtener el restaurant_id del usuario autenticado');
       alert('Error: No se pudo obtener el ID del restaurante.');
       return;
     }
 
     if (!this.createTableForm.name.trim()) {
-      console.error('El nombre de la mesa es obligatorio');
       alert('Por favor, ingresa un nombre para la mesa.');
       return;
     }
 
     if (!this.createTableForm.zone_id) {
-      console.error('Debe seleccionar una zona');
       alert('Por favor, selecciona una zona.');
       return;
     }
@@ -2317,13 +2298,7 @@ export class DashboardPage implements OnInit {
       z.uuid === zoneIdValue
     );
 
-    console.log('Zone ID (UUID) del formulario:', this.createTableForm.zone_id);
-    console.log('Zona seleccionada encontrada:', selectedZone);
-
     if (!selectedZone) {
-      console.error('La zona seleccionada no existe');
-      console.error('Buscando zone id:', this.createTableForm.zone_id);
-      console.error('IDs disponibles:', this.zones.map(z => ({ name: z.name, id: z.id, database_id: z.database_id })));
       alert('Por favor, selecciona una zona válida.');
       return;
     }
@@ -2333,7 +2308,6 @@ export class DashboardPage implements OnInit {
     const zoneIdForBackend = selectedZone.database_id ?? selectedZone.id;
     
     if (!zoneIdForBackend) {
-      console.error('La zona no tiene database_id ni id:', selectedZone);
       alert('Error: La zona seleccionada no tiene un ID válido. Por favor, recarga la página.');
       return;
     }
@@ -2345,19 +2319,8 @@ export class DashboardPage implements OnInit {
       restaurant_id: Number(restaurantId),
     };
 
-    console.log('Creando mesa con payload:', payload);
-    console.log('Tipos:', {
-      zone_id_type: typeof payload.zone_id,
-      zone_id_value: payload.zone_id,
-      restaurant_id_type: typeof payload.restaurant_id,
-      restaurant_id_value: payload.restaurant_id,
-      name_type: typeof payload.name,
-      name_value: payload.name,
-    });
-
     this.tableService.createTable(payload).subscribe({
       next: (response: any) => {
-        console.log('Mesa creada exitosamente:', response);
         const createdTable: Table = {
           id: response?.id ?? response?.uuid,
           uuid: response?.id ?? response?.uuid,
@@ -2379,10 +2342,6 @@ export class DashboardPage implements OnInit {
       },
       error: (error) => {
         console.error('Error al crear mesa:', error);
-        console.error('Error completo:', JSON.stringify(error, null, 2));
-        if (error.error && typeof error.error === 'object') {
-          console.error('Detalles del error:', error.error);
-        }
         this.mostrarErrorGuardadoTable();
       }
     });

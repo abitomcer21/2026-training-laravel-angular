@@ -11,7 +11,7 @@ class GetByFamilyController
         private GetProductByFamily $getProductByFamily,
     ) {}
 
-    public function __invoke(int $familyId): JsonResponse
+    public function __invoke(string $familyId): JsonResponse
     {
         $response = ($this->getProductByFamily)($familyId);
 

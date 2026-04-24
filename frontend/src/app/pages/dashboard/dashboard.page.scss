@@ -111,6 +111,63 @@ ion-title {
   font-weight: 600;
 }
 
+/* Ion Content - Sin scroll de pantalla completa */
+ion-content {
+  --background: linear-gradient(180deg, #e3ecf5 0%, #d4e1f0 100%);
+  --overflow: hidden;
+  --keyboard-offset: 0px;
+  position: relative;
+  height: calc(100vh - 56px); /* Altura total menos header */
+}
+
+ion-content::part(background) {
+  background: linear-gradient(180deg, #e3ecf5 0%, #d4e1f0 100%);
+}
+
+ion-content .ion-padding {
+  padding: 12px;
+  padding-bottom: 60px; /* Espacio para el footer */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content-container {
+  flex: 1;
+}
+
+/* Footer fijo */
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #1a3d5c 0%, #2c5f8a 100%);
+  padding: 10px 20px;
+  text-align: center;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  height: 44px;
+}
+
+.footer-content p {
+  margin: 0;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Ajuste para que el contenido no quede debajo del footer */
+.dashboard-overview:last-child,
+.dashboard-grid:last-child,
+.users-layout:last-child,
+.products-layout:last-child,
+.tables-layout:last-child {
+  margin-bottom: 0;
+}
+
 /* ========================================== */
 /* ESTILOS PROFESIONALES PARA USUARIOS        */
 /* ========================================== */
@@ -119,16 +176,16 @@ ion-title {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 32px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 10px;
 }
 
 .users-header h2 {
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #111827;
-  margin: 0 0 6px 0;
+  margin: 0;
   letter-spacing: -0.3px;
 }
 
@@ -141,17 +198,17 @@ ion-title {
 .btn-primary {
   background: linear-gradient(135deg, #2c5f8a 0%, #1a3d5c 100%);
   border: none;
-  border-radius: 12px;
-  padding: 10px 20px;
+  border-radius: 10px;
+  padding: 8px 16px;
   color: white;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(44, 95, 138, 0.3);
+  box-shadow: 0 2px 6px rgba(44, 95, 138, 0.3);
 }
 
 .btn-primary:hover {
@@ -160,15 +217,15 @@ ion-title {
 }
 
 .btn-primary ion-icon {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 /* Barra de búsqueda */
 .search-bar {
   background: white;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 24px;
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 8px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
@@ -188,7 +245,7 @@ ion-title {
 
 .search-input-field {
   width: 100%;
-  padding: 14px 48px 14px 48px;
+  padding: 12px 48px 12px 48px;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   font-size: 0.875rem;
@@ -222,7 +279,7 @@ ion-title {
 .filter-chips {
   display: flex;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 12px;
   flex-wrap: wrap;
 }
 
@@ -253,7 +310,7 @@ ion-title {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px;
+  padding: 40px;
   background: white;
   border-radius: 16px;
   border: 1px solid #e5e7eb;
@@ -278,13 +335,16 @@ ion-title {
   font-size: 0.875rem;
 }
 
-/* Tabla profesional */
+/* Tabla profesional con scroll interno */
 .table-wrapper {
   background: white;
   border-radius: 16px;
   border: 1px solid #e5e7eb;
   overflow-x: auto;
+  overflow-y: auto;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  max-height: calc(100vh - 380px); /* Ajustado para header + nav + overview + padding + footer */
+  min-height: 200px;
 }
 
 .data-table {
@@ -300,7 +360,7 @@ ion-title {
 
 .data-table th {
   text-align: left;
-  padding: 16px 20px;
+  padding: 14px 16px;
   font-size: 0.75rem;
   font-weight: 600;
   color: #6b7280;
@@ -309,7 +369,7 @@ ion-title {
 }
 
 .data-table td {
-  padding: 16px 20px;
+  padding: 14px 16px;
   border-bottom: 1px solid #f3f4f6;
   font-size: 0.875rem;
 }
@@ -320,23 +380,23 @@ ion-title {
 
 /* Columnas específicas */
 .col-id {
-  width: 80px;
+  width: 70px;
 }
 
 .col-user {
-  width: 250px;
+  width: 220px;
 }
 
 .col-email {
-  width: 280px;
+  width: 260px;
 }
 
 .col-role {
-  width: 120px;
+  width: 110px;
 }
 
 .col-actions {
-  width: 100px;
+  width: 90px;
   text-align: right;
 }
 
@@ -367,6 +427,7 @@ ion-title {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .user-avatar span {
@@ -472,7 +533,7 @@ ion-title {
 /* Empty state */
 .empty-state-row {
   text-align: center;
-  padding: 60px 20px !important;
+  padding: 40px 20px !important;
 }
 
 .empty-state-content {
@@ -521,13 +582,13 @@ ion-title {
 .dashboard-overview {
   display: grid;
   grid-template-columns: minmax(280px, 1.2fr) minmax(320px, 1.6fr);
-  gap: 18px;
-  margin-bottom: 22px;
-  padding: 22px;
-  border-radius: 24px;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 10px;
+  border-radius: 14px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 252, 0.88) 100%);
   border: 1px solid rgba(226, 232, 240, 0.95);
-  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 4px 8px rgba(15, 23, 42, 0.03);
   backdrop-filter: blur(10px);
 }
 
@@ -535,46 +596,46 @@ ion-title {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
 }
 
 .eyebrow {
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  font-size: 0.6rem;
   font-weight: 700;
   color: #2563eb;
 }
 
 .overview-copy h2 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.25rem;
   line-height: 1.1;
-  font-weight: 800;
-  letter-spacing: -0.05em;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   color: #0f172a;
 }
 
 .overview-description {
   margin: 0;
   color: #64748b;
-  font-size: 0.95rem;
+  font-size: 0.75rem;
   max-width: 56ch;
 }
 
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 8px;
 }
 
 .metric-card {
   display: flex;
-  gap: 14px;
+  gap: 8px;
   align-items: center;
-  padding: 16px;
-  border-radius: 20px;
+  padding: 8px;
+  border-radius: 12px;
   border: 1px solid rgba(226, 232, 240, 0.95);
   background: #ffffff;
   box-shadow: 0 10px 20px rgba(15, 23, 42, 0.04);
@@ -593,9 +654,9 @@ ion-title {
 }
 
 .metric-icon {
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -616,7 +677,7 @@ ion-title {
 }
 
 .metric-icon ion-icon {
-  font-size: 24px;
+  font-size: 22px;
   color: white;
 }
 
@@ -627,7 +688,7 @@ ion-title {
 }
 
 .metric-label {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -635,280 +696,36 @@ ion-title {
 }
 
 .metric-value {
-  font-size: 2rem;
+  font-size: 1.5rem;
   line-height: 1;
   font-weight: 800;
   color: #0f172a;
 }
 
 .metric-description {
-  font-size: 0.86rem;
+  font-size: 0.75rem;
   color: #64748b;
 }
 
 .users-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-ion-content {
-  --background: linear-gradient(180deg, #e3ecf5 0%, #d4e1f0 100%);
-}
-
-ion-content::part(background) {
-  background: linear-gradient(180deg, #e3ecf5 0%, #d4e1f0 100%);
-}
-
-ion-content .ion-padding {
-  padding-top: 24px;
-  padding-bottom: 28px;
-}
-
-.users-header {
-  align-items: flex-end;
-  margin-bottom: 0;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  backdrop-filter: none;
-}
-
-.users-header h2 {
-  font-size: 1.45rem;
-  font-weight: 800;
-  color: #0f172a;
-  letter-spacing: -0.04em;
-  margin-bottom: 8px;
-}
-
-.users-header .header-description {
-  max-width: 60ch;
-}
-
-.users-header .btn-primary {
-  align-self: center;
-}
-
-.search-bar {
-  margin-bottom: 0;
-}
-
-.table-wrapper {
-  margin-top: 0;
-}
-
-.users-panel {
-  padding: 22px;
-  border-radius: 24px;
   background: rgba(255, 255, 255, 0.72);
+  border-radius: 24px;
   border: 1px solid rgba(226, 232, 240, 0.95);
-  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.06);
   backdrop-filter: blur(10px);
-}
-
-.search-bar {
-  background: rgba(255, 255, 255, 0.92);
-  padding: 18px;
-  border-radius: 20px;
-}
-
-.table-wrapper {
-  background: rgba(255, 255, 255, 0.94);
-  border-radius: 20px;
-  min-height: 0;
-}
-
-@media (max-width: 1100px) {
-  .dashboard-overview {
-    grid-template-columns: 1fr;
-  }
-
-  .metric-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .users-layout {
-    height: calc(100vh - 550px);
-    min-height: 350px;
-  }
-}
-
-@media (max-width: 900px) {
-  .metric-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .overview-copy h2 {
-    font-size: 1.7rem;
-  }
-
-  .users-panel {
-    padding: 18px;
-  }
-
-  .users-layout {
-    height: auto;
-    min-height: 400px;
-  }
-
-  .role-filter-sidebar {
-    max-height: 250px;
-  }
-}
-
-@media (max-width: 1024px) {
-  ion-content > div > .dashboard-grid {
-    height: auto;
-    min-height: auto;
-    overflow: visible;
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-overview {
-    padding: 18px;
-  }
-
-  .users-panel {
-    padding: 16px;
-  }
-
-  .metric-card {
-    padding: 14px;
-  }
-
-  .metric-value {
-    font-size: 1.7rem;
-  }
-
-  .users-header {
-    gap: 12px;
-  }
-
-  .users-header .btn-primary {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .search-bar {
-    padding: 16px;
-  }
-
-  .data-table th,
-  .data-table td {
-    padding-left: 14px;
-    padding-right: 14px;
-  }
-
-  .action-buttons {
-    justify-content: flex-start;
-  }
-
-  .editor-panel {
-    padding: 18px;
-  }
-
-  .editor-actions .btn-outline,
-  .editor-actions .btn-primary {
-    flex: 1 1 100%;
-  }
-
-  .editor-form-create .editor-actions .btn-primary {
-    min-width: 0;
-  }
-
-  .users-layout {
-    gap: 16px;
-  }
-
-  .role-filter-sidebar {
-    max-height: 200px;
-  }
-
-  .users-panel-main {
-    overflow: visible;
-  }
-
-  .users-panel-main .table-wrapper {
-    overflow-x: auto;
-  }
-
-  ion-content .ion-padding {
-    padding-top: 16px;
-    padding-bottom: 80px;
-  }
-}
-
-@media (max-width: 560px) {
-  .dashboard-overview {
-    padding: 16px;
-  }
-
-  .overview-copy h2 {
-    font-size: 1.5rem;
-  }
-
-  .metric-card {
-    gap: 12px;
-  }
-
-  .metric-icon {
-    width: 44px;
-    height: 44px;
-    flex-basis: 44px;
-  }
-
-  .metric-value {
-    font-size: 1.55rem;
-  }
-
-  .filter-chips {
-    gap: 6px;
-  }
-
-  .chip {
-    padding: 7px 12px;
-  }
-
-  .empty-state-row {
-    padding: 56px 16px !important;
-  }
-
-  .nav-modern {
-    padding: 0 8px;
-  }
-
-  .nav-item {
-    padding: 10px 12px;
-    min-width: 60px;
-  }
-
-  .role-filter-sidebar .sidebar-content {
-    grid-template-columns: 1fr;
-  }
-
-  ion-content .ion-padding {
-    padding-top: 12px;
-    padding-bottom: 100px;
-  }
+  padding: 20px;
 }
 
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.9fr) minmax(320px, 0.95fr);
-  gap: 20px;
+  gap: 12px;
   align-items: stretch;
-  height: 100%;
-  min-height: 0;
 }
 
-/* Altura fija para pantallas simples sin layout wrapper (familias, impuestos, zonas) */
+/* Altura fija para pantallas simples */
 ion-content > div > .dashboard-grid {
-  height: calc(100vh - 250px);
-  min-height: 550px;
+  height: auto;
+  min-height: auto;
 }
 
 .users-panel-main,
@@ -920,14 +737,16 @@ ion-content > div > .dashboard-grid {
 .users-panel-main {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height:100%;
   min-height: 0;
   overflow: hidden;
 }
 
 .users-panel-main .table-wrapper {
-  flex: 1;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: calc(100vh - 360px); /* Más espacio para la tabla de usuarios */
+  min-height: 250px;
 }
 
 .users-panel-main .loading-state {
@@ -936,18 +755,17 @@ ion-content > div > .dashboard-grid {
 
 .editor-panel {
   position: sticky;
-  top: 20px;
+  top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 22px;
-  border-radius: 24px;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(226, 232, 240, 0.95);
-  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.04);
   backdrop-filter: blur(10px);
   height: auto;
-  max-height: 100%;
   overflow-y: auto;
 }
 
@@ -956,19 +774,20 @@ ion-content > div > .dashboard-grid {
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .editor-panel-header h3 {
   margin: 4px 0 0;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   line-height: 1.2;
   font-weight: 800;
   color: #0f172a;
 }
 
 .btn-small {
-  padding: 8px 12px;
-  font-size: 0.82rem;
+  padding: 6px 12px;
+  font-size: 0.8rem;
 }
 
 .editor-form {
@@ -977,12 +796,34 @@ ion-content > div > .dashboard-grid {
   gap: 14px 12px;
   align-content: start;
   min-height: 0;
-  overflow: hidden;
 }
 
 .editor-form > .editor-summary,
-.editor-form > .editor-actions {
+.editor-form > .editor-actions,
+.editor-form > .form-field-with-action {
   grid-column: 1 / -1;
+}
+
+/* Campo con botón inline (imagen + guardar) */
+.form-field-with-action {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.form-field-with-action .form-field {
+  flex: 1;
+}
+
+.form-field-with-action .editor-actions-inline {
+  flex: 0 0 auto;
+  margin: 0;
+  padding-top: 22px; /* Alinear con el input después del label */
+}
+
+.form-field-with-action .editor-actions-inline .btn-primary {
+  white-space: nowrap;
+  min-width: 140px;
 }
 
 .editor-form .form-field:last-of-type {
@@ -995,23 +836,23 @@ ion-content > div > .dashboard-grid {
 
 .editor-form-create .editor-actions .btn-primary {
   flex: 0 0 auto;
-  min-width: 180px;
+  min-width: 160px;
 }
 
 .editor-summary {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px;
+  padding: 12px;
   border-radius: 18px;
   background: linear-gradient(135deg, #f8fbff 0%, #f3f8ff 100%);
   border: 1px solid #dbe7f8;
 }
 
 .editor-avatar {
-  width: 52px;
-  height: 52px;
-  flex: 0 0 52px;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
   border-radius: 16px;
 }
 
@@ -1022,14 +863,14 @@ ion-content > div > .dashboard-grid {
 
 .editor-summary strong {
   display: block;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #0f172a;
 }
 
 .editor-summary p {
-  margin: 4px 0 0;
-  font-size: 0.88rem;
+  margin: 2px 0 0;
+  font-size: 0.8rem;
   color: #64748b;
   word-break: break-word;
 }
@@ -1037,11 +878,11 @@ ion-content > div > .dashboard-grid {
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .form-field label {
-  font-size: 0.76rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
@@ -1051,11 +892,11 @@ ion-content > div > .dashboard-grid {
 .editor-input {
   width: 100%;
   border: 1px solid #dbe3ed;
-  border-radius: 14px;
+  border-radius: 12px;
   background: #f8fafc;
   color: #0f172a;
-  padding: 13px 14px;
-  font-size: 0.92rem;
+  padding: 10px 12px;
+  font-size: 0.85rem;
   transition: all 0.2s ease;
 }
 
@@ -1063,7 +904,7 @@ ion-content > div > .dashboard-grid {
   outline: none;
   background: white;
   border-color: #2563eb;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 select.editor-input {
@@ -1134,7 +975,7 @@ select.editor-input {
 }
 
 .toggle-label {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: #6b7280;
   cursor: pointer;
@@ -1151,18 +992,18 @@ select.editor-input {
 }
 
 .toggle-field .toggle-label {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
 /* Form info section */
 .form-info {
   grid-column: 1 / -1;
-  padding: 14px;
+  padding: 12px;
   background: #f0f9ff;
   border-left: 4px solid #2563eb;
   border-radius: 8px;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: #0c4a6e;
 }
 
@@ -1181,19 +1022,19 @@ select.editor-input {
 /* PRODUCT SPECIFIC STYLES */
 .price-badge {
   display: inline-block;
-  padding: 6px 12px;
+  padding: 4px 10px;
   background: #dbeafe;
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #1e40af;
 }
 
 .stock-badge {
   display: inline-block;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
 }
 
@@ -1209,10 +1050,10 @@ select.editor-input {
 
 .percentage-badge {
   display: inline-block;
-  padding: 6px 12px;
+  padding: 4px 10px;
   background: #cffafe;
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #0e7490;
 }
@@ -1220,43 +1061,14 @@ select.editor-input {
 .editor-actions {
   display: flex;
   gap: 10px;
-  justify-content: space-between;
   flex-wrap: wrap;
 }
 
 .editor-actions .btn-outline,
 .editor-actions .btn-primary {
-  flex: 1 1 0;
+  flex: 1;
   justify-content: center;
-}
-
-@media (max-width: 1200px) {
-  .dashboard-grid,
-  ion-content > div > .dashboard-grid {
-    grid-template-columns: 1fr;
-    height: auto;
-    align-items: start;
-  }
-
-  .editor-panel {
-    position: static;
-    height: auto;
-    max-height: none;
-  }
-
-  .editor-form {
-    grid-template-columns: 1fr;
-  }
-
-  .users-layout {
-    height: auto;
-    min-height: 450px;
-  }
-
-  .users-main-content .editor-panel {
-    position: static;
-    max-height: none;
-  }
+  text-align: center;
 }
 
 /* ========================================== */
@@ -1265,13 +1077,13 @@ select.editor-input {
 
 .products-layout {
   display: flex;
-  gap: 24px;
-  height: calc(100vh - 250px);
-  min-height: 550px;
+  gap: 12px;
+  height: calc(100vh - 240px); /* Ajuste para header + nav + padding + footer */
+  overflow: hidden;
 }
 
 .family-filter-sidebar {
-  width: 260px;
+  width: 240px;
   flex-shrink: 0;
   background: white;
   border-radius: 16px;
@@ -1280,24 +1092,25 @@ select.editor-input {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 100%;
 }
 
 .sidebar-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 20px;
+  padding: 16px;
   border-bottom: 1px solid #e5e7eb;
   background: linear-gradient(135deg, #2c5f8a 0%, #1a3d5c 100%);
   color: white;
 }
 
 .sidebar-header .sidebar-icon {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .sidebar-header h3 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   margin: 0;
 }
@@ -1311,8 +1124,8 @@ select.editor-input {
 .family-filter-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 10px;
+  padding: 10px 12px;
   margin-bottom: 6px;
   background: white;
   border: 1px solid #e5e7eb;
@@ -1336,7 +1149,7 @@ select.editor-input {
 }
 
 .family-filter-item .filter-icon {
-  font-size: 20px;
+  font-size: 18px;
   color: #9ca3af;
   flex-shrink: 0;
 }
@@ -1347,7 +1160,7 @@ select.editor-input {
 
 .family-filter-item .filter-name {
   flex: 1;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: #374151;
   white-space: nowrap;
@@ -1361,9 +1174,9 @@ select.editor-input {
 }
 
 .family-filter-item .filter-count {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 2px 6px;
   background: #f3f4f6;
   border-radius: 12px;
   color: #6b7280;
@@ -1378,7 +1191,7 @@ select.editor-input {
 .family-divider {
   height: 1px;
   background: #e5e7eb;
-  margin: 12px 0;
+  margin: 10px 0;
 }
 
 .sidebar-empty {
@@ -1386,82 +1199,45 @@ select.editor-input {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 30px 16px;
   text-align: center;
   color: #9ca3af;
 }
 
 .sidebar-empty ion-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
+  font-size: 40px;
+  margin-bottom: 10px;
   opacity: 0.5;
 }
 
 .sidebar-empty p {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
   margin: 0 0 4px 0;
   color: #6b7280;
 }
 
 .sidebar-empty small {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #9ca3af;
 }
 
 .products-main-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .products-main-content .dashboard-grid {
   height: 100%;
+  overflow: hidden;
 }
 
 .products-main-content .editor-panel {
-  height: 100%;
-  max-height: 100%;
   position: sticky;
   top: 0;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .products-layout {
-    flex-direction: column;
-    height: auto;
-    overflow: visible;
-  }
-
-  .family-filter-sidebar {
-    width: 100%;
-    max-height: 300px;
-    overflow-y: auto;
-  }
-
-  .sidebar-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 8px;
-  }
-
-  .family-divider {
-    display: none;
-  }
-
-  .products-main-content {
-    overflow: visible;
-  }
-
-  .products-main-content .dashboard-grid {
-    height: auto;
-    overflow: visible;
-  }
-
-  .products-main-content .editor-panel {
-    max-height: none;
-    position: static;
-  }
 }
 
 /* ========================================== */
@@ -1470,13 +1246,13 @@ select.editor-input {
 
 .tables-layout {
   display: flex;
-  gap: 24px;
-  height: calc(100vh - 250px);
-  min-height: 550px;
+  gap: 12px;
+  height: calc(100vh - 240px); /* Ajuste para header + nav + padding + footer */
+  overflow: hidden;
 }
 
 .zone-filter-sidebar {
-  width: 260px;
+  width: 240px;
   flex-shrink: 0;
   background: white;
   border-radius: 16px;
@@ -1485,61 +1261,25 @@ select.editor-input {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 100%;
 }
 
 .tables-main-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .tables-main-content .dashboard-grid {
   height: 100%;
+  overflow: hidden;
 }
 
 .tables-main-content .editor-panel {
-  height: 100%;
-  max-height: 100%;
   position: sticky;
   top: 0;
-}
-
-/* Responsive para mesas */
-@media (max-width: 1024px) {
-  .tables-layout {
-    flex-direction: column;
-    height: auto;
-    overflow: visible;
-  }
-
-  .zone-filter-sidebar {
-    width: 100%;
-    max-height: 300px;
-    overflow-y: auto;
-  }
-
-  .zone-filter-sidebar .sidebar-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 8px;
-  }
-
-  .zone-filter-sidebar .family-divider {
-    display: none;
-  }
-
-  .tables-main-content {
-    overflow: visible;
-  }
-
-  .tables-main-content .dashboard-grid {
-    height: auto;
-    overflow: visible;
-  }
-
-  .tables-main-content .editor-panel {
-    max-height: none;
-    position: static;
-  }
 }
 
 /* ========================================== */
@@ -1548,75 +1288,466 @@ select.editor-input {
 
 .users-layout {
   display: flex;
-  gap: 24px;
-  height: calc(100vh - 360px);
-  min-height: 450px;
+  gap: 12px;
+  height: calc(100vh - 220px);
+  overflow: hidden;
 }
 
 .role-filter-sidebar {
-  width: 260px;
+  width: 240px;
   flex-shrink: 0;
   background: white;
-  border-radius: 16px;
+  border-radius: 10px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 80%;
+  max-height: calc(100vh - 300px);
 }
 
 .users-main-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .users-main-content .dashboard-grid {
-  height: 100%;
+  height: 80%;
+  overflow: hidden;
 }
 
 .users-main-content .editor-panel {
-  height: auto;
-  max-height: calc(100vh - 300px);
   position: sticky;
   top: 0;
-  overflow-y: auto;
 }
 
-/* Responsive para usuarios */
+
 @media (max-width: 1024px) {
-  .users-layout {
+  .dashboard-overview {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .editor-panel {
+    position: static;
+    margin-top: 0;
+  }
+
+  .editor-panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .editor-panel-header .btn-small {
+    align-self: flex-start;
+  }
+
+  .editor-form {
+    grid-template-columns: 1fr;
+  }
+
+  .users-layout,
+  .products-layout,
+  .tables-layout {
     flex-direction: column;
     height: auto;
     overflow: visible;
   }
 
-  .role-filter-sidebar {
+  .role-filter-sidebar,
+  .family-filter-sidebar,
+  .zone-filter-sidebar {
     width: 100%;
-    max-height: 300px;
-    overflow-y: auto;
+    max-height: 280px;
   }
 
-  .role-filter-sidebar .sidebar-content {
+  .role-filter-sidebar .sidebar-content,
+  .family-filter-sidebar .sidebar-content,
+  .zone-filter-sidebar .sidebar-content {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 8px;
   }
 
-  .role-filter-sidebar .family-divider {
+  .family-divider {
     display: none;
   }
 
-  .users-main-content {
-    overflow: visible;
+  .users-main-content,
+  .products-main-content,
+  .tables-main-content {
+    width: 100%;
   }
 
-  .users-main-content .dashboard-grid {
+  .users-main-content .dashboard-grid,
+  .products-main-content .dashboard-grid,
+  .tables-main-content .dashboard-grid {
     height: auto;
     overflow: visible;
   }
 
-  .users-main-content .editor-panel {
+  .users-panel-main,
+  .editor-panel {
     max-height: none;
-    position: static;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .search-bar {
+    padding: 14px;
+  }
+
+  .filter-chips {
+    gap: 6px;
+  }
+
+  .chip {
+    padding: 5px 14px;
+    font-size: 0.7rem;
+  }
+
+  .app-footer {
+    padding: 10px 16px;
+  }
+
+  .footer-content p {
+    font-size: 0.8rem;
+  }
+}
+
+/* Pantallas pequeñas (768px y menos) */
+@media (max-width: 768px) {
+  ion-content {
+    height: calc(100vh - 56px);
+  }
+
+  ion-content .ion-padding {
+    padding: 12px;
+    padding-bottom: 60px; /* Mantener espacio para footer */
+  }
+
+  .dashboard-overview {
+    padding: 16px;
+  }
+
+  .overview-copy h2 {
+    font-size: 1.5rem;
+  }
+
+  .overview-description {
+    font-size: 0.85rem;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .metric-card {
+    padding: 12px;
+  }
+
+  .metric-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+  }
+
+  .users-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .header-description {
+    font-size: 0.8rem;
+  }
+
+  .users-panel {
+    padding: 14px;
+  }
+
+  .search-bar {
+    padding: 12px;
+  }
+
+  .search-input-field {
+    padding: 10px 40px 10px 40px;
+    font-size: 0.8rem;
+  }
+
+  .search-icon {
+    font-size: 18px;
+    left: 12px;
+  }
+
+  .clear-btn {
+    right: 12px;
+  }
+
+  .filter-chips {
+    margin-top: 10px;
+  }
+
+  .chip {
+    padding: 4px 12px;
+    font-size: 0.65rem;
+  }
+
+  .editor-panel {
+    padding: 16px;
+  }
+
+  .editor-panel-header h3 {
+    font-size: 1rem;
+  }
+
+  .editor-summary {
+    padding: 10px;
+  }
+
+  .editor-avatar {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .editor-summary strong {
+    font-size: 0.85rem;
+  }
+
+  .editor-summary p {
+    font-size: 0.7rem;
+  }
+
+  .form-field label {
+    font-size: 0.65rem;
+  }
+
+  .editor-input {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+
+  .editor-actions .btn-outline,
+  .editor-actions .btn-primary {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 10px 12px;
+    font-size: 0.75rem;
+  }
+
+  .data-table th {
+    font-size: 0.65rem;
+  }
+
+  .user-avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .user-avatar span {
+    font-size: 0.75rem;
+  }
+
+  .action-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .action-btn ion-icon {
+    font-size: 16px;
+  }
+
+  .role-tag,
+  .price-badge,
+  .percentage-badge {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+  }
+
+  .toggle-label {
+    font-size: 0.75rem;
+  }
+
+  .toggle-checkbox {
+    width: 40px;
+    height: 22px;
+  }
+
+  .toggle-checkbox::before {
+    width: 18px;
+    height: 18px;
+  }
+
+  .toggle-checkbox:checked::before {
+    left: 20px;
+  }
+
+  .empty-state-content ion-icon {
+    font-size: 40px;
+  }
+
+  .empty-state-content h4 {
+    font-size: 0.9rem;
+  }
+
+  .empty-state-content p {
+    font-size: 0.75rem;
+  }
+
+  .btn-outline {
+    padding: 6px 16px;
+    font-size: 0.75rem;
+  }
+
+  .nav-modern {
+    padding: 0 8px;
+  }
+
+  .nav-item {
+    padding: 8px 12px;
+    min-width: 55px;
+  }
+
+  .nav-icon {
+    font-size: 18px;
+  }
+
+  .nav-label {
+    font-size: 0.65rem;
+  }
+
+  .btn-primary {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+
+  .btn-primary ion-icon {
+    font-size: 18px;
+  }
+
+  .app-footer {
+    padding: 8px 12px;
+  }
+
+  .footer-content p {
+    font-size: 0.7rem;
+  }
+}
+
+/* Pantallas muy pequeñas (480px y menos) */
+@media (max-width: 480px) {
+  ion-content {
+    height: calc(100vh - 56px);
+  }
+
+  ion-content .ion-padding {
+    padding: 8px;
+    padding-bottom: 60px; /* Mantener espacio para footer */
+  }
+
+  .dashboard-overview {
+    padding: 12px;
+  }
+
+  .overview-copy h2 {
+    font-size: 1.2rem;
+  }
+
+  .eyebrow {
+    font-size: 0.6rem;
+  }
+
+  .users-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filter-chips {
+    gap: 4px;
+  }
+
+  .chip {
+    padding: 3px 10px;
+    font-size: 0.6rem;
+  }
+
+  .role-filter-sidebar .sidebar-content,
+  .family-filter-sidebar .sidebar-content,
+  .zone-filter-sidebar .sidebar-content {
+    grid-template-columns: 1fr;
+  }
+
+  .family-filter-item {
+    padding: 8px 10px;
+  }
+
+  .family-filter-item .filter-name {
+    font-size: 0.75rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 8px 10px;
+  }
+
+  .col-id {
+    width: 50px;
+  }
+
+  .col-user {
+    width: 180px;
+  }
+
+  .col-email {
+    width: 200px;
+  }
+
+  .editor-actions {
+    flex-direction: column;
+  }
+
+  .editor-actions .btn-outline,
+  .editor-actions .btn-primary {
+    width: 100%;
+  }
+
+  .editor-form-create .editor-actions .btn-primary {
+    min-width: auto;
+  }
+
+  .app-footer {
+    padding: 6px 10px;
+  }
+
+  .footer-content p {
+    font-size: 0.65rem;
   }
 }

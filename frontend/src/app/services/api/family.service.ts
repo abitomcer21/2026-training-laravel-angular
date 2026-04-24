@@ -3,8 +3,7 @@ import { Observable } from 'rxjs';
 import { BaseApiService, ApiResponse } from './base-api.service';
 
 export interface Family {
-  id: string | number;
-  uuid?: string;
+  id: string;
   name: string;
   active: boolean;
   restaurant_id: number;

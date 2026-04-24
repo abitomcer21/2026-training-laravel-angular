@@ -5,7 +5,7 @@ import { BaseApiService, ApiResponse } from './base-api.service';
 export interface Product {
   id: string | number;
   uuid?: string;
-  family_id: number;
+  family_id: string;
   tax_id: number;
   name: string;
   price: number;

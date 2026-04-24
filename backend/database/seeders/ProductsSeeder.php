@@ -25,7 +25,7 @@ class ProductsSeeder extends Seeder
 
         foreach ($restaurants as $restaurant) {
             $tax = EloquentTax::query()->where('restaurant_id', $restaurant->id)->first();
-            $familias = EloquentFamily::where('restaurant_id', $restaurant->id)->pluck('id', 'name');
+            $familias = EloquentFamily::where('restaurant_id', $restaurant->id)->pluck('uuid', 'name');
 
             if (! $tax || $familias->isEmpty()) {
                 continue;
