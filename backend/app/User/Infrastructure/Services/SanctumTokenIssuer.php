@@ -10,7 +10,8 @@ class SanctumTokenIssuer implements TokenIssuerInterface
 {
     public function issueForUser(User $user): string
     {
-        $eloquentUser = EloquentUser::where('email', $user->email()->value())->first();
+        // Buscar por UUID (más rápido que por email y evita query adicional si pasamos el modelo)
+        $eloquentUser = EloquentUser::where('uuid', $user->id()->value())->first();
 
         if ($eloquentUser === null) {
             throw new \RuntimeException('No se pudo emitir el token.');

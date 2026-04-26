@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Interceptar OPTIONS requests primero para evitar que pasen por otros middlewares
+        $middleware->prepend(\App\Http\Middleware\OptionsRequestHandler::class);
+        // CORS middleware estándar
+        $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
