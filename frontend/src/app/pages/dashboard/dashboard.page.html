@@ -26,27 +26,7 @@
   
   <!-- ========== USUARIOS ========== -->
   <div *ngIf="opcionSeleccionada === 'usuarios'">
-    <div class="dashboard-overview">
-      <div class="overview-copy">
-        <p class="eyebrow">Resumen operativo</p>
-        <h2>Usuarios del sistema</h2>
-        <p class="overview-description">Una vista rápida del equipo activo antes de entrar en el detalle de búsqueda y gestión.</p>
-      </div>
-
-      <div class="metric-grid">
-        <article class="metric-card" *ngFor="let metric of dashboardMetrics" [ngClass]="['metric-' + metric.accent]">
-          <div class="metric-icon">
-            <ion-icon [name]="metric.icon"></ion-icon>
-          </div>
-          <div class="metric-body">
-            <span class="metric-label">{{ metric.label }}</span>
-            <strong class="metric-value">{{ metric.value }}</strong>
-            <small class="metric-description">{{ metric.description }}</small>
-          </div>
-        </article>
-      </div>
-    </div>
-
+    
     <!-- Layout con filtro lateral por rol -->
     <div class="users-layout">
       <!-- Aside lateral: Filtro por roles -->
