@@ -17,7 +17,6 @@ import {
 } from 'ionicons/icons';
 
 import { FamilyService, Family } from '../../services/api/family.service';
-import { ProductService, Product } from '../../services/api/product.service';
 import { TaxService, Tax } from '../../services/api/tax.service';
 import { ZoneService, Zone } from '../../services/api/zone.service';
 import { TableService, Table } from '../../services/api/table.service';
@@ -25,30 +24,13 @@ import { RestaurantService, Restaurant } from '../../services/api/restaurant.ser
 import { AuthService } from '../../services/auth/auth.service';
 import { UsuariosComponent } from '../../components/usuarios/usuarios.component';
 import { FamiliasComponent } from '../../components/familias/familias.component';
+import { ProductosComponent } from '../../components/productos/productos.component';
 interface MenuItem {
   nombre: string;
   valor: string;
   icono: string;
 }
 
-interface ProductEditForm {
-  name: string;
-  family_id: string;
-  tax_id: string;
-  price: number;
-  stock: number;
-  image_src: string;
-}
-
-interface ProductCreateForm {
-  name: string;
-  family_id: string;
-  tax_id: string;
-  price: number;
-  stock: number;
-  image_src: string;
-  active: boolean | string;
-}
 
 interface TaxEditForm {
   name: string;
@@ -87,7 +69,7 @@ interface TableCreateForm {
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonButton, IonIcon, IonLabel, IonSpinner, IonAvatar,
-    IonItem, IonInput, IonChip, IonBadge, UsuariosComponent, FamiliasComponent
+    IonItem, IonInput, IonChip, IonBadge, UsuariosComponent, FamiliasComponent, ProductosComponent
   ]
 })
 export class DashboardPage implements OnInit {
@@ -95,37 +77,9 @@ export class DashboardPage implements OnInit {
   restaurantName: string = 'Yurest TPV';
 
   // Loading indicators por sección
-  productosLoading: boolean = false;
   impuestosLoading: boolean = false;
   zonasLoading: boolean = false;
   mesasLoading: boolean = false;
-
-
-  // Productos
-  products: Product[] = [];
-  productosFiltrados: Product[] = [];
-  productosCargados: boolean = false;
-  productPanelMode: 'edit' | 'create' = 'create';
-  familiaSeleccionadaFiltro: string | null = null;
-  familiasParaProductos: Family[] = [];
-  editingProduct: Product | null = null;
-  editProductForm: ProductEditForm = {
-    name: '',
-    family_id: '',
-    tax_id: '',
-    price: 0,
-    stock: 0,
-    image_src: '',
-  };
-  createProductForm: ProductCreateForm = {
-    name: '',
-    family_id: '',
-    tax_id: '',
-    price: 0,
-    stock: 0,
-    image_src: '',
-    active: true,
-  };
 
   // Datos globales para dropdowns
   taxes: Tax[] = [];
@@ -175,8 +129,6 @@ export class DashboardPage implements OnInit {
   // Búsqueda
   terminoBusqueda: string = '';
   filtroActual: string = 'nombre';
-  terminoBusquedaProduct: string = '';
-  filtroActualProduct: string = 'nombre';
   terminoBusquedaTax: string = '';
   filtroActualTax: string = 'nombre';
   terminoBusquedaZone: string = '';
@@ -194,7 +146,6 @@ export class DashboardPage implements OnInit {
   ];
 
   constructor(
-    private productService: ProductService,
     private familyService: FamilyService,
     private taxService: TaxService,
     private zoneService: ZoneService,
@@ -213,8 +164,6 @@ export class DashboardPage implements OnInit {
 
 
   ngOnInit() {
-    this.createProductForm = this.creatEmptyProductForm();
-
     // Cargar nombre del restaurante
     this.cargarRestaurantName();
   }
@@ -233,9 +182,6 @@ export class DashboardPage implements OnInit {
 
   seleccionarOpcion(valor: string) {
     this.opcionSeleccionada = valor;
-    if (valor === 'productos' && !this.productosCargados) {
-      this.cargarProductos();
-    }
     if (valor === 'impuestos' && !this.impuestoCargados) {
       this.cargarImpuestos();
     }
@@ -253,545 +199,6 @@ export class DashboardPage implements OnInit {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
     window.location.href = '/login';
-  }
-
-
-  // ========== MÉTODOS DE PRODUCTOS ==========
-
-  cargarProductos() {
-    this.productosLoading = true;
-    const userData = this.authService.getUserData();
-    const userRestaurantId = userData?.restaurant_id;
-
-    // OPTIMIZACIÓN: Usar forkJoin para cargar dependencias en paralelo
-    const requests: any = {};
-
-    if (this.familiasParaProductos.length === 0) {
-      requests.families = this.familyService.getFamilies();
-    }
-
-    if (this.taxes.length === 0) {
-      requests.taxes = this.taxService.getTaxes();
-    }
-
-    // Si hay dependencias por cargar, cargarlas primero en paralelo
-    if (Object.keys(requests).length > 0) {
-      forkJoin(requests).subscribe({
-        next: (responses: any) => {
-          // Procesar familias
-          if (responses.families) {
-            let families: any[] = [];
-            if (Array.isArray(responses.families)) {
-              families = responses.families;
-            } else if (responses.families?.Family && Array.isArray(responses.families.Family)) {
-              families = responses.families.Family;
-            } else if (responses.families?.data && Array.isArray(responses.families.data)) {
-              families = responses.families.data;
-            }
-
-            // Mapear familias para asegurar que tengan database_id
-            families = families.map(f => {
-              // Si no tiene database_id pero el id es numérico, usarlo como database_id
-              if (!f.database_id && f.id && !isNaN(Number(f.id))) {
-                return { ...f, database_id: Number(f.id) };
-              }
-              return f;
-            });
-
-            console.log('Familias cargadas en cargarProductos (forkJoin):', families);
-            console.log('Primera familia completa:', families[0]);
-            console.log('Todas las propiedades de primera familia:', Object.keys(families[0] || {}));
-
-            // Guardar en familiasParaProductos
-            if (userRestaurantId) {
-              this.familiasParaProductos = families.filter(f => f.restaurant_id === userRestaurantId);
-            } else {
-              this.familiasParaProductos = families;
-            }
-          }
-
-          // Procesar taxes
-          if (responses.taxes) {
-            let taxes: any[] = [];
-            if (Array.isArray(responses.taxes)) {
-              taxes = responses.taxes;
-            } else if (responses.taxes?.tax && Array.isArray(responses.taxes.tax)) {
-              taxes = responses.taxes.tax;
-            } else if (responses.taxes?.Tax && Array.isArray(responses.taxes.Tax)) {
-              taxes = responses.taxes.Tax;
-            } else if (responses.taxes?.data && Array.isArray(responses.taxes.data)) {
-              taxes = responses.taxes.data;
-            }
-            if (userRestaurantId) {
-              this.taxes = taxes.filter(t => t.restaurant_id === userRestaurantId);
-            } else {
-              this.taxes = taxes;
-            }
-          }
-
-          // Ahora cargar productos
-          this.cargarProductosData(userRestaurantId);
-        },
-        error: (error) => {
-          console.error('Error cargando dependencias:', error);
-          this.cargarProductosData(userRestaurantId);
-        }
-      });
-    } else {
-      // Si ya están cargadas las dependencias, cargar productos directamente
-      this.cargarProductosData(userRestaurantId);
-    }
-  }
-
-  private cargarProductosData(userRestaurantId: number | undefined) {
-
-    this.productService.getProducts().subscribe({
-      next: (response: any) => {
-        let products: any[] = [];
-        if (Array.isArray(response)) {
-          products = response;
-        } else if (response?.products && Array.isArray(response.products)) {
-          products = response.products;
-        } else if (response?.data && Array.isArray(response.data)) {
-          products = response.data;
-        }
-
-        if (userRestaurantId) {
-          this.products = products.filter(p => p.restaurant_id === userRestaurantId);
-        } else {
-          this.products = products;
-        }
-
-        console.log('Productos cargados:', this.products);
-        console.log('Primer producto family_id:', this.products[0]?.family_id);
-        console.log('Primer producto completo:', this.products[0]);
-        console.log('familiasParaProductos disponibles:', this.familiasParaProductos);
-
-        this.productosFiltrados = [...this.products];
-        this.productosCargados = true;
-        this.productosLoading = false;
-      },
-      error: (error) => {
-        console.error('Error:', error);
-        this.products = [];
-        this.productosFiltrados = [];
-        this.productosCargados = false;
-        this.productosLoading = false;
-      }
-    });
-  }
-
-  buscarProductos() {
-    if (!this.terminoBusquedaProduct) {
-      this.productosFiltrados = [...this.products];
-      return;
-    }
-
-    const termino = this.terminoBusquedaProduct.toLowerCase();
-
-    this.productosFiltrados = this.products.filter((product, index) => {
-      switch (this.filtroActualProduct) {
-        case 'id':
-          const displayId = (index + 1).toString();
-          return displayId.includes(termino);
-        case 'familia':
-          const family = this.familiasParaProductos.find(f => f.id === product.family_id);
-          return family?.name.toLowerCase().includes(termino) || false;
-        case 'nombre':
-        default:
-          return product.name.toLowerCase().includes(termino);
-      }
-    });
-  }
-
-  filtrarPorTipoProduct(tipo: string) {
-    this.filtroActualProduct = tipo;
-    this.buscarProductos();
-  }
-
-  limpiarBusquedaProduct() {
-    this.terminoBusquedaProduct = '';
-    this.familiaSeleccionadaFiltro = null;
-    this.productosFiltrados = [...this.products];
-  }
-
-  filtrarPorFamilia(familyId: string | null) {
-    this.familiaSeleccionadaFiltro = familyId;
-
-    if (familyId === null) {
-      // Mostrar todos los productos
-      this.productosFiltrados = [...this.products];
-    } else {
-      // Filtrar por familia seleccionada
-      this.productosFiltrados = this.products.filter(product => product.family_id === familyId);
-    }
-
-    // Limpiar búsqueda de texto
-    this.terminoBusquedaProduct = '';
-  }
-
-  contarProductosPorFamilia(familyId: string): number {
-    return this.products.filter(product => product.family_id === familyId).length;
-  }
-
-  filtrarPorZona(zoneId: string | number | null) {
-    this.zonaSeleccionadaFiltro = zoneId;
-
-    if (zoneId === null) {
-      // Mostrar todas las mesas
-      this.mesasFiltradas = [...this.tables];
-    } else {
-      // Filtrar por zona seleccionada
-      const zoneIdNum = typeof zoneId === 'string' ? parseInt(zoneId, 10) : zoneId;
-      this.mesasFiltradas = this.tables.filter(table => {
-        const tableZoneId = typeof table.zone_id === 'string' ? parseInt(table.zone_id, 10) : table.zone_id;
-        return tableZoneId === zoneIdNum;
-      });
-    }
-
-    // Limpiar búsqueda de texto
-    this.terminoBusquedaTable = '';
-  }
-
-  contarMesasPorZona(zoneId: string | number): number {
-    const zoneIdNum = typeof zoneId === 'string' ? parseInt(zoneId, 10) : zoneId;
-    return this.tables.filter(table => {
-      const tableZoneId = typeof table.zone_id === 'string' ? parseInt(table.zone_id, 10) : table.zone_id;
-      return tableZoneId === zoneIdNum;
-    }).length;
-  }
-
-
-  abrirEdicionProduct(product: Product) {
-    this.productPanelMode = 'edit';
-    this.editingProduct = product;
-    this.editProductForm = {
-      name: product.name,
-      family_id: product.family_id,
-      tax_id: product.tax_id.toString(),
-      price: product.price / 100,
-      stock: product.stock,
-      image_src: product.image_src,
-    };
-  }
-
-  salirEdicionProduct() {
-    this.productPanelMode = 'create';
-    this.editingProduct = null;
-    this.editProductForm = {
-      name: '',
-      family_id: '',
-      tax_id: '',
-      price: 0,
-      stock: 0,
-      image_src: '',
-    };
-  }
-
-  creatEmptyProductForm(): ProductCreateForm {
-    return {
-      name: '',
-      family_id: '',
-      tax_id: '',
-      price: 0,
-      stock: 0,
-      image_src: '',
-      active: true,
-    };
-  }
-
-  guardarProductoPanel() {
-    if (this.productPanelMode === 'edit') {
-      this.guardarEdicionProduct();
-      return;
-    }
-
-    if (this.productPanelMode === 'create') {
-      this.guardarNuevoProduct();
-    }
-  }
-
-  async guardarEdicionProduct() {
-    if (this.editingProduct === null) {
-      return;
-    }
-
-    if (!this.editProductForm.name.trim() || !this.editProductForm.family_id || !this.editProductForm.tax_id) {
-      alert('Faltan campos obligatorios');
-      return;
-    }
-
-    const payload: any = {
-      name: this.editProductForm.name.trim(),
-      family_id: this.editProductForm.family_id || '',
-      tax_id: this.editProductForm.tax_id,
-      price: Math.round(Number(this.editProductForm.price) * 100),
-      stock: Number(this.editProductForm.stock),
-      image_src: this.editProductForm.image_src.trim() || null,
-    };
-
-    console.log('Guardando edición de producto. Payload:', payload);
-
-    this.productService.updateProduct(this.editingProduct.id.toString(), payload).subscribe({
-      next: (response: any) => {
-        const productIndex = this.products.findIndex(p => p.id?.toString() === this.editingProduct?.id?.toString());
-
-        if (productIndex >= 0) {
-          this.products[productIndex] = {
-            ...this.products[productIndex],
-            name: response?.name ?? this.products[productIndex].name,
-            family_id: response?.family_id ?? this.products[productIndex].family_id,
-            tax_id: response?.tax_id ?? this.products[productIndex].tax_id,
-            price: response?.price ?? this.products[productIndex].price,
-            stock: response?.stock ?? this.products[productIndex].stock,
-            image_src: response?.image_src ?? this.products[productIndex].image_src,
-            updated_at: response?.updated_at ?? this.products[productIndex].updated_at,
-          };
-          this.productosFiltrados = [...this.products];
-        }
-
-        this.mostrarConfirmacionGuardadoProduct();
-        this.salirEdicionProduct();
-      },
-      error: (error) => {
-        console.error('Error al actualizar:', error);
-        this.mostrarErrorGuardadoProduct();
-      }
-    });
-  }
-
-  guardarNuevoProduct() {
-    const userData = this.authService.getUserData();
-    const restaurantId = userData?.restaurant_id;
-
-    if (!restaurantId) {
-      console.error('No se pudo obtener el restaurant_id del usuario autenticado');
-      return;
-    }
-
-    // Verify that families and taxes are loaded
-    if (!this.familiasParaProductos || this.familiasParaProductos.length === 0) {
-      alert('Debes crear al menos una familia antes de crear productos. Ve a la sección de Familias.');
-      return;
-    }
-
-    if (!this.taxes || this.taxes.length === 0) {
-      alert('Debes crear al menos un impuesto antes de crear productos. Ve a la sección de Impuestos.');
-      return;
-    }
-
-    // family_id es UUID (string)
-    const familyId = this.createProductForm.family_id || '';
-    const taxId = this.createProductForm.tax_id || '';
-    const priceNum = Number(this.createProductForm.price);
-    const stockNum = Number(this.createProductForm.stock);
-
-    console.log('Validando producto:', { familyId, taxId, name: this.createProductForm.name });
-
-    // Validate required fields and their numeric values
-    if (!this.createProductForm.name.trim()) {
-      alert('El nombre del producto es obligatorio');
-      return;
-    }
-
-    if (!familyId || familyId.trim() === '') {
-      alert('Debe seleccionar una familia');
-      return;
-    }
-
-    if (!taxId || taxId.trim() === '') {
-      alert('Debe seleccionar un impuesto');
-      return;
-    }
-
-    // Verify that selected family and tax actually exist in the loaded data
-    const selectedFamily = this.familiasParaProductos.find(f => f.id === familyId);
-
-    if (!selectedFamily) {
-      alert(`Error: La familia seleccionada no es válida.`);
-      return;
-    }
-
-    const selectedTax = this.taxes.find(t => t.id === taxId);
-
-    if (!selectedTax) {
-      alert(`Error: El impuesto seleccionado no es válido.`);
-      return;
-    }
-
-    if (priceNum < 0 || isNaN(priceNum)) {
-      return;
-    }
-
-    if (stockNum < 0 || isNaN(stockNum)) {
-      return;
-    }
-
-    let activeValue = this.createProductForm.active;
-    if (typeof activeValue === 'string') {
-      activeValue = activeValue === 'true' || activeValue === '1';
-    }
-
-    const payload: any = {
-      name: this.createProductForm.name.trim(),
-      family_id: familyId,
-      tax_id: taxId,
-      price: Math.round(priceNum * 100),
-      stock: stockNum,
-      image_src: this.createProductForm.image_src.trim() || null,
-      active: Boolean(activeValue),
-      restaurant_id: Number(restaurantId),
-    };
-
-    console.log('Enviando payload:', payload);
-
-    this.productService.createProduct(payload).subscribe({
-      next: (response: any) => {
-        console.log('Respuesta del servidor:', response);
-        const createdProduct: Product = {
-          id: response?.id ?? response?.uuid,
-          name: response?.name ?? this.createProductForm.name.trim(),
-          family_id: response?.family_id ?? this.createProductForm.family_id,
-          tax_id: response?.tax_id ?? this.createProductForm.tax_id,
-          price: response?.price,
-          stock: response?.stock ?? this.createProductForm.stock,
-          image_src: response?.image_src ?? this.createProductForm.image_src.trim(),
-          active: response?.active ?? Boolean(this.createProductForm.active),
-          restaurant_id: response?.restaurant_id ?? restaurantId,
-        };
-
-        this.products = [...this.products, createdProduct];
-
-        if (this.terminoBusquedaProduct) {
-          this.buscarProductos();
-        } else {
-          this.productosFiltrados = [...this.products];
-        }
-
-        this.createProductForm = this.creatEmptyProductForm();
-        this.mostrarConfirmacionGuardadoProduct();
-      },
-      error: (error) => {
-        console.error('Error al crear:', error);
-        this.mostrarErrorGuardadoProduct();
-      }
-    });
-  }
-
-  async confirmarEliminarProduct(product: Product) {
-    const alert = await this.alertController.create({
-      header: 'Eliminar producto',
-      message: `¿Estás seguro de que quieres eliminar <strong>${product.name}</strong>?`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'secondary'
-        },
-        {
-          text: 'Eliminar',
-          handler: () => {
-            this.eliminarProduct(product.id);
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  eliminarProduct(id: string | number) {
-    this.productService.deleteProduct(id.toString()).subscribe({
-      next: () => {
-        this.cargarProductos();
-      },
-      error: (error) => {
-        console.error('Error al eliminar:', error);
-      }
-    });
-  }
-
-  editarProduct(product: Product) {
-    this.abrirEdicionProduct(product);
-  }
-
-  cambiarEstadoProduct(product: Product) {
-    const payload = {
-      active: !product.active,
-    };
-
-    this.productService.updateProduct(product.id.toString(), payload).subscribe({
-      next: (response: any) => {
-        const productIndex = this.products.findIndex(p => p.id?.toString() === product.id?.toString());
-
-        if (productIndex >= 0) {
-          this.products[productIndex].active = response?.active ?? !this.products[productIndex].active;
-          this.productosFiltrados = [...this.products];
-        }
-      },
-      error: (error) => {
-        console.error('Error al cambiar estado:', error);
-      }
-    });
-  }
-
-  async mostrarConfirmacionGuardadoProduct() {
-    const alert = await this.alertController.create({
-      header: 'Cambios guardados',
-      message: 'El producto ha sido actualizado correctamente.',
-      buttons: [
-        {
-          text: 'Aceptar',
-          role: 'confirm',
-          cssClass: 'success'
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  async mostrarErrorGuardadoProduct() {
-    const alert = await this.alertController.create({
-      header: 'Error',
-      message: 'No se pudieron guardar los cambios. Intenta de nuevo.',
-      buttons: [
-        {
-          text: 'Aceptar',
-          role: 'confirm',
-          cssClass: 'danger'
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  obtenerNombreFamilia(familyId: string): string {
-    if (!familyId) {
-      return 'Sin familia';
-    }
-
-    // Buscar en familiasParaProductos
-    const family = this.familiasParaProductos.find(f => f.id === familyId);
-
-    return family?.name ?? `Familia ${familyId}`;
-  }
-
-  obtenerNombreImpuesto(taxId: number | string): string {
-    if (!taxId) {
-      return 'Sin impuesto';
-    }
-
-    const taxIdStr = taxId.toString();
-    const tax = this.taxes.find(t => {
-      const tId = t.id?.toString() || '';
-      const tUuid = t.uuid?.toString() || '';
-      return tId === taxIdStr || tUuid === taxIdStr;
-    });
-
-    return tax?.name ?? `Impuesto ${taxId}`;
-  }
-
-  formatearPrecio(cents: number): string {
-    return (cents / 100).toFixed(2) + '€';
   }
 
   // ========== MÉTODOS DE IMPUESTOS ==========
@@ -1410,6 +817,63 @@ export class DashboardPage implements OnInit {
     this.terminoBusquedaTable = '';
     this.zonaSeleccionadaFiltro = null;
     this.mesasFiltradas = [...this.tables];
+  }
+
+  filtrarPorZona(zoneId: string | number | null) {
+    this.zonaSeleccionadaFiltro = zoneId;
+    
+    if (zoneId === null) {
+      this.mesasFiltradas = [...this.tables];
+      return;
+    }
+
+    this.mesasFiltradas = this.tables.filter(table => {
+      const tableZoneId = table.zone_id?.toString() || '';
+      const tableZoneNum = Number(table.zone_id);
+      const zoneIdStr = zoneId.toString();
+      
+      const zone = this.zones.find(z => {
+        const zId = z.id?.toString() || '';
+        const zUuid = z.uuid?.toString() || '';
+        const zDbId = z.database_id;
+        return (zDbId && zDbId === zoneId) ||
+          zId === zoneIdStr ||
+          zUuid === zoneIdStr;
+      });
+
+      if (!zone) return false;
+
+      // Comparar con los identificadores de la mesa
+      const zoneDbId = zone.database_id;
+      return (zoneDbId && zoneDbId === tableZoneNum) ||
+        zone.id?.toString() === tableZoneId ||
+        zone.uuid?.toString() === tableZoneId;
+    });
+  }
+
+  contarMesasPorZona(zoneId: string | number): number {
+    return this.tables.filter(table => {
+      const tableZoneId = table.zone_id?.toString() || '';
+      const tableZoneNum = Number(table.zone_id);
+      const zoneIdStr = zoneId.toString();
+      
+      const zone = this.zones.find(z => {
+        const zId = z.id?.toString() || '';
+        const zUuid = z.uuid?.toString() || '';
+        const zDbId = z.database_id;
+        return (zDbId && zDbId === zoneId) ||
+          zId === zoneIdStr ||
+          zUuid === zoneIdStr;
+      });
+
+      if (!zone) return false;
+
+      // Comparar con los identificadores de la mesa
+      const zoneDbId = zone.database_id;
+      return (zoneDbId && zoneDbId === tableZoneNum) ||
+        zone.id?.toString() === tableZoneId ||
+        zone.uuid?.toString() === tableZoneId;
+    }).length;
   }
 
   abrirEdicionTable(table: Table) {
