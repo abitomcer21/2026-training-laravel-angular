@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonIcon } from '@ionic/angular/standalone';
@@ -41,8 +41,19 @@ interface ProductCreateForm {
     standalone: true,
     imports: [CommonModule, FormsModule, IonIcon],
 })
-export class ProductosComponent implements OnChanges {
-    @Input() active = false;
+export class ProductosComponent implements OnInit {
+    @Input() set active(value: boolean) {
+        this._active = value;
+        if (value && !this.productosCargados) {
+            this.cargarProductos();
+        }
+    }
+
+    get active(): boolean {
+        return this._active;
+    }
+
+    private _active: boolean = false;
     @Input() familias: Family[] = [];
 
     // Loading
@@ -96,13 +107,8 @@ export class ProductosComponent implements OnChanges {
         });
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['active']?.currentValue === true && !this.productosCargados) {
-            this.cargarProductos();
-        }
-        if (changes['familias']?.currentValue) {
-            this.familiasParaProductos = changes['familias'].currentValue;
-        }
+    ngOnInit() {
+        // La carga se dispara mediante el setter de @Input active
     }
 
     cargarProductos() {

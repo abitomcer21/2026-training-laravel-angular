@@ -21,23 +21,19 @@
 
 <ion-content class="ion-padding">
 
-  <!--usuarios-->
-  <app-usuarios [active]="opcionSeleccionada === 'usuarios'" />
-  <!-- familias-->
-  <app-familias [active]="opcionSeleccionada === 'familias'" />
-  <!-- productos-->
-  <app-productos [active]="opcionSeleccionada === 'productos'" />
-  <!-- impuestos-->
-  <app-impuestos [active]="opcionSeleccionada === 'impuestos'" />
-  <!-- zonas-->
-  <app-zonas [active]="opcionSeleccionada === 'zonas'" />
-  <!-- mesas-->
-  <app-mesas [active]="opcionSeleccionada === 'mesas'" />
-  
-  <div class="app-footer">
-    <div class="footer-content">
-      <p>&copy; 2026 Yurest. Todos los derechos reservados.</p>
-    </div>
+  <div class="content-container">
+    <!--usuarios-->
+    <app-usuarios [active]="opcionSeleccionada === 'usuarios'" />
+    <!-- familias-->
+    <app-familias [active]="opcionSeleccionada === 'familias'" />
+    <!-- productos-->
+    <app-productos [active]="opcionSeleccionada === 'productos'" />
+    <!-- impuestos-->
+    <app-impuestos [active]="opcionSeleccionada === 'impuestos'" />
+    <!-- zonas-->
+    <app-zonas [active]="opcionSeleccionada === 'zonas'" />
+    <!-- mesas-->
+    <app-mesas [active]="opcionSeleccionada === 'mesas'" />
   </div>
 
 </ion-content>

@@ -17,7 +17,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-height: calc(100vh - 200px);
+  flex: 1;
   padding: 0;
 }
 
@@ -1503,7 +1503,7 @@ select.editor-input {
 
 /* Pantallas pequeñas (768px y menos) */
 @media (max-width: 768px) {
-  ion-content .ion-padding {
+  ion-content.ion-padding::part(scroll) {
     padding: 12px;
     padding-bottom: 60px;
   }
@@ -1722,7 +1722,7 @@ select.editor-input {
 
 /* Pantallas muy pequeñas (480px y menos) */
 @media (max-width: 480px) {
-  ion-content .ion-padding {
+  ion-content.ion-padding::part(scroll) {
     padding: 8px;
     padding-bottom: 55px;
   }

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -33,8 +33,19 @@ interface TableCreateForm {
     IonicModule
   ]
 })
-export class MesasComponent implements OnInit, OnChanges {
-  @Input() active: boolean = false;
+export class MesasComponent implements OnInit {
+  @Input() set active(value: boolean) {
+    this._active = value;
+    if (value && !this.mesasCargadas) {
+      this.cargarMesas();
+    }
+  }
+
+  get active(): boolean {
+    return this._active;
+  }
+
+  private _active: boolean = false;
 
   // Loading indicadores
   mesasLoading: boolean = false;
@@ -77,12 +88,6 @@ export class MesasComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     // La carga se dispara mediante el setter de @Input active
-  }
-
-  ngOnChanges() {
-    if (this.active && !this.mesasCargadas) {
-      this.cargarMesas();
-    }
   }
 
   cargarMesas() {

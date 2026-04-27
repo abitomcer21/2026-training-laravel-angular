@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonIcon } from '@ionic/angular/standalone';
@@ -28,8 +28,19 @@ interface FamilyCreateForm {
     standalone: true,
     imports: [CommonModule, FormsModule, IonIcon],
 })
-export class FamiliasComponent implements OnChanges {
-    @Input() active = false;
+export class FamiliasComponent implements OnInit {
+    @Input() set active(value: boolean) {
+        this._active = value;
+        if (value && !this.familiasCargadas) {
+            this.cargarFamilias();
+        }
+    }
+
+    get active(): boolean {
+        return this._active;
+    }
+
+    private _active: boolean = false;
 
     familiasLoading = false;
     familiasCargadas = false;
@@ -55,10 +66,8 @@ export class FamiliasComponent implements OnChanges {
         });
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['active']?.currentValue === true && !this.familiasCargadas) {
-            this.cargarFamilias();
-        }
+    ngOnInit() {
+        // La carga se dispara mediante el setter de @Input active
     }
 
     cargarFamilias() {

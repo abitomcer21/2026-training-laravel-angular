@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -31,8 +31,19 @@ interface ZoneCreateForm {
     IonicModule
   ]
 })
-export class ZonasComponent implements OnInit, OnChanges {
-  @Input() active: boolean = false;
+export class ZonasComponent implements OnInit {
+  @Input() set active(value: boolean) {
+    this._active = value;
+    if (value && !this.zonasCargadas) {
+      this.cargarZonas();
+    }
+  }
+
+  get active(): boolean {
+    return this._active;
+  }
+
+  private _active: boolean = false;
 
   // Loading indicadores
   zonasLoading: boolean = false;
@@ -71,12 +82,6 @@ export class ZonasComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     // La carga se dispara mediante el setter de @Input active
-  }
-
-  ngOnChanges() {
-    if (this.active && !this.zonasCargadas) {
-      this.cargarZonas();
-    }
   }
 
   cargarZonas() {

@@ -147,52 +147,69 @@ ion-title {
     font-weight: 600;
 }
 
-/* Ion Content - Sin scroll de pantalla completa */
+/* ========================================== */
+/* ION-CONTENT - OCUPA TODO EL ESPACIO        */
+/* ========================================== */
+
+/*
+ * FIX: Se elimina el height fijo con calc(100vh - 70px) porque
+ * no contemplaba la altura del .nav-modern (~65px), dejando un
+ * hueco vacío en la parte inferior. Ionic gestiona la altura de
+ * ion-content internamente, no se debe sobreescribir con px fijos.
+ */
 ion-content {
     --background: linear-gradient(180deg, #e3ecf5 0%, #d4e1f0 100%);
     --overflow: hidden;
     --keyboard-offset: 0px;
-    position: relative;
-    height: calc(100vh - 140px);
-    /* Altura total menos header y footer */
 }
 
 ion-content::part(background) {
     background: linear-gradient(180deg, #e3ecf5 0%, #d4e1f0 100%);
 }
 
-ion-content .ion-padding {
-    padding: 20px;
-    padding-bottom: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
+/*
+ * FIX: el padding debe aplicarse al scroll interno de ion-content,
+ * no a un hijo inexistente.
+ */
+ion-content.ion-padding::part(scroll) {
+  padding: 20px;
+  padding-bottom: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .content-container {
-    flex: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
-/* Footer fijo */
-.app-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(135deg, #1a3d5c 0%, #2c5f8a 100%);
-    padding: 12px 20px;
-    text-align: center;
-    z-index: 1000;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+app-usuarios,
+app-familias,
+app-productos,
+app-impuestos,
+app-zonas,
+app-mesas {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.footer-content p {
-    margin: 0;
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 500;
-    letter-spacing: 0.5px;
+app-usuarios > div,
+app-familias > div,
+app-productos > div,
+app-impuestos > div,
+app-zonas > div,
+app-mesas > div {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* ========================================== */
@@ -372,8 +389,8 @@ ion-content .ion-padding {
   overflow-x: auto;
   overflow-y: auto;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  max-height: calc(100vh - 500px);
-  min-height: 400px;
+  flex: 1;
+  min-height: 0;
 }
 
 .data-table {
@@ -781,101 +798,4 @@ select.editor-input {
   font-size: 0.72rem;
   font-weight: 700;
   color: #2563eb;
-}
-
-.search-input-field {
-    width: 100%;
-    padding: 12px 48px 12px 48px;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-    background: #f9fafb;
-}
-
-.search-input-field:focus {
-    outline: none;
-    border-color: #3b82f6;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.filter-chips {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    flex-wrap: wrap;
-}
-
-.chip {
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    background: #f3f4f6;
-    color: #6b7280;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.chip:hover {
-    background: #e5e7eb;
-}
-
-.chip.active {
-    background: #3b82f6;
-    color: white;
-}
-
-/* Loading state */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #e5e7eb;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #3b82f6;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 700px;
-}
-
-.data-table thead tr {
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
-}
-
-.data-table th {
-  text-align: left;
-  padding: 14px 16px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.data-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 0.875rem;
-}
-
-.data-table tbody tr:hover {
-  background: #f9fafb;
 }
