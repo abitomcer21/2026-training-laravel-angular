@@ -578,4 +578,197 @@ export class ProductosComponent implements OnChanges {
     formatearPrecio(cents: number): string {
         return (cents / 100).toFixed(2) + '€';
     }
+
+    async abrirCrearFamilia() {
+        const alert = await this.alertController.create({
+            header: 'Crear familia',
+            message: 'Ingresa el nombre de la nueva familia',
+            inputs: [
+                {
+                    name: 'familyName',
+                    type: 'text',
+                    placeholder: 'Ej: Bebidas, Postres, Carnes...',
+                    attributes: {
+                        maxlength: 100,
+                        autocomplete: 'off'
+                    }
+                }
+            ],
+            buttons: [
+                {
+                    text: 'Cancelar',
+                    role: 'cancel',
+                    cssClass: 'secondary'
+                },
+                {
+                    text: 'Crear',
+                    handler: (data: any) => {
+                        const name = data.familyName?.trim();
+                        if (name) {
+                            this.crearFamiliaRapida(name);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            ]
+        });
+        await alert.present();
+    }
+
+    crearFamiliaRapida(name: string) {
+        const userData = this.authService.getUserData();
+        const restaurantId = userData?.restaurant_id;
+
+        if (!restaurantId) {
+            console.error('No se pudo obtener el restaurant_id');
+            return;
+        }
+
+        const payload = {
+            name: name.trim(),
+            active: true,
+            restaurant_id: restaurantId
+        };
+
+        this.familyService.createFamily(payload).subscribe({
+            next: (response: any) => {
+                const newFamily: Family = {
+                    id: response?.id ?? response?.uuid,
+                    name: response?.name,
+                    active: response?.active ?? true,
+                    restaurant_id: response?.restaurant_id
+                };
+                this.familiasParaProductos = [...this.familiasParaProductos, newFamily];
+                this.createProductForm.family_id = newFamily.id;
+                this.mostrarConfirmacionFamiliaCreada(name);
+            },
+            error: (error) => {
+                console.error('Error al crear familia:', error);
+                alert('Error al crear la familia');
+            }
+        });
+    }
+
+    async abrirCrearImpuesto() {
+        const alert = await this.alertController.create({
+            header: 'Crear impuesto',
+            message: 'Ingresa el nombre y porcentaje del impuesto',
+            inputs: [
+                {
+                    name: 'taxName',
+                    type: 'text',
+                    placeholder: 'Ej: IVA, IGIC...',
+                    attributes: {
+                        maxlength: 100,
+                        autocomplete: 'off'
+                    }
+                },
+                {
+                    name: 'taxPercentage',
+                    type: 'number',
+                    placeholder: 'Porcentaje (0-100)',
+                    attributes: {
+                        min: 0,
+                        max: 100,
+                        step: 0.01
+                    }
+                }
+            ],
+            buttons: [
+                {
+                    text: 'Cancelar',
+                    role: 'cancel',
+                    cssClass: 'secondary'
+                },
+                {
+                    text: 'Crear',
+                    handler: (data: any) => {
+                        const name = data.taxName?.trim();
+                        const percentage = parseFloat(data.taxPercentage);
+                        if (name && !isNaN(percentage) && percentage >= 0 && percentage <= 100) {
+                            this.crearImpuestoRapido(name, percentage);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            ]
+        });
+        await alert.present();
+    }
+
+    crearImpuestoRapido(name: string, percentage: number) {
+        const userData = this.authService.getUserData();
+        const restaurantId = userData?.restaurant_id;
+
+        if (!restaurantId) {
+            console.error('No se pudo obtener el restaurant_id');
+            return;
+        }
+
+        const payload = {
+            name: name.trim(),
+            percentage: percentage,
+            restaurant_id: restaurantId
+        };
+
+        this.taxService.createTax(payload).subscribe({
+            next: (response: any) => {
+                const newTax: Tax = {
+                    id: response?.id ?? response?.uuid,
+                    name: response?.name,
+                    percentage: response?.percentage,
+                    restaurant_id: response?.restaurant_id
+                };
+                this.taxes = [...this.taxes, newTax];
+                this.createProductForm.tax_id = newTax.id.toString();
+                this.mostrarConfirmacionImpuestoCreado(name);
+            },
+            error: (error) => {
+                console.error('Error al crear impuesto:', error);
+                alert('Error al crear el impuesto');
+            }
+        });
+    }
+
+    async mostrarConfirmacionFamiliaCreada(familyName: string) {
+        const alert = await this.alertController.create({
+            header: 'Familia creada',
+            message: `La familia "${familyName}" ha sido creada y seleccionada automáticamente.`,
+            buttons: [{
+                text: 'Aceptar',
+                role: 'confirm',
+                cssClass: 'success'
+            }]
+        });
+        await alert.present();
+    }
+
+    async mostrarConfirmacionImpuestoCreado(taxName: string) {
+        const alert = await this.alertController.create({
+            header: 'Impuesto creado',
+            message: `El impuesto "${taxName}" ha sido creado y seleccionado automáticamente.`,
+            buttons: [{
+                text: 'Aceptar',
+                role: 'confirm',
+                cssClass: 'success'
+            }]
+        });
+        await alert.present();
+    }
+
+    manejarCambioFamilia(value: string) {
+        if (value === '__create__') {
+            this.createProductForm.family_id = '';
+            this.abrirCrearFamilia();
+        }
+    }
+
+    manejarCambioImpuesto(value: string) {
+        if (value === '__create__') {
+            this.createProductForm.tax_id = '';
+            this.abrirCrearImpuesto();
+        }
+    }
 }

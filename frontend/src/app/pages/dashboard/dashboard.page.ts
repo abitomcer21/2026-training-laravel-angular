@@ -63,7 +63,6 @@ export class DashboardPage implements OnInit {
     });
   }
 
-
   ngOnInit() {
     // Cargar nombre del restaurante
     this.cargarRestaurantName();
@@ -84,7 +83,6 @@ export class DashboardPage implements OnInit {
   seleccionarOpcion(valor: string) {
     this.opcionSeleccionada = valor;
   }
-
 
   cerrarSesion() {
     localStorage.removeItem('isLoggedIn');

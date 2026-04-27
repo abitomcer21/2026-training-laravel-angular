@@ -485,4 +485,96 @@ export class MesasComponent implements OnInit, OnChanges {
     });
     await alert.present();
   }
+
+  manejarCambioZona(value: string | number) {
+    if (value === '__create__') {
+      this.createTableForm.zone_id = '';
+      this.abrirCrearZona();
+    }
+  }
+
+  async abrirCrearZona() {
+    const alert = await this.alertController.create({
+      header: 'Crear nueva zona',
+      message: 'Ingresa el nombre de la zona:',
+      inputs: [
+        {
+          name: 'zoneName',
+          type: 'text',
+          placeholder: 'Nombre de la zona'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Crear',
+          role: 'confirm',
+          handler: (data) => {
+            const zoneName = data?.zoneName?.trim();
+            if (zoneName) {
+              this.crearZonaRapida(zoneName);
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  crearZonaRapida(name: string) {
+    const userData = this.authService.getUserData();
+    const restaurantId = userData?.restaurant_id;
+
+    if (!restaurantId) {
+      console.error('No se pudo obtener el restaurant_id');
+      return;
+    }
+
+    const payload = {
+      name: name.trim(),
+      restaurant_id: restaurantId
+    };
+
+    this.zoneService.createZone(payload).subscribe({
+      next: (response: any) => {
+        const newZone: Zone = {
+          id: response?.id ?? response?.uuid,
+          uuid: response?.id ?? response?.uuid,
+          database_id: response?.database_id,
+          name: response?.name,
+          restaurant_id: response?.restaurant_id
+        };
+        this.zones = [...this.zones, newZone];
+        this.createTableForm.zone_id = newZone.database_id || newZone.id;
+        this.mostrarConfirmacionZonaCreada(name);
+      },
+      error: (error) => {
+        console.error('Error al crear zona:', error);
+        alert('Error al crear la zona');
+      }
+    });
+  }
+
+  async mostrarConfirmacionZonaCreada(zoneName: string) {
+    const alert = await this.alertController.create({
+      header: '¡Zona creada!',
+      message: `La zona "${zoneName}" ha sido creada correctamente.`,
+      buttons: [
+        {
+          text: 'Aceptar',
+          role: 'confirm',
+          cssClass: 'success'
+        }
+      ]
+    });
+    await alert.present();
+  }
 }
+

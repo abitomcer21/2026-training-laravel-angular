@@ -196,20 +196,21 @@
                 <div class="form-field">
                   <label for="create-table-zone">Zona</label>
                   <select id="create-table-zone" name="create_zone_id" [(ngModel)]="createTableForm.zone_id"
+                    (change)="manejarCambioZona(createTableForm.zone_id)"
                     class="editor-input">
                     <option value="" disabled>Selecciona una zona</option>
                     <option *ngFor="let zone of zones" [value]="zone.database_id || zone.id">{{ zone.name }}</option>
+                    <option value="__create__" style="border-top: 1px solid #d1d5db; padding-top: 8px; font-weight: 600; color: #2c5f8a;">+ Crear nueva zona</option>
                   </select>
                 </div>
 
                 <div class="form-info" *ngIf="zones.length === 0">
-                  <p><strong>⚠️ No hay zonas disponibles</strong></p>
-                  <small>Debes crear al menos una zona antes de crear mesas. Ve a la sección de Zonas.</small>
+                  <p><strong>No hay zonas disponibles</strong></p>
+                  <small>Selecciona el campo Zona y elige "+ Crear nueva zona" para crear una rápidamente.</small>
                 </div>
 
                 <div class="editor-actions editor-actions-create">
-                  <button class="btn-primary" type="button" (click)="guardarMesaPanel()"
-                    [disabled]="zones.length === 0">Guardar mesa</button>
+                  <button class="btn-primary" type="button" (click)="guardarMesaPanel()">Guardar mesa</button>
                 </div>
               </div>
             </ng-template>
