@@ -1,0 +1,186 @@
+<div *ngIf="active">
+    <div class="families-layout">
+        <div class="families-main-content">
+            <div class="dashboard-grid">
+                <div class="users-panel users-panel-main">
+            <!-- Header profesional -->
+            <div class="users-header">
+                <div>
+                    <h2>Gestión de categorías</h2>
+                    <p class="header-description">Organiza los productos en familias o categorías.</p>
+                </div>
+            </div>
+
+            <!-- Barra de búsqueda y filtros -->
+            <div class="search-bar">
+                <div class="search-input-wrapper">
+                    <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                    <input type="text" placeholder="Buscar por nombre, ID..." [(ngModel)]="terminoBusquedaFamily"
+                        (input)="buscarFamilias()" class="search-input-field">
+                    <button *ngIf="terminoBusquedaFamily" class="clear-btn" (click)="limpiarBusquedaFamily()">
+                        <ion-icon name="close-outline"></ion-icon>
+                    </button>
+                </div>
+
+                <div class="filter-chips">
+                    <button class="chip" [class.active]="filtroActualFamily === 'nombre'"
+                        (click)="filtrarPorTipoFamily('nombre')">
+                        Nombre
+                    </button>
+                    <button class="chip" [class.active]="filtroActualFamily === 'id'"
+                        (click)="filtrarPorTipoFamily('id')">
+                        ID
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div *ngIf="familiasLoading" class="loading-state">
+                <div class="spinner"></div>
+                <p>Cargando familias...</p>
+            </div>
+
+            <!-- Tabla profesional -->
+            <div *ngIf="!familiasLoading" class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th class="col-id">ID</th>
+                            <th class="col-user">Nombre</th>
+                            <th class="col-role">Estado</th>
+                            <th class="col-actions"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let family of familiasFiltradas; let i = index">
+                            <td class="col-id">
+                                <span class="id-badge">{{ i + 1 }}</span>
+                            </td>
+                            <td class="col-user">
+                                <div class="user-cell">
+                                    <div class="user-avatar"
+                                        style="background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);">
+                                        <span>{{ family.name.charAt(0).toUpperCase() }}</span>
+                                    </div>
+                                    <div class="user-info">
+                                        <span class="user-name">{{ family.name }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="col-role">
+                                <div class="toggle-wrapper">
+                                    <input type="checkbox" class="toggle-checkbox" [checked]="family.active"
+                                        (change)="cambiarEstadoFamily(family)" [id]="'toggle-' + i">
+                                    <label [for]="'toggle-' + i" class="toggle-label">
+                                        <span class="toggle-text">{{ family.active ? 'Activa' : 'Inactiva' }}</span>
+                                    </label>
+                                </div>
+                            </td>
+                            <td class="col-actions">
+                                <div class="action-buttons">
+                                    <button class="action-btn edit" (click)="editarFamily(family)" title="Editar">
+                                        <ion-icon name="create-outline"></ion-icon>
+                                    </button>
+                                    <button class="action-btn delete" (click)="confirmarEliminarFamily(family)"
+                                        title="Eliminar">
+                                        <ion-icon name="trash-outline"></ion-icon>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="familiasFiltradas.length === 0">
+                            <td colspan="4" class="empty-state-row">
+                                <div class="empty-state-content">
+                                    <ion-icon name="albums-outline"></ion-icon>
+                                    <h4>No hay familias</h4>
+                                    <p>No se encontraron familias con los criterios de búsqueda</p>
+                                    <button class="btn-outline" (click)="limpiarBusquedaFamily()">Limpiar
+                                        búsqueda</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <aside class="editor-panel">
+            <div class="editor-panel-header">
+                <div>
+                    <p class="eyebrow">{{ familyPanelMode === 'create' ? 'Alta permanente' : 'Edición rápida' }}</p>
+                    <h3>{{ familyPanelMode === 'create' ? 'Nueva familia' : 'Editar familia' }}</h3>
+                </div>
+                <button *ngIf="familyPanelMode === 'edit'" class="btn-outline btn-small"
+                    (click)="salirEdicionFamily()">Volver al alta</button>
+            </div>
+
+            <div *ngIf="familyPanelMode === 'edit' && editingFamily; else createFamilyFormState"
+                class="editor-form editor-form-edit">
+                <div class="editor-summary">
+                    <div class="user-avatar editor-avatar"
+                        style="background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);">
+                        <span>{{ editingFamily.name.charAt(0).toUpperCase() }}</span>
+                    </div>
+                    <div>
+                        <strong>{{ editingFamily.name }}</strong>
+                        <!-- <p>UUID: {{ editingFamily.uuid || editingFamily.id }}</p> -->
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="edit-family-name">Nombre</label>
+                    <input id="edit-family-name" type="text" name="name" [(ngModel)]="editFamilyForm.name"
+                        class="editor-input">
+                </div>
+
+                <div class="form-info">
+                    <p><strong>Estado:</strong> {{ editingFamily.active ? 'Activa' : 'Inactiva' }}</p>
+                    <small>Edita el estado desde el interruptor en el listado</small>
+                </div>
+
+                <div class="editor-actions">
+                    <button class="btn-outline" type="button" (click)="salirEdicionFamily()">Cancelar</button>
+                    <button class="btn-primary" type="button" (click)="guardarFamiliaPanel()">Guardar cambios</button>
+                </div>
+            </div>
+
+            <ng-template #createFamilyFormState>
+                <div class="editor-form editor-form-create">
+                    <div class="editor-summary">
+                        <div class="user-avatar editor-avatar editor-avatar-create">
+                            <span>+</span>
+                        </div>
+                        <div>
+                            <strong>Nueva familia</strong>
+                            <p>Crea una nueva categoría para organizar productos.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="create-family-name">Nombre</label>
+                        <input id="create-family-name" type="text" name="create_name"
+                            [(ngModel)]="createFamilyForm.name" class="editor-input">
+                    </div>
+
+                    <div class="form-field">
+                        <label for="create-family-active">Estado inicial</label>
+                        <div class="toggle-field">
+                            <input type="checkbox" id="create-family-active" class="toggle-checkbox"
+                                [(ngModel)]="createFamilyForm.active" name="create_active">
+                            <label for="create-family-active" class="toggle-label">
+                                <span class="toggle-text">{{ createFamilyForm.active ? 'Activa' : 'Inactiva' }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="editor-actions editor-actions-create">
+                        <button class="btn-primary" type="button" (click)="guardarFamiliaPanel()">Guardar
+                            familia</button>
+                    </div>
+                </div>
+            </ng-template>
+        </aside>
+            </div>
+        </div>
+    </div>
+</div>

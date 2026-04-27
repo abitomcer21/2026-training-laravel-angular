@@ -24,19 +24,11 @@ import { TableService, Table } from '../../services/api/table.service';
 import { RestaurantService, Restaurant } from '../../services/api/restaurant.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { UsuariosComponent } from '../../components/usuarios/usuarios.component';
+import { FamiliasComponent } from '../../components/familias/familias.component';
 interface MenuItem {
   nombre: string;
   valor: string;
   icono: string;
-}
-
-interface FamilyEditForm {
-  name: string;
-}
-
-interface FamilyCreateForm {
-  name: string;
-  active: boolean | string;
 }
 
 interface ProductEditForm {
@@ -95,7 +87,7 @@ interface TableCreateForm {
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonButton, IonIcon, IonLabel, IonSpinner, IonAvatar,
-    IonItem, IonInput, IonChip, IonBadge, UsuariosComponent
+    IonItem, IonInput, IonChip, IonBadge, UsuariosComponent, FamiliasComponent
   ]
 })
 export class DashboardPage implements OnInit {
@@ -103,27 +95,11 @@ export class DashboardPage implements OnInit {
   restaurantName: string = 'Yurest TPV';
 
   // Loading indicators por sección
-  familiasLoading: boolean = false;
   productosLoading: boolean = false;
   impuestosLoading: boolean = false;
   zonasLoading: boolean = false;
   mesasLoading: boolean = false;
 
-
-
-  // Familias
-  families: Family[] = [];
-  familiasFiltradas: Family[] = [];
-  familiasCargadas: boolean = false;
-  familyPanelMode: 'edit' | 'create' = 'create';
-  editingFamily: Family | null = null;
-  editFamilyForm: FamilyEditForm = {
-    name: '',
-  };
-  createFamilyForm: FamilyCreateForm = {
-    name: '',
-    active: true,
-  };
 
   // Productos
   products: Product[] = [];
@@ -131,6 +107,7 @@ export class DashboardPage implements OnInit {
   productosCargados: boolean = false;
   productPanelMode: 'edit' | 'create' = 'create';
   familiaSeleccionadaFiltro: string | null = null;
+  familiasParaProductos: Family[] = [];
   editingProduct: Product | null = null;
   editProductForm: ProductEditForm = {
     name: '',
@@ -152,7 +129,6 @@ export class DashboardPage implements OnInit {
 
   // Datos globales para dropdowns
   taxes: Tax[] = [];
-  familiasParaProductos: Family[] = [];
 
   // Impuestos
   impuestoCargados: boolean = false;
@@ -199,8 +175,6 @@ export class DashboardPage implements OnInit {
   // Búsqueda
   terminoBusqueda: string = '';
   filtroActual: string = 'nombre';
-  terminoBusquedaFamily: string = '';
-  filtroActualFamily: string = 'nombre';
   terminoBusquedaProduct: string = '';
   filtroActualProduct: string = 'nombre';
   terminoBusquedaTax: string = '';
@@ -220,8 +194,8 @@ export class DashboardPage implements OnInit {
   ];
 
   constructor(
-    private familyService: FamilyService,
     private productService: ProductService,
+    private familyService: FamilyService,
     private taxService: TaxService,
     private zoneService: ZoneService,
     private tableService: TableService,
@@ -239,8 +213,6 @@ export class DashboardPage implements OnInit {
 
 
   ngOnInit() {
-
-    this.createFamilyForm = this.creatEmptyFamilyForm();
     this.createProductForm = this.creatEmptyProductForm();
 
     // Cargar nombre del restaurante
@@ -261,9 +233,6 @@ export class DashboardPage implements OnInit {
 
   seleccionarOpcion(valor: string) {
     this.opcionSeleccionada = valor;
-    if (valor === 'familias' && !this.familiasCargadas) {
-      this.cargarFamilias();
-    }
     if (valor === 'productos' && !this.productosCargados) {
       this.cargarProductos();
     }
@@ -278,320 +247,6 @@ export class DashboardPage implements OnInit {
     }
   }
 
-
-
-  // ========== MÉTODOS DE FAMILIAS ==========
-
-  cargarFamilias() {
-    this.familiasLoading = true;
-    const userData = this.authService.getUserData();
-    const userRestaurantId = userData?.restaurant_id;
-
-    this.familyService.getFamilies().subscribe({
-      next: (response: any) => {
-        let families: any[] = [];
-        if (Array.isArray(response)) {
-          families = response;
-        } else if (response?.family && Array.isArray(response.family)) {
-          families = response.family;
-        } else if (response?.Family && Array.isArray(response.Family)) {
-          families = response.Family;
-        } else if (response?.data && Array.isArray(response.data)) {
-          families = response.data;
-        } else {
-          families = [];
-        }
-
-        // Mapear familias para asegurar que tengan database_id
-        families = families.map(f => {
-          // Si no tiene database_id pero el id es numérico, usarlo como database_id
-          if (!f.database_id && f.id && !isNaN(Number(f.id))) {
-            return { ...f, database_id: Number(f.id) };
-          }
-          return f;
-        });
-
-        console.log('Familias cargadas en cargarFamilias:', families);
-        if (families.length > 0) {
-          console.log('Primera familia completa:', families[0]);
-          console.log('Todas las propiedades de primera familia:', Object.keys(families[0]));
-        } else {
-          console.warn('No hay familias cargadas');
-        }
-
-        if (userRestaurantId) {
-          this.families = families.filter(family => family.restaurant_id === userRestaurantId);
-        } else {
-          this.families = families;
-        }
-
-        this.familiasFiltradas = [...this.families];
-        this.familiasParaProductos = [...this.families];
-        this.familiasCargadas = true;
-        this.familiasLoading = false;
-      },
-      error: (error) => {
-        console.error('Error al cargar familias:', error);
-        this.families = [];
-        this.familiasFiltradas = [];
-        this.familiasParaProductos = [];
-        this.familiasCargadas = false;
-        this.familiasLoading = false;
-      }
-    });
-  }
-
-  buscarFamilias() {
-    if (!this.terminoBusquedaFamily) {
-      this.familiasFiltradas = [...this.families];
-      return;
-    }
-
-    const termino = this.terminoBusquedaFamily.toLowerCase();
-
-    this.familiasFiltradas = this.families.filter((family, index) => {
-      switch (this.filtroActualFamily) {
-        case 'id':
-          const displayId = (index + 1).toString();
-          return displayId.includes(termino);
-        case 'nombre':
-        default:
-          return family.name.toLowerCase().includes(termino);
-      }
-    });
-  }
-
-  filtrarPorTipoFamily(tipo: string) {
-    this.filtroActualFamily = tipo;
-    this.buscarFamilias();
-  }
-
-  limpiarBusquedaFamily() {
-    this.terminoBusquedaFamily = '';
-    this.familiasFiltradas = [...this.families];
-  }
-
-  abrirEdicionFamily(family: Family) {
-    this.familyPanelMode = 'edit';
-    this.editingFamily = family;
-    this.editFamilyForm = {
-      name: family.name,
-    };
-  }
-
-  salirEdicionFamily() {
-    this.familyPanelMode = 'create';
-    this.editingFamily = null;
-    this.editFamilyForm = {
-      name: '',
-    };
-  }
-
-  creatEmptyFamilyForm(): FamilyCreateForm {
-    return {
-      name: '',
-      active: true,
-    };
-  }
-
-  guardarFamiliaPanel() {
-    if (this.familyPanelMode === 'edit') {
-      this.guardarEdicionFamily();
-      return;
-    }
-
-    if (this.familyPanelMode === 'create') {
-      this.guardarNuevoFamily();
-    }
-  }
-
-  async guardarEdicionFamily() {
-    if (this.editingFamily === null) {
-      return;
-    }
-
-    const payload: any = {
-      name: this.editFamilyForm.name.trim() || this.editingFamily.name,
-    };
-
-    this.familyService.updateFamily(this.editingFamily.id.toString(), payload).subscribe({
-      next: (response: any) => {
-        const familyIndex = this.families.findIndex(f => f.id?.toString() === this.editingFamily?.id?.toString());
-
-        if (familyIndex >= 0) {
-          this.families[familyIndex] = {
-            ...this.families[familyIndex],
-            name: response?.name ?? this.families[familyIndex].name,
-            updated_at: response?.updated_at ?? this.families[familyIndex].updated_at,
-          };
-          this.familiasFiltradas = [...this.families];
-          // Actualizar también la lista de familias para productos
-          this.familiasParaProductos = [...this.families];
-        }
-
-        this.mostrarConfirmacionGuardadoFamily();
-        this.salirEdicionFamily();
-      },
-      error: (error) => {
-        console.error('Error al actualizar:', error);
-        this.mostrarErrorGuardadoFamily();
-      }
-    });
-  }
-
-  guardarNuevoFamily() {
-    // Obtener restaurant_id del usuario autenticado
-    const userData = this.authService.getUserData();
-    const restaurantId = userData?.restaurant_id;
-
-    if (!restaurantId) {
-      console.error('No se pudo obtener el restaurant_id del usuario autenticado');
-      return;
-    }
-
-    if (!this.createFamilyForm.name.trim()) {
-      console.error('Faltan campos obligatorios');
-      return;
-    }
-
-    // Convertir active a booleano (el select devuelve string)
-    let activeValue = this.createFamilyForm.active;
-    if (typeof activeValue === 'string') {
-      activeValue = activeValue === 'true' || activeValue === '1';
-    }
-
-    const payload: any = {
-      name: this.createFamilyForm.name.trim(),
-      active: activeValue,
-      restaurant_id: Number(restaurantId),
-    };
-
-    this.familyService.createFamily(payload).subscribe({
-      next: (response: any) => {
-        const createdFamily: Family = {
-          id: response?.id ?? response?.uuid,
-          name: response?.name ?? this.createFamilyForm.name.trim(),
-          active: response?.active ?? this.createFamilyForm.active,
-          restaurant_id: response?.restaurant_id ?? restaurantId,
-        };
-
-        this.families = [...this.families, createdFamily];
-
-        // Actualizar también la lista de familias para productos
-        this.familiasParaProductos = [...this.families];
-
-        if (this.terminoBusquedaFamily) {
-          this.buscarFamilias();
-        } else {
-          this.familiasFiltradas = [...this.families];
-        }
-
-        this.createFamilyForm = this.creatEmptyFamilyForm();
-        this.mostrarConfirmacionGuardadoFamily();
-      },
-      error: (error) => {
-        console.error('Error al crear:', error);
-        this.mostrarErrorGuardadoFamily();
-      }
-    });
-  }
-
-  async confirmarEliminarFamily(family: Family) {
-    const alert = await this.alertController.create({
-      header: 'Eliminar familia',
-      message: `¿Estás seguro de que quieres eliminar <strong>${family.name}</strong>?`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'secondary'
-        },
-        {
-          text: 'Eliminar',
-          handler: () => {
-            this.eliminarFamily(family.id);
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  eliminarFamily(id: string | number) {
-    this.familyService.deleteFamily(id.toString()).subscribe({
-      next: () => {
-        this.cargarFamilias();
-      },
-      error: (error) => {
-        console.error('Error al eliminar:', error);
-      }
-    });
-  }
-
-  editarFamily(family: Family) {
-    this.abrirEdicionFamily(family);
-  }
-
-  cambiarEstadoFamily(family: Family) {
-    const payload = {
-      active: !family.active,
-    };
-
-    this.familyService.updateFamily(family.id.toString(), payload).subscribe({
-      next: (response: any) => {
-        // Buscar y actualizar la familia en el array
-        const familyIndex = this.families.findIndex(f => f.id?.toString() === family.id?.toString());
-
-        if (familyIndex >= 0) {
-          this.families[familyIndex].active = response?.active ?? !this.families[familyIndex].active;
-          this.familiasFiltradas = [...this.families];
-          // Actualizar también la lista de familias para productos
-          this.familiasParaProductos = [...this.families];
-        }
-      },
-      error: (error) => {
-        console.error('Error al cambiar estado:', error);
-      }
-    });
-  }
-
-  async mostrarConfirmacionGuardadoFamily() {
-    const alert = await this.alertController.create({
-      header: 'Cambios guardados',
-      message: 'La familia ha sido actualizada correctamente.',
-      buttons: [
-        {
-          text: 'Aceptar',
-          role: 'confirm',
-          cssClass: 'success'
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  async mostrarErrorGuardadoFamily() {
-    const alert = await this.alertController.create({
-      header: 'Error',
-      message: 'No se pudieron guardar los cambios. Intenta de nuevo.',
-      buttons: [
-        {
-          text: 'Aceptar',
-          role: 'confirm',
-          cssClass: 'danger'
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  getNextNumericFamilyId(): number {
-    if (this.families.length === 0) {
-      return 1;
-    }
-
-    return Math.max(...this.families.map((family) => typeof family.id === 'number' ? family.id : 0)) + 1;
-  }
 
   cerrarSesion() {
     localStorage.removeItem('isLoggedIn');
@@ -647,15 +302,12 @@ export class DashboardPage implements OnInit {
             console.log('Primera familia completa:', families[0]);
             console.log('Todas las propiedades de primera familia:', Object.keys(families[0] || {}));
 
-            // Guardar en el array principal de families
+            // Guardar en familiasParaProductos
             if (userRestaurantId) {
-              this.families = families.filter(f => f.restaurant_id === userRestaurantId);
-              this.familiasParaProductos = [...this.families];
+              this.familiasParaProductos = families.filter(f => f.restaurant_id === userRestaurantId);
             } else {
-              this.families = families;
-              this.familiasParaProductos = [...this.families];
+              this.familiasParaProductos = families;
             }
-            this.familiasCargadas = true;
           }
 
           // Procesar taxes
@@ -1117,13 +769,8 @@ export class DashboardPage implements OnInit {
       return 'Sin familia';
     }
 
-    // Buscar en familiasParaProductos primero
-    let family = this.familiasParaProductos.find(f => f.id === familyId);
-
-    // Si no se encuentra, buscar en el array general de families
-    if (!family) {
-      family = this.families.find(f => f.id === familyId);
-    }
+    // Buscar en familiasParaProductos
+    const family = this.familiasParaProductos.find(f => f.id === familyId);
 
     return family?.name ?? `Familia ${familyId}`;
   }
