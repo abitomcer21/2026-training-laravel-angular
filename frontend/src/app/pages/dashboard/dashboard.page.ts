@@ -25,6 +25,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { UsuariosComponent } from '../../components/usuarios/usuarios.component';
 import { FamiliasComponent } from '../../components/familias/familias.component';
 import { ProductosComponent } from '../../components/productos/productos.component';
+import { ImpuestosComponent } from '../../components/impuestos/impuestos.component';
 interface MenuItem {
   nombre: string;
   valor: string;
@@ -69,34 +70,19 @@ interface TableCreateForm {
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonButton, IonIcon, IonLabel, IonSpinner, IonAvatar,
-    IonItem, IonInput, IonChip, IonBadge, UsuariosComponent, FamiliasComponent, ProductosComponent
+    IonItem, IonInput, IonChip, IonBadge, UsuariosComponent, FamiliasComponent, ProductosComponent, ImpuestosComponent
   ]
 })
 export class DashboardPage implements OnInit {
   opcionSeleccionada: string = 'usuarios';
   restaurantName: string = 'Yurest TPV';
 
-  // Loading indicators por sección
-  impuestosLoading: boolean = false;
+  // Loading indicadores por sección
   zonasLoading: boolean = false;
   mesasLoading: boolean = false;
 
   // Datos globales para dropdowns
   taxes: Tax[] = [];
-
-  // Impuestos
-  impuestoCargados: boolean = false;
-  taxPanelMode: 'edit' | 'create' = 'create';
-  editingTax: Tax | null = null;
-  editTaxForm: TaxEditForm = {
-    name: '',
-    percentage: 0,
-  };
-  createTaxForm: TaxCreateForm = {
-    name: '',
-    percentage: 0,
-  };
-  impuestosFiltrados: Tax[] = [];
 
   // Zonas
   zones: Zone[] = [];
@@ -129,8 +115,6 @@ export class DashboardPage implements OnInit {
   // Búsqueda
   terminoBusqueda: string = '';
   filtroActual: string = 'nombre';
-  terminoBusquedaTax: string = '';
-  filtroActualTax: string = 'nombre';
   terminoBusquedaZone: string = '';
   filtroActualZone: string = 'nombre';
   terminoBusquedaTable: string = '';
@@ -182,9 +166,6 @@ export class DashboardPage implements OnInit {
 
   seleccionarOpcion(valor: string) {
     this.opcionSeleccionada = valor;
-    if (valor === 'impuestos' && !this.impuestoCargados) {
-      this.cargarImpuestos();
-    }
     if (valor === 'zonas' && !this.zonasCargadas) {
       this.cargarZonas();
     }
@@ -199,267 +180,6 @@ export class DashboardPage implements OnInit {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
     window.location.href = '/login';
-  }
-
-  // ========== MÉTODOS DE IMPUESTOS ==========
-
-  cargarImpuestos() {
-    this.impuestosLoading = true;
-    const userData = this.authService.getUserData();
-    const userRestaurantId = userData?.restaurant_id;
-
-    this.taxService.getTaxes().subscribe({
-      next: (response: any) => {
-        let taxes: any[] = [];
-        if (Array.isArray(response)) {
-          taxes = response;
-        } else if (response?.tax && Array.isArray(response.tax)) {
-          taxes = response.tax;
-        } else if (response?.Tax && Array.isArray(response.Tax)) {
-          taxes = response.Tax;
-        } else if (response?.data && Array.isArray(response.data)) {
-          taxes = response.data;
-        } else {
-          taxes = [];
-        }
-
-        if (userRestaurantId) {
-          this.taxes = taxes.filter(t => t.restaurant_id === userRestaurantId);
-        } else {
-          this.taxes = taxes;
-        }
-
-        this.impuestosFiltrados = [...this.taxes];
-        this.impuestoCargados = true;
-        this.impuestosLoading = false;
-      },
-      error: (error) => {
-        console.error('Error al cargar impuestos:', error);
-        this.taxes = [];
-        this.impuestosFiltrados = [];
-        this.impuestoCargados = false;
-        this.impuestosLoading = false;
-      }
-    });
-  }
-
-  buscarImpuestos() {
-    if (!this.terminoBusquedaTax) {
-      this.impuestosFiltrados = [...this.taxes];
-      return;
-    }
-
-    const termino = this.terminoBusquedaTax.toLowerCase();
-
-    this.impuestosFiltrados = this.taxes.filter((tax, index) => {
-      switch (this.filtroActualTax) {
-        case 'id':
-          const displayId = (index + 1).toString();
-          return displayId.includes(termino);
-        case 'nombre':
-        default:
-          return tax.name.toLowerCase().includes(termino);
-      }
-    });
-  }
-
-  filtrarPorTipoTax(tipo: string) {
-    this.filtroActualTax = tipo;
-    this.buscarImpuestos();
-  }
-
-  limpiarBusquedaTax() {
-    this.terminoBusquedaTax = '';
-    this.impuestosFiltrados = [...this.taxes];
-  }
-
-  abrirEdicionTax(tax: Tax) {
-    this.taxPanelMode = 'edit';
-    this.editingTax = tax;
-    this.editTaxForm = {
-      name: tax.name,
-      percentage: tax.percentage,
-    };
-  }
-
-  salirEdicionTax() {
-    this.taxPanelMode = 'create';
-    this.editingTax = null;
-    this.editTaxForm = {
-      name: '',
-      percentage: 0,
-    };
-  }
-
-  creatEmptyTaxForm(): TaxCreateForm {
-    return {
-      name: '',
-      percentage: 0,
-    };
-  }
-
-  guardarImpuestoPanel() {
-    if (this.taxPanelMode === 'edit') {
-      this.guardarEdicionTax();
-      return;
-    }
-
-    if (this.taxPanelMode === 'create') {
-      this.guardarNuevoTax();
-    }
-  }
-
-  async guardarEdicionTax() {
-    if (this.editingTax === null) {
-      return;
-    }
-
-    if (!this.editTaxForm.name.trim() || this.editTaxForm.percentage < 0 || this.editTaxForm.percentage > 100) {
-      console.error('Faltan campos obligatorios o porcentaje inválido');
-      return;
-    }
-
-    const payload: any = {
-      name: this.editTaxForm.name.trim(),
-      percentage: Number(this.editTaxForm.percentage),
-    };
-
-    this.taxService.updateTax(this.editingTax.id.toString(), payload).subscribe({
-      next: (response: any) => {
-        const taxIndex = this.taxes.findIndex(t => t.id?.toString() === this.editingTax?.id?.toString());
-
-        if (taxIndex >= 0) {
-          this.taxes[taxIndex] = {
-            ...this.taxes[taxIndex],
-            name: response?.name ?? this.taxes[taxIndex].name,
-            percentage: response?.percentage ?? this.taxes[taxIndex].percentage,
-            updated_at: response?.updated_at ?? this.taxes[taxIndex].updated_at,
-          };
-          this.impuestosFiltrados = [...this.taxes];
-        }
-
-        this.mostrarConfirmacionGuardadoTax();
-        this.salirEdicionTax();
-      },
-      error: (error) => {
-        console.error('Error al actualizar:', error);
-        this.mostrarErrorGuardadoTax();
-      }
-    });
-  }
-
-  guardarNuevoTax() {
-    const userData = this.authService.getUserData();
-    const restaurantId = userData?.restaurant_id;
-
-    if (!restaurantId) {
-      console.error('No se pudo obtener el restaurant_id del usuario autenticado');
-      return;
-    }
-
-    if (!this.createTaxForm.name.trim() || this.createTaxForm.percentage < 0 || this.createTaxForm.percentage > 100) {
-      console.error('Faltan campos obligatorios o porcentaje inválido');
-      return;
-    }
-
-    const payload: any = {
-      name: this.createTaxForm.name.trim(),
-      percentage: Number(this.createTaxForm.percentage),
-      restaurant_id: Number(restaurantId),
-    };
-
-    this.taxService.createTax(payload).subscribe({
-      next: (response: any) => {
-        const createdTax: Tax = {
-          id: response?.id ?? response?.uuid,
-          uuid: response?.id ?? response?.uuid,
-          name: response?.name ?? this.createTaxForm.name.trim(),
-          percentage: response?.percentage ?? this.createTaxForm.percentage,
-          restaurant_id: response?.restaurant_id ?? restaurantId,
-        };
-
-        this.taxes = [...this.taxes, createdTax];
-
-        if (this.terminoBusquedaTax) {
-          this.buscarImpuestos();
-        } else {
-          this.impuestosFiltrados = [...this.taxes];
-        }
-
-        this.createTaxForm = this.creatEmptyTaxForm();
-        this.mostrarConfirmacionGuardadoTax();
-      },
-      error: (error) => {
-        console.error('Error al crear:', error);
-        this.mostrarErrorGuardadoTax();
-      }
-    });
-  }
-
-  async confirmarEliminarTax(tax: Tax) {
-    const alert = await this.alertController.create({
-      header: 'Eliminar impuesto',
-      message: `¿Estás seguro de que quieres eliminar <strong>${tax.name}</strong>?`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'secondary'
-        },
-        {
-          text: 'Eliminar',
-          handler: () => {
-            this.eliminarTax(tax.id);
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  eliminarTax(id: string | number) {
-    this.taxService.deleteTax(id.toString()).subscribe({
-      next: () => {
-        this.cargarImpuestos();
-      },
-      error: (error) => {
-        console.error('Error al eliminar:', error);
-      }
-    });
-  }
-
-  editarTax(tax: Tax) {
-    this.abrirEdicionTax(tax);
-  }
-
-  async mostrarConfirmacionGuardadoTax() {
-    const alert = await this.alertController.create({
-      header: 'Cambios guardados',
-      message: 'El impuesto ha sido actualizado correctamente.',
-      buttons: [
-        {
-          text: 'Aceptar',
-          role: 'confirm',
-          cssClass: 'success'
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  async mostrarErrorGuardadoTax() {
-    const alert = await this.alertController.create({
-      header: 'Error',
-      message: 'No se pudieron guardar los cambios. Intenta de nuevo.',
-      buttons: [
-        {
-          text: 'Aceptar',
-          role: 'confirm',
-          cssClass: 'danger'
-        }
-      ]
-    });
-    await alert.present();
   }
 
   // ========== MÉTODOS DE ZONAS ==========
