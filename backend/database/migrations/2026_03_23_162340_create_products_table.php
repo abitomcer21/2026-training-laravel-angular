@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('restaurant_id')->constrained('restaurants');
             $table->uuid('family_id');
             $table->foreign('family_id')->references('uuid')->on('families');
-            $table->foreignId('tax_id')->constrained('taxes');
+            $table->uuid('tax_id');
+            $table->foreign('tax_id')->references('uuid')->on('taxes');
             $table->string('image_src');
             $table->string('name');
             $table->integer('price');

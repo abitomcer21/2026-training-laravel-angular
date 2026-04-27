@@ -799,7 +799,7 @@
                 <div class="form-field">
                   <label for="create-product-family">Familia *</label>
                   <select id="create-product-family" name="create_family_id" [(ngModel)]="createProductForm.family_id" class="editor-input">
-                    <option value="0" disabled>Selecciona una familia</option>
+                    <option value="" disabled>Selecciona una familia</option>
                     <option *ngFor="let family of familiasParaProductos" [value]="family.id">{{ family.name }}</option>
                   </select>
                 </div>
@@ -807,7 +807,7 @@
                 <div class="form-field">
                   <label for="create-product-tax">Impuesto *</label>
                   <select id="create-product-tax" name="create_tax_id" [(ngModel)]="createProductForm.tax_id" class="editor-input">
-                    <option value="0" disabled>Selecciona un impuesto</option>
+                    <option value="" disabled>Selecciona un impuesto</option>
                     <option *ngFor="let tax of taxes" [value]="tax.id">{{ tax.name }} ({{ tax.percentage }}%)</option>
                   </select>
                 </div>

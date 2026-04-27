@@ -70,7 +70,7 @@ interface FamilyCreateForm {
 interface ProductEditForm {
   name: string;
   family_id: string;
-  tax_id: number;
+  tax_id: string;
   price: number;
   stock: number;
   image_src: string;
@@ -79,7 +79,7 @@ interface ProductEditForm {
 interface ProductCreateForm {
   name: string;
   family_id: string;
-  tax_id: number;
+  tax_id: string;
   price: number;
   stock: number;
   image_src: string;
@@ -187,7 +187,7 @@ export class DashboardPage implements OnInit {
   editProductForm: ProductEditForm = {
     name: '',
     family_id: '',
-    tax_id: 0,
+    tax_id: '',
     price: 0,
     stock: 0,
     image_src: '',
@@ -195,7 +195,7 @@ export class DashboardPage implements OnInit {
   createProductForm: ProductCreateForm = {
     name: '',
     family_id: '',
-    tax_id: 0,
+    tax_id: '',
     price: 0,
     stock: 0,
     image_src: '',
@@ -712,8 +712,12 @@ export class DashboardPage implements OnInit {
         });
 
         console.log('Familias cargadas en cargarFamilias:', families);
-        console.log('Primera familia completa:', families[0]);
-        console.log('Todas las propiedades de primera familia:', Object.keys(families[0]));
+        if (families.length > 0) {
+          console.log('Primera familia completa:', families[0]);
+          console.log('Todas las propiedades de primera familia:', Object.keys(families[0]));
+        } else {
+          console.warn('No hay familias cargadas');
+        }
 
         if (userRestaurantId) {
           this.families = families.filter(family => family.restaurant_id === userRestaurantId);
@@ -1255,7 +1259,7 @@ export class DashboardPage implements OnInit {
     this.editProductForm = {
       name: product.name,
       family_id: product.family_id,
-      tax_id: product.tax_id,
+      tax_id: product.tax_id.toString(),
       price: product.price / 100,
       stock: product.stock,
       image_src: product.image_src,
@@ -1268,7 +1272,7 @@ export class DashboardPage implements OnInit {
     this.editProductForm = {
       name: '',
       family_id: '',
-      tax_id: 0,
+      tax_id: '',
       price: 0,
       stock: 0,
       image_src: '',
@@ -1279,7 +1283,7 @@ export class DashboardPage implements OnInit {
     return {
       name: '',
       family_id: '',
-      tax_id: 0,
+      tax_id: '',
       price: 0,
       stock: 0,
       image_src: '',
@@ -1369,7 +1373,7 @@ export class DashboardPage implements OnInit {
 
     // family_id es UUID (string)
     const familyId = this.createProductForm.family_id || '';
-    const taxId = this.createProductForm.tax_id;
+    const taxId = this.createProductForm.tax_id || '';
     const priceNum = Number(this.createProductForm.price);
     const stockNum = Number(this.createProductForm.stock);
 
@@ -1386,7 +1390,7 @@ export class DashboardPage implements OnInit {
       return;
     }
 
-    if (!taxId) {
+    if (!taxId || taxId.trim() === '') {
       alert('Debe seleccionar un impuesto');
       return;
     }

@@ -18,7 +18,7 @@ class CreateProduct
 
     public function __invoke(
         string $FamilyId,
-        int $taxId,
+        string $taxId,
         int $restaurantId,
         string $name,
         int $price,
@@ -32,10 +32,11 @@ class CreateProduct
         $imageSrcVO = ProductImageSrc::create($imageSrc);
         $statusVO = ProductStatus::create($active);
         $familyIdVO = \App\Shared\Domain\ValueObject\Uuid::create($FamilyId);
+        $taxIdVO = \App\Shared\Domain\ValueObject\Uuid::create($taxId);
 
         $product = Product::dddCreate(
             $familyIdVO,
-            $taxId,
+            $taxIdVO,
             $nameVO,
             $priceVO,
             $stockVO,

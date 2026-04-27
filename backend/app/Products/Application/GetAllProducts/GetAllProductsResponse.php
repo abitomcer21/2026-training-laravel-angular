@@ -17,7 +17,7 @@ final readonly class GetAllProductsResponse
             static fn (Product $product): array => [
                 'id' => $product->id()->value(),
                 'family_id' => $product->familyId()->value(),
-                'tax_id' => $product->taxId(),
+                'tax_id' => $product->taxId()->value(),
                 'name' => $product->name()->value(),
                 'price' => $product->price()->value(),
                 'stock' => $product->stock()->value(),

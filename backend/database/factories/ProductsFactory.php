@@ -38,8 +38,8 @@ class ProductsFactory extends Factory
         return [
             'uuid' => (string) Str::uuid(),
             'restaurant_id' => EloquentRestaurant::factory(),
-            'Family_id' => EloquentFamily::factory(),
-            'tax_id' => EloquentTax::factory(),
+            'family_id' => EloquentFamily::factory(),
+            'tax_id' => fn () => EloquentTax::factory()->create()->uuid,
             'image_src' => fake()->imageUrl(),
             'name' => fake()->word(),
             'price' => fake()->numberBetween(100, 3000),
@@ -58,14 +58,14 @@ class ProductsFactory extends Factory
     public function forFamily(EloquentFamily|string $Family): static
     {
         return $this->state(fn (array $attributes) => [
-            'Family_id' => $Family instanceof EloquentFamily ? $Family->uuid : $Family,
+            'family_id' => $Family instanceof EloquentFamily ? $Family->uuid : $Family,
         ]);
     }
 
-    public function forTax(EloquentTax|int $tax): static
+    public function forTax(EloquentTax|string $tax): static
     {
         return $this->state(fn (array $attributes) => [
-            'tax_id' => $tax instanceof EloquentTax ? $tax->id : $tax,
+            'tax_id' => $tax instanceof EloquentTax ? $tax->uuid : $tax,
         ]);
     }
 }
