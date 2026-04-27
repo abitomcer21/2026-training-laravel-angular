@@ -1,0 +1,304 @@
+<!-- Layout con filtro lateral por rol -->
+<div *ngIf="active">
+
+    <div class="users-layout">
+        <!-- Aside lateral: Filtro por roles -->
+        <aside class="role-filter-sidebar">
+            <div class="sidebar-header">
+                <ion-icon name="people-outline" class="sidebar-icon"></ion-icon>
+                <h3>Filtrar por rol</h3>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- Todos los roles -->
+                <button class="family-filter-item" [class.active]="rolSeleccionadoFiltro === null"
+                    (click)="filtrarPorRol(null)">
+                    <ion-icon name="grid-outline" class="filter-icon"></ion-icon>
+                    <span class="filter-name">Todos los usuarios</span>
+                    <span class="filter-count">{{ users.length }}</span>
+                </button>
+
+                <div class="family-divider"></div>
+
+                <!-- Admin -->
+                <button class="family-filter-item" [class.active]="rolSeleccionadoFiltro === 'admin'"
+                    (click)="filtrarPorRol('admin')">
+                    <ion-icon name="shield-checkmark-outline" class="filter-icon"></ion-icon>
+                    <span class="filter-name">Administradores</span>
+                    <span class="filter-count">{{ contarUsuariosPorRol('admin') }}</span>
+                </button>
+
+                <!-- Supervisor -->
+                <button class="family-filter-item" [class.active]="rolSeleccionadoFiltro === 'supervisor'"
+                    (click)="filtrarPorRol('supervisor')">
+                    <ion-icon name="person-outline" class="filter-icon"></ion-icon>
+                    <span class="filter-name">Supervisores</span>
+                    <span class="filter-count">{{ contarUsuariosPorRol('supervisor') }}</span>
+                </button>
+
+                <!-- Camarero -->
+                <button class="family-filter-item" [class.active]="rolSeleccionadoFiltro === 'camarero'"
+                    (click)="filtrarPorRol('camarero')">
+                    <ion-icon name="restaurant-outline" class="filter-icon"></ion-icon>
+                    <span class="filter-name">Camareros</span>
+                    <span class="filter-count">{{ contarUsuariosPorRol('camarero') }}</span>
+                </button>
+
+                <!-- Chef -->
+                <button class="family-filter-item" [class.active]="rolSeleccionadoFiltro === 'chef'"
+                    (click)="filtrarPorRol('chef')">
+                    <ion-icon name="flame-outline" class="filter-icon"></ion-icon>
+                    <span class="filter-name">Chefs</span>
+                    <span class="filter-count">{{ contarUsuariosPorRol('chef') }}</span>
+                </button>
+
+                <div *ngIf="users.length === 0" class="sidebar-empty">
+                    <ion-icon name="people-outline"></ion-icon>
+                    <p>No hay usuarios</p>
+                    <small>Crea usuarios primero</small>
+                </div>
+            </div>
+        </aside>
+
+        <div class="users-main-content">
+            <div class="dashboard-grid">
+                <div class="users-panel users-panel-main">
+                    <div class="users-header">
+                        <div>
+                            <h2>Gestión de usuarios</h2>
+                            <p class="header-description">Gestiona los accesos, permisos y datos básicos del sistema.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="search-bar">
+                        <div class="search-input-wrapper">
+                            <ion-icon name="search-outline" class="search-icon"></ion-icon>
+                            <input type="text" placeholder="Buscar por nombre, email o ID..."
+                                [(ngModel)]="terminoBusqueda" (input)="buscarUsuarios()" class="search-input-field">
+                            <button *ngIf="terminoBusqueda" class="clear-btn" (click)="limpiarBusqueda()">
+                                <ion-icon name="close-outline"></ion-icon>
+                            </button>
+                        </div>
+
+                        <div class="filter-chips">
+                            <button class="chip" [class.active]="filtroActual === 'nombre'"
+                                (click)="filtrarPorTipo('nombre')">
+                                Nombre
+                            </button>
+                            <button class="chip" [class.active]="filtroActual === 'email'"
+                                (click)="filtrarPorTipo('email')">
+                                Email
+                            </button>
+                            <button class="chip" [class.active]="filtroActual === 'id'" (click)="filtrarPorTipo('id')">
+                                ID
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Loading -->
+                    <div *ngIf="usuariosLoading" class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Cargando usuarios...</p>
+                    </div>
+
+                    <!-- Tabla profesional -->
+                    <div *ngIf="!usuariosLoading" class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-id">ID</th>
+                                    <th class="col-user">Usuario</th>
+                                    <th class="col-email">Email</th>
+                                    <th class="col-role">Rol</th>
+                                    <th class="col-actions"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let user of usuariosFiltrados">
+                                    <td class="col-id">
+                                        <span class="id-badge">{{ user.id }}</span>
+                                    </td>
+                                    <td class="col-user">
+                                        <div class="user-cell">
+                                            <div class="user-avatar">
+                                                <span>{{ user.name.charAt(0).toUpperCase() }}</span>
+                                            </div>
+                                            <div class="user-info">
+                                                <span class="user-name">{{ user.name }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="col-email">
+                                        <a href="mailto:{{ user.email }}" class="email-link">{{ user.email }}</a>
+                                    </td>
+                                    <td class="col-role">
+                                        <span class="role-tag" [ngClass]="['role-' + user.role]">
+                                            {{ user.role }}
+                                        </span>
+                                    </td>
+                                    <td class="col-actions">
+                                        <div class="action-buttons">
+                                            <button class="action-btn edit" (click)="editarUsuario(user)"
+                                                title="Editar">
+                                                <ion-icon name="create-outline"></ion-icon>
+                                            </button>
+                                            <button class="action-btn delete" (click)="confirmarEliminar(user)"
+                                                title="Eliminar">
+                                                <ion-icon name="trash-outline"></ion-icon>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="usuariosFiltrados.length === 0">
+                                    <td colspan="5" class="empty-state-row">
+                                        <div class="empty-state-content">
+                                            <ion-icon name="people-outline"></ion-icon>
+                                            <h4>No hay usuarios</h4>
+                                            <p>No se encontraron usuarios con los criterios de búsqueda</p>
+                                            <button class="btn-outline" (click)="limpiarBusqueda()">Limpiar
+                                                búsqueda</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <aside class="editor-panel">
+                    <div class="editor-panel-header">
+                        <div>
+                            <h3>{{ panelMode === 'create' ? 'Formulario de registro' : 'Editar usuario' }}</h3>
+                        </div>
+                        <button *ngIf="panelMode === 'edit'" class="btn-outline btn-small"
+                            (click)="salirEdicion()">Volver
+                            al alta</button>
+                    </div>
+
+                    <div *ngIf="panelMode === 'edit' && editingUser; else createFormState"
+                        class="editor-form editor-form-edit">
+                        <div class="editor-summary">
+                            <div class="user-avatar editor-avatar">
+                                <span>{{ editingUser.name.charAt(0).toUpperCase() }}</span>
+                            </div>
+                            <div>
+                                <strong>{{ editingUser.name }}</strong>
+                                <p>{{ editingUser.email }}</p>
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label for="edit-name">Nombre</label>
+                            <input id="edit-name" type="text" name="name" [(ngModel)]="editForm.name"
+                                class="editor-input">
+                        </div>
+
+                        <div class="form-field">
+                            <label for="edit-email">Email</label>
+                            <input id="edit-email" type="email" name="email" [(ngModel)]="editForm.email"
+                                class="editor-input">
+                        </div>
+
+                        <div class="form-field">
+                            <label for="edit-pin">PIN</label>
+                            <input id="edit-pin" type="tel" name="pin" [(ngModel)]="editForm.pin" maxlength="4"
+                                class="editor-input">
+                        </div>
+
+                        <div class="form-field">
+                            <label for="edit-image">Imagen</label>
+                            <input id="edit-image" type="text" name="image_src" [(ngModel)]="editForm.image_src"
+                                class="editor-input" placeholder="URL de imagen">
+                        </div>
+
+                        <div class="form-field">
+                            <label for="edit-role">Rol</label>
+                            <select id="edit-role" name="role" [(ngModel)]="editForm.role" class="editor-input">
+                                <option value="admin">Admin</option>
+                                <option value="camarero">Camarero</option>
+                                <option value="chef">Chef</option>
+                                <option value="supervisor">Supervisor</option>
+                            </select>
+                        </div>
+
+                        <div class="editor-actions">
+                            <button class="btn-outline" type="button" (click)="salirEdicion()">Cancelar</button>
+                            <button class="btn-primary" type="button" (click)="guardarPanel()">Guardar cambios</button>
+                        </div>
+                    </div>
+
+                    <ng-template #createFormState>
+                        <div class="editor-form editor-form-create">
+                            <div class="editor-summary">
+                                <div class="user-avatar editor-avatar editor-avatar-create">
+                                    <span>+</span>
+                                </div>
+                                <div>
+                                    <strong>Alta de usuario</strong>
+                                    <p>Completa los datos para registrar un nuevo usuario en el sistema.</p>
+                                </div>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="create-name">Nombre</label>
+                                <input id="create-name" type="text" name="create_name" [(ngModel)]="createForm.name"
+                                    class="editor-input">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="create-email">Email</label>
+                                <input id="create-email" type="email" name="create_email" [(ngModel)]="createForm.email"
+                                    class="editor-input">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="create-password">Contraseña</label>
+                                <input id="create-password" type="password" name="create_password"
+                                    [(ngModel)]="createForm.password" class="editor-input">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="create-password-confirmation">Confirmar contraseña</label>
+                                <input id="create-password-confirmation" type="password"
+                                    name="create_password_confirmation" [(ngModel)]="createForm.password_confirmation"
+                                    class="editor-input">
+                            </div>
+
+                            <div class="form-field">
+                                <label for="create-role">Rol</label>
+                                <select id="create-role" name="create_role" [(ngModel)]="createForm.role"
+                                    class="editor-input">
+                                    <option value="admin">Admin</option>
+                                    <option value="camarero">Camarero</option>
+                                    <option value="chef">Chef</option>
+                                    <option value="supervisor">Supervisor</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="create-pin">PIN</label>
+                                <input id="create-pin" type="tel" name="create_pin" [(ngModel)]="createForm.pin"
+                                    maxlength="4" class="editor-input">
+                            </div>
+
+                            <div class="form-field-with-action">
+                                <div class="form-field">
+                                    <label for="create-image">Imagen</label>
+                                    <input id="create-image" type="text" name="create_image_src"
+                                        [(ngModel)]="createForm.image_src" class="editor-input"
+                                        placeholder="URL de imagen">
+                                </div>
+
+                                <div class="editor-actions editor-actions-create editor-actions-inline">
+                                    <button class="btn-primary" type="button" (click)="guardarPanel()">Guardar
+                                        usuario</button>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+</div>

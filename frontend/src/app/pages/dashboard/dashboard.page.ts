@@ -1,6 +1,5 @@
-// src/app/pages/dashboard/dashboard.page.ts
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; 
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import {
@@ -17,7 +16,6 @@ import {
   createOutline, trashOutline, shieldCheckmarkOutline
 } from 'ionicons/icons';
 
-import { UserService, User } from '../../services/api/user.service';
 import { FamilyService, Family } from '../../services/api/family.service';
 import { ProductService, Product } from '../../services/api/product.service';
 import { TaxService, Tax } from '../../services/api/tax.service';
@@ -25,37 +23,11 @@ import { ZoneService, Zone } from '../../services/api/zone.service';
 import { TableService, Table } from '../../services/api/table.service';
 import { RestaurantService, Restaurant } from '../../services/api/restaurant.service';
 import { AuthService } from '../../services/auth/auth.service';
-
+import { UsuariosComponent } from '../../components/usuarios/usuarios.component';
 interface MenuItem {
   nombre: string;
   valor: string;
   icono: string;
-}
-
-interface DashboardMetric {
-  label: string;
-  value: number;
-  description: string;
-  icon: string;
-  accent: 'blue' | 'amber' | 'emerald';
-}
-
-interface UserEditForm {
-  name: string;
-  email: string;
-  pin: string;
-  image_src: string;
-  role: string;
-}
-
-interface UserCreateForm {
-  name: string;
-  email: string;
-  password: string;
-  password_confirmation: string;
-  role: string;
-  pin: string;
-  image_src: string;
 }
 
 interface FamilyEditForm {
@@ -123,45 +95,21 @@ interface TableCreateForm {
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonButton, IonIcon, IonLabel, IonSpinner, IonAvatar,
-    IonItem, IonInput, IonChip, IonBadge
+    IonItem, IonInput, IonChip, IonBadge, UsuariosComponent
   ]
 })
 export class DashboardPage implements OnInit {
   opcionSeleccionada: string = 'usuarios';
   restaurantName: string = 'Yurest TPV';
-  
+
   // Loading indicators por sección
-  usuariosLoading: boolean = false;
   familiasLoading: boolean = false;
   productosLoading: boolean = false;
   impuestosLoading: boolean = false;
   zonasLoading: boolean = false;
   mesasLoading: boolean = false;
-  
-  usuariosCargados: boolean = false;
-  panelMode: 'edit' | 'create' = 'create';
-  editingUser: User | null = null;
-  editForm: UserEditForm = {
-    name: '',
-    email: '',
-    pin: '',
-    image_src: '',
-    role: '',
-  };
-  createForm: UserCreateForm = {
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-    role: 'camarero',
-    pin: '',
-    image_src: '',
-  };
 
-  // Datos
-  users: User[] = [];
-  usuariosFiltrados: User[] = [];
-  rolSeleccionadoFiltro: string | null = null;
+
 
   // Familias
   families: Family[] = [];
@@ -272,7 +220,6 @@ export class DashboardPage implements OnInit {
   ];
 
   constructor(
-    private userService: UserService,
     private familyService: FamilyService,
     private productService: ProductService,
     private taxService: TaxService,
@@ -290,43 +237,14 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  get dashboardMetrics(): DashboardMetric[] {
-    return [
-      {
-        label: 'Camareros',
-        value: this.contarPorRoles(['camarero']),
-        description: 'Personal de sala activo',
-        icon: 'people-outline',
-        accent: 'blue',
-      },
-      {
-        label: 'Chefs',
-        value: this.contarPorRoles(['chef']),
-        description: 'Equipo de cocina',
-        icon: 'restaurant-outline',
-        accent: 'amber',
-      },
-      {
-        label: 'Supervisores',
-        value: this.contarPorRoles(['supervisor']),
-        description: 'Responsables de turno',
-        icon: 'shield-checkmark-outline',
-        accent: 'emerald',
-      },
-    ];
-  }
 
   ngOnInit() {
-    this.createForm = this.createEmptyUserForm();
+
     this.createFamilyForm = this.creatEmptyFamilyForm();
     this.createProductForm = this.creatEmptyProductForm();
-    
+
     // Cargar nombre del restaurante
     this.cargarRestaurantName();
-    
-    // OPTIMIZACIÓN: Lazy loading - solo cargar la sección inicial (usuarios)
-    // El resto se cargará bajo demanda cuando el usuario navegue a esa sección
-    this.cargarUsuarios();
   }
 
   cargarRestaurantName() {
@@ -343,9 +261,6 @@ export class DashboardPage implements OnInit {
 
   seleccionarOpcion(valor: string) {
     this.opcionSeleccionada = valor;
-    if (valor === 'usuarios' && !this.usuariosCargados) {
-      this.cargarUsuarios();
-    }
     if (valor === 'familias' && !this.familiasCargadas) {
       this.cargarFamilias();
     }
@@ -363,322 +278,7 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  cargarUsuarios() {
-    this.usuariosLoading = true;
-    // Obtener el restaurant_id del usuario logueado
-    const userData = this.authService.getUserData();
-    const userRestaurantId = userData?.restaurant_id;
 
-    this.userService.getUsers().subscribe({
-      next: (response: any) => {
-        let users: any[] = [];
-        if (Array.isArray(response)) {
-          users = response;
-        } else if (response?.users && Array.isArray(response.users)) {
-          users = response.users;
-        } else if (response?.data?.users && Array.isArray(response.data.users)) {
-          users = response.data.users;
-        } else {
-          users = [];
-        }
-
-        // Filtrar por restaurant_id del usuario logueado
-        if (userRestaurantId) {
-          this.users = users.filter(user => user.restaurant_id === userRestaurantId);
-        } else {
-          this.users = users;
-        }
-
-        this.usuariosFiltrados = [...this.users];
-        this.usuariosCargados = true;
-        this.usuariosLoading = false;
-      },
-      error: (error) => {
-        console.error('Error:', error);
-        this.users = [];
-        this.usuariosFiltrados = [];
-        this.usuariosCargados = false;
-        this.usuariosLoading = false;
-      }
-    });
-  }
-  
-  buscarUsuarios() {
-    if (!this.terminoBusqueda) {
-      this.usuariosFiltrados = [...this.users];
-      return;
-    }
-
-    const termino = this.terminoBusqueda.toLowerCase();
-
-    this.usuariosFiltrados = this.users.filter(user => {
-      switch (this.filtroActual) {
-        case 'email':
-          return user.email.toLowerCase().includes(termino);
-        case 'id':
-          return user.id.toString().includes(termino);
-        case 'nombre':
-        default:
-          return user.name.toLowerCase().includes(termino);
-      }
-    });
-  }
-
-  filtrarPorTipo(tipo: string) {
-    this.filtroActual = tipo;
-    this.buscarUsuarios();
-  }
-
-  contarPorRoles(roles: string[]): number {
-    return this.users.filter(user => roles.includes(user.role.toLowerCase())).length;
-  }
-
-  limpiarBusqueda() {
-    this.terminoBusqueda = '';
-    this.rolSeleccionadoFiltro = null;
-    this.usuariosFiltrados = [...this.users];
-  }
-
-  abrirEdicion(user: User) {
-    this.panelMode = 'edit';
-    this.editingUser = user;
-    this.editForm = {
-      name: user.name,
-      email: user.email,
-      pin: user.pin,
-      image_src: user.image_src ?? '',
-      role: user.role,
-    };
-  }
-
-  salirEdicion() {
-    this.panelMode = 'create';
-    this.editingUser = null;
-    this.editForm = {
-      name: '',
-      email: '',
-      pin: '',
-      image_src: '',
-      role: '',
-    };
-  }
-
-  createEmptyUserForm(): UserCreateForm {
-    return {
-      name: '',
-      email: '',
-      password: '',
-      password_confirmation: '',
-      role: 'camarero',
-      pin: '',
-      image_src: '',
-    };
-  }
-
-  getDefaultRestaurantId(): string {
-    const userData = this.authService.getUserData();
-    const restaurantId = userData?.restaurant_id ?? this.users[0]?.restaurant_id ?? 1;
-
-    return String(restaurantId);
-  }
-
-  async confirmarEliminar(user: User) {
-    const alert = await this.alertController.create({
-      header: 'Eliminar usuario',
-      message: `¿Estás seguro de que quieres eliminar a <strong>${user.name}</strong>?`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'secondary'
-        },
-        {
-          text: 'Eliminar',
-          handler: () => {
-            this.eliminarUsuario(user.uuid);
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  eliminarUsuario(uuid: string) {
-    this.userService.deleteUser(uuid).subscribe({
-      next: () => {
-        this.cargarUsuarios();
-      },
-      error: (error) => {
-        console.error('Error al eliminar:', error);
-      }
-    });
-  }
-
-  editarUsuario(user: User) {
-    this.abrirEdicion(user);
-  }
-
-  guardarPanel() {
-    if (this.panelMode === 'edit') {
-      this.guardarEdicion();
-      return;
-    }
-
-    if (this.panelMode === 'create') {
-      this.guardarNuevoUsuario();
-    }
-  }
-
-  async guardarEdicion() {
-    if (this.editingUser === null) {
-      return;
-    }
-
-    const payload: any = {
-      name: this.editForm.name.trim() || null,
-      email: this.editForm.email.trim() || null,
-      pin: this.editForm.pin.trim() || null,
-      image_src: this.editForm.image_src.trim() || null,
-      role: this.editForm.role,
-    };
-
-    this.userService.updateUser(this.editingUser.uuid, payload).subscribe({
-      next: () => {
-        // Mostrar confirmación INMEDIATAMENTE
-        this.mostrarConfirmacionGuardado();
-
-        // Luego actualizar la tabla en segundo plano
-        this.users = this.users.map((user) => ({
-          ...user,
-          ...(user.uuid === this.editingUser?.uuid
-            ? {
-                name: this.editForm.name.trim(),
-                email: this.editForm.email.trim(),
-                pin: this.editForm.pin.trim(),
-                image_src: this.editForm.image_src.trim() || null,
-                role: this.editForm.role,
-              }
-            : {}),
-        }));
-
-        if (this.terminoBusqueda) {
-          this.buscarUsuarios();
-        } else {
-          this.usuariosFiltrados = [...this.users];
-        }
-
-        this.salirEdicion();
-      },
-      error: (error) => {
-        console.error('Error al actualizar:', error);
-        this.mostrarErrorGuardado();
-      }
-    });
-  }
-
-  async mostrarConfirmacionGuardado() {
-    const alert = await this.alertController.create({
-      header: 'Cambios guardados',
-      message: 'El usuario ha sido actualizado correctamente.',
-      buttons: [
-        {
-          text: 'Aceptar',
-          role: 'confirm',
-          cssClass: 'success'
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  async mostrarErrorGuardado() {
-    const alert = await this.alertController.create({
-      header: 'Error',
-      message: 'No se pudieron guardar los cambios. Intenta de nuevo.',
-      buttons: [
-        {
-          text: 'Aceptar',
-          role: 'confirm',
-          cssClass: 'danger'
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  guardarNuevoUsuario() {
-    // Obtener restaurant_id del usuario autenticado
-    const userData = this.authService.getUserData();
-    const restaurantId = userData?.restaurant_id;
-
-    if (!restaurantId) {
-      console.error('No se pudo obtener el restaurant_id del usuario autenticado');  
-      return;
-    }
-
-    if (
-      !this.createForm.name.trim() ||
-      !this.createForm.email.trim() ||
-      !this.createForm.password ||
-      !this.createForm.password_confirmation ||
-      !this.createForm.pin.trim() ||
-      !this.createForm.role
-    ) {
-      console.error('Faltan campos obligatorios para crear el usuario');
-      return;
-    }
-
-    if (this.createForm.password !== this.createForm.password_confirmation) {
-      console.error('Las contraseñas no coinciden');
-      return;
-    }
-
-    const payload: any = {
-      name: this.createForm.name.trim(),
-      email: this.createForm.email.trim(),
-      password: this.createForm.password,
-      password_confirmation: this.createForm.password_confirmation,
-      role: this.createForm.role,
-      pin: this.createForm.pin.trim(),
-      image_src: this.createForm.image_src.trim() || null,
-      restaurant_id: restaurantId,
-    };
-
-    this.userService.createUser(payload).subscribe({
-      next: (response: any) => {
-        const createdUser: User = {
-          id: this.getNextNumericUserId(),
-          uuid: response?.id ?? response?.uuid,
-          name: response?.name ?? this.createForm.name.trim(),
-          email: response?.email ?? this.createForm.email.trim(),
-          role: response?.role ?? this.createForm.role,
-          pin: response?.pin ?? this.createForm.pin.trim(),
-          image_src: response?.image_src ?? (this.createForm.image_src.trim() || null),
-          restaurant_id: response?.restaurant_id ?? restaurantId,
-        };
-
-        this.users = [...this.users, createdUser];
-
-        if (this.terminoBusqueda) {
-          this.buscarUsuarios();
-        } else {
-          this.usuariosFiltrados = [...this.users];
-        }
-        this.createForm = this.createEmptyUserForm();
-      },
-      error: (error) => {
-        console.error('Error al crear usuario:', error);
-      }
-    });
-  }
-
-  getNextNumericUserId(): number {
-    if (this.users.length === 0) {
-      return 1;
-    }
-
-    return Math.max(...this.users.map((user) => user.id)) + 1;
-  }
 
   // ========== MÉTODOS DE FAMILIAS ==========
 
@@ -809,7 +409,7 @@ export class DashboardPage implements OnInit {
     if (this.editingFamily === null) {
       return;
     }
-    
+
     const payload: any = {
       name: this.editFamilyForm.name.trim() || this.editingFamily.name,
     };
@@ -817,7 +417,7 @@ export class DashboardPage implements OnInit {
     this.familyService.updateFamily(this.editingFamily.id.toString(), payload).subscribe({
       next: (response: any) => {
         const familyIndex = this.families.findIndex(f => f.id?.toString() === this.editingFamily?.id?.toString());
-        
+
         if (familyIndex >= 0) {
           this.families[familyIndex] = {
             ...this.families[familyIndex],
@@ -828,7 +428,7 @@ export class DashboardPage implements OnInit {
           // Actualizar también la lista de familias para productos
           this.familiasParaProductos = [...this.families];
         }
-        
+
         this.mostrarConfirmacionGuardadoFamily();
         this.salirEdicionFamily();
       },
@@ -859,7 +459,7 @@ export class DashboardPage implements OnInit {
     if (typeof activeValue === 'string') {
       activeValue = activeValue === 'true' || activeValue === '1';
     }
-    
+
     const payload: any = {
       name: this.createFamilyForm.name.trim(),
       active: activeValue,
@@ -941,7 +541,7 @@ export class DashboardPage implements OnInit {
       next: (response: any) => {
         // Buscar y actualizar la familia en el array
         const familyIndex = this.families.findIndex(f => f.id?.toString() === family.id?.toString());
-        
+
         if (familyIndex >= 0) {
           this.families[familyIndex].active = response?.active ?? !this.families[familyIndex].active;
           this.familiasFiltradas = [...this.families];
@@ -994,37 +594,12 @@ export class DashboardPage implements OnInit {
   }
 
   cerrarSesion() {
-    // Limpiar localStorage
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
-    
-    // Limpiar todos los arrays del componente
-    this.users = [];
-    this.usuariosFiltrados = [];
-    this.families = [];
-    this.familiasFiltradas = [];
-    this.familiasParaProductos = [];
-    this.products = [];
-    this.productosFiltrados = [];
-    this.taxes = [];
-    this.impuestosFiltrados = [];
-    this.zones = [];
-    this.zonasFiltradas = [];
-    this.tables = [];
-    this.mesasFiltradas = [];
-    
-    // Resetear flags de carga
-    this.usuariosCargados = false;
-    this.familiasCargadas = false;
-    this.productosCargados = false;
-    this.impuestoCargados = false;
-    this.zonasCargadas = false;
-    this.mesasCargadas = false;
-    
-    // Redirigir a login
     window.location.href = '/login';
   }
+
 
   // ========== MÉTODOS DE PRODUCTOS ==========
 
@@ -1035,15 +610,15 @@ export class DashboardPage implements OnInit {
 
     // OPTIMIZACIÓN: Usar forkJoin para cargar dependencias en paralelo
     const requests: any = {};
-    
+
     if (this.familiasParaProductos.length === 0) {
       requests.families = this.familyService.getFamilies();
     }
-    
+
     if (this.taxes.length === 0) {
       requests.taxes = this.taxService.getTaxes();
     }
-    
+
     // Si hay dependencias por cargar, cargarlas primero en paralelo
     if (Object.keys(requests).length > 0) {
       forkJoin(requests).subscribe({
@@ -1058,7 +633,7 @@ export class DashboardPage implements OnInit {
             } else if (responses.families?.data && Array.isArray(responses.families.data)) {
               families = responses.families.data;
             }
-            
+
             // Mapear familias para asegurar que tengan database_id
             families = families.map(f => {
               // Si no tiene database_id pero el id es numérico, usarlo como database_id
@@ -1067,11 +642,11 @@ export class DashboardPage implements OnInit {
               }
               return f;
             });
-            
+
             console.log('Familias cargadas en cargarProductos (forkJoin):', families);
             console.log('Primera familia completa:', families[0]);
             console.log('Todas las propiedades de primera familia:', Object.keys(families[0] || {}));
-            
+
             // Guardar en el array principal de families
             if (userRestaurantId) {
               this.families = families.filter(f => f.restaurant_id === userRestaurantId);
@@ -1082,7 +657,7 @@ export class DashboardPage implements OnInit {
             }
             this.familiasCargadas = true;
           }
-          
+
           // Procesar taxes
           if (responses.taxes) {
             let taxes: any[] = [];
@@ -1101,7 +676,7 @@ export class DashboardPage implements OnInit {
               this.taxes = taxes;
             }
           }
-          
+
           // Ahora cargar productos
           this.cargarProductosData(userRestaurantId);
         },
@@ -1115,7 +690,7 @@ export class DashboardPage implements OnInit {
       this.cargarProductosData(userRestaurantId);
     }
   }
-  
+
   private cargarProductosData(userRestaurantId: number | undefined) {
 
     this.productService.getProducts().subscribe({
@@ -1190,7 +765,7 @@ export class DashboardPage implements OnInit {
 
   filtrarPorFamilia(familyId: string | null) {
     this.familiaSeleccionadaFiltro = familyId;
-    
+
     if (familyId === null) {
       // Mostrar todos los productos
       this.productosFiltrados = [...this.products];
@@ -1198,7 +773,7 @@ export class DashboardPage implements OnInit {
       // Filtrar por familia seleccionada
       this.productosFiltrados = this.products.filter(product => product.family_id === familyId);
     }
-    
+
     // Limpiar búsqueda de texto
     this.terminoBusquedaProduct = '';
   }
@@ -1209,7 +784,7 @@ export class DashboardPage implements OnInit {
 
   filtrarPorZona(zoneId: string | number | null) {
     this.zonaSeleccionadaFiltro = zoneId;
-    
+
     if (zoneId === null) {
       // Mostrar todas las mesas
       this.mesasFiltradas = [...this.tables];
@@ -1221,7 +796,7 @@ export class DashboardPage implements OnInit {
         return tableZoneId === zoneIdNum;
       });
     }
-    
+
     // Limpiar búsqueda de texto
     this.terminoBusquedaTable = '';
   }
@@ -1234,24 +809,6 @@ export class DashboardPage implements OnInit {
     }).length;
   }
 
-  filtrarPorRol(role: string | null) {
-    this.rolSeleccionadoFiltro = role;
-    
-    if (role === null) {
-      // Mostrar todos los usuarios
-      this.usuariosFiltrados = [...this.users];
-    } else {
-      // Filtrar por rol seleccionado
-      this.usuariosFiltrados = this.users.filter(user => user.role === role);
-    }
-    
-    // Limpiar búsqueda de texto
-    this.terminoBusqueda = '';
-  }
-
-  contarUsuariosPorRol(role: string): number {
-    return this.users.filter(user => user.role === role).length;
-  }
 
   abrirEdicionProduct(product: Product) {
     this.productPanelMode = 'edit';
@@ -1397,14 +954,14 @@ export class DashboardPage implements OnInit {
 
     // Verify that selected family and tax actually exist in the loaded data
     const selectedFamily = this.familiasParaProductos.find(f => f.id === familyId);
-    
+
     if (!selectedFamily) {
       alert(`Error: La familia seleccionada no es válida.`);
       return;
     }
 
     const selectedTax = this.taxes.find(t => t.id === taxId);
-    
+
     if (!selectedTax) {
       alert(`Error: El impuesto seleccionado no es válido.`);
       return;
@@ -1559,15 +1116,15 @@ export class DashboardPage implements OnInit {
     if (!familyId) {
       return 'Sin familia';
     }
-    
+
     // Buscar en familiasParaProductos primero
     let family = this.familiasParaProductos.find(f => f.id === familyId);
-    
+
     // Si no se encuentra, buscar en el array general de families
     if (!family) {
       family = this.families.find(f => f.id === familyId);
     }
-    
+
     return family?.name ?? `Familia ${familyId}`;
   }
 
@@ -1575,14 +1132,14 @@ export class DashboardPage implements OnInit {
     if (!taxId) {
       return 'Sin impuesto';
     }
-    
+
     const taxIdStr = taxId.toString();
     const tax = this.taxes.find(t => {
       const tId = t.id?.toString() || '';
       const tUuid = t.uuid?.toString() || '';
       return tId === taxIdStr || tUuid === taxIdStr;
     });
-    
+
     return tax?.name ?? `Impuesto ${taxId}`;
   }
 
@@ -1861,7 +1418,7 @@ export class DashboardPage implements OnInit {
     this.zoneService.getZones().subscribe({
       next: (response: any) => {
         let zones: any[] = [];
-        
+
         if (Array.isArray(response)) {
           zones = response;
         } else if (response?.zones && Array.isArray(response.zones)) {
@@ -2185,9 +1742,9 @@ export class DashboardPage implements OnInit {
             const zId = z.id?.toString() || '';
             const zUuid = z.uuid?.toString() || '';
             const zDbId = z.database_id;
-            return (zDbId && zDbId === zoneIdNum) || 
-                   zId === zoneIdStr || 
-                   zUuid === zoneIdStr;
+            return (zDbId && zDbId === zoneIdNum) ||
+              zId === zoneIdStr ||
+              zUuid === zoneIdStr;
           });
           return zone?.name.toLowerCase().includes(termino) || false;
         case 'nombre':
@@ -2296,8 +1853,8 @@ export class DashboardPage implements OnInit {
     // El formulario puede contener database_id (número como string) o UUID
     // Buscar por ambos para encontrar la zona
     const zoneIdValue = this.createTableForm.zone_id;
-    const selectedZone = this.zones.find(z => 
-      z.id === zoneIdValue || 
+    const selectedZone = this.zones.find(z =>
+      z.id === zoneIdValue ||
       z.database_id?.toString() === zoneIdValue.toString() ||
       z.uuid === zoneIdValue
     );
@@ -2310,7 +1867,7 @@ export class DashboardPage implements OnInit {
     // El backend espera zone_id como integer (database_id)
     // Intentar usar database_id si está disponible, sino usar el id
     const zoneIdForBackend = selectedZone.database_id ?? selectedZone.id;
-    
+
     if (!zoneIdForBackend) {
       alert('Error: La zona seleccionada no tiene un ID válido. Por favor, recarga la página.');
       return;
@@ -2421,20 +1978,20 @@ export class DashboardPage implements OnInit {
     if (!zoneId) {
       return 'Sin zona';
     }
-    
+
     const zoneIdStr = zoneId.toString();
     const zoneIdNum = Number(zoneId);
-    
+
     const zone = this.zones.find(z => {
       const zId = z.id?.toString() || '';
       const zUuid = z.uuid?.toString() || '';
       const zDbId = z.database_id;
-      
-      return (zDbId && zDbId === zoneIdNum) || 
-             zId === zoneIdStr || 
-             zUuid === zoneIdStr;
+
+      return (zDbId && zDbId === zoneIdNum) ||
+        zId === zoneIdStr ||
+        zUuid === zoneIdStr;
     });
-    
+
     return zone?.name ?? `Zona ${zoneId}`;
   }
 }
