@@ -26,6 +26,7 @@ import { UsuariosComponent } from '../../components/usuarios/usuarios.component'
 import { FamiliasComponent } from '../../components/familias/familias.component';
 import { ProductosComponent } from '../../components/productos/productos.component';
 import { ImpuestosComponent } from '../../components/impuestos/impuestos.component';
+import { ZonasComponent } from '../../components/zonas/zonas.component';
 interface MenuItem {
   nombre: string;
   valor: string;
@@ -70,7 +71,7 @@ interface TableCreateForm {
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
     IonButton, IonIcon, IonLabel, IonSpinner, IonAvatar,
-    IonItem, IonInput, IonChip, IonBadge, UsuariosComponent, FamiliasComponent, ProductosComponent, ImpuestosComponent
+    IonItem, IonInput, IonChip, IonBadge, UsuariosComponent, FamiliasComponent, ProductosComponent, ImpuestosComponent, ZonasComponent
   ]
 })
 export class DashboardPage implements OnInit {
@@ -78,24 +79,13 @@ export class DashboardPage implements OnInit {
   restaurantName: string = 'Yurest TPV';
 
   // Loading indicadores por sección
-  zonasLoading: boolean = false;
   mesasLoading: boolean = false;
 
   // Datos globales para dropdowns
+  zones: Zone[] = [];
   taxes: Tax[] = [];
 
-  // Zonas
-  zones: Zone[] = [];
-  zonasFiltradas: Zone[] = [];
-  zonasCargadas: boolean = false;
-  zonePanelMode: 'edit' | 'create' = 'create';
-  editingZone: Zone | null = null;
-  editZoneForm: ZoneEditForm = {
-    name: '',
-  };
-  createZoneForm: ZoneCreateForm = {
-    name: '',
-  };
+
 
   // Mesas
   tables: Table[] = [];
@@ -115,8 +105,6 @@ export class DashboardPage implements OnInit {
   // Búsqueda
   terminoBusqueda: string = '';
   filtroActual: string = 'nombre';
-  terminoBusquedaZone: string = '';
-  filtroActualZone: string = 'nombre';
   terminoBusquedaTable: string = '';
   filtroActualTable: string = 'nombre';
 
@@ -166,9 +154,6 @@ export class DashboardPage implements OnInit {
 
   seleccionarOpcion(valor: string) {
     this.opcionSeleccionada = valor;
-    if (valor === 'zonas' && !this.zonasCargadas) {
-      this.cargarZonas();
-    }
     if (valor === 'mesas' && !this.mesasCargadas) {
       this.cargarMesas();
     }
@@ -180,259 +165,6 @@ export class DashboardPage implements OnInit {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
     window.location.href = '/login';
-  }
-
-  // ========== MÉTODOS DE ZONAS ==========
-
-  cargarZonas() {
-    this.zonasLoading = true;
-    const userData = this.authService.getUserData();
-    const userRestaurantId = userData?.restaurant_id;
-
-    this.zoneService.getZones().subscribe({
-      next: (response: any) => {
-        let zones: any[] = [];
-
-        if (Array.isArray(response)) {
-          zones = response;
-        } else if (response?.zones && Array.isArray(response.zones)) {
-          zones = response.zones;
-        } else if (response?.Zones && Array.isArray(response.Zones)) {
-          zones = response.Zones;
-        } else if (response?.data?.zones && Array.isArray(response.data.zones)) {
-          zones = response.data.zones;
-        } else if (response?.data && Array.isArray(response.data)) {
-          zones = response.data;
-        } else {
-          zones = [];
-        }
-
-        if (userRestaurantId) {
-          this.zones = zones.filter(zone => zone.restaurant_id === userRestaurantId);
-        } else {
-          this.zones = zones;
-        }
-
-        this.zonasFiltradas = [...this.zones];
-        this.zonasCargadas = true;
-        this.zonasLoading = false;
-      },
-      error: (error) => {
-        console.error('Error al cargar zonas:', error);
-        this.zones = [];
-        this.zonasFiltradas = [];
-        this.zonasCargadas = false;
-        this.zonasLoading = false;
-      }
-    });
-  }
-
-  buscarZonas() {
-    if (!this.terminoBusquedaZone) {
-      this.zonasFiltradas = [...this.zones];
-      return;
-    }
-
-    const termino = this.terminoBusquedaZone.toLowerCase();
-
-    this.zonasFiltradas = this.zones.filter((zone, index) => {
-      switch (this.filtroActualZone) {
-        case 'id':
-          const displayId = (index + 1).toString();
-          return displayId.includes(termino);
-        case 'nombre':
-        default:
-          return zone.name.toLowerCase().includes(termino);
-      }
-    });
-  }
-
-  filtrarPorTipoZone(tipo: string) {
-    this.filtroActualZone = tipo;
-    this.buscarZonas();
-  }
-
-  limpiarBusquedaZone() {
-    this.terminoBusquedaZone = '';
-    this.zonasFiltradas = [...this.zones];
-  }
-
-  abrirEdicionZone(zone: Zone) {
-    this.zonePanelMode = 'edit';
-    this.editingZone = zone;
-    this.editZoneForm = {
-      name: zone.name,
-    };
-  }
-
-  salirEdicionZone() {
-    this.zonePanelMode = 'create';
-    this.editingZone = null;
-    this.editZoneForm = {
-      name: '',
-    };
-  }
-
-  creatEmptyZoneForm(): ZoneCreateForm {
-    return {
-      name: '',
-    };
-  }
-
-  guardarZonaPanel() {
-    if (this.zonePanelMode === 'edit') {
-      this.guardarEdicionZone();
-      return;
-    }
-
-    if (this.zonePanelMode === 'create') {
-      this.guardarNuevoZone();
-    }
-  }
-
-  async guardarEdicionZone() {
-    if (this.editingZone === null) {
-      return;
-    }
-
-    const payload: any = {
-      name: this.editZoneForm.name.trim() || this.editingZone.name,
-    };
-
-    this.zoneService.updateZone(this.editingZone.id.toString(), payload).subscribe({
-      next: (response: any) => {
-        const zoneIndex = this.zones.findIndex(z => z.id?.toString() === this.editingZone?.id?.toString());
-
-        if (zoneIndex >= 0) {
-          this.zones[zoneIndex] = {
-            ...this.zones[zoneIndex],
-            name: response?.name ?? this.zones[zoneIndex].name,
-            updated_at: response?.updated_at ?? this.zones[zoneIndex].updated_at,
-          };
-          this.zonasFiltradas = [...this.zones];
-        }
-
-        this.mostrarConfirmacionGuardadoZone();
-        this.salirEdicionZone();
-      },
-      error: (error) => {
-        console.error('Error al actualizar:', error);
-        this.mostrarErrorGuardadoZone();
-      }
-    });
-  }
-
-  guardarNuevoZone() {
-    const userData = this.authService.getUserData();
-    const restaurantId = userData?.restaurant_id;
-
-    if (!restaurantId) {
-      console.error('No se pudo obtener el restaurant_id del usuario autenticado');
-      return;
-    }
-
-    if (!this.createZoneForm.name.trim()) {
-      console.error('Faltan campos obligatorios');
-      return;
-    }
-
-    const payload: any = {
-      name: this.createZoneForm.name.trim(),
-      restaurant_id: Number(restaurantId),
-    };
-
-    this.zoneService.createZone(payload).subscribe({
-      next: (response: any) => {
-        const createdZone: Zone = {
-          id: response?.id ?? response?.uuid,
-          uuid: response?.id ?? response?.uuid,
-          database_id: response?.database_id,
-          name: response?.name ?? this.createZoneForm.name.trim(),
-          restaurant_id: response?.restaurant_id ?? restaurantId,
-        };
-
-        this.zones = [...this.zones, createdZone];
-
-        if (this.terminoBusquedaZone) {
-          this.buscarZonas();
-        } else {
-          this.zonasFiltradas = [...this.zones];
-        }
-
-        this.createZoneForm = this.creatEmptyZoneForm();
-        this.mostrarConfirmacionGuardadoZone();
-      },
-      error: (error) => {
-        console.error('Error al crear:', error);
-        this.mostrarErrorGuardadoZone();
-      }
-    });
-  }
-
-  async confirmarEliminarZone(zone: Zone) {
-    const alert = await this.alertController.create({
-      header: 'Eliminar zona',
-      message: `¿Estás seguro de que quieres eliminar <strong>${zone.name}</strong>?`,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'secondary'
-        },
-        {
-          text: 'Eliminar',
-          handler: () => {
-            this.eliminarZone(zone.id);
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  eliminarZone(id: string | number) {
-    this.zoneService.deleteZone(id.toString()).subscribe({
-      next: () => {
-        this.cargarZonas();
-      },
-      error: (error) => {
-        console.error('Error al eliminar:', error);
-      }
-    });
-  }
-
-  editarZone(zone: Zone) {
-    this.abrirEdicionZone(zone);
-  }
-
-  async mostrarConfirmacionGuardadoZone() {
-    const alert = await this.alertController.create({
-      header: 'Cambios guardados',
-      message: 'La zona ha sido actualizada correctamente.',
-      buttons: [
-        {
-          text: 'Aceptar',
-          role: 'confirm',
-          cssClass: 'success'
-        }
-      ]
-    });
-    await alert.present();
-  }
-
-  async mostrarErrorGuardadoZone() {
-    const alert = await this.alertController.create({
-      header: 'Error',
-      message: 'No se pudieron guardar los cambios. Intenta de nuevo.',
-      buttons: [
-        {
-          text: 'Aceptar',
-          role: 'confirm',
-          cssClass: 'danger'
-        }
-      ]
-    });
-    await alert.present();
   }
 
   // ========== MÉTODOS DE MESAS ==========

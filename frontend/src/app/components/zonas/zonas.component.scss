@@ -1,0 +1,300 @@
+/* Layout de zonas (sin aside para filtros) */
+.zones-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 200px);
+}
+
+.zones-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.zones-main-content .dashboard-grid {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.zones-main-content .editor-panel {
+  position: static;
+  top: auto;
+  height: auto;
+  max-height: none;
+}
+
+/* Dashboard grid dentro del componente */
+.dashboard-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
+}
+
+.users-panel {
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.users-panel-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1.9;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.users-panel-main .table-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  min-height: 0;
+}
+
+.users-panel-main .loading-state {
+  flex: 1;
+  overflow: auto;
+}
+
+/* Headers */
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.users-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.3px;
+}
+
+.header-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Editor panel - FORMULARIO CON FONDO */
+.editor-panel {
+  position: static;
+  top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(10px);
+  flex: 0.95;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.editor-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.editor-panel-header h3 {
+  margin: 4px 0 0;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.editor-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 12px;
+  align-content: start;
+  min-height: 0;
+}
+
+.editor-form > .editor-summary,
+.editor-form > .editor-actions,
+.editor-form > .form-info {
+  grid-column: 1 / -1;
+}
+
+.editor-form .form-field:last-of-type {
+  margin-bottom: 0;
+}
+
+.editor-form-create .editor-actions {
+  justify-content: flex-end;
+}
+
+.editor-form-create .editor-actions .btn-primary {
+  flex: 0 0 auto;
+  min-width: 160px;
+}
+
+.editor-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f8fbff 0%, #f3f8ff 100%);
+  border: 1px solid #dbe7f8;
+}
+
+.editor-avatar {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border-radius: 16px;
+}
+
+.editor-avatar-create {
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.editor-summary strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.editor-summary p {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  word-break: break-word;
+}
+
+.form-info {
+  padding: 12px;
+  background: #f0f9ff;
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #0c4a6e;
+}
+
+.form-info p {
+  margin: 0 0 4px 0;
+  font-weight: 500;
+}
+
+.form-info small {
+  display: block;
+  margin: 0;
+  color: #0c4a6e;
+  opacity: 0.8;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.editor-actions .btn-outline,
+.editor-actions .btn-primary {
+  flex: 1;
+  justify-content: center;
+  text-align: center;
+}
+
+.editor-actions-create {
+  justify-content: flex-end;
+}
+
+/* ========================================== */
+/* RESPONSIVE STYLES                         */
+/* ========================================== */
+
+@media (max-width: 1024px) {
+  .zones-layout {
+    height: auto;
+    max-height: none;
+  }
+
+  .zones-main-content {
+    height: auto;
+  }
+
+  .dashboard-grid {
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+  }
+
+  .users-panel {
+    height: auto;
+  }
+
+  .users-panel-main {
+    height: auto;
+    flex: 1;
+  }
+
+  .users-panel-main .table-wrapper {
+    max-height: 400px;
+  }
+
+  .editor-panel {
+    position: static;
+    height: auto;
+    flex: 1;
+    max-height: none;
+    margin-top: 0;
+    background: rgba(255, 255, 255, 0.88);
+  }
+
+  .editor-panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .editor-panel-header .btn-small {
+    align-self: flex-start;
+  }
+}
