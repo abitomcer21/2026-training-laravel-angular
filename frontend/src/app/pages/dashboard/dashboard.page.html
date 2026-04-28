@@ -23,17 +23,17 @@
 
   <div class="content-container">
     <!--usuarios-->
-    <app-usuarios [active]="opcionSeleccionada === 'usuarios'" />
+    <app-usuarios *ngIf="opcionSeleccionada === 'usuarios'" />
     <!-- familias-->
-    <app-familias [active]="opcionSeleccionada === 'familias'" />
+    <app-familias *ngIf="opcionSeleccionada === 'familias'" />
     <!-- productos-->
-    <app-productos [active]="opcionSeleccionada === 'productos'" />
+    <app-productos *ngIf="opcionSeleccionada === 'productos'" />
     <!-- impuestos-->
-    <app-impuestos [active]="opcionSeleccionada === 'impuestos'" />
+    <app-impuestos *ngIf="opcionSeleccionada === 'impuestos'" />
     <!-- zonas-->
-    <app-zonas [active]="opcionSeleccionada === 'zonas'" />
+    <app-zonas *ngIf="opcionSeleccionada === 'zonas'" />
     <!-- mesas-->
-    <app-mesas [active]="opcionSeleccionada === 'mesas'" />
+    <app-mesas *ngIf="opcionSeleccionada === 'mesas'" />
   </div>
 
 </ion-content>

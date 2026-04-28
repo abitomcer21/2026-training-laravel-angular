@@ -1,6 +1,7 @@
 // src/app/services/api/zone.service.ts
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 import { BaseApiService, ApiResponse } from './base-api.service';
 
 export interface Zone {
@@ -27,13 +28,19 @@ export interface ZoneUpdateRequest {
 })
 export class ZoneService extends BaseApiService {
   private endpoint = '/zones';
+  private zonesCache$: Observable<ApiResponse> | null = null;
 
   constructor(protected override injector: Injector) {
     super(injector);
   }
 
   getZones(): Observable<ApiResponse> {
-    return this.httpCall(this.endpoint, null, 'get');
+    if (!this.zonesCache$) {
+      this.zonesCache$ = this.httpCall(this.endpoint, null, 'get').pipe(
+        shareReplay(1)
+      );
+    }
+    return this.zonesCache$;
   }
 
   getZoneById(id: string): Observable<ApiResponse> {
@@ -50,5 +57,9 @@ export class ZoneService extends BaseApiService {
 
   deleteZone(id: string): Observable<ApiResponse> {
     return this.httpCall(`${this.endpoint}/${id}`, null, 'delete');
+  }
+
+  invalidateZonesCache(): void {
+    this.zonesCache$ = null;
   }
 }

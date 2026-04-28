@@ -67,7 +67,7 @@ export class FamiliasComponent implements OnInit {
     }
 
     ngOnInit() {
-        // La carga se dispara mediante el setter de @Input active
+        this.cargarFamilias();
     }
 
     cargarFamilias() {
@@ -202,6 +202,7 @@ export class FamiliasComponent implements OnInit {
                         updated_at: response?.updated_at ?? this.families[familyIndex].updated_at,
                     };
                     this.familiasFiltradas = [...this.families];
+                    this.familyService.invalidateFamiliesCache();
                 }
 
                 this.mostrarConfirmacionGuardadoFamily();
@@ -249,6 +250,7 @@ export class FamiliasComponent implements OnInit {
                 };
 
                 this.families = [...this.families, createdFamily];
+                this.familyService.invalidateFamiliesCache();
 
                 if (this.terminoBusquedaFamily) {
                     this.buscarFamilias();
@@ -290,6 +292,7 @@ export class FamiliasComponent implements OnInit {
     eliminarFamily(id: string | number) {
         this.familyService.deleteFamily(id.toString()).subscribe({
             next: () => {
+                this.familyService.invalidateFamiliesCache();
                 this.cargarFamilias();
             },
             error: (error) => {

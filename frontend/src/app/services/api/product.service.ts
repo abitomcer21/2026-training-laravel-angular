@@ -1,5 +1,6 @@
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
+import { shareReplay, tap } from 'rxjs/operators';
 import { BaseApiService, ApiResponse } from './base-api.service';
 
 export interface Product {
@@ -20,13 +21,23 @@ export interface Product {
 @Injectable({ providedIn: 'root' })
 export class ProductService extends BaseApiService {
   private endpoint = '/products';
+  private productsCache$: Observable<ApiResponse> | null = null;
 
   constructor(protected override injector: Injector) {
     super(injector);
   }
 
   getProducts(): Observable<ApiResponse> {
-    return this.httpCall(this.endpoint, null, 'get');
+    if (!this.productsCache$) {
+      this.productsCache$ = this.httpCall(this.endpoint, null, 'get').pipe(
+        shareReplay(1)
+      );
+    }
+    return this.productsCache$;
+  }
+
+  invalidateProductsCache(): void {
+    this.productsCache$ = null;
   }
 
   getProduct(id: string): Observable<ApiResponse> {

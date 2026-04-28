@@ -108,7 +108,7 @@ export class ProductosComponent implements OnInit {
     }
 
     ngOnInit() {
-        // La carga se dispara mediante el setter de @Input active
+        this.cargarProductos();
     }
 
     cargarProductos() {
@@ -349,6 +349,7 @@ export class ProductosComponent implements OnInit {
                         updated_at: response?.updated_at ?? this.products[productIndex].updated_at,
                     };
                     this.productosFiltrados = [...this.products];
+                    this.productService.invalidateProductsCache();
                 }
 
                 this.mostrarConfirmacionGuardadoProduct();
@@ -453,6 +454,7 @@ export class ProductosComponent implements OnInit {
                 };
 
                 this.products = [...this.products, createdProduct];
+                this.productService.invalidateProductsCache();
 
                 if (this.terminoBusquedaProduct) {
                     this.buscarProductos();
@@ -494,6 +496,7 @@ export class ProductosComponent implements OnInit {
     eliminarProduct(id: string | number) {
         this.productService.deleteProduct(id.toString()).subscribe({
             next: () => {
+                this.productService.invalidateProductsCache();
                 this.cargarProductos();
             },
             error: (error) => {

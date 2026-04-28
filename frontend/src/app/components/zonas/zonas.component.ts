@@ -81,7 +81,7 @@ export class ZonasComponent implements OnInit {
   }
 
   ngOnInit() {
-    // La carga se dispara mediante el setter de @Input active
+    this.cargarZonas();
   }
 
   cargarZonas() {
@@ -210,6 +210,7 @@ export class ZonasComponent implements OnInit {
             updated_at: response?.updated_at ?? this.zones[zoneIndex].updated_at,
           };
           this.zonasFiltradas = [...this.zones];
+          this.zoneService.invalidateZonesCache();
         }
 
         this.mostrarConfirmacionGuardadoZone();
@@ -252,6 +253,7 @@ export class ZonasComponent implements OnInit {
         };
 
         this.zones = [...this.zones, createdZone];
+        this.zoneService.invalidateZonesCache();
 
         if (this.terminoBusquedaZone) {
           this.buscarZonas();
@@ -293,6 +295,7 @@ export class ZonasComponent implements OnInit {
   eliminarZone(id: string | number) {
     this.zoneService.deleteZone(id.toString()).subscribe({
       next: () => {
+        this.zoneService.invalidateZonesCache();
         this.cargarZonas();
       },
       error: (error) => {

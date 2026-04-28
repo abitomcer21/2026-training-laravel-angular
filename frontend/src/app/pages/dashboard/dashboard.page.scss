@@ -2,12 +2,37 @@
 /* DASHBOARD PAGE - ESTILOS ESPECÍFICOS       */
 /* ========================================== */
 
+/* Contenedor principal de contenido */
+ion-content {
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --padding-top: 20px;
+  --padding-bottom: 20px;
+}
+
+ion-content::part(scroll) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
 /* Ajuste para que el contenido no quede debajo del footer */
 .dashboard-overview:last-child,
 .dashboard-grid:last-child,
 .users-layout:last-child,
 .products-layout:last-child,
 .tables-layout:last-child,
+.zones-layout:last-child,
 .inline-section:last-child {
   margin-bottom: 0;
 }

@@ -177,6 +177,8 @@ ion-content.ion-padding::part(scroll) {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
   min-height: 0;
 }
 
@@ -184,8 +186,10 @@ ion-content.ion-padding::part(scroll) {
   display: flex;
   flex: 1;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
   min-height: 0;
-  overflow: hidden;
+  width: 100%;
 }
 
 app-usuarios,

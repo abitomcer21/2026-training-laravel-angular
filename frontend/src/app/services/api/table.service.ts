@@ -1,6 +1,7 @@
 // src/app/services/api/table.service.ts
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 import { BaseApiService, ApiResponse } from './base-api.service';
 
 export interface Table {
@@ -28,13 +29,19 @@ export interface TableUpdateRequest {
 })
 export class TableService extends BaseApiService {
   private endpoint = '/tables';
+  private tablesCache$: Observable<ApiResponse> | null = null;
 
   constructor(protected override injector: Injector) {
     super(injector);
   }
 
   getTables(): Observable<ApiResponse> {
-    return this.httpCall(this.endpoint, null, 'get');
+    if (!this.tablesCache$) {
+      this.tablesCache$ = this.httpCall(this.endpoint, null, 'get').pipe(
+        shareReplay(1)
+      );
+    }
+    return this.tablesCache$;
   }
 
   getTableById(id: string): Observable<ApiResponse> {
@@ -55,5 +62,9 @@ export class TableService extends BaseApiService {
 
   getTablesByZone(zoneId: number | string): Observable<ApiResponse> {
     return this.httpCall(`${this.endpoint}?zone_id=${zoneId}`, null, 'get');
+  }
+
+  invalidateTablesCache(): void {
+    this.tablesCache$ = null;
   }
 }

@@ -1,5 +1,6 @@
 import { Injectable, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 import { BaseApiService, ApiResponse } from './base-api.service';
 
 export interface User {
@@ -16,13 +17,19 @@ export interface User {
 @Injectable({ providedIn: 'root' })
 export class UserService extends BaseApiService {
   private endpoint = '/users';
+  private usersCache$: Observable<ApiResponse> | null = null;
 
   constructor(protected override injector: Injector) {
     super(injector);
   }
 
   getUsers(): Observable<ApiResponse> {
-    return this.httpCall(this.endpoint, null, 'get');
+    if (!this.usersCache$) {
+      this.usersCache$ = this.httpCall(this.endpoint, null, 'get').pipe(
+        shareReplay(1)
+      );
+    }
+    return this.usersCache$;
   }
 
   getUser(uuid: string): Observable<ApiResponse> {
@@ -39,5 +46,9 @@ export class UserService extends BaseApiService {
 
   deleteUser(uuid: string): Observable<ApiResponse> {
     return this.httpCall(`${this.endpoint}/${uuid}`, null, 'delete');
+  }
+
+  invalidateUsersCache(): void {
+    this.usersCache$ = null;
   }
 }

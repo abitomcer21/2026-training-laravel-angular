@@ -1,6 +1,5 @@
-<div *ngIf="active">
+<div>
     <div class="tables-layout">
-      <!-- Aside lateral: Filtro por zonas -->
       <aside class="zone-filter-sidebar">
         <div class="sidebar-header">
           <ion-icon name="map-outline" class="sidebar-icon"></ion-icon>
@@ -8,7 +7,6 @@
         </div>
 
         <div class="sidebar-content">
-          <!-- Todas las zonas -->
           <button class="family-filter-item" [class.active]="zonaSeleccionadaFiltro === null"
             (click)="filtrarPorZona(null)">
             <ion-icon name="grid-outline" class="filter-icon"></ion-icon>
@@ -18,7 +16,6 @@
 
           <div class="family-divider"></div>
 
-          <!-- Lista de zonas -->
           <button *ngFor="let zone of zones" class="family-filter-item"
             [class.active]="zonaSeleccionadaFiltro === (zone.database_id || zone.id)"
             (click)="filtrarPorZona(zone.database_id || zone.id)">
@@ -27,7 +24,6 @@
             <span class="filter-count">{{ contarMesasPorZona(zone.database_id || zone.id) }}</span>
           </button>
 
-          <!-- Estado vacío -->
           <div *ngIf="zones.length === 0" class="sidebar-empty">
             <ion-icon name="map-outline"></ion-icon>
             <p>No hay zonas</p>
@@ -36,13 +32,10 @@
         </div>
       </aside>
 
-      <!-- Contenido principal -->
       <div class="tables-main-content">
         <div class="dashboard-grid">
           <div class="users-panel users-panel-main">
 
-
-            <!-- Barra de búsqueda y filtros -->
             <div class="search-bar">
               <div class="search-input-wrapper">
                 <ion-icon name="search-outline" class="search-icon"></ion-icon>
@@ -68,13 +61,11 @@
               </div>
             </div>
 
-            <!-- Loading -->
             <div *ngIf="mesasLoading" class="loading-state">
               <div class="spinner"></div>
               <p>Cargando mesas...</p>
             </div>
 
-            <!-- Tabla profesional -->
             <div *ngIf="!mesasLoading" class="table-wrapper">
               <table class="data-table">
                 <thead>

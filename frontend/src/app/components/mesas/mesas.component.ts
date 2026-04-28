@@ -87,7 +87,7 @@ export class MesasComponent implements OnInit {
   }
 
   ngOnInit() {
-    // La carga se dispara mediante el setter de @Input active
+    this.cargarMesas();
   }
 
   cargarMesas() {
@@ -341,6 +341,7 @@ export class MesasComponent implements OnInit {
             updated_at: response?.updated_at ?? this.tables[tableIndex].updated_at,
           };
           this.mesasFiltradas = [...this.tables];
+          this.tableService.invalidateTablesCache();
         }
 
         this.mostrarConfirmacionGuardadoTable();
@@ -408,6 +409,7 @@ export class MesasComponent implements OnInit {
         };
 
         this.tables = [...this.tables, createdTable];
+        this.tableService.invalidateTablesCache();
 
         if (this.terminoBusquedaTable || this.zonaSeleccionadaFiltro !== null) {
           this.buscarMesas();
@@ -449,6 +451,7 @@ export class MesasComponent implements OnInit {
   eliminarTable(id: string | number) {
     this.tableService.deleteTable(id.toString()).subscribe({
       next: () => {
+        this.tableService.invalidateTablesCache();
         this.cargarMesas();
       },
       error: (error) => {

@@ -85,6 +85,7 @@ export class ImpuestosComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.cargarImpuestos();
   }
 
   cargarImpuestos() {
@@ -220,6 +221,7 @@ export class ImpuestosComponent implements OnInit {
             updated_at: response?.updated_at ?? this.taxes[taxIndex].updated_at,
           };
           this.impuestosFiltrados = [...this.taxes];
+          this.taxService.invalidateTaxesCache();
         }
 
         this.mostrarConfirmacionGuardadoTax();
@@ -263,6 +265,7 @@ export class ImpuestosComponent implements OnInit {
         };
 
         this.taxes = [...this.taxes, createdTax];
+        this.taxService.invalidateTaxesCache();
 
         if (this.terminoBusquedaTax) {
           this.buscarImpuestos();
@@ -304,6 +307,7 @@ export class ImpuestosComponent implements OnInit {
   eliminarTax(id: string | number) {
     this.taxService.deleteTax(id.toString()).subscribe({
       next: () => {
+        this.taxService.invalidateTaxesCache();
         this.cargarImpuestos();
       },
       error: (error) => {

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonIcon } from '@ionic/angular/standalone';
@@ -38,7 +38,7 @@ interface UserCreateForm {
     standalone: true,
     imports: [CommonModule, FormsModule, IonIcon],
 })
-export class UsuariosComponent implements OnChanges {
+export class UsuariosComponent implements OnInit, OnChanges {
     @Input() active = false;
 
     usuariosLoading = false;
@@ -65,6 +65,10 @@ export class UsuariosComponent implements OnChanges {
             peopleOutline, gridOutline, shieldCheckmarkOutline,
             personOutline, restaurantOutline, flameOutline,
         });
+    }
+
+    ngOnInit() {
+        this.cargarUsuarios();
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -183,6 +187,7 @@ export class UsuariosComponent implements OnChanges {
 
         this.userService.updateUser(this.editingUser.uuid, payload).subscribe({
             next: () => {
+                this.userService.invalidateUsersCache();
                 this.users = this.users.map(u =>
                     u.uuid === this.editingUser?.uuid ? {
                         ...u,
@@ -222,6 +227,7 @@ export class UsuariosComponent implements OnChanges {
 
         this.userService.createUser(payload).subscribe({
             next: (response: any) => {
+                this.userService.invalidateUsersCache();
                 const newUser: User = {
                     id: Math.max(0, ...this.users.map(u => u.id)) + 1,
                     uuid: response?.id ?? response?.uuid,
@@ -254,7 +260,10 @@ export class UsuariosComponent implements OnChanges {
 
     private eliminarUsuario(uuid: string) {
         this.userService.deleteUser(uuid).subscribe({
-            next: () => this.cargarUsuarios(),
+            next: () => {
+                this.userService.invalidateUsersCache();
+                this.cargarUsuarios();
+            },
             error: () => this.mostrarAlerta('Error', 'No se pudo eliminar el usuario.'),
         });
     }
