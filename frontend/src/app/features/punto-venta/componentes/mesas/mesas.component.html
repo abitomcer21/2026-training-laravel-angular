@@ -6,9 +6,32 @@
 
   <ion-loading [isOpen]="cargando" message="Cargando mesas..."></ion-loading>
 
+  <!-- Selector de zonas -->
+  <div class="zones-filter" *ngIf="zonas.length > 0">
+    <div class="zones-header">
+      <h3>Filtrar por zona:</h3>
+      <button 
+        *ngIf="zonaSeleccionada" 
+        class="btn-clear-filter" 
+        (click)="limpiarFiltroZona()"
+        title="Limpiar filtro">
+        ✕ Limpiar
+      </button>
+    </div>
+    <div class="zones-buttons">
+      <button 
+        *ngFor="let zona of zonas" 
+        class="zone-button" 
+        [class.active]="zonaSeleccionada?.id === zona.id"
+        (click)="filtrarMesasPorZona(zona)">
+        {{ zona.name }}
+      </button>
+    </div>
+  </div>
+
   <div class="mesas-grid">
     <div
-      *ngFor="let mesa of mesas; trackBy: trackByMesa"
+      *ngFor="let mesa of mesasFiltradas; trackBy: trackByMesa"
       class="mesa-card"
       (click)="seleccionarMesa(mesa)"
     >

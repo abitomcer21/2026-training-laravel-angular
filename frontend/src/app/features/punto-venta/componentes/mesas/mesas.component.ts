@@ -20,6 +20,7 @@ import { TableService, Table } from '../../../../services/api/table.service';
 import { UserService, User } from '../../../../services/api/user.service';
 import { OrderStateService } from '../../../../services/order-state.service';
 import { AuthService } from '../../../../services/auth/auth.service';
+import { ZoneService, Zone } from '../../../../services/api/zone.service';
 
 @Component({
   selector: 'app-mesas',
@@ -44,6 +45,8 @@ import { AuthService } from '../../../../services/auth/auth.service';
 })
 export class MesasComponent implements OnInit {
   mesas: Table[] = [];
+  mesasFiltradas: Table[] = [];
+  zonas: Zone[] = [];
   usuarios: User[] = [];
   cargando = false;
   mostrarModalPin = false;
@@ -51,19 +54,42 @@ export class MesasComponent implements OnInit {
   selectedUser: User | null = null;
   pinIngresado = '';
   mensajeError = '';
+  zonaSeleccionada: Zone | null = null;
 
   constructor(
     private tableService: TableService,
     private userService: UserService,
     private orderStateService: OrderStateService,
-    private authService: AuthService
+    private authService: AuthService,
+    private zoneService: ZoneService
   ) {
     addIcons({ gridOutline, closeOutline });
   }
 
   ngOnInit() {
+    this.cargarZonas();
     this.cargarMesas();
     this.cargarUsuarios();
+  }
+
+  cargarZonas() {
+    const userData = this.authService.getUserData();
+    const restaurantId = userData?.restaurant_id;
+
+    if (!restaurantId) {
+      console.error('No se encontró restaurant_id del usuario');
+      return;
+    }
+
+    this.zoneService.getZones().subscribe({
+      next: (response: any) => {
+        const todasLasZonas = response.zones || [];
+        this.zonas = todasLasZonas.filter((zona: Zone) => zona.restaurant_id === restaurantId);
+      },
+      error: (error) => {
+        console.error('Error al cargar zonas:', error);
+      },
+    });
   }
 
   cargarMesas() {
@@ -82,6 +108,7 @@ export class MesasComponent implements OnInit {
         // Filtrar las mesas por el restaurant_id del usuario loggeado
         const todasLasMesas = response.tables || [];
         this.mesas = todasLasMesas.filter((mesa: Table) => mesa.restaurant_id === restaurantId);
+        this.filtrarMesasPorZona(this.zonaSeleccionada);
         this.cargando = false;
       },
       error: (error) => {
@@ -89,6 +116,19 @@ export class MesasComponent implements OnInit {
         this.cargando = false;
       },
     });
+  }
+
+  filtrarMesasPorZona(zona: Zone | null) {
+    this.zonaSeleccionada = zona;
+    if (!zona) {
+      this.mesasFiltradas = this.mesas;
+    } else {
+      this.mesasFiltradas = this.mesas.filter((mesa: Table) => mesa.zone_id === zona.id || mesa.zone_id === zona.database_id);
+    }
+  }
+
+  limpiarFiltroZona() {
+    this.filtrarMesasPorZona(null);
   }
 
   cargarUsuarios() {
@@ -147,5 +187,4 @@ export class MesasComponent implements OnInit {
     return mesa.uuid;
   }
 }
-
 

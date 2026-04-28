@@ -21,10 +21,80 @@
   }
 }
 
+.zones-filter {
+  background: var(--background-light);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+
+  .zones-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+
+    h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .btn-clear-filter {
+      background: none;
+      border: none;
+      color: var(--text-light);
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+        color: var(--text-dark);
+      }
+    }
+  }
+
+  .zones-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .zone-button {
+      padding: 8px 14px;
+      background: white;
+      border: 2px solid var(--border-light);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+
+      &:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background: rgba(var(--primary-rgb), 0.05);
+      }
+
+      &.active {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+      }
+    }
+  }
+}
+
+
 .mesas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-auto-rows: 150px;
+  gap: 16px;
   flex: 1;
 }
 
@@ -34,26 +104,25 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 20px;
+  padding: 16px;
   background: white;
   border: 2px solid var(--border-light);
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 140px;
 
   &:hover {
     border-color: var(--primary-color);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
   }
 
   &:active {
-    transform: translateY(0);
+    transform: translateY(-2px);
   }
 
   ion-icon {
-    font-size: 40px;
+    font-size: 48px;
     color: var(--primary-color);
   }
 
@@ -62,6 +131,7 @@
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-dark);
+    text-align: center;
   }
 
   .mesa-id {
