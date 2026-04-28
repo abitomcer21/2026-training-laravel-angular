@@ -45,77 +45,80 @@
     class="pin-modal"
   >
     <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Seleccionar usuario</ion-title>
-          <ion-button
-            slot="end"
-            fill="clear"
+      <ion-content class="ion-padding">
+        <!-- Información de la mesa con botón cerrar -->
+        <div *ngIf="selectedTable" class="mesa-info-header">
+          <h2 class="mesa-title">{{ selectedTable.name }}</h2>
+          <button 
+            class="btn-close-modal" 
             (click)="cerrarModal()"
+            title="Cerrar"
           >
             <ion-icon name="close-outline"></ion-icon>
-          </ion-button>
-        </ion-toolbar>
-      </ion-header>
-
-      <ion-content class="ion-padding">
-        <div *ngIf="selectedTable" class="mesa-info">
-          <p><strong>Mesa: </strong>{{ selectedTable.name }}</p>
+          </button>
         </div>
 
-        <ion-item>
-          <ion-label>Usuario</ion-label>
-          <ion-input
-            type="text"
-            placeholder="Selecciona un usuario"
-            [(ngModel)]="selectedUser"
-            readonly
-          ></ion-input>
-        </ion-item>
-
-        <div class="usuarios-list">
-          <div
-            *ngFor="let usuario of usuarios"
-            class="usuario-item"
-            (click)="selectedUser = usuario"
-            [class.selected]="selectedUser?.uuid === usuario.uuid"
-          >
-            <p>{{ usuario.name }}</p>
-            <small>{{ usuario.email }}</small>
+        <!-- VISTA 1: Seleccionar Usuario -->
+        <div *ngIf="!selectedUser" class="usuarios-view">
+          <p class="view-label">Selecciona un usuario:</p>
+          <div class="usuarios-grid">
+            <div
+              *ngFor="let usuario of usuarios"
+              class="usuario-card"
+              (click)="seleccionarUsuario(usuario)"
+            >
+              <div class="usuario-avatar">{{ usuario.name.charAt(0).toUpperCase() }}</div>
+              <p class="usuario-name">{{ usuario.name }}</p>
+            </div>
           </div>
         </div>
 
-        <ion-item>
-          <ion-label>PIN (4 dígitos)</ion-label>
-          <ion-input
-            type="password"
-            inputmode="numeric"
-            maxlength="4"
-            placeholder="0000"
-            [(ngModel)]="pinIngresado"
-          ></ion-input>
-        </ion-item>
+        <!-- VISTA 2: Ingresar PIN -->
+        <div *ngIf="selectedUser" class="pin-view">
+          <div class="usuario-seleccionado">
+            <div class="usuario-avatar-large">{{ selectedUser.name.charAt(0).toUpperCase() }}</div>
+            <h3>{{ selectedUser.name }}</h3>
+            <button class="btn-back-user" (click)="volverAUsuarios()" title="Cambiar usuario">
+              ← Cambiar
+            </button>
+          </div>
 
-        <div *ngIf="mensajeError" class="error-message">
-          {{ mensajeError }}
+          <!-- Display del PIN -->
+          <div class="pin-display">
+            <input
+              type="password"
+              [value]="pinIngresado"
+              class="pin-input"
+              readonly
+              placeholder="• • • •"
+            />
+          </div>
+
+          <!-- Teclado numérico -->
+          <div class="numeric-keyboard">
+            <div class="keyboard-row" *ngFor="let row of [0, 1, 2]">
+              <button
+                *ngFor="let num of getKeyboardNumbers(row)"
+                class="key-button"
+                (click)="agregarDigito(num.toString())"
+                [disabled]="pinIngresado.length >= 4"
+              >
+                {{ num }}
+              </button>
+            </div>
+            <div class="keyboard-row keyboard-actions">
+              <button class="key-button action-btn delete-btn" (click)="borrarDigito()">
+                <ion-icon name="backspace-outline"></ion-icon>
+                <span>Borrar</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mensaje de error -->
+          <div *ngIf="mensajeError" class="error-message">
+            {{ mensajeError }}
+          </div>
         </div>
-
-        <ion-button
-          expand="block"
-          color="primary"
-          (click)="validarPin()"
-          [disabled]="!selectedUser || !pinIngresado"
-        >
-          Validar
-        </ion-button>
-
-        <ion-button
-          expand="block"
-          fill="outline"
-          (click)="cerrarModal()"
-        >
-          Cancelar
-        </ion-button>
       </ion-content>
     </ng-template>
   </ion-modal>

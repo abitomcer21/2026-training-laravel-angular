@@ -33,6 +33,7 @@ use App\User\Infrastructure\Entrypoint\Http\LogoutController;
 use App\User\Infrastructure\Entrypoint\Http\MeController;
 use App\User\Infrastructure\Entrypoint\Http\PostController as UserPostController;
 use App\User\Infrastructure\Entrypoint\Http\PutController as UserPutController;
+use App\User\Infrastructure\Entrypoint\Http\ValidatePinController;
 use App\Zones\Infrastructure\Entrypoint\Http\DeleteController as ZonesDeleteController;
 use App\Zones\Infrastructure\Entrypoint\Http\GetAllController as ZonesGetAllController;
 use App\Zones\Infrastructure\Entrypoint\Http\GetByIdController as ZonesGetByIdController;
@@ -51,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}', UserGetByIdController::class);
     Route::put('/users/{id}', UserPutController::class);
     Route::delete('/users/{id}', UserDeleteController::class);
+    Route::post('/users/{userUuid}/validate-pin', ValidatePinController::class);
 
     // Family management (protegido)
     Route::get('/family', FamilyGetAllController::class);

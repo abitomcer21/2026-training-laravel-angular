@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   IonIcon,
   IonLoading,
@@ -61,7 +62,8 @@ export class MesasComponent implements OnInit {
     private userService: UserService,
     private orderStateService: OrderStateService,
     private authService: AuthService,
-    private zoneService: ZoneService
+    private zoneService: ZoneService,
+    private router: Router
   ) {
     addIcons({ gridOutline, closeOutline });
   }
@@ -167,13 +169,54 @@ export class MesasComponent implements OnInit {
         if (this.selectedTable && this.selectedUser) {
           this.orderStateService.setTableAndUser(this.selectedTable, this.selectedUser);
         }
-        this.cerrarModal();
+        // Cerrar modal y navegar directamente a productos
+        this.mostrarModalPin = false;
+        this.router.navigate(['/punto-venta/productos']);
       },
       error: (error: any) => {
         this.mensajeError = error.error?.message || 'PIN inválido';
       },
     });
   }
+
+  agregarDigito(digito: string) {
+    if (this.pinIngresado.length < 4) {
+      this.pinIngresado += digito;
+      this.mensajeError = '';
+      
+      // Validar automáticamente cuando se completen 4 dígitos
+      if (this.pinIngresado.length === 4) {
+        setTimeout(() => this.validarPin(), 300);
+      }
+    }
+  }
+
+  borrarDigito() {
+    this.pinIngresado = this.pinIngresado.slice(0, -1);
+  }
+
+  seleccionarUsuario(usuario: User) {
+    this.selectedUser = usuario;
+    this.pinIngresado = '';
+    this.mensajeError = '';
+  }
+
+  volverAUsuarios() {
+    this.selectedUser = null;
+    this.pinIngresado = '';
+    this.mensajeError = '';
+  }
+
+  getKeyboardNumbers(row: number): number[] {
+    const rows = [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+    ];
+    return rows[row] || [];
+  }
+
+
 
   cerrarModal() {
     this.mostrarModalPin = false;
