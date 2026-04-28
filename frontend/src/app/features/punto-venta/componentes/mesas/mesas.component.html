@@ -1,0 +1,99 @@
+<div class="view-container">
+  <div class="view-header">
+    <h1>Mesas</h1>
+    <p>Selecciona una mesa para comenzar</p>
+  </div>
+
+  <ion-loading [isOpen]="cargando" message="Cargando mesas..."></ion-loading>
+
+  <div class="mesas-grid">
+    <div
+      *ngFor="let mesa of mesas; trackBy: trackByMesa"
+      class="mesa-card"
+      (click)="seleccionarMesa(mesa)"
+    >
+      <ion-icon name="grid-outline"></ion-icon>
+      <h3>{{ mesa.name }}</h3>
+    </div>
+  </div>
+
+  <ion-modal
+    [isOpen]="mostrarModalPin"
+    class="pin-modal"
+  >
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Seleccionar usuario</ion-title>
+          <ion-button
+            slot="end"
+            fill="clear"
+            (click)="cerrarModal()"
+          >
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <div *ngIf="selectedTable" class="mesa-info">
+          <p><strong>Mesa: </strong>{{ selectedTable.name }}</p>
+        </div>
+
+        <ion-item>
+          <ion-label>Usuario</ion-label>
+          <ion-input
+            type="text"
+            placeholder="Selecciona un usuario"
+            [(ngModel)]="selectedUser"
+            readonly
+          ></ion-input>
+        </ion-item>
+
+        <div class="usuarios-list">
+          <div
+            *ngFor="let usuario of usuarios"
+            class="usuario-item"
+            (click)="selectedUser = usuario"
+            [class.selected]="selectedUser?.uuid === usuario.uuid"
+          >
+            <p>{{ usuario.name }}</p>
+            <small>{{ usuario.email }}</small>
+          </div>
+        </div>
+
+        <ion-item>
+          <ion-label>PIN (4 dígitos)</ion-label>
+          <ion-input
+            type="password"
+            inputmode="numeric"
+            maxlength="4"
+            placeholder="0000"
+            [(ngModel)]="pinIngresado"
+          ></ion-input>
+        </ion-item>
+
+        <div *ngIf="mensajeError" class="error-message">
+          {{ mensajeError }}
+        </div>
+
+        <ion-button
+          expand="block"
+          color="primary"
+          (click)="validarPin()"
+          [disabled]="!selectedUser || !pinIngresado"
+        >
+          Validar
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          fill="outline"
+          (click)="cerrarModal()"
+        >
+          Cancelar
+        </ion-button>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</div>

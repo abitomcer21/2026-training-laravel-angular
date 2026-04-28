@@ -208,11 +208,36 @@ export class UsuariosComponent implements OnInit, OnChanges {
 
     private guardarNuevoUsuario() {
         const restaurantId = this.authService.getUserData()?.restaurant_id;
-        if (!restaurantId) return;
+        if (!restaurantId) {
+            this.mostrarAlerta('Error', 'No se encontró el restaurante del usuario. Inicia sesión de nuevo.');
+            return;
+        }
 
         const f = this.createForm;
-        if (!f.name.trim() || !f.email.trim() || !f.password || !f.pin.trim() || !f.role) return;
-        if (f.password !== f.password_confirmation) return;
+        if (!f.name.trim()) {
+            this.mostrarAlerta('Validación', 'El nombre es requerido.');
+            return;
+        }
+        if (!f.email.trim()) {
+            this.mostrarAlerta('Validación', 'El email es requerido.');
+            return;
+        }
+        if (!f.password) {
+            this.mostrarAlerta('Validación', 'La contraseña es requerida.');
+            return;
+        }
+        if (!f.pin.trim()) {
+            this.mostrarAlerta('Validación', 'El PIN es requerido (4 dígitos).');
+            return;
+        }
+        if (!f.role) {
+            this.mostrarAlerta('Validación', 'El rol es requerido.');
+            return;
+        }
+        if (f.password !== f.password_confirmation) {
+            this.mostrarAlerta('Validación', 'Las contraseñas no coinciden.');
+            return;
+        }
 
         const payload = {
             name: f.name.trim(),
@@ -241,8 +266,13 @@ export class UsuariosComponent implements OnInit, OnChanges {
                 this.users = [...this.users, newUser];
                 this.usuariosFiltrados = [...this.users];
                 this.createForm = { name: '', email: '', password: '', password_confirmation: '', role: 'camarero', pin: '', image_src: '' };
+                this.mostrarAlerta('Éxito', 'Usuario creado correctamente.');
             },
-            error: () => this.mostrarAlerta('Error', 'No se pudo crear el usuario.'),
+            error: (error: any) => {
+                console.error('Error creando usuario:', error);
+                const errorMsg = error?.error?.message || error?.message || 'No se pudo crear el usuario.';
+                this.mostrarAlerta('Error', errorMsg);
+            },
         });
     }
 

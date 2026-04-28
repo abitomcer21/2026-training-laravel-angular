@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { 
   IonContent, IonGrid, IonRow, IonCol, IonCard, 
@@ -24,17 +24,27 @@ import { AuthService } from '../../services/auth/auth.service';
     IonButton, IonToast, IonSpinner
   ]
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   email = '';
   password = '';
   showError = false;
   errorMessage = '';
   loading = false;
+  tpvMode = false;
 
   constructor(
     private router: Router,
     private authService: AuthService
   ) {}
+
+  ngOnInit() {
+    // Detectar si venimos del TPV
+    const currentUrl = window.location.pathname;
+    if (currentUrl.includes('point-of-sale') || currentUrl.includes('punto-venta')) {
+      this.tpvMode = true;
+      this.email = 'titovicent@restaurante.com';
+    }
+  }
 
   login() {
     if (!this.email || !this.password) {
@@ -59,8 +69,8 @@ export class LoginPage {
           // Solo administradores van al dashboard
           this.router.navigate(['/dashboard']);
         } else {
-          // Otros roles (camarero, chef, supervisor) van a página en desarrollo
-          this.router.navigate(['/coming-soon']);
+          // Otros roles (camarero, chef, supervisor) van al TPV
+          this.router.navigate(['/point-of-sale']);
         }
       },
       error: (error) => {

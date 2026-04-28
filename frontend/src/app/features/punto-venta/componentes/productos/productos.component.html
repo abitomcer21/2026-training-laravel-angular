@@ -1,0 +1,82 @@
+<div class="view-container">
+  <div class="view-header">
+    <div class="header-top">
+      <div>
+        <h1>Productos</h1>
+        <p *ngIf="currentOrder.table" class="mesa-info">
+          Mesa: <strong>{{ currentOrder.table.name }}</strong> | Usuario: <strong>{{ currentOrder.user?.name }}</strong>
+        </p>
+        <p *ngIf="!currentOrder.table" class="mesa-info warning">
+          Por favor selecciona una mesa primero
+        </p>
+      </div>
+      <div *ngIf="currentOrder.items.length > 0" class="orden-badge">
+        <ion-badge color="primary">{{ currentOrder.items.length }}</ion-badge>
+        <span>items</span>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Buscar producto..."
+        [(ngModel)]="filtroNombre"
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  <ion-loading [isOpen]="cargando" message="Cargando productos..."></ion-loading>
+
+  <div class="productos-grid">
+    <div
+      *ngFor="let producto of productosFiltrados"
+      class="producto-card"
+    >
+      <div class="producto-info">
+        <h3>{{ producto.name }}</h3>
+        <p class="precio">${{ producto.price | number: '1.2-2' }}</p>
+        <p class="descripcion" *ngIf="producto.description">
+          {{ producto.description }}
+        </p>
+      </div>
+
+      <div class="producto-actions">
+        <div *ngIf="obtenerCantidadProducto(producto.id) === 0" class="add-button">
+          <ion-button
+            expand="block"
+            size="small"
+            color="primary"
+            (click)="agregarProducto(producto)"
+          >
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+            Agregar
+          </ion-button>
+        </div>
+
+        <div *ngIf="obtenerCantidadProducto(producto.id) > 0" class="quantity-control">
+          <ion-button
+            fill="outline"
+            size="small"
+            (click)="decrementarProducto(producto.id)"
+          >
+            <ion-icon name="remove-outline"></ion-icon>
+          </ion-button>
+          <span class="cantidad">{{ obtenerCantidadProducto(producto.id) }}</span>
+          <ion-button
+            fill="outline"
+            size="small"
+            (click)="incrementarProducto(producto.id)"
+          >
+            <ion-icon name="add-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="productosFiltrados.length === 0" class="no-products">
+    <ion-icon name="restaurant-outline"></ion-icon>
+    <p>{{ filtroNombre ? 'No hay productos que coincidan' : 'Cargando productos...' }}</p>
+  </div>
+</div>

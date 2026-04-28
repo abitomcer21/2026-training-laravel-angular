@@ -1,0 +1,43 @@
+<div class="tpv-container">
+  <!-- SIDEBAR ESTRECHO CON ICONOS -->
+  <aside class="tpv-sidebar">
+    <div class="sidebar-header">
+      <span class="restaurant-name">{{ restaurantName }}</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button
+        *ngFor="let item of menuItems"
+        class="nav-button"
+        [class.active]="currentView === item.valor"
+        (click)="selectView(item.valor)"
+        [title]="item.nombre"
+      >
+        <ion-icon [name]="item.icono"></ion-icon>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="nav-button logout-btn" (click)="closeSession()" title="Cerrar sesión">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <ion-content class="tpv-content ion-padding">
+    <div class="content-wrapper">
+
+      <!-- VISTA: PRODUCTOS -->
+      <app-productos *ngIf="currentView === 'productos'" />
+      <!-- VISTA: MESAS -->
+      <app-mesas *ngIf="currentView === 'mesas'" />
+
+      <!-- VISTA: PEDIDOS -->
+      <app-pedidos *ngIf="currentView === 'pedidos'" />
+
+      <!-- VISTA: CAJA -->
+      <app-caja *ngIf="currentView === 'caja'" />
+    </div>
+  </ion-content>
+</div>

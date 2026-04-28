@@ -48,6 +48,14 @@ export class UserService extends BaseApiService {
     return this.httpCall(`${this.endpoint}/${uuid}`, null, 'delete');
   }
 
+  validatePin(userUuid: string, pin: string): Observable<ApiResponse> {
+    return this.httpCall(
+      `${this.endpoint}/${userUuid}/validate-pin`,
+      { pin },
+      'post'
+    );
+  }
+
   invalidateUsersCache(): void {
     this.usersCache$ = null;
   }
