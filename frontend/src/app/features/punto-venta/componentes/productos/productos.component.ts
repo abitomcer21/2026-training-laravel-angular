@@ -12,6 +12,7 @@ import { addIcons } from 'ionicons';
 import { restaurantOutline, addOutline, removeOutline } from 'ionicons/icons';
 import { ProductService } from '../../../../services/api/product.service';
 import { OrderStateService, CurrentOrder, OrderItem } from '../../../../services/order-state.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 
 export interface Product {
   id: string;
@@ -51,7 +52,8 @@ export class ProductosComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private orderStateService: OrderStateService
+    private orderStateService: OrderStateService,
+    private authService: AuthService
   ) {
     addIcons({ restaurantOutline, addOutline, removeOutline });
   }
@@ -63,9 +65,20 @@ export class ProductosComponent implements OnInit {
 
   cargarProductos() {
     this.cargando = true;
+    const userData = this.authService.getUserData();
+    const restaurantId = userData?.restaurant_id;
+
+    if (!restaurantId) {
+      console.error('No se encontró restaurant_id del usuario');
+      this.cargando = false;
+      return;
+    }
+
     this.productService.getProducts().subscribe({
       next: (response: any) => {
-        this.productos = response.products || [];
+        // Filtrar los productos por el restaurant_id del usuario loggeado
+        const todosLosProductos = response.products || [];
+        this.productos = todosLosProductos.filter((producto: any) => producto.restaurant_id === restaurantId);
         this.cargando = false;
       },
       error: (error) => {

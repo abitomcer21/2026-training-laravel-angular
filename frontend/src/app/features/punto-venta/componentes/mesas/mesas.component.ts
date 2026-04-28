@@ -19,6 +19,7 @@ import { gridOutline, closeOutline } from 'ionicons/icons';
 import { TableService, Table } from '../../../../services/api/table.service';
 import { UserService, User } from '../../../../services/api/user.service';
 import { OrderStateService } from '../../../../services/order-state.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-mesas',
@@ -54,7 +55,8 @@ export class MesasComponent implements OnInit {
   constructor(
     private tableService: TableService,
     private userService: UserService,
-    private orderStateService: OrderStateService
+    private orderStateService: OrderStateService,
+    private authService: AuthService
   ) {
     addIcons({ gridOutline, closeOutline });
   }
@@ -66,9 +68,20 @@ export class MesasComponent implements OnInit {
 
   cargarMesas() {
     this.cargando = true;
+    const userData = this.authService.getUserData();
+    const restaurantId = userData?.restaurant_id;
+
+    if (!restaurantId) {
+      console.error('No se encontró restaurant_id del usuario');
+      this.cargando = false;
+      return;
+    }
+
     this.tableService.getTables().subscribe({
       next: (response: any) => {
-        this.mesas = response.tables || [];
+        // Filtrar las mesas por el restaurant_id del usuario loggeado
+        const todasLasMesas = response.tables || [];
+        this.mesas = todasLasMesas.filter((mesa: Table) => mesa.restaurant_id === restaurantId);
         this.cargando = false;
       },
       error: (error) => {
