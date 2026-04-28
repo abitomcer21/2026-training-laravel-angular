@@ -14,6 +14,7 @@ import { ProductService, Product } from '../../services/api/product.service';
 import { FamilyService, Family } from '../../services/api/family.service';
 import { TaxService, Tax } from '../../services/api/tax.service';
 import { FamilyStateService } from '../../services/shared/family-state.service';
+import { DataCacheService } from '../../services/shared/data-cache.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 interface ProductEditForm {
@@ -45,9 +46,7 @@ interface ProductCreateForm {
 export class ProductosComponent implements OnInit, OnDestroy {
     @Input() set active(value: boolean) {
         this._active = value;
-        if (value && !this.productosCargados) {
-            this.cargarProductos();
-        }
+        // Sin lógica extra, dejar que ngOnInit maneje
     }
 
     get active(): boolean {
@@ -59,6 +58,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
 
     // Subscripciones
     private familyStateSubscription: Subscription | null = null;
+    private familyDeletedSubscription: Subscription | null = null;
+    private familyCreatedSubscription: Subscription | null = null;
 
     // Loading
     productosLoading = false;
@@ -103,6 +104,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
         private familyService: FamilyService,
         private taxService: TaxService,
         private familyStateService: FamilyStateService,
+        private dataCacheService: DataCacheService,
         private authService: AuthService,
         private alertController: AlertController
     ) {
@@ -113,7 +115,30 @@ export class ProductosComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.cargarProductos();
+        // Intentar recuperar del caché primero
+        const cachedProducts = this.dataCacheService.getProducts();
+        const cachedFamilies = this.dataCacheService.getFamilies();
+        const cachedTaxes = this.dataCacheService.getTaxes();
+        
+        if (cachedProducts.length > 0) {
+            this.products = [...cachedProducts];
+            this.productosFiltrados = [...this.products];
+            this.productosCargados = true;
+        }
+        
+        if (cachedFamilies.length > 0) {
+            this.familiasParaProductos = [...cachedFamilies];
+        }
+        
+        if (cachedTaxes.length > 0) {
+            this.taxes = [...cachedTaxes];
+        }
+        
+        if (cachedProducts.length === 0 || cachedFamilies.length === 0 || cachedTaxes.length === 0) {
+            // Si no hay caché o falta algo, cargar de la API
+            this.cargarProductos();
+        }
+        
         this.suscribirseACambiosFamilia();
     }
 
@@ -122,9 +147,16 @@ export class ProductosComponent implements OnInit, OnDestroy {
         if (this.familyStateSubscription) {
             this.familyStateSubscription.unsubscribe();
         }
+        if (this.familyDeletedSubscription) {
+            this.familyDeletedSubscription.unsubscribe();
+        }
+        if (this.familyCreatedSubscription) {
+            this.familyCreatedSubscription.unsubscribe();
+        }
     }
 
     private suscribirseACambiosFamilia() {
+        // Suscribirse a cambios de estado de familia
         this.familyStateSubscription = this.familyStateService.getFamilyStatusChange$().subscribe(
             (change) => {
                 if (change) {
@@ -133,6 +165,49 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 }
             }
         );
+
+        // Suscribirse a eliminaciones de familia
+        this.familyDeletedSubscription = this.familyStateService.getFamilyDeleted$().subscribe(
+            (deleted) => {
+                if (deleted) {
+                    // Eliminar productos de la familia eliminada
+                    this.eliminarProductosPorFamiliaEliminada(deleted.familyId);
+                }
+            }
+        );
+
+        // Suscribirse a creaciones de familia
+        this.familyCreatedSubscription = this.familyStateService.getFamilyCreated$().subscribe(
+            (family) => {
+                if (family) {
+                    // Agregar la nueva familia a la lista sin recargar
+                    this.agregarFamiliaAlSelecto(family);
+                }
+            }
+        );
+    }
+
+    private agregarFamiliaAlSelecto(family: Family) {
+        // Verificar que la familia no exista ya en la lista
+        const familyExists = this.familiasParaProductos.some(f => f.id?.toString() === family.id?.toString());
+        
+        if (!familyExists) {
+            this.familiasParaProductos = [...this.familiasParaProductos, family];
+            
+            // Actualizar caché
+            this.dataCacheService.setFamiliesCache(this.familiasParaProductos);
+        }
+    }
+
+    private eliminarProductosPorFamiliaEliminada(familyId: string) {
+        // Eliminar productos de la lista
+        this.products = this.products.filter(p => p.family_id?.toString() !== familyId);
+        
+        // Eliminar de la lista filtrada
+        this.productosFiltrados = this.productosFiltrados.filter(p => p.family_id?.toString() !== familyId);
+        
+        // Actualizar caché
+        this.dataCacheService.setProductsCache(this.products);
     }
 
     private actualizarEstadoProductosPorFamilia(familyId: string, newActive: boolean) {
@@ -193,6 +268,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
                         } else {
                             this.familiasParaProductos = families;
                         }
+                        
+                        // Guardar familias en caché
+                        this.dataCacheService.setFamiliesCache(this.familiasParaProductos);
                     }
 
                     if (responses.taxes) {
@@ -211,6 +289,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
                         } else {
                             this.taxes = taxes;
                         }
+                        
+                        // Guardar impuestos en caché
+                        this.dataCacheService.setTaxesCache(this.taxes);
                     }
 
                     this.cargarProductosData(userRestaurantId);
@@ -246,6 +327,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 this.productosFiltrados = [...this.products];
                 this.productosCargados = true;
                 this.productosLoading = false;
+                
+                // Guardar en caché
+                this.dataCacheService.setProductsCache(this.products);
             },
             error: (error) => {
                 console.error('Error:', error);
@@ -538,8 +622,15 @@ export class ProductosComponent implements OnInit, OnDestroy {
     eliminarProduct(id: string | number) {
         this.productService.deleteProduct(id.toString()).subscribe({
             next: () => {
+                // Remover del array local
+                this.products = this.products.filter(p => p.id?.toString() !== id.toString());
+                this.productosFiltrados = this.productosFiltrados.filter(p => p.id?.toString() !== id.toString());
+                
+                // Actualizar caché
+                this.dataCacheService.setProductsCache(this.products);
+                
+                // Invalidar cache de API
                 this.productService.invalidateProductsCache();
-                this.cargarProductos();
             },
             error: (error) => {
                 console.error('Error al eliminar:', error);
@@ -793,6 +884,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 };
                 this.taxes = [...this.taxes, newTax];
                 this.createProductForm.tax_id = newTax.id.toString();
+                
+                // Guardar impuestos en caché
+                this.dataCacheService.setTaxesCache(this.taxes);
                 
                 // Invalidar cache para que ImpuestosComponent cargue el nuevo impuesto
                 this.taxService.invalidateTaxesCache();

@@ -4,13 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { IonIcon } from '@ionic/angular/standalone';
 import { AlertController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
+import { forkJoin, of } from 'rxjs';
 import {
     searchOutline, closeOutline, createOutline, trashOutline,
     albumsOutline, gridOutline,
 } from 'ionicons/icons';
 
 import { FamilyService, Family } from '../../services/api/family.service';
+import { ProductService } from '../../services/api/product.service';
 import { FamilyStateService } from '../../services/shared/family-state.service';
+import { DataCacheService } from '../../services/shared/data-cache.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 interface FamilyEditForm {
@@ -32,9 +35,7 @@ interface FamilyCreateForm {
 export class FamiliasComponent implements OnInit {
     @Input() set active(value: boolean) {
         this._active = value;
-        if (value && !this.familiasCargadas) {
-            this.cargarFamilias();
-        }
+        // Sin lógica extra, dejar que ngOnInit maneje
     }
 
     get active(): boolean {
@@ -42,6 +43,7 @@ export class FamiliasComponent implements OnInit {
     }
 
     private _active: boolean = false;
+
 
     familiasLoading = false;
     familiasCargadas = false;
@@ -58,7 +60,9 @@ export class FamiliasComponent implements OnInit {
 
     constructor(
         private familyService: FamilyService,
+        private productService: ProductService,
         private familyStateService: FamilyStateService,
+        private dataCacheService: DataCacheService,
         private authService: AuthService,
         private alertController: AlertController,
     ) {
@@ -69,7 +73,16 @@ export class FamiliasComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.cargarFamilias();
+        // Intentar recuperar del caché primero
+        const cachedFamilies = this.dataCacheService.getFamilies();
+        if (cachedFamilies.length > 0) {
+            this.families = [...cachedFamilies];
+            this.familiasFiltradas = [...this.families];
+            this.familiasCargadas = true;
+        } else {
+            // Si no hay caché, cargar de la API
+            this.cargarFamilias();
+        }
     }
 
     cargarFamilias() {
@@ -109,6 +122,9 @@ export class FamiliasComponent implements OnInit {
                 this.familiasFiltradas = [...this.families];
                 this.familiasCargadas = true;
                 this.familiasLoading = false;
+                
+                // Guardar en caché
+                this.dataCacheService.setFamiliesCache(this.families);
             },
             error: (error) => {
                 console.error('Error al cargar familias:', error);
@@ -254,6 +270,12 @@ export class FamiliasComponent implements OnInit {
                 this.families = [...this.families, createdFamily];
                 this.familyService.invalidateFamiliesCache();
 
+                // Actualizar caché
+                this.dataCacheService.setFamiliesCache(this.families);
+
+                // Notificar a otros componentes sobre la nueva familia
+                this.familyStateService.notifyFamilyCreated(createdFamily);
+
                 if (this.terminoBusquedaFamily) {
                     this.buscarFamilias();
                 } else {
@@ -271,9 +293,42 @@ export class FamiliasComponent implements OnInit {
     }
 
     async confirmarEliminarFamily(family: Family) {
+        // Obtener productos de esta familia
+        this.productService.getProducts().subscribe({
+            next: (response: any) => {
+                let allProducts: any[] = [];
+                if (Array.isArray(response)) {
+                    allProducts = response;
+                } else if (response?.products && Array.isArray(response.products)) {
+                    allProducts = response.products;
+                } else if (response?.data && Array.isArray(response.data)) {
+                    allProducts = response.data;
+                }
+
+                const relatedProducts = allProducts.filter(p => p.family_id === family.id);
+                const productCount = relatedProducts.length;
+
+                this.mostrarAlertaConfirmacionEliminacionFamilia(family, productCount);
+            },
+            error: (error) => {
+                console.error('Error al obtener productos:', error);
+                // Si hay error obteniendo productos, mostrar alerta simple
+                this.mostrarAlertaConfirmacionEliminacionFamilia(family, 0);
+            }
+        });
+    }
+
+    async mostrarAlertaConfirmacionEliminacionFamilia(family: Family, productCount: number) {
+        let message = `¿Estás seguro de que quieres eliminar ${family.name}?`;
+        
+        if (productCount > 0) {
+            const productoTexto = productCount === 1 ? 'producto' : 'productos';
+            message += ` Se eliminarán ${productCount} ${productoTexto} asociado${productCount === 1 ? '' : 's'}.`;
+        }
+
         const alert = await this.alertController.create({
             header: 'Eliminar familia',
-            message: `¿Estás seguro de que quieres eliminar <strong>${family.name}</strong>?`,
+            message: message,
             buttons: [
                 {
                     text: 'Cancelar',
@@ -283,22 +338,85 @@ export class FamiliasComponent implements OnInit {
                 {
                     text: 'Eliminar',
                     handler: () => {
-                        this.eliminarFamily(family.id);
+                        this.eliminarFamilyConProductos(family.id, productCount);
                     },
+                    cssClass: 'danger',
                 },
             ],
         });
         await alert.present();
     }
 
-    eliminarFamily(id: string | number) {
+    private eliminarFamilyConProductos(familyId: string | number, productCount: number) {
+        if (productCount > 0) {
+            // Obtener todos los productos
+            this.productService.getProducts().subscribe({
+                next: (response: any) => {
+                    let allProducts: any[] = [];
+                    if (Array.isArray(response)) {
+                        allProducts = response;
+                    } else if (response?.products && Array.isArray(response.products)) {
+                        allProducts = response.products;
+                    } else if (response?.data && Array.isArray(response.data)) {
+                        allProducts = response.data;
+                    }
+
+                    const relatedProducts = allProducts.filter(p => p.family_id === familyId);
+                    
+                    // Crear array de observables para eliminar productos en paralelo
+                    const deleteObservables = relatedProducts.map(product =>
+                        this.productService.deleteProduct(product.id)
+                    );
+
+                    // Usar forkJoin para ejecutar todas las eliminaciones en paralelo
+                    if (deleteObservables.length > 0) {
+                        forkJoin(deleteObservables).subscribe({
+                            next: () => {
+                                // Todos los productos se eliminaron, ahora eliminar la familia
+                                this.eliminarFamily(familyId);
+                            },
+                            error: (error) => {
+                                console.error('Error al eliminar productos:', error);
+                                // Si hay error, intentar eliminar la familia de todas formas
+                                this.eliminarFamily(familyId);
+                            }
+                        });
+                    } else {
+                        // Sin productos, solo eliminar la familia
+                        this.eliminarFamily(familyId);
+                    }
+                },
+                error: (error) => {
+                    console.error('Error al obtener productos para eliminar:', error);
+                    // Si hay error, intentar eliminar la familia de todas formas
+                    this.eliminarFamily(familyId);
+                }
+            });
+        } else {
+            // Sin productos, solo eliminar la familia
+            this.eliminarFamily(familyId);
+        }
+    }
+
+    private eliminarFamily(id: string | number) {
         this.familyService.deleteFamily(id.toString()).subscribe({
             next: () => {
+                // Actualizar array local: remover la familia eliminada
+                this.families = this.families.filter(f => f.id?.toString() !== id.toString());
+                this.familiasFiltradas = this.familiasFiltradas.filter(f => f.id?.toString() !== id.toString());
+                
+                // Actualizar caché
+                this.dataCacheService.setFamiliesCache(this.families);
+                
+                // Notificar a otros componentes sobre la eliminación
+                this.familyStateService.notifyFamilyDeleted(id.toString());
+                
+                // Invalidar caches pero NO recargar
                 this.familyService.invalidateFamiliesCache();
-                this.cargarFamilias();
+                this.productService.invalidateProductsCache();
             },
             error: (error) => {
-                console.error('Error al eliminar:', error);
+                console.error('Error al eliminar familia:', error);
             },
         });
     }
