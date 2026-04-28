@@ -99,7 +99,8 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let product of productosFiltrados; let i = index">
+                  <tr *ngFor="let product of productosFiltrados; let i = index"
+                    [ngClass]="{'product-inactive': !product.active}">
                     <td class="col-id">
                       <span class="id-badge">{{ i + 1 }}</span>
                     </td>
@@ -129,11 +130,15 @@
                         <input 
                           type="checkbox" 
                           class="toggle-checkbox" 
+                          [class.toggle-disabled]="isProductDisabledByFamily(product)"
                           [checked]="product.active"
                           (change)="cambiarEstadoProduct(product)"
-                          [id]="'toggle-product-' + i">
+                          [disabled]="isProductDisabledByFamily(product)"
+                          [id]="'toggle-product-' + i"
+                          [title]="isProductDisabledByFamily(product) ? 'No puedes cambiar el estado mientras la familia esté desactivada' : ''">
                         <label [for]="'toggle-product-' + i" class="toggle-label">
                           <span class="toggle-text">{{ product.active ? 'Activo' : 'Inactivo' }}</span>
+                          <span *ngIf="isProductDisabledByFamily(product)" class="toggle-info"></span>
                         </label>
                       </div>
                     </td>

@@ -435,6 +435,16 @@
     left: 22px;
 }
 
+.toggle-checkbox:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.toggle-checkbox:disabled::before {
+    background: #9ca3af;
+}
+
 .toggle-label {
     display: flex;
     align-items: center;
@@ -445,9 +455,24 @@
     min-width: 65px;
 }
 
+.toggle-label[for*="toggle-product-"] {
+    cursor: default;
+}
+
 
 .toggle-text {
     font-weight: 500;
+}
+
+.toggle-info {
+    font-size: 0.75rem;
+    color: #ef4444;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.toggle-disabled {
+    cursor: not-allowed !important;
 }
 
 /* Form info */
@@ -643,4 +668,14 @@
         padding: 6px 10px;
         font-size: 0.75rem;
     }
+}
+
+/* Estilos para productos inactivos */
+.product-inactive {
+    opacity: 0.6;
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+.product-inactive td {
+    color: #9ca3af;
 }

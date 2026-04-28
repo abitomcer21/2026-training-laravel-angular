@@ -10,6 +10,7 @@ import {
 } from 'ionicons/icons';
 
 import { FamilyService, Family } from '../../services/api/family.service';
+import { FamilyStateService } from '../../services/shared/family-state.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 interface FamilyEditForm {
@@ -57,6 +58,7 @@ export class FamiliasComponent implements OnInit {
 
     constructor(
         private familyService: FamilyService,
+        private familyStateService: FamilyStateService,
         private authService: AuthService,
         private alertController: AlertController,
     ) {
@@ -318,6 +320,9 @@ export class FamiliasComponent implements OnInit {
                     this.families[familyIndex].active = response?.active ?? !this.families[familyIndex].active;
                     this.familiasFiltradas = [...this.families];
                 }
+
+                // Notificar el cambio de estado para que ProductosComponent actualice localmente
+                this.familyStateService.notifyFamilyStatusChange(family.id.toString(), response?.active ?? !family.active);
             },
             error: (error) => {
                 console.error('Error al cambiar estado:', error);

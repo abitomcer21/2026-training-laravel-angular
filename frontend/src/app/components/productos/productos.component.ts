@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonIcon } from '@ionic/angular/standalone';
@@ -8,11 +8,12 @@ import {
     searchOutline, closeOutline, createOutline, trashOutline,
     albumsOutline, gridOutline, restaurantOutline
 } from 'ionicons/icons';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 
 import { ProductService, Product } from '../../services/api/product.service';
 import { FamilyService, Family } from '../../services/api/family.service';
 import { TaxService, Tax } from '../../services/api/tax.service';
+import { FamilyStateService } from '../../services/shared/family-state.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 interface ProductEditForm {
@@ -41,7 +42,7 @@ interface ProductCreateForm {
     standalone: true,
     imports: [CommonModule, FormsModule, IonIcon],
 })
-export class ProductosComponent implements OnInit {
+export class ProductosComponent implements OnInit, OnDestroy {
     @Input() set active(value: boolean) {
         this._active = value;
         if (value && !this.productosCargados) {
@@ -55,6 +56,9 @@ export class ProductosComponent implements OnInit {
 
     private _active: boolean = false;
     @Input() familias: Family[] = [];
+
+    // Subscripciones
+    private familyStateSubscription: Subscription | null = null;
 
     // Loading
     productosLoading = false;
@@ -98,6 +102,7 @@ export class ProductosComponent implements OnInit {
         private productService: ProductService,
         private familyService: FamilyService,
         private taxService: TaxService,
+        private familyStateService: FamilyStateService,
         private authService: AuthService,
         private alertController: AlertController
     ) {
@@ -109,6 +114,43 @@ export class ProductosComponent implements OnInit {
 
     ngOnInit() {
         this.cargarProductos();
+        this.suscribirseACambiosFamilia();
+    }
+
+    ngOnDestroy() {
+        // Desuscribirse para evitar memory leaks
+        if (this.familyStateSubscription) {
+            this.familyStateSubscription.unsubscribe();
+        }
+    }
+
+    private suscribirseACambiosFamilia() {
+        this.familyStateSubscription = this.familyStateService.getFamilyStatusChange$().subscribe(
+            (change) => {
+                if (change) {
+                    // Actualizar estado de productos localmente
+                    this.actualizarEstadoProductosPorFamilia(change.familyId, change.active);
+                }
+            }
+        );
+    }
+
+    private actualizarEstadoProductosPorFamilia(familyId: string, newActive: boolean) {
+        // Actualizar en la lista de productos
+        this.products = this.products.map(product => {
+            if (product.family_id === familyId) {
+                return { ...product, active: newActive };
+            }
+            return product;
+        });
+
+        // Actualizar en la lista filtrada
+        this.productosFiltrados = this.productosFiltrados.map(product => {
+            if (product.family_id === familyId) {
+                return { ...product, active: newActive };
+            }
+            return product;
+        });
     }
 
     cargarProductos() {
@@ -510,6 +552,12 @@ export class ProductosComponent implements OnInit {
     }
 
     cambiarEstadoProduct(product: Product) {
+        // Verificar si la familia está activa
+        if (!this.isFamilyActive(product.family_id)) {
+            alert('No puedes activar este producto porque su familia está desactivada');
+            return;
+        }
+
         const payload = {
             active: !product.active,
         };
@@ -527,6 +575,15 @@ export class ProductosComponent implements OnInit {
                 console.error('Error al cambiar estado:', error);
             }
         });
+    }
+
+    isFamilyActive(familyId: string): boolean {
+        const family = this.familiasParaProductos.find(f => f.id?.toString() === familyId?.toString());
+        return family ? family.active : true;
+    }
+
+    isProductDisabledByFamily(product: Product): boolean {
+        return !this.isFamilyActive(product.family_id);
     }
 
     async mostrarConfirmacionGuardadoProduct() {
@@ -650,6 +707,10 @@ export class ProductosComponent implements OnInit {
                 };
                 this.familiasParaProductos = [...this.familiasParaProductos, newFamily];
                 this.createProductForm.family_id = newFamily.id;
+                
+                // Invalidar cache para que FamiliasComponent cargue la nueva familia
+                this.familyService.invalidateFamiliesCache();
+                
                 this.mostrarConfirmacionFamiliaCreada(name);
             },
             error: (error) => {
@@ -732,6 +793,10 @@ export class ProductosComponent implements OnInit {
                 };
                 this.taxes = [...this.taxes, newTax];
                 this.createProductForm.tax_id = newTax.id.toString();
+                
+                // Invalidar cache para que ImpuestosComponent cargue el nuevo impuesto
+                this.taxService.invalidateTaxesCache();
+                
                 this.mostrarConfirmacionImpuestoCreado(name);
             },
             error: (error) => {
