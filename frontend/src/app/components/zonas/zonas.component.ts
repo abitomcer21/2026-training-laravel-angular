@@ -4,12 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AlertController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
+import { forkJoin } from 'rxjs';
 import {
   mapOutline, searchOutline, closeOutline,
   createOutline, trashOutline
 } from 'ionicons/icons';
 
 import { ZoneService, Zone } from '../../services/api/zone.service';
+import { TableService } from '../../services/api/table.service';
+import { ZoneStateService } from '../../services/shared/zone-state.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 interface ZoneEditForm {
@@ -71,6 +74,8 @@ export class ZonasComponent implements OnInit {
 
   constructor(
     private zoneService: ZoneService,
+    private tableService: TableService,
+    private zoneStateService: ZoneStateService,
     private authService: AuthService,
     private alertController: AlertController
   ) {
@@ -272,27 +277,132 @@ export class ZonasComponent implements OnInit {
   }
 
   async confirmarEliminarZone(zone: Zone) {
+    // Obtener mesas de esta zona
+    this.tableService.getTables().subscribe({
+      next: (response: any) => {
+        let allTables: any[] = [];
+        if (Array.isArray(response)) {
+          allTables = response;
+        } else if (response?.tables && Array.isArray(response.tables)) {
+          allTables = response.tables;
+        } else if (response?.data && Array.isArray(response.data)) {
+          allTables = response.data;
+        }
+
+        const relatedTables = allTables.filter(t => t.zone_id === zone.id);
+        const tableCount = relatedTables.length;
+
+        this.mostrarAlertaConfirmacionEliminacionZona(zone, tableCount);
+      },
+      error: (error) => {
+        console.error('Error al obtener mesas:', error);
+        // Si hay error obteniendo mesas, mostrar alerta simple
+        this.mostrarAlertaConfirmacionEliminacionZona(zone, 0);
+      }
+    });
+  }
+
+  async mostrarAlertaConfirmacionEliminacionZona(zone: Zone, tableCount: number) {
+    let message = `¿Estás seguro de que quieres eliminar ${zone.name}?`;
+    
+    if (tableCount > 0) {
+      const mesaTexto = tableCount === 1 ? 'mesa' : 'mesas';
+      message += ` Se eliminarán ${tableCount} ${mesaTexto} asociada${tableCount === 1 ? '' : 's'}.`;
+    }
+
     const alert = await this.alertController.create({
       header: 'Eliminar zona',
-      message: `¿Estás seguro de que quieres eliminar <strong>${zone.name}</strong>?`,
+      message: message,
       buttons: [
         {
           text: 'Cancelar',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'Eliminar',
           handler: () => {
-            this.eliminarZone(zone.id);
-          }
-        }
-      ]
+            this.eliminarZonaConMesas(zone.id, tableCount);
+          },
+          cssClass: 'danger',
+        },
+      ],
     });
     await alert.present();
   }
 
-  eliminarZone(id: string | number) {
+  private eliminarZonaConMesas(zoneId: string | number, tableCount: number) {
+    if (tableCount > 0) {
+      // Obtener todas las mesas
+      this.tableService.getTables().subscribe({
+        next: (response: any) => {
+          let allTables: any[] = [];
+          if (Array.isArray(response)) {
+            allTables = response;
+          } else if (response?.tables && Array.isArray(response.tables)) {
+            allTables = response.tables;
+          } else if (response?.data && Array.isArray(response.data)) {
+            allTables = response.data;
+          }
+
+          const relatedTables = allTables.filter(t => t.zone_id === zoneId);
+          
+          // Crear array de observables para eliminar mesas en paralelo
+          const deleteObservables = relatedTables.map(table =>
+            this.tableService.deleteTable(table.id)
+          );
+
+          // Usar forkJoin para ejecutar todas las eliminaciones en paralelo
+          if (deleteObservables.length > 0) {
+            forkJoin(deleteObservables).subscribe({
+              next: () => {
+                // Todas las mesas se eliminaron, ahora eliminar la zona
+                this.eliminarZone(zoneId);
+              },
+              error: (error) => {
+                console.error('Error al eliminar mesas:', error);
+                // Si hay error, intentar eliminar la zona de todas formas
+                this.eliminarZone(zoneId);
+              }
+            });
+          } else {
+            // Sin mesas, solo eliminar la zona
+            this.eliminarZone(zoneId);
+          }
+        },
+        error: (error) => {
+          console.error('Error al obtener mesas para eliminar:', error);
+          // Si hay error, intentar eliminar la zona de todas formas
+          this.eliminarZone(zoneId);
+        }
+      });
+    } else {
+      // Sin mesas, solo eliminar la zona
+      this.eliminarZone(zoneId);
+    }
+  }
+
+  private eliminarZone(id: string | number) {
+    this.zoneService.deleteZone(id.toString()).subscribe({
+      next: () => {
+        // Actualizar array local: remover la zona eliminada
+        this.zones = this.zones.filter(z => z.id?.toString() !== id.toString());
+        this.zonasFiltradas = this.zonasFiltradas.filter(z => z.id?.toString() !== id.toString());
+        
+        // Notificar a otros componentes sobre la eliminación
+        this.zoneStateService.notifyZoneDeleted(id.toString());
+        
+        // Invalidar caches
+        this.zoneService.invalidateZonesCache();
+        this.tableService.invalidateTablesCache();
+      },
+      error: (error) => {
+        console.error('Error al eliminar zona:', error);
+      },
+    });
+  }
+
+  eliminarZoneOld(id: string | number) {
     this.zoneService.deleteZone(id.toString()).subscribe({
       next: () => {
         this.zoneService.invalidateZonesCache();

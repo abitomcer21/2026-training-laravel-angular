@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -8,9 +8,11 @@ import {
   gridOutline, searchOutline, closeOutline,
   createOutline, trashOutline, locationOutline, mapOutline
 } from 'ionicons/icons';
+import { Subscription } from 'rxjs';
 
 import { TableService, Table } from '../../services/api/table.service';
 import { ZoneService, Zone } from '../../services/api/zone.service';
+import { ZoneStateService } from '../../services/shared/zone-state.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 interface TableEditForm {
@@ -33,7 +35,7 @@ interface TableCreateForm {
     IonicModule
   ]
 })
-export class MesasComponent implements OnInit {
+export class MesasComponent implements OnInit, OnDestroy {
   @Input() set active(value: boolean) {
     this._active = value;
     if (value && !this.mesasCargadas) {
@@ -74,9 +76,13 @@ export class MesasComponent implements OnInit {
   terminoBusquedaTable: string = '';
   filtroActualTable: string = 'nombre';
 
+  // Suscripciones
+  private zoneDeletedSubscription: Subscription | null = null;
+
   constructor(
     private tableService: TableService,
     private zoneService: ZoneService,
+    private zoneStateService: ZoneStateService,
     private authService: AuthService,
     private alertController: AlertController
   ) {
@@ -88,6 +94,29 @@ export class MesasComponent implements OnInit {
 
   ngOnInit() {
     this.cargarMesas();
+    this.suscribirseACambiosZona();
+  }
+
+  private suscribirseACambiosZona() {
+    this.zoneDeletedSubscription = this.zoneStateService.getZoneDeleted$().subscribe({
+      next: (event) => {
+        if (event) {
+          this.eliminarMesasPorZonaEliminada(event.zoneId);
+        }
+      },
+    });
+  }
+
+  private eliminarMesasPorZonaEliminada(zoneId: string) {
+    // Filtrar las mesas que pertenecen a la zona eliminada
+    this.tables = this.tables.filter(t => t.zone_id?.toString() !== zoneId);
+    this.mesasFiltradas = this.mesasFiltradas.filter(t => t.zone_id?.toString() !== zoneId);
+  }
+
+  ngOnDestroy() {
+    if (this.zoneDeletedSubscription) {
+      this.zoneDeletedSubscription.unsubscribe();
+    }
   }
 
   cargarMesas() {

@@ -46,7 +46,6 @@ interface ProductCreateForm {
 export class ProductosComponent implements OnInit, OnDestroy {
     @Input() set active(value: boolean) {
         this._active = value;
-        // Sin lógica extra, dejar que ngOnInit maneje
     }
 
     get active(): boolean {
@@ -65,7 +64,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
     productosLoading = false;
     productosCargados = false;
 
-    // Panel mode
     productPanelMode: 'edit' | 'create' = 'create';
     editingProduct: Product | null = null;
 
@@ -88,13 +86,11 @@ export class ProductosComponent implements OnInit, OnDestroy {
         active: true,
     };
 
-    // Datos
     products: Product[] = [];
     productosFiltrados: Product[] = [];
     taxes: Tax[] = [];
     familiasParaProductos: Family[] = [];
 
-    // Búsqueda y filtros
     terminoBusquedaProduct = '';
     filtroActualProduct = 'nombre';
     familiaSeleccionadaFiltro: string | null = null;
