@@ -818,3 +818,14 @@ ion-content.tpv-content::part(scroll) {
   display: flex;
   flex-direction: column;
 }
+
+.pin-modal {
+  --width: 320px;
+  --max-width: 320px;
+  --border-radius: 20px;
+
+  .modal-wrapper {
+    width: 320px !important;
+    max-width: 320px !important;
+  }
+}

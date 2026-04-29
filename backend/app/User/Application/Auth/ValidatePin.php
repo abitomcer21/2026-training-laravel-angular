@@ -18,6 +18,10 @@ class ValidatePin
             throw new \InvalidArgumentException('Usuario no encontrado');
         }
 
+        error_log('PIN BD: ' . $user->pin()->value());
+        error_log('PIN enviado: ' . $pin);
+        error_log('UUID buscado: ' . $userUuid);
+
         if (! $user->pin()->hasPin()) {
             throw new \InvalidArgumentException('Este usuario no tiene PIN configurado');
         }

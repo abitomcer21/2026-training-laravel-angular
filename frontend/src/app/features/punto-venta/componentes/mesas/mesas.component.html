@@ -10,19 +10,12 @@
   <div class="zones-filter" *ngIf="zonas.length > 0">
     <div class="zones-header">
       <h3>Filtrar por zona:</h3>
-      <button 
-        *ngIf="zonaSeleccionada" 
-        class="btn-clear-filter" 
-        (click)="limpiarFiltroZona()"
-        title="Limpiar filtro">
+      <button *ngIf="zonaSeleccionada" class="btn-clear-filter" (click)="limpiarFiltroZona()" title="Limpiar filtro">
         ✕ Limpiar
       </button>
     </div>
     <div class="zones-buttons">
-      <button 
-        *ngFor="let zona of zonas" 
-        class="zone-button" 
-        [class.active]="zonaSeleccionada?.id === zona.id"
+      <button *ngFor="let zona of zonas" class="zone-button" [class.active]="zonaSeleccionada?.id === zona.id"
         (click)="filtrarMesasPorZona(zona)">
         {{ zona.name }}
       </button>
@@ -30,30 +23,19 @@
   </div>
 
   <div class="mesas-grid">
-    <div
-      *ngFor="let mesa of mesasFiltradas; trackBy: trackByMesa"
-      class="mesa-card"
-      (click)="seleccionarMesa(mesa)"
-    >
+    <div *ngFor="let mesa of mesasFiltradas; trackBy: trackByMesa" class="mesa-card" (click)="seleccionarMesa(mesa)">
       <ion-icon name="grid-outline"></ion-icon>
       <h3>{{ mesa.name }}</h3>
     </div>
   </div>
 
-  <ion-modal
-    [isOpen]="mostrarModalPin"
-    class="pin-modal"
-  >
+  <ion-modal [isOpen]="mostrarModalPin" class="pin-modal">
     <ng-template>
       <ion-content class="ion-padding">
         <!-- Información de la mesa con botón cerrar -->
         <div *ngIf="selectedTable" class="mesa-info-header">
           <h2 class="mesa-title">{{ selectedTable.name }}</h2>
-          <button 
-            class="btn-close-modal" 
-            (click)="cerrarModal()"
-            title="Cerrar"
-          >
+          <button class="btn-close-modal" (click)="cerrarModal()" title="Cerrar">
             <ion-icon name="close-outline"></ion-icon>
           </button>
         </div>
@@ -62,11 +44,7 @@
         <div *ngIf="!selectedUser" class="usuarios-view">
           <p class="view-label">Selecciona un usuario:</p>
           <div class="usuarios-grid">
-            <div
-              *ngFor="let usuario of usuarios"
-              class="usuario-card"
-              (click)="seleccionarUsuario(usuario)"
-            >
+            <div *ngFor="let usuario of usuarios" class="usuario-card" (click)="seleccionarUsuario(usuario)">
               <div class="usuario-avatar">{{ usuario.name.charAt(0).toUpperCase() }}</div>
               <p class="usuario-name">{{ usuario.name }}</p>
             </div>
@@ -85,31 +63,24 @@
 
           <!-- Display del PIN -->
           <div class="pin-display">
-            <input
-              type="password"
-              [value]="pinIngresado"
-              class="pin-input"
-              readonly
-              placeholder="• • • •"
-            />
+            <input type="password" [value]="pinIngresado" class="pin-input" readonly placeholder="• • • •" />
           </div>
 
           <!-- Teclado numérico -->
           <div class="numeric-keyboard">
             <div class="keyboard-row" *ngFor="let row of [0, 1, 2]">
-              <button
-                *ngFor="let num of getKeyboardNumbers(row)"
-                class="key-button"
-                (click)="agregarDigito(num.toString())"
-                [disabled]="pinIngresado.length >= 4"
-              >
+              <button *ngFor="let num of getKeyboardNumbers(row)" class="key-button"
+                (click)="agregarDigito(num.toString())" [disabled]="pinIngresado.length >= 4">
                 {{ num }}
               </button>
             </div>
             <div class="keyboard-row keyboard-actions">
-              <button class="key-button action-btn delete-btn" (click)="borrarDigito()">
+              <button class="key-button back-arrow-btn" (click)="borrarDigito()">
                 <ion-icon name="backspace-outline"></ion-icon>
-                <span>Borrar</span>
+              </button>
+              <button class="key-button" (click)="agregarDigito('0')" [disabled]="pinIngresado.length >= 4">0</button>
+              <button class="key-button forward-arrow-btn" (click)="validarPin()">
+                <ion-icon name="arrow-forward-outline"></ion-icon>
               </button>
             </div>
           </div>

@@ -16,7 +16,7 @@ import {
   IonItem,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { gridOutline, closeOutline } from 'ionicons/icons';
+import { gridOutline, closeOutline, arrowBackOutline, arrowForwardOutline, backspaceOutline } from 'ionicons/icons';
 import { TableService, Table } from '../../../../services/api/table.service';
 import { UserService, User } from '../../../../services/api/user.service';
 import { OrderStateService } from '../../../../services/order-state.service';
@@ -44,6 +44,7 @@ import { ZoneService, Zone } from '../../../../services/api/zone.service';
     IonItem,
   ],
 })
+
 export class MesasComponent implements OnInit {
   mesas: Table[] = [];
   mesasFiltradas: Table[] = [];
@@ -65,7 +66,7 @@ export class MesasComponent implements OnInit {
     private zoneService: ZoneService,
     private router: Router
   ) {
-    addIcons({ gridOutline, closeOutline });
+    addIcons({ gridOutline, closeOutline, arrowBackOutline, arrowForwardOutline, backspaceOutline });
   }
 
   ngOnInit() {
@@ -158,36 +159,24 @@ export class MesasComponent implements OnInit {
       return;
     }
 
-    if (!/^\d{4}$/.test(this.pinIngresado)) {
-      this.mensajeError = 'El PIN debe ser de 4 dígitos';
+    if (this.pinIngresado !== this.selectedUser.pin) {
+      this.mensajeError = 'PIN inválido';
       return;
     }
 
-    this.userService.validatePin(this.selectedUser.uuid, this.pinIngresado).subscribe({
-      next: (response: any) => {
-        // PIN válido - guardar en OrderStateService
-        if (this.selectedTable && this.selectedUser) {
-          this.orderStateService.setTableAndUser(this.selectedTable, this.selectedUser);
-        }
-        // Cerrar modal y navegar directamente a productos
-        this.mostrarModalPin = false;
-        this.router.navigate(['/punto-venta/productos']);
-      },
-      error: (error: any) => {
-        this.mensajeError = error.error?.message || 'PIN inválido';
-      },
-    });
+    if (this.selectedTable && this.selectedUser) {
+      this.orderStateService.setTableAndUser(this.selectedTable, this.selectedUser);
+    }
+
+    this.mostrarModalPin = false;
+    this.router.navigate(['/punto-venta/productos']);
   }
 
   agregarDigito(digito: string) {
     if (this.pinIngresado.length < 4) {
       this.pinIngresado += digito;
       this.mensajeError = '';
-      
-      // Validar automáticamente cuando se completen 4 dígitos
-      if (this.pinIngresado.length === 4) {
-        setTimeout(() => this.validarPin(), 300);
-      }
+
     }
   }
 
