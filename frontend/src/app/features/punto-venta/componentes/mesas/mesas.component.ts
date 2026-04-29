@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import {
   IonIcon,
   IonLoading,
@@ -44,8 +43,9 @@ import { ZoneService, Zone } from '../../../../services/api/zone.service';
     IonItem,
   ],
 })
-
 export class MesasComponent implements OnInit {
+  @Output() vistaChange = new EventEmitter<string>();
+
   mesas: Table[] = [];
   mesasFiltradas: Table[] = [];
   zonas: Zone[] = [];
@@ -64,7 +64,6 @@ export class MesasComponent implements OnInit {
     private orderStateService: OrderStateService,
     private authService: AuthService,
     private zoneService: ZoneService,
-    private router: Router
   ) {
     addIcons({ gridOutline, closeOutline, arrowBackOutline, arrowForwardOutline, backspaceOutline });
   }
@@ -108,7 +107,6 @@ export class MesasComponent implements OnInit {
 
     this.tableService.getTables().subscribe({
       next: (response: any) => {
-        // Filtrar las mesas por el restaurant_id del usuario loggeado
         const todasLasMesas = response.tables || [];
         this.mesas = todasLasMesas.filter((mesa: Table) => mesa.restaurant_id === restaurantId);
         this.filtrarMesasPorZona(this.zonaSeleccionada);
@@ -126,7 +124,9 @@ export class MesasComponent implements OnInit {
     if (!zona) {
       this.mesasFiltradas = this.mesas;
     } else {
-      this.mesasFiltradas = this.mesas.filter((mesa: Table) => mesa.zone_id === zona.id || mesa.zone_id === zona.database_id);
+      this.mesasFiltradas = this.mesas.filter(
+        (mesa: Table) => mesa.zone_id === zona.id || mesa.zone_id === zona.database_id
+      );
     }
   }
 
@@ -169,14 +169,13 @@ export class MesasComponent implements OnInit {
     }
 
     this.mostrarModalPin = false;
-    this.router.navigate(['/punto-venta/productos']);
+    this.vistaChange.emit('productos');
   }
 
   agregarDigito(digito: string) {
     if (this.pinIngresado.length < 4) {
       this.pinIngresado += digito;
       this.mensajeError = '';
-
     }
   }
 
@@ -202,10 +201,9 @@ export class MesasComponent implements OnInit {
       [4, 5, 6],
       [7, 8, 9],
     ];
+
     return rows[row] || [];
   }
-
-
 
   cerrarModal() {
     this.mostrarModalPin = false;
@@ -219,4 +217,3 @@ export class MesasComponent implements OnInit {
     return mesa.uuid;
   }
 }
-

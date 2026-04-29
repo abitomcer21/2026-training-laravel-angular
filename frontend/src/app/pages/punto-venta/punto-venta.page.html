@@ -6,13 +6,8 @@
     </div>
 
     <nav class="sidebar-nav">
-      <button
-        *ngFor="let item of menuItems"
-        class="nav-button"
-        [class.active]="currentView === item.valor"
-        (click)="selectView(item.valor)"
-        [title]="item.nombre"
-      >
+      <button *ngFor="let item of menuItems" class="nav-button" [class.active]="currentView === item.valor"
+        (click)="selectView(item.valor)" [title]="item.nombre">
         <ion-icon [name]="item.icono"></ion-icon>
       </button>
     </nav>
@@ -31,7 +26,7 @@
       <!-- VISTA: PRODUCTOS -->
       <app-productos *ngIf="currentView === 'productos'" />
       <!-- VISTA: MESAS -->
-      <app-mesas *ngIf="currentView === 'mesas'" />
+      <app-mesas *ngIf="currentView === 'mesas'" (vistaChange)="selectView($event)" />
 
       <!-- VISTA: PEDIDOS -->
       <app-pedidos *ngIf="currentView === 'pedidos'" />
