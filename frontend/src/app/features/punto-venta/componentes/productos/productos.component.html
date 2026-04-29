@@ -1,78 +1,133 @@
-<div class="view-container">
-  <div class="view-header">
-    <div class="header-top">
-      <div>
+<ion-content class="productos-content">
+  <div class="productos-layout">
+    <!-- COLUMNA IZQUIERDA: Productos -->
+    <div class="col-productos">
+      <!-- Header -->
+      <div class="header-productos">
         <h1>Productos</h1>
         <p *ngIf="currentOrder.table" class="mesa-info">
           Mesa: <strong>{{ currentOrder.table.name }}</strong> | Usuario: <strong>{{ currentOrder.user?.name }}</strong>
         </p>
         <p *ngIf="!currentOrder.table" class="mesa-info warning">
-          Por favor selecciona una mesa primero
+          Selecciona una mesa primero
         </p>
-      </div>
-      <div *ngIf="currentOrder.items.length > 0" class="orden-badge">
-        <ion-badge color="primary">{{ currentOrder.items.length }}</ion-badge>
-        <span>items</span>
-      </div>
-    </div>
 
-    <div class="search-box">
-      <input type="text" placeholder="Buscar producto..." [(ngModel)]="filtroNombre"
-        (ngModelChange)="onFiltroNombreChange()" class="search-input" />
-    </div>
-
-    <!-- Filtro por familias -->
-    <div class="familias-filter" *ngIf="familias.length > 0">
-      <div class="familias-header">
-        <h3>Filtrar por familia:</h3>
-        <button *ngIf="familiaSeleccionada" class="btn-clear-filter" (click)="limpiarFiltroFamilia()">
-          ✕ Limpiar
-        </button>
-      </div>
-      <div class="familias-buttons">
-        <button *ngFor="let familia of familias" class="familia-button"
-          [class.active]="familiaSeleccionada === familia.id" (click)="filtrarPorFamilia(familia.id)">
-          {{ familia.name }}
-        </button>
-      </div>
-    </div>
-
-    <ion-loading [isOpen]="cargando" message="Cargando productos..."></ion-loading>
-
-    <div class="productos-grid">
-      <div *ngFor="let producto of productosFiltrados" class="producto-card">
-        <div class="producto-info">
-          <h3>{{ producto.name }}</h3>
-          <p class="precio">${{ producto.price | number: '1.2-2' }}</p>
-          <p class="descripcion" *ngIf="producto.description">
-            {{ producto.description }}
-          </p>
+        <!-- Buscador -->
+        <div class="search-box">
+          <ion-item>
+            <ion-icon name="search-outline" slot="start"></ion-icon>
+            <ion-input 
+              placeholder="Buscar producto..."
+              [(ngModel)]="filtroNombre"
+              (ionInput)="onFiltroNombreChange()"
+            ></ion-input>
+          </ion-item>
         </div>
 
-        <div class="producto-actions">
-          <div *ngIf="obtenerCantidadProducto(producto.id) === 0" class="add-button">
-            <ion-button expand="block" size="small" color="primary" (click)="agregarProducto(producto)">
+        <!-- Filtro familias -->
+        <div class="familias-filter" *ngIf="familias.length > 0">
+          <ion-chip 
+            *ngFor="let familia of familias"
+            [color]="familiaSeleccionada === familia.id ? 'primary' : 'medium'"
+            (click)="filtrarPorFamilia(familia.id)"
+          >
+            {{ familia.name }}
+          </ion-chip>
+          <ion-chip *ngIf="familiaSeleccionada" (click)="limpiarFiltroFamilia()" color="danger">
+            ✕ Limpiar
+          </ion-chip>
+        </div>
+      </div>
+
+      <!-- Grid de productos -->
+      <ion-loading [isOpen]="cargando" message="Cargando productos..."></ion-loading>
+
+      <div class="productos-grid">
+        <ion-card 
+          *ngFor="let producto of productosFiltrados"
+          class="producto-card"
+        >
+          <ion-card-header>
+            <ion-card-title>{{ producto.name }}</ion-card-title>
+            <ion-card-subtitle>
+              ${{ producto.price | number: '1.2-2' }}
+              <span class="familia-badge" *ngIf="producto.family_name">| {{ producto.family_name }}</span>
+            </ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <p class="descripcion" *ngIf="producto.description">{{ producto.description }}</p>
+            <ion-button 
+              expand="block" 
+              size="small"
+              (click)="agregarProducto(producto)"
+              [disabled]="!currentOrder.table"
+            >
               <ion-icon name="add-outline" slot="start"></ion-icon>
               Agregar
             </ion-button>
-          </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
 
-          <div *ngIf="obtenerCantidadProducto(producto.id) > 0" class="quantity-control">
-            <ion-button fill="outline" size="small" (click)="decrementarProducto(producto.id)">
-              <ion-icon name="remove-outline"></ion-icon>
-            </ion-button>
-            <span class="cantidad">{{ obtenerCantidadProducto(producto.id) }}</span>
-            <ion-button fill="outline" size="small" (click)="incrementarProducto(producto.id)">
-              <ion-icon name="add-outline"></ion-icon>
-            </ion-button>
-          </div>
-        </div>
+      <div *ngIf="productosFiltrados.length === 0 && !cargando" class="no-products">
+        <ion-icon name="restaurant-outline"></ion-icon>
+        <p>No hay productos</p>
       </div>
     </div>
 
-    <div *ngIf="productosFiltrados.length === 0 && !cargando" class="no-products">
-      <ion-icon name="restaurant-outline"></ion-icon>
-      <p>{{ filtroNombre || familiaSeleccionada ? 'No hay productos que coincidan con los filtros' : 'No hay productos
-        disponibles' }}</p>
+    <!-- COLUMNA DERECHA: Carrito -->
+    <div class="col-carrito">
+      <div class="carrito-header">
+        <h2>Pedido</h2>
+        <ion-badge color="primary" *ngIf="currentOrder.table">
+          Mesa {{ currentOrder.table.name }}
+        </ion-badge>
+      </div>
+
+      <!-- Lista de items -->
+      <div class="carrito-lista" *ngIf="currentOrder.items.length > 0; else vacio">
+        <div class="carrito-item" *ngFor="let item of currentOrder.items">
+          <div class="item-nombre">{{ item.productName }}</div>
+          <div class="item-precio">${{ item.price | number:'1.2-2' }}</div>
+          <div class="item-cantidad">
+            <ion-button fill="clear" size="small" (click)="decrementarProducto(item.productId)">
+              <ion-icon name="remove-circle-outline"></ion-icon>
+            </ion-button>
+            <span>{{ item.quantity }}</span>
+            <ion-button fill="clear" size="small" (click)="incrementarProducto(item.productId)">
+              <ion-icon name="add-circle-outline"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" size="small" color="danger" (click)="eliminarProducto(item.productId)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+          <div class="item-total">${{ item.total | number:'1.2-2' }}</div>
+        </div>
+
+        <div class="carrito-total">
+          <span>Total:</span>
+          <strong>${{ currentOrder.total | number:'1.2-2' }}</strong>
+        </div>
+
+        <div class="carrito-actions">
+          <ion-button expand="block" color="success" (click)="confirmarPedido()">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            Confirmar Pedido
+          </ion-button>
+          <ion-button expand="block" fill="outline" color="danger" (click)="limpiarPedido()">
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            Limpiar Todo
+          </ion-button>
+        </div>
+      </div>
+
+      <ng-template #vacio>
+        <div class="carrito-vacio">
+          <ion-icon name="cart-outline"></ion-icon>
+          <p>No hay productos</p>
+          <small>Agrega desde la lista</small>
+        </div>
+      </ng-template>
     </div>
   </div>
+</ion-content>

@@ -7,9 +7,28 @@ import {
   IonButton,
   IonBadge,
   IonSpinner,
+  IonContent,
+  IonItem,
+  IonInput,
+  IonChip,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { restaurantOutline, addOutline, removeOutline } from 'ionicons/icons';
+import { 
+  restaurantOutline, 
+  addOutline, 
+  removeOutline,
+  searchOutline,
+  removeCircleOutline,
+  addCircleOutline,
+  trashOutline,
+  cartOutline,
+  checkmarkCircleOutline
+} from 'ionicons/icons';
 import { ProductService } from '../../../../services/api/product.service';
 import { OrderStateService, CurrentOrder, OrderItem } from '../../../../services/order-state.service';
 import { AuthService } from '../../../../services/auth/auth.service';
@@ -47,7 +66,16 @@ export interface Family {
     IonButton,
     IonBadge,
     IonSpinner,
-  ],
+    IonContent,
+    IonItem,
+    IonInput,
+    IonChip,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonCardContent,
+  ]
 })
 export class ProductosComponent implements OnInit {
   productos: Product[] = [];
@@ -70,7 +98,17 @@ export class ProductosComponent implements OnInit {
     private authService: AuthService,
     private familyService: FamilyService
   ) {
-    addIcons({ restaurantOutline, addOutline, removeOutline });
+    addIcons({ 
+      restaurantOutline, 
+      addOutline, 
+      removeOutline,
+      searchOutline,
+      removeCircleOutline,
+      addCircleOutline,
+      trashOutline,
+      cartOutline,
+      checkmarkCircleOutline
+    });
   }
 
   ngOnInit() {
@@ -109,17 +147,12 @@ export class ProductosComponent implements OnInit {
   cargarFamilias(restaurantId: string) {
     this.familyService.getFamilies().subscribe({
       next: (familiesResponse: any) => {
-        // La respuesta tiene "Family" con F mayúscula
         let todasLasFamilias = familiesResponse?.Family || familiesResponse?.families || [];
         
-        console.log('Familias cargadas:', todasLasFamilias);
-        
-        // Filtrar familias del restaurant si es necesario
         const familiasDelRestaurant = todasLasFamilias.filter(
           (familia: any) => !restaurantId || familia.restaurant_id === restaurantId
         );
         
-        // Crear mapa de id -> nombre
         const familyMap = new Map<string, string>();
         familiasDelRestaurant.forEach((familia: any) => {
           const familyId = familia.id;
@@ -129,7 +162,6 @@ export class ProductosComponent implements OnInit {
           }
         });
         
-        // Actualizar productos con nombres de familia
         this.productosOriginales = this.productosOriginales.map(producto => {
           let familyName = 'Sin familia';
           if (producto.family_id && familyMap.has(producto.family_id)) {
@@ -143,15 +175,11 @@ export class ProductosComponent implements OnInit {
         
         this.productos = [...this.productosOriginales];
         
-        // Crear lista de familias para el filtro
         this.familias = familiasDelRestaurant.map((familia: any) => ({
           id: familia.id,
           name: familia.name
         }));
         
-        console.log('Familias para el filtro:', this.familias);
-        
-        // Reaplicar filtros si hay alguno seleccionado
         if (this.familiaSeleccionada || this.filtroNombre) {
           this.aplicarFiltros();
         }
@@ -245,5 +273,23 @@ export class ProductosComponent implements OnInit {
     if (item) {
       this.orderStateService.updateItemQuantity(productId, item.quantity - 1);
     }
+  }
+
+  eliminarProducto(productId: string) {
+    this.orderStateService.removeItem(productId);
+  }
+
+  limpiarPedido() {
+    if (confirm('¿Limpiar todo el pedido?')) {
+      this.orderStateService.clearOrder();
+    }
+  }
+
+  confirmarPedido() {
+    if (this.currentOrder.items.length === 0) {
+      alert('No hay productos en el pedido');
+      return;
+    }
+    alert(`Pedido confirmado para mesa ${this.currentOrder.table?.name}\nTotal: $${this.currentOrder.total}`);
   }
 }
