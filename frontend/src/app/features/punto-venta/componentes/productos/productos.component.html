@@ -1,10 +1,28 @@
 <ion-content class="productos-content">
-  <div class="rapid-layout">
+  <div class="triple-layout">
+    
+    <!-- COLUMNA 1: FAMILIAS (SIDEBAR IZQUIERDO) -->
+    <div class="col-familias">
+      <div class="familias-header">
+        <ion-icon name="restaurant-outline"></ion-icon>
+        <span>Categorías</span>
+      </div>
+      <div class="familias-list">
+        <button 
+          *ngFor="let familia of familias"
+          class="familia-item"
+          [class.active]="familiaSeleccionada === familia.id"
+          (click)="seleccionarFamilia(familia.id)"
+        >
+          <ion-icon name="fast-food-outline"></ion-icon>
+          <span>{{ familia.name }}</span>
+        </button>
+      </div>
+    </div>
 
-    <!-- PANEL PRODUCTOS - Grid táctil grande -->
-    <div class="panel-productos">
-      <!-- Barra superior compacta -->
-      <div class="top-bar">
+    <!-- COLUMNA 2: PRODUCTOS -->
+    <div class="col-productos">
+      <div class="productos-header">
         <div class="mesa-info" *ngIf="currentOrder.table">
           <ion-icon name="restaurant-outline"></ion-icon>
           <span>Mesa {{ currentOrder.table.name }} · {{ currentOrder.user?.name }}</span>
@@ -14,52 +32,54 @@
           <span>Selecciona una mesa</span>
         </div>
 
-        <!-- Buscador rápido -->
         <div class="quick-search">
           <ion-icon name="search-outline"></ion-icon>
-          <input type="text" placeholder="Buscar..." [(ngModel)]="filtroNombre" (input)="onFiltroNombreChange()" />
-          <ion-icon *ngIf="filtroNombre" name="close-circle-outline"
-            (click)="filtroNombre = ''; aplicarFiltros()"></ion-icon>
-        </div>
-
-        <!-- Filtros chips compactos -->
-        <div class="quick-filters" *ngIf="familias.length > 0">
-          <button *ngFor="let familia of familias" class="filter-chip"
-            [class.active]="familiaSeleccionada === familia.id" (click)="filtrarPorFamilia(familia.id)">
-            {{ familia.name }}
-          </button>
-          <button *ngIf="familiaSeleccionada" class="filter-chip clear" (click)="limpiarFiltroFamilia()">
-            ✕
-          </button>
+          <input 
+            type="text" 
+            placeholder="Buscar producto..." 
+            [(ngModel)]="filtroNombre" 
+            (input)="aplicarFiltros()"
+          />
+          <ion-icon 
+            *ngIf="filtroNombre" 
+            name="close-circle-outline"
+            (click)="filtroNombre = ''; aplicarFiltros()"
+          ></ion-icon>
         </div>
       </div>
 
-      <!-- Loading -->
       <div class="loading-state" *ngIf="cargando">
         <ion-spinner name="circular"></ion-spinner>
       </div>
 
-      <!-- Grid de productos - BOTONES GRANDES -->
       <div class="productos-grid" *ngIf="!cargando">
-        <button *ngFor="let producto of productosFiltrados" class="producto-btn" [class.disabled]="!currentOrder.table"
-          (click)="agregarProducto(producto)">
+        <button 
+          *ngFor="let producto of productosFiltrados"
+          class="producto-btn"
+          [class.disabled]="!currentOrder.table"
+          (click)="agregarProducto(producto)"
+        >
           <div class="producto-icon">
             <ion-icon name="fast-food-outline"></ion-icon>
           </div>
-          <div class="producto-nombre">{{ producto.name }}</div>
-          <div class="producto-precio">{{ producto.price | number:'1.2-2' }} €</div>
+          <div class="producto-info">
+            <span class="producto-nombre">{{ producto.name }}</span>
+            <span class="producto-precio">{{ producto.price | number:'1.2-2' }} €</span>
+          </div>
+          <div class="producto-add">
+            <ion-icon name="add-circle-outline"></ion-icon>
+          </div>
         </button>
 
-        <!-- Vacío -->
-        <div *ngIf="productosFiltrados.length === 0" class="empty-grid">
+        <div *ngIf="productosFiltrados.length === 0 && !cargando" class="empty-grid">
           <ion-icon name="search-outline"></ion-icon>
-          <p>No hay productos</p>
+          <p>No hay productos en esta categoría</p>
         </div>
       </div>
     </div>
 
-    <!-- PANEL CARRITO - Diseño profesional POS -->
-    <div class="panel-carrito">
+    <!-- COLUMNA 3: CARRITO (ESTILO QUE TE GUSTABA) -->
+    <div class="col-carrito">
       <div class="carrito-header">
         <div class="carrito-title">
           <ion-icon name="cart-outline"></ion-icon>
@@ -112,7 +132,7 @@
         </div>
       </div>
 
-      <!-- Footer con total y botones dinámicos por estado -->
+      <!-- Footer con total y botones dinámicos -->
       <div class="carrito-footer" *ngIf="currentOrder.items.length > 0">
         <div class="carrito-total">
           <span>TOTAL</span>

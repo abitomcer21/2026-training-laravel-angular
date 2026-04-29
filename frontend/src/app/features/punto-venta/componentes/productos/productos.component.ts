@@ -93,17 +93,20 @@ type EstadoPedido = 'editando' | 'confirmado' | 'cobrado';
 export class ProductosComponent implements OnInit {
   productos: Product[] = [];
   productosOriginales: Product[] = [];
+  productosPorFamilia: Map<string, Product[]> = new Map();
+  
   currentOrder: CurrentOrder = {
     table: null,
     user: null,
     items: [],
     total: 0,
   };
+  
   cargando = false;
   filtroNombre = '';
   
   familias: { id: string; name: string }[] = [];
-  familiaSeleccionada = '';
+  familiaSeleccionada: string | null = null;
   
   // Estado del pedido
   estadoPedido: EstadoPedido = 'editando';
@@ -161,7 +164,6 @@ export class ProductosComponent implements OnInit {
             ...producto,
             price: producto.price / 100  // Convertir céntimos a euros
           }));
-        this.productos = [...this.productosOriginales];
         this.cargarFamilias(restaurantId);
         this.cargando = false;
       },
@@ -190,6 +192,7 @@ export class ProductosComponent implements OnInit {
           }
         });
         
+        // Asignar nombre de familia a cada producto
         this.productosOriginales = this.productosOriginales.map(producto => {
           let familyName = 'Sin familia';
           if (producto.family_id && familyMap.has(producto.family_id)) {
@@ -201,15 +204,26 @@ export class ProductosComponent implements OnInit {
           };
         });
         
-        this.productos = [...this.productosOriginales];
+        // Organizar productos por familia
+        this.productosPorFamilia.clear();
+        this.productosOriginales.forEach(producto => {
+          if (producto.family_id) {
+            if (!this.productosPorFamilia.has(producto.family_id)) {
+              this.productosPorFamilia.set(producto.family_id, []);
+            }
+            this.productosPorFamilia.get(producto.family_id)!.push(producto);
+          }
+        });
         
+        // Crear lista de familias
         this.familias = familiasDelRestaurant.map((familia: any) => ({
           id: familia.id,
           name: familia.name
         }));
         
-        if (this.familiaSeleccionada || this.filtroNombre) {
-          this.aplicarFiltros();
+        // Seleccionar la primera familia por defecto (para que se vean productos al cargar)
+        if (this.familias.length > 0 && !this.familiaSeleccionada) {
+          this.seleccionarFamilia(this.familias[0].id);
         }
       },
       error: (error) => {
@@ -218,28 +232,25 @@ export class ProductosComponent implements OnInit {
     });
   }
 
-  filtrarPorFamilia(familiaId: string) {
-    if (this.familiaSeleccionada === familiaId) {
-      this.familiaSeleccionada = '';
-    } else {
-      this.familiaSeleccionada = familiaId;
-    }
-    this.aplicarFiltros();
+  // Seleccionar una familia y mostrar sus productos
+  seleccionarFamilia(familiaId: string) {
+    this.familiaSeleccionada = familiaId;
+    this.filtroNombre = '';
+    this.productos = this.productosPorFamilia.get(familiaId) || [];
+    this.productosOriginales = [...this.productos];
   }
 
-  limpiarFiltroFamilia() {
-    this.familiaSeleccionada = '';
-    this.aplicarFiltros();
+  // Obtener el nombre de la familia seleccionada
+  getNombreFamilia(): string {
+    const familia = this.familias.find(f => f.id === this.familiaSeleccionada);
+    return familia?.name || '';
   }
 
+  // Aplicar filtros (solo búsqueda por nombre)
   aplicarFiltros() {
-    let resultado = [...this.productosOriginales];
+    if (!this.familiaSeleccionada) return;
     
-    if (this.familiaSeleccionada) {
-      resultado = resultado.filter(producto => 
-        producto.family_id === this.familiaSeleccionada
-      );
-    }
+    let resultado = [...(this.productosPorFamilia.get(this.familiaSeleccionada) || [])];
     
     if (this.filtroNombre && this.filtroNombre.trim()) {
       const termino = this.filtroNombre.toLowerCase().trim();
@@ -259,7 +270,6 @@ export class ProductosComponent implements OnInit {
     this.orderStateService.getCurrentOrder().subscribe({
       next: (order) => {
         this.currentOrder = order;
-        // Resetear estado cuando hay cambios en el pedido
         if (this.currentOrder.items.length === 0) {
           this.estadoPedido = 'editando';
         }
@@ -277,9 +287,8 @@ export class ProductosComponent implements OnInit {
       return;
     }
     
-    // Solo permitir agregar si está en estado editando
     if (this.estadoPedido !== 'editando') {
-      alert('No puedes modificar el pedido. Primero regresa a edición o crea un nuevo pedido.');
+      alert('No puedes modificar el pedido. Primero regresa a edición.');
       return;
     }
 
@@ -292,11 +301,6 @@ export class ProductosComponent implements OnInit {
     };
 
     this.orderStateService.addItem(item);
-  }
-
-  obtenerCantidadProducto(productId: string): number {
-    const item = this.currentOrder.items.find((i) => i.productId === productId);
-    return item ? item.quantity : 0;
   }
 
   incrementarProducto(productId: string) {
@@ -336,7 +340,6 @@ export class ProductosComponent implements OnInit {
     }
   }
 
-  // Enviar a cocina - Cambia de editando a confirmado
   enviarACocina() {
     if (this.currentOrder.items.length === 0) {
       alert('No hay productos en el pedido');
@@ -344,16 +347,13 @@ export class ProductosComponent implements OnInit {
     }
     
     this.estadoPedido = 'confirmado';
-    console.log('Pedido enviado a cocina:', this.currentOrder);
     alert(`✅ Pedido enviado a cocina\nMesa: ${this.currentOrder.table?.name}\nTotal: ${this.currentOrder.total.toFixed(2)} €`);
   }
 
-  // Volver a editar - Cambia de confirmado a editando
   volverAEditar() {
     this.estadoPedido = 'editando';
   }
 
-  // Cobrar pedido - Cambia de confirmado a cobrado
   cobrarPedido() {
     if (confirm(`💰 ¿Confirmar cobro de ${this.currentOrder.total.toFixed(2)} €?`)) {
       this.estadoPedido = 'cobrado';
@@ -361,7 +361,6 @@ export class ProductosComponent implements OnInit {
     }
   }
 
-  // Imprimir ticket - Solo disponible después de cobrar
   imprimirTicket() {
     if (this.currentOrder.items.length === 0) {
       alert('No hay productos para imprimir');
@@ -372,13 +371,11 @@ export class ProductosComponent implements OnInit {
     console.log('Imprimiendo ticket:', ticket);
     alert(ticket);
     
-    // Opcional: preguntar si quiere nuevo pedido
-    if (confirm('¿Ticket impreso correctamente. ¿Desea comenzar un nuevo pedido?')) {
+    if (confirm('¿Ticket impreso correctamente? ¿Desea comenzar un nuevo pedido?')) {
       this.nuevoPedido();
     }
   }
 
-  // Nuevo pedido - Reiniciar todo
   nuevoPedido() {
     this.orderStateService.clearOrder();
     this.estadoPedido = 'editando';
@@ -387,7 +384,6 @@ export class ProductosComponent implements OnInit {
 
   private generarTicket(): string {
     let ticket = '=========================\n';
-    ticket = '=========================\n';
     ticket += '    🍽️ RESTAURANTE 🍽️\n';
     ticket += '=========================\n';
     ticket += `Mesa: ${this.currentOrder.table?.name}\n`;
