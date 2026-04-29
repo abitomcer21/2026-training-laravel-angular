@@ -157,11 +157,10 @@
   }
 }
 
-.pin-modal {
-  ion-content {
-    padding: 8px !important;
-    --padding-bottom: 8px;
-    background: #f8f9fa;
+@media only screen and (min-width: 768px)  and (min-height: 500px) {
+  :host {
+    --width: 500px;
+    --height: 500px;
   }
 }
 
@@ -491,8 +490,6 @@
   }
 }
 
-
-
 .error-message {
   background: #ffebee;
   color: #c62828;
@@ -505,3 +502,5 @@
   font-weight: 500;
   letter-spacing: 0.2px;
 }
+
+
