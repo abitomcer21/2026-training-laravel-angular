@@ -13,6 +13,7 @@ import { restaurantOutline, addOutline, removeOutline } from 'ionicons/icons';
 import { ProductService } from '../../../../services/api/product.service';
 import { OrderStateService, CurrentOrder, OrderItem } from '../../../../services/order-state.service';
 import { AuthService } from '../../../../services/auth/auth.service';
+import { FamilyService } from '../../../../services/api/family.service';
 
 export interface Product {
   id: string;
@@ -21,7 +22,16 @@ export interface Product {
   description?: string;
   price: number;
   family_id?: string;
+  family_name?: string;
   image_src?: string;
+  restaurant_id?: string;
+}
+
+export interface Family {
+  id: string;
+  uuid: string;
+  name: string;
+  restaurant_id?: string;
 }
 
 @Component({
@@ -41,6 +51,7 @@ export interface Product {
 })
 export class ProductosComponent implements OnInit {
   productos: Product[] = [];
+  productosOriginales: Product[] = [];
   currentOrder: CurrentOrder = {
     table: null,
     user: null,
@@ -49,11 +60,15 @@ export class ProductosComponent implements OnInit {
   };
   cargando = false;
   filtroNombre = '';
+  
+  familias: { id: string; name: string }[] = [];
+  familiaSeleccionada = '';
 
   constructor(
     private productService: ProductService,
     private orderStateService: OrderStateService,
-    private authService: AuthService
+    private authService: AuthService,
+    private familyService: FamilyService
   ) {
     addIcons({ restaurantOutline, addOutline, removeOutline });
   }
@@ -75,34 +90,125 @@ export class ProductosComponent implements OnInit {
     }
 
     this.productService.getProducts().subscribe({
-      next: (response: any) => {
-        // Filtrar los productos por el restaurant_id del usuario loggeado
-        const todosLosProductos = response.products || [];
-        this.productos = todosLosProductos.filter((producto: any) => producto.restaurant_id === restaurantId);
+      next: (productsResponse: any) => {
+        const todosLosProductos = productsResponse.products || [];
+        this.productosOriginales = todosLosProductos.filter(
+          (producto: any) => producto.restaurant_id === restaurantId
+        );
+        this.productos = [...this.productosOriginales];
+        this.cargarFamilias(restaurantId);
         this.cargando = false;
       },
       error: (error) => {
         console.error('Error al cargar productos:', error);
         this.cargando = false;
-      },
+      }
     });
+  }
+
+  cargarFamilias(restaurantId: string) {
+    this.familyService.getFamilies().subscribe({
+      next: (familiesResponse: any) => {
+        // La respuesta tiene "Family" con F mayúscula
+        let todasLasFamilias = familiesResponse?.Family || familiesResponse?.families || [];
+        
+        console.log('Familias cargadas:', todasLasFamilias);
+        
+        // Filtrar familias del restaurant si es necesario
+        const familiasDelRestaurant = todasLasFamilias.filter(
+          (familia: any) => !restaurantId || familia.restaurant_id === restaurantId
+        );
+        
+        // Crear mapa de id -> nombre
+        const familyMap = new Map<string, string>();
+        familiasDelRestaurant.forEach((familia: any) => {
+          const familyId = familia.id;
+          const familyName = familia.name;
+          if (familyId && familyName) {
+            familyMap.set(familyId, familyName);
+          }
+        });
+        
+        // Actualizar productos con nombres de familia
+        this.productosOriginales = this.productosOriginales.map(producto => {
+          let familyName = 'Sin familia';
+          if (producto.family_id && familyMap.has(producto.family_id)) {
+            familyName = familyMap.get(producto.family_id) || 'Sin familia';
+          }
+          return {
+            ...producto,
+            family_name: familyName
+          };
+        });
+        
+        this.productos = [...this.productosOriginales];
+        
+        // Crear lista de familias para el filtro
+        this.familias = familiasDelRestaurant.map((familia: any) => ({
+          id: familia.id,
+          name: familia.name
+        }));
+        
+        console.log('Familias para el filtro:', this.familias);
+        
+        // Reaplicar filtros si hay alguno seleccionado
+        if (this.familiaSeleccionada || this.filtroNombre) {
+          this.aplicarFiltros();
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar familias:', error);
+      }
+    });
+  }
+
+  filtrarPorFamilia(familiaId: string) {
+    if (this.familiaSeleccionada === familiaId) {
+      this.familiaSeleccionada = '';
+    } else {
+      this.familiaSeleccionada = familiaId;
+    }
+    this.aplicarFiltros();
+  }
+
+  limpiarFiltroFamilia() {
+    this.familiaSeleccionada = '';
+    this.aplicarFiltros();
+  }
+
+  aplicarFiltros() {
+    let resultado = [...this.productosOriginales];
+    
+    if (this.familiaSeleccionada) {
+      resultado = resultado.filter(producto => 
+        producto.family_id === this.familiaSeleccionada
+      );
+    }
+    
+    if (this.filtroNombre && this.filtroNombre.trim()) {
+      const termino = this.filtroNombre.toLowerCase().trim();
+      resultado = resultado.filter(producto =>
+        producto.name.toLowerCase().includes(termino)
+      );
+    }
+    
+    this.productos = resultado;
+  }
+
+  onFiltroNombreChange() {
+    this.aplicarFiltros();
   }
 
   suscribirseAorden() {
     this.orderStateService.getCurrentOrder().subscribe({
       next: (order) => {
         this.currentOrder = order;
-      },
+      }
     });
   }
 
   get productosFiltrados(): Product[] {
-    if (!this.filtroNombre) {
-      return this.productos;
-    }
-    return this.productos.filter((p) =>
-      p.name.toLowerCase().includes(this.filtroNombre.toLowerCase())
-    );
+    return this.productos;
   }
 
   agregarProducto(producto: Product) {

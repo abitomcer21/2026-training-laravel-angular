@@ -17,66 +17,62 @@
     </div>
 
     <div class="search-box">
-      <input
-        type="text"
-        placeholder="Buscar producto..."
-        [(ngModel)]="filtroNombre"
-        class="search-input"
-      />
+      <input type="text" placeholder="Buscar producto..." [(ngModel)]="filtroNombre"
+        (ngModelChange)="onFiltroNombreChange()" class="search-input" />
     </div>
-  </div>
 
-  <ion-loading [isOpen]="cargando" message="Cargando productos..."></ion-loading>
-
-  <div class="productos-grid">
-    <div
-      *ngFor="let producto of productosFiltrados"
-      class="producto-card"
-    >
-      <div class="producto-info">
-        <h3>{{ producto.name }}</h3>
-        <p class="precio">${{ producto.price | number: '1.2-2' }}</p>
-        <p class="descripcion" *ngIf="producto.description">
-          {{ producto.description }}
-        </p>
+    <!-- Filtro por familias -->
+    <div class="familias-filter" *ngIf="familias.length > 0">
+      <div class="familias-header">
+        <h3>Filtrar por familia:</h3>
+        <button *ngIf="familiaSeleccionada" class="btn-clear-filter" (click)="limpiarFiltroFamilia()">
+          ✕ Limpiar
+        </button>
       </div>
+      <div class="familias-buttons">
+        <button *ngFor="let familia of familias" class="familia-button"
+          [class.active]="familiaSeleccionada === familia.id" (click)="filtrarPorFamilia(familia.id)">
+          {{ familia.name }}
+        </button>
+      </div>
+    </div>
 
-      <div class="producto-actions">
-        <div *ngIf="obtenerCantidadProducto(producto.id) === 0" class="add-button">
-          <ion-button
-            expand="block"
-            size="small"
-            color="primary"
-            (click)="agregarProducto(producto)"
-          >
-            <ion-icon name="add-outline" slot="start"></ion-icon>
-            Agregar
-          </ion-button>
+    <ion-loading [isOpen]="cargando" message="Cargando productos..."></ion-loading>
+
+    <div class="productos-grid">
+      <div *ngFor="let producto of productosFiltrados" class="producto-card">
+        <div class="producto-info">
+          <h3>{{ producto.name }}</h3>
+          <p class="precio">${{ producto.price | number: '1.2-2' }}</p>
+          <p class="descripcion" *ngIf="producto.description">
+            {{ producto.description }}
+          </p>
         </div>
 
-        <div *ngIf="obtenerCantidadProducto(producto.id) > 0" class="quantity-control">
-          <ion-button
-            fill="outline"
-            size="small"
-            (click)="decrementarProducto(producto.id)"
-          >
-            <ion-icon name="remove-outline"></ion-icon>
-          </ion-button>
-          <span class="cantidad">{{ obtenerCantidadProducto(producto.id) }}</span>
-          <ion-button
-            fill="outline"
-            size="small"
-            (click)="incrementarProducto(producto.id)"
-          >
-            <ion-icon name="add-outline"></ion-icon>
-          </ion-button>
+        <div class="producto-actions">
+          <div *ngIf="obtenerCantidadProducto(producto.id) === 0" class="add-button">
+            <ion-button expand="block" size="small" color="primary" (click)="agregarProducto(producto)">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Agregar
+            </ion-button>
+          </div>
+
+          <div *ngIf="obtenerCantidadProducto(producto.id) > 0" class="quantity-control">
+            <ion-button fill="outline" size="small" (click)="decrementarProducto(producto.id)">
+              <ion-icon name="remove-outline"></ion-icon>
+            </ion-button>
+            <span class="cantidad">{{ obtenerCantidadProducto(producto.id) }}</span>
+            <ion-button fill="outline" size="small" (click)="incrementarProducto(producto.id)">
+              <ion-icon name="add-outline"></ion-icon>
+            </ion-button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div *ngIf="productosFiltrados.length === 0" class="no-products">
-    <ion-icon name="restaurant-outline"></ion-icon>
-    <p>{{ filtroNombre ? 'No hay productos que coincidan' : 'Cargando productos...' }}</p>
+    <div *ngIf="productosFiltrados.length === 0 && !cargando" class="no-products">
+      <ion-icon name="restaurant-outline"></ion-icon>
+      <p>{{ filtroNombre || familiaSeleccionada ? 'No hay productos que coincidan con los filtros' : 'No hay productos
+        disponibles' }}</p>
+    </div>
   </div>
-</div>
