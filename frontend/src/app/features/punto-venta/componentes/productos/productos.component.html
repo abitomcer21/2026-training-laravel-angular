@@ -1,6 +1,6 @@
 <ion-content class="productos-content">
   <div class="rapid-layout">
-    
+
     <!-- PANEL PRODUCTOS - Grid táctil grande -->
     <div class="panel-productos">
       <!-- Barra superior compacta -->
@@ -13,38 +13,22 @@
           <ion-icon name="alert-circle-outline"></ion-icon>
           <span>Selecciona una mesa</span>
         </div>
-        
+
         <!-- Buscador rápido -->
         <div class="quick-search">
           <ion-icon name="search-outline"></ion-icon>
-          <input 
-            type="text"
-            placeholder="Buscar..."
-            [(ngModel)]="filtroNombre"
-            (input)="onFiltroNombreChange()"
-          />
-          <ion-icon 
-            *ngIf="filtroNombre" 
-            name="close-circle-outline"
-            (click)="filtroNombre = ''; aplicarFiltros()"
-          ></ion-icon>
+          <input type="text" placeholder="Buscar..." [(ngModel)]="filtroNombre" (input)="onFiltroNombreChange()" />
+          <ion-icon *ngIf="filtroNombre" name="close-circle-outline"
+            (click)="filtroNombre = ''; aplicarFiltros()"></ion-icon>
         </div>
-        
+
         <!-- Filtros chips compactos -->
         <div class="quick-filters" *ngIf="familias.length > 0">
-          <button 
-            *ngFor="let familia of familias"
-            class="filter-chip"
-            [class.active]="familiaSeleccionada === familia.id"
-            (click)="filtrarPorFamilia(familia.id)"
-          >
+          <button *ngFor="let familia of familias" class="filter-chip"
+            [class.active]="familiaSeleccionada === familia.id" (click)="filtrarPorFamilia(familia.id)">
             {{ familia.name }}
           </button>
-          <button 
-            *ngIf="familiaSeleccionada" 
-            class="filter-chip clear"
-            (click)="limpiarFiltroFamilia()"
-          >
+          <button *ngIf="familiaSeleccionada" class="filter-chip clear" (click)="limpiarFiltroFamilia()">
             ✕
           </button>
         </div>
@@ -57,17 +41,13 @@
 
       <!-- Grid de productos - BOTONES GRANDES -->
       <div class="productos-grid" *ngIf="!cargando">
-        <button 
-          *ngFor="let producto of productosFiltrados"
-          class="producto-btn"
-          [class.disabled]="!currentOrder.table"
-          (click)="agregarProducto(producto)"
-        >
+        <button *ngFor="let producto of productosFiltrados" class="producto-btn" [class.disabled]="!currentOrder.table"
+          (click)="agregarProducto(producto)">
           <div class="producto-icon">
             <ion-icon name="fast-food-outline"></ion-icon>
           </div>
           <div class="producto-nombre">{{ producto.name }}</div>
-          <div class="producto-precio">${{ producto.price | number:'1.2-2' }}</div>
+          <div class="producto-precio">{{ producto.price | number:'1.2-2' }} €</div>
         </button>
 
         <!-- Vacío -->
@@ -78,48 +58,100 @@
       </div>
     </div>
 
-    <!-- PANEL CARRITO - Lateral compacto -->
+    <!-- PANEL CARRITO - Diseño profesional POS -->
     <div class="panel-carrito">
       <div class="carrito-header">
         <div class="carrito-title">
           <ion-icon name="cart-outline"></ion-icon>
-          <span>Pedido</span>
+          <span>Pedido Actual</span>
           <ion-badge *ngIf="currentOrder.items.length" class="badge">
             {{ currentOrder.items.length }}
           </ion-badge>
+          <ion-badge *ngIf="estadoPedido === 'confirmado'" class="badge badge-kitchen">
+            🍳 En cocina
+          </ion-badge>
+          <ion-badge *ngIf="estadoPedido === 'cobrado'" class="badge badge-paid">
+            💰 Pagado
+          </ion-badge>
         </div>
         <div class="carrito-mesa" *ngIf="currentOrder.table">
+          <ion-icon name="restaurant-outline"></ion-icon>
           Mesa {{ currentOrder.table.name }}
         </div>
       </div>
 
+      <!-- Cabecera de columnas -->
+      <div class="carrito-columns" *ngIf="currentOrder.items.length > 0">
+        <span class="col-producto">Producto</span>
+        <span class="col-cantidad">Cant</span>
+        <span class="col-precio">Total</span>
+      </div>
+
+      <!-- Lista de items -->
       <div class="carrito-items" *ngIf="currentOrder.items.length > 0; else vacio">
         <div class="carrito-item" *ngFor="let item of currentOrder.items">
-          <div class="item-nombre">{{ item.productName }}</div>
-          <div class="item-controls">
-            <button class="qty-btn" (click)="decrementarProducto(item.productId)">-</button>
+          <div class="col-producto">
+            <div class="item-nombre">{{ item.productName }}</div>
+            <div class="item-precio-unitario">{{ item.price | number:'1.2-2' }} €</div>
+          </div>
+          <div class="col-cantidad">
+            <button class="qty-btn" (click)="decrementarProducto(item.productId)" [disabled]="estadoPedido !== 'editando'">
+              -
+            </button>
             <span class="qty">{{ item.quantity }}</span>
-            <button class="qty-btn" (click)="incrementarProducto(item.productId)">+</button>
-            <span class="item-total">${{ item.total | number:'1.2-2' }}</span>
-            <button class="remove-btn" (click)="eliminarProducto(item.productId)">
+            <button class="qty-btn" (click)="incrementarProducto(item.productId)" [disabled]="estadoPedido !== 'editando'">
+              +
+            </button>
+          </div>
+          <div class="col-precio">
+            <span class="item-total">{{ item.total | number:'1.2-2' }} €</span>
+            <button class="remove-btn" (click)="eliminarProducto(item.productId)" [disabled]="estadoPedido !== 'editando'">
               <ion-icon name="trash-outline"></ion-icon>
             </button>
           </div>
         </div>
+      </div>
 
+      <!-- Footer con total y botones dinámicos por estado -->
+      <div class="carrito-footer" *ngIf="currentOrder.items.length > 0">
         <div class="carrito-total">
-          <span>Total</span>
-          <strong>${{ currentOrder.total | number:'1.2-2' }}</strong>
+          <span>TOTAL</span>
+          <strong>{{ currentOrder.total | number:'1.2-2' }} €</strong>
         </div>
 
-        <div class="carrito-actions">
-          <button class="btn-confirm" (click)="confirmarPedido()">
-            <ion-icon name="checkmark-circle-outline"></ion-icon>
-            Confirmar
-          </button>
-          <button class="btn-clear" (click)="limpiarPedido()">
+        <!-- Estado EDITANDO -->
+        <div class="carrito-actions" *ngIf="estadoPedido === 'editando'">
+          <button class="btn-action btn-clear" (click)="limpiarPedido()">
             <ion-icon name="trash-outline"></ion-icon>
-            Limpiar
+            <span>Limpiar</span>
+          </button>
+          <button class="btn-action btn-kitchen" (click)="enviarACocina()">
+            <ion-icon name="restaurant-outline"></ion-icon>
+            <span>Enviar a Cocina</span>
+          </button>
+        </div>
+
+        <!-- Estado CONFIRMADO (en cocina) -->
+        <div class="carrito-actions" *ngIf="estadoPedido === 'confirmado'">
+          <button class="btn-action btn-edit" (click)="volverAEditar()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+            <span>Editar</span>
+          </button>
+          <button class="btn-action btn-cash" (click)="cobrarPedido()">
+            <ion-icon name="cash-outline"></ion-icon>
+            <span>Cobrar</span>
+          </button>
+        </div>
+
+        <!-- Estado COBRADO -->
+        <div class="carrito-actions" *ngIf="estadoPedido === 'cobrado'">
+          <button class="btn-action btn-print" (click)="imprimirTicket()">
+            <ion-icon name="print-outline"></ion-icon>
+            <span>Imprimir Ticket</span>
+          </button>
+          <button class="btn-action btn-new" (click)="nuevoPedido()">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span>Nuevo Pedido</span>
           </button>
         </div>
       </div>
@@ -127,9 +159,11 @@
       <ng-template #vacio>
         <div class="carrito-vacio">
           <ion-icon name="cart-outline"></ion-icon>
-          <p>Toca un producto<br>para agregarlo</p>
+          <p>Selecciona productos<br>para comenzar el pedido</p>
+          <small>Toca cualquier producto de la carta</small>
         </div>
       </ng-template>
     </div>
+
   </div>
 </ion-content>

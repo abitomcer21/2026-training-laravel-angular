@@ -28,7 +28,16 @@ import {
   addCircleOutline,
   trashOutline,
   cartOutline,
-  checkmarkCircleOutline
+  checkmarkCircleOutline,
+  fastFoodOutline,
+  folderOutline,
+  pricetagOutline,
+  personCircleOutline,
+  alertCircleOutline,
+  closeCircleOutline,
+  printOutline,
+  cashOutline,
+  arrowBackOutline
 } from 'ionicons/icons';
 import { ProductService } from '../../../../services/api/product.service';
 import { OrderStateService, CurrentOrder, OrderItem } from '../../../../services/order-state.service';
@@ -54,6 +63,8 @@ export interface Family {
   restaurant_id?: string;
 }
 
+type EstadoPedido = 'editando' | 'confirmado' | 'cobrado';
+
 @Component({
   selector: 'app-productos',
   templateUrl: './productos.component.html',
@@ -76,7 +87,7 @@ export interface Family {
     IonCardTitle,
     IonCardSubtitle,
     IonCardContent,
-    IonLabel
+    IonLabel,
   ]
 })
 export class ProductosComponent implements OnInit {
@@ -93,6 +104,9 @@ export class ProductosComponent implements OnInit {
   
   familias: { id: string; name: string }[] = [];
   familiaSeleccionada = '';
+  
+  // Estado del pedido
+  estadoPedido: EstadoPedido = 'editando';
 
   constructor(
     private productService: ProductService,
@@ -109,7 +123,16 @@ export class ProductosComponent implements OnInit {
       addCircleOutline,
       trashOutline,
       cartOutline,
-      checkmarkCircleOutline
+      checkmarkCircleOutline,
+      fastFoodOutline,
+      folderOutline,
+      pricetagOutline,
+      personCircleOutline,
+      alertCircleOutline,
+      closeCircleOutline,
+      printOutline,
+      cashOutline,
+      arrowBackOutline
     });
   }
 
@@ -132,9 +155,12 @@ export class ProductosComponent implements OnInit {
     this.productService.getProducts().subscribe({
       next: (productsResponse: any) => {
         const todosLosProductos = productsResponse.products || [];
-        this.productosOriginales = todosLosProductos.filter(
-          (producto: any) => producto.restaurant_id === restaurantId
-        );
+        this.productosOriginales = todosLosProductos
+          .filter((producto: any) => producto.restaurant_id === restaurantId)
+          .map((producto: any) => ({
+            ...producto,
+            price: producto.price / 100  // Convertir céntimos a euros
+          }));
         this.productos = [...this.productosOriginales];
         this.cargarFamilias(restaurantId);
         this.cargando = false;
@@ -233,6 +259,10 @@ export class ProductosComponent implements OnInit {
     this.orderStateService.getCurrentOrder().subscribe({
       next: (order) => {
         this.currentOrder = order;
+        // Resetear estado cuando hay cambios en el pedido
+        if (this.currentOrder.items.length === 0) {
+          this.estadoPedido = 'editando';
+        }
       }
     });
   }
@@ -244,6 +274,12 @@ export class ProductosComponent implements OnInit {
   agregarProducto(producto: Product) {
     if (!this.currentOrder.table || !this.currentOrder.user) {
       alert('Por favor selecciona una mesa y usuario primero');
+      return;
+    }
+    
+    // Solo permitir agregar si está en estado editando
+    if (this.estadoPedido !== 'editando') {
+      alert('No puedes modificar el pedido. Primero regresa a edición o crea un nuevo pedido.');
       return;
     }
 
@@ -264,6 +300,10 @@ export class ProductosComponent implements OnInit {
   }
 
   incrementarProducto(productId: string) {
+    if (this.estadoPedido !== 'editando') {
+      alert('No puedes modificar el pedido. Solo en modo edición.');
+      return;
+    }
     const item = this.currentOrder.items.find((i) => i.productId === productId);
     if (item) {
       this.orderStateService.updateItemQuantity(productId, item.quantity + 1);
@@ -271,6 +311,10 @@ export class ProductosComponent implements OnInit {
   }
 
   decrementarProducto(productId: string) {
+    if (this.estadoPedido !== 'editando') {
+      alert('No puedes modificar el pedido. Solo en modo edición.');
+      return;
+    }
     const item = this.currentOrder.items.find((i) => i.productId === productId);
     if (item) {
       this.orderStateService.updateItemQuantity(productId, item.quantity - 1);
@@ -278,20 +322,92 @@ export class ProductosComponent implements OnInit {
   }
 
   eliminarProducto(productId: string) {
+    if (this.estadoPedido !== 'editando') {
+      alert('No puedes modificar el pedido. Solo en modo edición.');
+      return;
+    }
     this.orderStateService.removeItem(productId);
   }
 
   limpiarPedido() {
     if (confirm('¿Limpiar todo el pedido?')) {
       this.orderStateService.clearOrder();
+      this.estadoPedido = 'editando';
     }
   }
 
-  confirmarPedido() {
+  // Enviar a cocina - Cambia de editando a confirmado
+  enviarACocina() {
     if (this.currentOrder.items.length === 0) {
       alert('No hay productos en el pedido');
       return;
     }
-    alert(`Pedido confirmado para mesa ${this.currentOrder.table?.name}\nTotal: $${this.currentOrder.total}`);
+    
+    this.estadoPedido = 'confirmado';
+    console.log('Pedido enviado a cocina:', this.currentOrder);
+    alert(`✅ Pedido enviado a cocina\nMesa: ${this.currentOrder.table?.name}\nTotal: ${this.currentOrder.total.toFixed(2)} €`);
+  }
+
+  // Volver a editar - Cambia de confirmado a editando
+  volverAEditar() {
+    this.estadoPedido = 'editando';
+  }
+
+  // Cobrar pedido - Cambia de confirmado a cobrado
+  cobrarPedido() {
+    if (confirm(`💰 ¿Confirmar cobro de ${this.currentOrder.total.toFixed(2)} €?`)) {
+      this.estadoPedido = 'cobrado';
+      alert(`💰 Pedido cobrado correctamente\nMesa: ${this.currentOrder.table?.name}\nTotal: ${this.currentOrder.total.toFixed(2)} €`);
+    }
+  }
+
+  // Imprimir ticket - Solo disponible después de cobrar
+  imprimirTicket() {
+    if (this.currentOrder.items.length === 0) {
+      alert('No hay productos para imprimir');
+      return;
+    }
+    
+    const ticket = this.generarTicket();
+    console.log('Imprimiendo ticket:', ticket);
+    alert(ticket);
+    
+    // Opcional: preguntar si quiere nuevo pedido
+    if (confirm('¿Ticket impreso correctamente. ¿Desea comenzar un nuevo pedido?')) {
+      this.nuevoPedido();
+    }
+  }
+
+  // Nuevo pedido - Reiniciar todo
+  nuevoPedido() {
+    this.orderStateService.clearOrder();
+    this.estadoPedido = 'editando';
+    alert('Puedes comenzar un nuevo pedido');
+  }
+
+  private generarTicket(): string {
+    let ticket = '=========================\n';
+    ticket = '=========================\n';
+    ticket += '    🍽️ RESTAURANTE 🍽️\n';
+    ticket += '=========================\n';
+    ticket += `Mesa: ${this.currentOrder.table?.name}\n`;
+    ticket += `Usuario: ${this.currentOrder.user?.name}\n`;
+    ticket += `Fecha: ${new Date().toLocaleString()}\n`;
+    ticket += '=========================\n';
+    ticket += 'Producto     Cant     Total\n';
+    ticket += '-------------------------\n';
+    
+    this.currentOrder.items.forEach(item => {
+      const nombre = item.productName.length > 15 ? item.productName.substring(0, 12) + '...' : item.productName;
+      ticket += `${nombre.padEnd(12)} ${item.quantity.toString().padStart(3)}    ${item.total.toFixed(2)} €\n`;
+    });
+    
+    ticket += '-------------------------\n';
+    ticket += `TOTAL: ${this.currentOrder.total.toFixed(2)} €\n`;
+    ticket += '=========================\n';
+    ticket += '¡Gracias por su visita!\n';
+    ticket += '=========================\n';
+    
+    return ticket;
   }
 }
