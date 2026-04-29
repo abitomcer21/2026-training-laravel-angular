@@ -16,6 +16,7 @@ import {
   IonCardTitle,
   IonCardSubtitle,
   IonCardContent,
+  IonLabel,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -75,6 +76,7 @@ export interface Family {
     IonCardTitle,
     IonCardSubtitle,
     IonCardContent,
+    IonLabel
   ]
 })
 export class ProductosComponent implements OnInit {
