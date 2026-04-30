@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -114,6 +114,8 @@ type EstadoPedido = 'editando' | 'confirmado' | 'cobrado';
   ]
 })
 export class ProductosComponent implements OnInit {
+  @Output() cambiarVista = new EventEmitter<string>();
+
   productos: Product[] = [];
   productosOriginales: Product[] = [];
   productosPorFamilia: Map<string, Product[]> = new Map();
@@ -143,6 +145,11 @@ export class ProductosComponent implements OnInit {
   propina = 0;
   comentario = '';
   articulosSeleccionados: { [key: string]: boolean } = {};
+
+  // Propiedades para pagos parciales
+  articulosPagados: { [key: string]: boolean } = {};
+  totalPagado = 0;
+  totalPorPagar = 0;
 
   // Propiedades para el modal de ticket
   mostrarModalTicket = false;
@@ -322,6 +329,7 @@ export class ProductosComponent implements OnInit {
         if (this.currentOrder.items.length === 0) {
           this.resetearEstadoPedido();
         }
+        this.calcularTotalesPendientes();
       }
     });
   }
@@ -330,6 +338,9 @@ export class ProductosComponent implements OnInit {
     this.estadoPedido = 'editando';
     this.pedidoInicialEnviado = false;
     this.itemsEnviadosACocina = [];
+    this.articulosPagados = {};
+    this.totalPagado = 0;
+    this.totalPorPagar = 0;
   }
 
   get productosFiltrados(): Product[] {
@@ -338,6 +349,26 @@ export class ProductosComponent implements OnInit {
 
   esProductoNuevo(productId: string): boolean {
     return !this.itemsEnviadosACocina.some(enviado => enviado.productId === productId);
+  }
+
+  esProductoPagado(productId: string): boolean {
+    return this.articulosPagados[productId] === true;
+  }
+
+  calcularTotalesPendientes() {
+    let pagado = 0;
+    let porPagar = 0;
+    
+    this.currentOrder.items.forEach(item => {
+      if (this.articulosPagados[item.productId]) {
+        pagado += item.total;
+      } else {
+        porPagar += item.total;
+      }
+    });
+    
+    this.totalPagado = pagado;
+    this.totalPorPagar = porPagar;
   }
 
   agregarProducto(producto: Product) {
@@ -358,6 +389,10 @@ export class ProductosComponent implements OnInit {
   }
 
   incrementarProducto(productId: string) {
+    if (this.esProductoPagado(productId)) {
+      this.mostrarToast('No puedes modificar un producto ya pagado', 'warning', 2000);
+      return;
+    }
     const item = this.currentOrder.items.find((i) => i.productId === productId);
     if (item) {
       this.orderStateService.updateItemQuantity(productId, item.quantity + 1);
@@ -365,6 +400,10 @@ export class ProductosComponent implements OnInit {
   }
 
   decrementarProducto(productId: string) {
+    if (this.esProductoPagado(productId)) {
+      this.mostrarToast('No puedes modificar un producto ya pagado', 'warning', 2000);
+      return;
+    }
     const item = this.currentOrder.items.find((i) => i.productId === productId);
     if (item) {
       if (item.quantity === 1) {
@@ -376,7 +415,13 @@ export class ProductosComponent implements OnInit {
   }
 
   eliminarProducto(productId: string) {
+    if (this.esProductoPagado(productId)) {
+      this.mostrarToast('No puedes eliminar un producto ya pagado', 'warning', 2000);
+      return;
+    }
     this.orderStateService.removeItem(productId);
+    delete this.articulosPagados[productId];
+    this.calcularTotalesPendientes();
   }
 
   limpiarPedido() {
@@ -455,9 +500,9 @@ export class ProductosComponent implements OnInit {
       this.mostrarToast('No hay productos en el pedido', 'danger', 2000);
       return;
     }
-    // Inicializar selección de artículos
+    // Inicializar selección de artículos (solo los no pagados)
     this.currentOrder.items.forEach(item => {
-      this.articulosSeleccionados[item.productId] = true;
+      this.articulosSeleccionados[item.productId] = !this.articulosPagados[item.productId];
     });
     this.propina = 0;
     this.comentario = '';
@@ -468,43 +513,79 @@ export class ProductosComponent implements OnInit {
   }
 
   calcularMontoPorPersona() {
-    this.montoPorPersona = (this.currentOrder.total + this.propina) / this.numeroComensales;
+    const totalPendiente = this.currentOrder.items
+      .filter(item => !this.articulosPagados[item.productId])
+      .reduce((sum, item) => sum + item.total, 0);
+    this.montoPorPersona = (totalPendiente + this.propina) / this.numeroComensales;
   }
 
   getTotalSeleccionado(): number {
     let total = 0;
     this.currentOrder.items.forEach(item => {
-      if (this.articulosSeleccionados[item.productId]) {
+      if (this.articulosSeleccionados[item.productId] && !this.articulosPagados[item.productId]) {
         total += item.total;
       }
     });
     return total + this.propina;
   }
 
+  getTotalPendiente(): number {
+    return this.currentOrder.items
+      .filter(item => !this.articulosPagados[item.productId])
+      .reduce((sum, item) => sum + item.total, 0);
+  }
+
   confirmarCobro() {
     let mensaje = '';
     let totalCobrado = 0;
+    let itemsCobrados: string[] = [];
     
     switch(this.tipoCobro) {
       case 'completo':
-        totalCobrado = this.currentOrder.total + this.propina;
+        totalCobrado = this.getTotalPendiente() + this.propina;
+        // Marcar todos los artículos pendientes como pagados
+        this.currentOrder.items.forEach(item => {
+          if (!this.articulosPagados[item.productId]) {
+            this.articulosPagados[item.productId] = true;
+          }
+        });
         mensaje = `Cobro completado: ${totalCobrado.toFixed(2)} €`;
         if (this.comentario) mensaje += `\nComentario: ${this.comentario}`;
         break;
+        
       case 'dividir':
         totalCobrado = this.montoPorPersona * this.numeroComensales;
+        // Marcar todos los artículos pendientes como pagados
+        this.currentOrder.items.forEach(item => {
+          if (!this.articulosPagados[item.productId]) {
+            this.articulosPagados[item.productId] = true;
+          }
+        });
         mensaje = `Cuenta dividida entre ${this.numeroComensales} personas.\nCada una paga: ${this.montoPorPersona.toFixed(2)} €`;
         if (this.propina > 0) mensaje += `\nPropina incluida: ${this.propina.toFixed(2)} €`;
         break;
+        
       case 'articulos':
         totalCobrado = this.getTotalSeleccionado();
-        const itemsSeleccionados = this.currentOrder.items.filter(item => this.articulosSeleccionados[item.productId]);
+        // Marcar solo los artículos seleccionados como pagados
+        this.currentOrder.items.forEach(item => {
+          if (this.articulosSeleccionados[item.productId] && !this.articulosPagados[item.productId]) {
+            this.articulosPagados[item.productId] = true;
+            itemsCobrados.push(item.productName);
+          }
+        });
         mensaje = `Cobro por artículos seleccionados: ${totalCobrado.toFixed(2)} €\n`;
-        mensaje += `Artículos: ${itemsSeleccionados.length}`;
+        mensaje += `Artículos pagados: ${itemsCobrados.length}`;
         break;
     }
     
-    this.estadoPedido = 'cobrado';
+    this.calcularTotalesPendientes();
+    
+    // Verificar si ya no hay nada pendiente
+    if (this.totalPorPagar === 0) {
+      this.estadoPedido = 'cobrado';
+    }
+    
     this.mostrarModalCobro = false;
     this.mostrarToast(mensaje, 'success', 4000);
     
@@ -519,8 +600,13 @@ export class ProductosComponent implements OnInit {
     this.mostrarModalTicket = false;
     
     setTimeout(() => {
-      if (confirm('¿Desea comenzar un nuevo pedido?')) {
-        this.nuevoPedido();
+      if (this.totalPorPagar === 0) {
+        this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
+        setTimeout(() => {
+          this.cambiarVista.emit('mesas');
+        }, 1500);
+      } else if (this.totalPorPagar > 0) {
+        this.mostrarToast(`Restan por pagar: ${this.totalPorPagar.toFixed(2)} €`, 'warning', 3000);
       }
     }, 500);
   }
@@ -528,8 +614,11 @@ export class ProductosComponent implements OnInit {
   cerrarModalTicket() {
     this.mostrarModalTicket = false;
     setTimeout(() => {
-      if (confirm('¿Desea comenzar un nuevo pedido?')) {
-        this.nuevoPedido();
+      if (this.totalPorPagar === 0) {
+        this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
+        setTimeout(() => {
+          this.cambiarVista.emit('mesas');
+        }, 1500);
       }
     }, 500);
   }
@@ -538,6 +627,9 @@ export class ProductosComponent implements OnInit {
     this.orderStateService.clearOrder();
     this.resetearEstadoPedido();
     this.mostrarToast('Nuevo pedido listo para comenzar', 'success', 2000);
+    setTimeout(() => {
+      this.cambiarVista.emit('mesas');
+    }, 1500);
   }
 
   private generarTicket(): string {
@@ -554,21 +646,32 @@ export class ProductosComponent implements OnInit {
     this.currentOrder.items.forEach(item => {
       const nombre = item.productName.length > 15 ? item.productName.substring(0, 12) + '...' : item.productName;
       const enviado = this.itemsEnviadosACocina.some(e => e.productId === item.productId);
-      const marca = enviado ? ' ✓' : ' +';
-      ticket += `${nombre.padEnd(15)} ${item.quantity.toString().padStart(3)}     ${item.total.toFixed(2)} €${marca}\n`;
+      const pagado = this.articulosPagados[item.productId];
+      let estado = '';
+      if (pagado) estado = ' ✓';
+      else if (enviado) estado = ' 📋';
+      else estado = ' +';
+      
+      ticket += `${nombre.padEnd(15)} ${item.quantity.toString().padStart(3)}     ${item.total.toFixed(2)} €${estado}\n`;
     });
     
     ticket += '--------------------------------\n';
+    if (this.totalPagado > 0) {
+      ticket += `PAGADO: ${this.totalPagado.toFixed(2)} €\n`;
+    }
+    if (this.totalPorPagar > 0) {
+      ticket += `PENDIENTE: ${this.totalPorPagar.toFixed(2)} €\n`;
+    }
     ticket += `TOTAL: ${this.currentOrder.total.toFixed(2)} €\n`;
+    
     if (this.propina > 0) {
       ticket += `Propina: ${this.propina.toFixed(2)} €\n`;
-      ticket += `Total con propina: ${(this.currentOrder.total + this.propina).toFixed(2)} €\n`;
     }
     if (this.comentario) {
       ticket += `Comentario: ${this.comentario}\n`;
     }
     ticket += '================================\n';
-    ticket += '✓ = Enviado  + = Nuevo\n';
+    ticket += '✓ = Pagado  📋 = En cocina  + = Nuevo\n';
     ticket += '¡Gracias por su visita!\n';
     ticket += '================================\n';
     

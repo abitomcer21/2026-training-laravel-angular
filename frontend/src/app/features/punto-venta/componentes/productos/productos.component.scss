@@ -722,3 +722,40 @@ ion-item {
     flex: 1;
   }
 }
+
+// Estilos para artículos pagados
+.carrito-item.pagado {
+  opacity: 0.7;
+  background: #f0fdf0;
+  border-left: 3px solid $success;
+}
+
+.pagado-badge {
+  display: inline-block;
+  background: $success;
+  color: white;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 12px;
+  margin-left: 6px;
+  font-weight: 500;
+}
+
+.text-muted {
+  color: $text-gray !important;
+  text-decoration: line-through;
+}
+
+.text-danger {
+  color: $danger !important;
+}
+
+.text-success {
+  color: $success !important;
+}
+
+.total-general {
+  border-top: 1px solid $border;
+  margin-top: 8px;
+  padding-top: 8px;
+}
