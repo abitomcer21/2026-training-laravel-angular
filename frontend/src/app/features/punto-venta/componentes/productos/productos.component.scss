@@ -1,13 +1,21 @@
-// Variables globales
-$primary: #2563eb;
-$primary-dark: #1d4ed8;
-$success: #10b981;
-$danger: #ef4444;
-$warning: #ff9800;
-$text-dark: #1f2937;
-$text-gray: #6b7280;
-$border: #e9ecef;
-$bg-gray: #f8f9fa;
+// Paleta minimalista
+$primary: #000000;
+$primary-light: #3b3b3b;
+$success: #2e7d32;
+$danger: #c62828;
+$warning: #ed6c02;
+$text-dark: #1e1e1e;
+$text-gray: #616161;
+$text-light: #9e9e9e;
+$border: #e0e0e0;
+$border-light: #f0f0f0;
+$bg-gray: #fafafa;
+$bg-white: #ffffff;
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+$transition: all 0.2s ease;
+$border-radius: 12px;
+$border-radius-lg: 16px;
 
 * {
   box-sizing: border-box;
@@ -16,35 +24,46 @@ $bg-gray: #f8f9fa;
 
 .productos-content {
   --background: #ffffff;
+  --padding-start: 0 !important;
+  --padding-end: 0 !important;
+  --padding-top: 0 !important;
+  --padding-bottom: 0 !important;
   height: 100%;
+  
+  &::part(scroll) {
+    padding: 1 !important;
+  }
 }
 
 .triple-layout {
   display: flex;
   height: 100%;
-  background: white;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 // ============================================
-// COLUMNA 1: FAMILIAS (SIDEBAR IZQUIERDO)
+// COLUMNA 1: FAMILIAS - MINIMALISTA
 // ============================================
 .col-familias {
-  width: 180px;
-  background: $bg-gray;
-  border-right: 1px solid $border;
+  width: 200px;
+  background: $bg-white;
+  border-right: 1px solid $border-light;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  height: 100%;
 }
 
 .familias-header {
-  padding: 16px;
-  border-bottom: 1px solid $border;
-  font-weight: 600;
-  font-size: 0.85rem;
+  padding: 20px 16px;
+  font-weight: 500;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: $text-gray;
+  letter-spacing: 1px;
+  color: $text-light;
+  border-bottom: 1px solid $border-light;
 }
 
 .familias-list {
@@ -61,38 +80,41 @@ $bg-gray: #f8f9fa;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: $transition;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 400;
   color: $text-gray;
   text-align: left;
   
   &:hover {
-    background: rgba($primary, 0.05);
-    color: $primary;
+    background: $bg-gray;
+    color: $text-dark;
   }
   
   &.active {
-    background: $primary;
-    color: white;
+    background: $bg-gray;
+    color: $text-dark;
+    font-weight: 500;
+    border-left: 2px solid $primary;
   }
 }
 
 // ============================================
-// COLUMNA 2: PRODUCTOS
+// COLUMNA 2: PRODUCTOS - MINIMALISTA
 // ============================================
 .col-productos {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: white;
+  background: $bg-white;
+  height: 100%;
 }
 
 .productos-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid $border;
-  background: white;
+  padding: 16px 20px;
+  border-bottom: 1px solid $border-light;
+  background: $bg-white;
   flex-shrink: 0;
   
   .mesa-info {
@@ -100,11 +122,11 @@ $bg-gray: #f8f9fa;
     align-items: center;
     gap: 6px;
     font-size: 0.75rem;
-    padding: 4px 10px;
-    background: #eef2ff;
-    border-radius: 16px;
-    color: $primary;
-    margin-bottom: 10px;
+    padding: 6px 12px;
+    background: $bg-gray;
+    border-radius: 20px;
+    color: $text-gray;
+    margin-bottom: 12px;
     
     &.warning {
       background: #fef2f2;
@@ -120,20 +142,22 @@ $bg-gray: #f8f9fa;
       left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: $text-gray;
+      color: $text-light;
       font-size: 1rem;
     }
     
     input {
       width: 100%;
-      padding: 10px 36px 10px 36px;
+      padding: 10px 12px 10px 38px;
       border: 1px solid $border;
       border-radius: 10px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      background: $bg-white;
+      transition: $transition;
       
       &:focus {
         outline: none;
-        border-color: $primary;
+        border-color: $text-gray;
       }
     }
     
@@ -152,9 +176,9 @@ $bg-gray: #f8f9fa;
 .productos-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 12px;
-  padding: 16px;
+  padding: 20px;
   overflow-y: auto;
   align-content: flex-start;
 }
@@ -164,18 +188,17 @@ $bg-gray: #f8f9fa;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px;
-  background: white;
-  border: 1px solid $border;
-  border-radius: 12px;
+  padding: 14px;
+  background: $bg-white;
+  border: 1px solid $border-light;
+  border-radius: $border-radius;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: $transition;
   text-align: left;
   
   &:hover {
-    transform: translateY(-2px);
-    border-color: $primary;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-color: $text-light;
+    box-shadow: $shadow;
   }
   
   .producto-info {
@@ -185,15 +208,15 @@ $bg-gray: #f8f9fa;
     gap: 4px;
     
     .producto-nombre {
-      font-weight: 600;
+      font-weight: 500;
       font-size: 0.85rem;
       color: $text-dark;
     }
     
     .producto-precio {
-      font-weight: 700;
+      font-weight: 500;
       font-size: 0.9rem;
-      color: $primary;
+      color: $text-dark;
     }
   }
   
@@ -201,8 +224,13 @@ $bg-gray: #f8f9fa;
     flex-shrink: 0;
     
     ion-icon {
-      font-size: 1.5rem;
-      color: $primary;
+      font-size: 1.4rem;
+      color: $text-light;
+      transition: $transition;
+      
+      &:hover {
+        color: $text-dark;
+      }
     }
   }
   
@@ -223,81 +251,87 @@ $bg-gray: #f8f9fa;
   grid-column: 1 / -1;
   text-align: center;
   padding: 60px;
-  color: $text-gray;
+  color: $text-light;
   
   ion-icon {
     font-size: 48px;
-    color: #d1d5db;
     margin-bottom: 12px;
   }
 }
 
 // ============================================
-// COLUMNA 3: CARRITO
+// COLUMNA 3: CARRITO - MINIMALISTA
 // ============================================
 .col-carrito {
   width: 320px;
-  background: white;
-  border-left: 1px solid $border;
+  background: $bg-white;
+  border-left: 1px solid $border-light;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  height: 100%;
 }
 
 .carrito-header {
-  padding: 16px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  padding: 20px;
+  border-bottom: 1px solid $border-light;
   
   .carrito-title {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
-    flex-wrap: wrap;
     
     ion-icon {
       font-size: 1.2rem;
-      color: #4a9eff;
+      color: $text-dark;
     }
     
     span {
-      font-weight: 600;
-      color: white;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: $text-dark;
     }
     
     .badge {
-      background: #4a9eff;
+      background: $bg-gray;
       border-radius: 20px;
       padding: 2px 8px;
       font-size: 0.7rem;
-      color: white;
+      font-weight: 500;
+      color: $text-gray;
     }
     
     .badge-kitchen {
-      background: $warning;
+      background: #fff3e0;
+      color: $warning;
     }
     
     .badge-paid {
-      background: $success;
+      background: #e8f5e9;
+      color: $success;
     }
   }
   
   .carrito-mesa {
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: $text-light;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 }
 
 .carrito-columns {
   display: grid;
-  grid-template-columns: 1fr 80px 80px;
-  padding: 10px 12px;
+  grid-template-columns: 1fr 70px 80px;
+  padding: 12px 16px;
   background: $bg-gray;
   font-size: 0.65rem;
-  font-weight: 600;
+  font-weight: 500;
   text-transform: uppercase;
-  color: $text-gray;
-  border-bottom: 1px solid $border;
+  color: $text-light;
+  border-bottom: 1px solid $border-light;
   
   .col-producto { text-align: left; }
   .col-cantidad { text-align: center; }
@@ -307,17 +341,28 @@ $bg-gray: #f8f9fa;
 .carrito-items {
   flex: 1;
   overflow-y: auto;
-  padding: 8px;
+  padding: 12px;
 }
 
 .carrito-item {
   display: grid;
-  grid-template-columns: 1fr 80px 80px;
+  grid-template-columns: 1fr 70px 80px;
   align-items: center;
-  background: $bg-gray;
+  background: $bg-white;
+  border: 1px solid $border-light;
   border-radius: 10px;
   padding: 10px 12px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  transition: $transition;
+  
+  &:hover {
+    border-color: $text-light;
+  }
+  
+  &.pagado {
+    opacity: 0.6;
+    background: $bg-gray;
+  }
   
   .col-producto {
     .item-nombre {
@@ -329,7 +374,7 @@ $bg-gray: #f8f9fa;
     
     .item-precio-unitario {
       font-size: 0.65rem;
-      color: $text-gray;
+      color: $text-light;
     }
   }
   
@@ -343,14 +388,15 @@ $bg-gray: #f8f9fa;
       width: 26px;
       height: 26px;
       border: 1px solid $border;
-      background: white;
+      background: $bg-white;
       border-radius: 6px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 500;
+      transition: $transition;
       
       &:hover:not(:disabled) {
-        background: $primary;
-        color: white;
+        background: $bg-gray;
+        border-color: $text-gray;
       }
       
       &:disabled {
@@ -362,7 +408,8 @@ $bg-gray: #f8f9fa;
     .qty {
       min-width: 24px;
       text-align: center;
-      font-weight: 600;
+      font-weight: 500;
+      font-size: 0.8rem;
     }
   }
   
@@ -370,10 +417,10 @@ $bg-gray: #f8f9fa;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 6px;
     
     .item-total {
-      font-weight: 700;
+      font-weight: 500;
       font-size: 0.8rem;
     }
     
@@ -381,7 +428,10 @@ $bg-gray: #f8f9fa;
       background: none;
       border: none;
       cursor: pointer;
-      color: $text-gray;
+      color: $text-light;
+      padding: 4px;
+      border-radius: 4px;
+      transition: $transition;
       
       &:hover:not(:disabled) {
         color: $danger;
@@ -396,27 +446,42 @@ $bg-gray: #f8f9fa;
 }
 
 .carrito-footer {
-  padding: 12px;
-  border-top: 1px solid $border;
+  padding: 16px;
+  border-top: 1px solid $border-light;
+  background: $bg-white;
 }
 
 .carrito-total {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   margin-bottom: 12px;
   padding-bottom: 12px;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid $border-light;
+  
+  span {
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: $text-light;
+  }
   
   strong {
-    font-size: 1.2rem;
-    color: $success;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $text-dark;
+  }
+  
+  &.total-general {
+    border-top: 1px solid $border-light;
+    padding-top: 12px;
+    margin-top: 4px;
+    border-bottom: none;
   }
 }
 
 .carrito-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   
   .btn-action {
     flex: 1;
@@ -427,38 +492,59 @@ $bg-gray: #f8f9fa;
     padding: 10px;
     border-radius: 8px;
     font-weight: 500;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     cursor: pointer;
     border: none;
+    transition: $transition;
     
     ion-icon {
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
   }
   
   .btn-clear {
-    background: #fff5f5;
+    background: #fef2f2;
     color: $danger;
     
     &:hover {
-      background: $danger;
-      color: white;
+      background: #fee2e2;
     }
   }
   
   .btn-kitchen {
-    background: #fff3e0;
-    color: $warning;
+    background: $bg-gray;
+    color: $text-gray;
     
     &:hover {
-      background: $warning;
-      color: white;
+      background: #e0e0e0;
     }
   }
   
   .btn-cash {
-    background: linear-gradient(135deg, $success 0%, #20c997 100%);
+    background: $text-dark;
     color: white;
+    
+    &:hover {
+      background: $primary-light;
+    }
+  }
+  
+  .btn-print {
+    background: $bg-gray;
+    color: $text-gray;
+    
+    &:hover {
+      background: #e0e0e0;
+    }
+  }
+  
+  .btn-new {
+    background: $bg-gray;
+    color: $text-gray;
+    
+    &:hover {
+      background: #e0e0e0;
+    }
   }
 }
 
@@ -473,18 +559,185 @@ $bg-gray: #f8f9fa;
   
   ion-icon {
     font-size: 48px;
-    color: #dee2e6;
+    color: $border;
     margin-bottom: 12px;
   }
   
   p {
-    color: $text-gray;
-    font-size: 0.85rem;
+    color: $text-light;
+    font-size: 0.8rem;
   }
   
   small {
     font-size: 0.7rem;
-    color: #adb5bd;
+    color: $text-light;
+  }
+}
+
+// ============================================
+// BADGES
+// ============================================
+
+.nuevo-badge {
+  display: inline-block;
+  background: $bg-gray;
+  color: $text-gray;
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 6px;
+  font-weight: 500;
+}
+
+.pagado-badge {
+  display: inline-block;
+  background: #e8f5e9;
+  color: $success;
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 6px;
+  font-weight: 500;
+}
+
+.text-muted {
+  color: $text-light !important;
+  text-decoration: line-through;
+}
+
+// ============================================
+// MODALES MINIMALISTAS
+// ============================================
+
+.total-cobro {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: $bg-gray;
+  border-radius: $border-radius;
+  
+  h2 {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1.3rem;
+    color: $text-dark;
+  }
+}
+
+.monto-persona {
+  text-align: center;
+  padding: 12px;
+  background: $bg-gray;
+  border-radius: 8px;
+  margin: 16px 0;
+  
+  strong {
+    font-size: 1rem;
+    font-weight: 500;
+    color: $text-dark;
+  }
+}
+
+.cobro-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+
+.articulos-lista {
+  max-height: 250px;
+  overflow-y: auto;
+  margin: 16px 0;
+  border: 1px solid $border-light;
+  border-radius: 10px;
+  background: $bg-white;
+}
+
+.articulo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid $border-light;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  ion-checkbox {
+    --size: 20px;
+    flex-shrink: 0;
+  }
+  
+  .articulo-info {
+    flex: 1;
+    
+    .articulo-nombre {
+      font-weight: 500;
+      font-size: 0.8rem;
+      color: $text-dark;
+      margin-bottom: 2px;
+    }
+    
+    .articulo-detalle {
+      font-size: 0.65rem;
+      color: $text-light;
+    }
+  }
+}
+
+ion-segment {
+  margin: 12px 0;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 12px;
+}
+
+.ticket-modal {
+  --width: 90%;
+  --max-width: 450px;
+  --height: auto;
+  --min-height: 350px;
+  --max-height: 80vh;
+  --border-radius: 16px;
+}
+
+.ticket-contenido {
+  background: $bg-gray;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.ticket-texto {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  color: $text-dark;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.ticket-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  
+  ion-button {
+    flex: 1;
   }
 }
 
@@ -510,7 +763,7 @@ $bg-gray: #f8f9fa;
   }
   
   .col-carrito {
-    width: 280px;
+    width: 300px;
   }
 }
 
@@ -523,7 +776,7 @@ $bg-gray: #f8f9fa;
     width: 100%;
     flex-direction: row;
     border-right: none;
-    border-bottom: 1px solid $border;
+    border-bottom: 1px solid $border-light;
     
     .familias-header {
       display: none;
@@ -536,7 +789,7 @@ $bg-gray: #f8f9fa;
       
       .familia-item {
         flex-direction: column;
-        padding: 8px 12px;
+        padding: 10px 16px;
         
         span {
           display: inline;
@@ -550,287 +803,28 @@ $bg-gray: #f8f9fa;
     width: 100%;
     max-height: 40vh;
   }
+  
+  .productos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
 }
 
 // ============================================
 // SCROLLBAR
 // ============================================
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: $bg-gray;
-  border-radius: 3px;
+  background: $border-light;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: $border;
   
   &:hover {
-    background: #94a3b8;
-  }
-}
-
-// ============================================
-// ESTILOS ADICIONALES
-// ============================================
-
-.nuevo-badge {
-  display: inline-block;
-  background: $warning;
-  color: white;
-  font-size: 0.6rem;
-  padding: 2px 6px;
-  border-radius: 12px;
-  margin-left: 6px;
-  font-weight: 500;
-}
-
-// ============================================
-// ESTILOS MODAL DE COBRO
-// ============================================
-
-.total-cobro {
-  text-align: center;
-  margin-bottom: 16px;
-  padding: 12px;
-  background: linear-gradient(135deg, #e8f0fe 0%, #d4e4fc 100%);
-  border-radius: 12px;
-  
-  h2 {
-    margin: 0;
-    color: $success;
-    font-weight: 700;
-    font-size: 1.2rem;
-  }
-}
-
-.monto-persona {
-  text-align: center;
-  padding: 10px;
-  background: $bg-gray;
-  border-radius: 8px;
-  margin: 12px 0;
-  
-  strong {
-    font-size: 0.9rem;
-    color: $primary;
-  }
-}
-
-.cobro-buttons {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  margin-top: 16px;
-  margin-bottom: 8px;
-}
-
-.articulos-lista {
-  max-height: 200px;
-  overflow-y: auto;
-  margin: 12px 0;
-  border: 1px solid $border;
-  border-radius: 8px;
-  background: white;
-}
-
-.articulo-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-bottom: 1px solid $border;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  ion-checkbox {
-    --size: 20px;
-    flex-shrink: 0;
-  }
-  
-  .articulo-info {
-    flex: 1;
-    
-    .articulo-nombre {
-      font-weight: 500;
-      font-size: 0.75rem;
-      color: $text-dark;
-      margin-bottom: 2px;
-    }
-    
-    .articulo-detalle {
-      font-size: 0.6rem;
-      color: $text-gray;
-    }
-  }
-}
-
-ion-segment {
-  margin: 12px 0;
-}
-
-ion-item {
-  --padding-start: 0;
-  --inner-padding-end: 0;
-  margin-bottom: 8px;
-}
-
-// ============================================
-// ESTILOS MODAL DE TICKET
-// ============================================
-
-.ticket-modal {
-  --width: 90%;
-  --max-width: 400px;
-  --height: auto;
-  --max-height: 80vh;
-  --border-radius: 16px;
-}
-
-.ticket-contenido {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  max-height: 50vh;
-  overflow-y: auto;
-}
-
-.ticket-texto {
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  line-height: 1.4;
-  color: #1a1a2e;
-  margin: 0;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-.ticket-buttons {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  margin-top: 8px;
-  
-  ion-button {
-    flex: 1;
-  }
-}
-
-// Estilos para artículos pagados
-.carrito-item.pagado {
-  opacity: 0.7;
-  background: #f0fdf0;
-  border-left: 3px solid $success;
-}
-
-.pagado-badge {
-  display: inline-block;
-  background: $success;
-  color: white;
-  font-size: 0.6rem;
-  padding: 2px 6px;
-  border-radius: 12px;
-  margin-left: 6px;
-  font-weight: 500;
-}
-
-.text-muted {
-  color: $text-gray !important;
-  text-decoration: line-through;
-}
-
-.text-danger {
-  color: $danger !important;
-}
-
-.text-success {
-  color: $success !important;
-}
-
-.total-general {
-  border-top: 1px solid $border;
-  margin-top: 8px;
-  padding-top: 8px;
-}
-
-.pagado-badge {
-  display: inline-block;
-  background: $success;
-  color: white;
-  font-size: 0.6rem;
-  padding: 2px 6px;
-  border-radius: 12px;
-  margin-left: 6px;
-  font-weight: 500;
-}
-
-.text-muted {
-  color: $text-gray !important;
-  text-decoration: line-through;
-}
-
-.text-danger {
-  color: $danger !important;
-}
-
-.text-success {
-  color: $success !important;
-}
-
-.total-general {
-  border-top: 1px solid $border;
-  margin-top: 8px;
-  padding-top: 8px;
-}
-
-.carrito-item.pagado {
-  opacity: 0.7;
-  background: #f0fdf0;
-  border-left: 3px solid $success;
-}
-
-.ticket-modal {
-  --width: 90%;
-  --max-width: 450px;
-  --height: auto;
-  --max-height: 80vh;
-  --border-radius: 16px;
-}
-
-.ticket-contenido {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  max-height: 55vh;
-  overflow-y: auto;
-}
-
-.ticket-texto {
-  font-family: 'Courier New', monospace;
-  font-size: 11px;
-  line-height: 1.4;
-  color: #1a1a2e;
-  margin: 0;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.ticket-buttons {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  margin-top: 8px;
-  margin-bottom: 8px;
-  
-  ion-button {
-    flex: 1;
+    background: $text-light;
   }
 }
