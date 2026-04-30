@@ -144,6 +144,10 @@ export class ProductosComponent implements OnInit {
   comentario = '';
   articulosSeleccionados: { [key: string]: boolean } = {};
 
+  // Propiedades para el modal de ticket
+  mostrarModalTicket = false;
+  ticketParaImprimir = '';
+
   constructor(
     private productService: ProductService,
     private orderStateService: OrderStateService,
@@ -504,21 +508,25 @@ export class ProductosComponent implements OnInit {
     this.mostrarModalCobro = false;
     this.mostrarToast(mensaje, 'success', 4000);
     
+    // Generar ticket y mostrarlo en modal
+    this.ticketParaImprimir = this.generarTicket();
+    this.mostrarModalTicket = true;
+  }
+
+  imprimirTicketDesdeModal() {
+    console.log('Imprimiendo ticket:', this.ticketParaImprimir);
+    this.mostrarToast('Ticket impreso correctamente', 'primary', 2000);
+    this.mostrarModalTicket = false;
+    
     setTimeout(() => {
-      this.imprimirTicket();
+      if (confirm('¿Desea comenzar un nuevo pedido?')) {
+        this.nuevoPedido();
+      }
     }, 500);
   }
 
-  imprimirTicket() {
-    if (this.currentOrder.items.length === 0) {
-      this.mostrarToast('No hay productos para imprimir', 'danger', 2000);
-      return;
-    }
-    
-    const ticket = this.generarTicket();
-    console.log('Imprimiendo ticket:', ticket);
-    this.mostrarToast('Ticket impreso correctamente', 'primary', 2000);
-    
+  cerrarModalTicket() {
+    this.mostrarModalTicket = false;
     setTimeout(() => {
       if (confirm('¿Desea comenzar un nuevo pedido?')) {
         this.nuevoPedido();

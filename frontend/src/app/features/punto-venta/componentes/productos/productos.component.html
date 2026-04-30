@@ -180,10 +180,6 @@
             <ion-label position="stacked">Número de comensales</ion-label>
             <ion-input type="number" [(ngModel)]="numeroComensales" (ionChange)="calcularMontoPorPersona()"></ion-input>
           </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Propina (opcional)</ion-label>
-            <ion-input type="number" [(ngModel)]="propina" (ionChange)="calcularMontoPorPersona()"></ion-input>
-          </ion-item>
           <div class="monto-persona">
             <strong>Cada persona paga: {{ montoPorPersona | number:'1.2-2' }} €</strong>
           </div>
@@ -195,8 +191,7 @@
               <ion-checkbox [(ngModel)]="articulosSeleccionados[item.productId]"></ion-checkbox>
               <div class="articulo-info">
                 <div class="articulo-nombre">{{ item.productName }}</div>
-                <div class="articulo-detalle">{{ item.quantity }} x {{ item.price | number:'1.2-2' }} € = {{ item.total
-                  | number:'1.2-2' }} €</div>
+                <div class="articulo-detalle">{{ item.quantity }} x {{ item.price | number:'1.2-2' }} € = {{ item.total | number:'1.2-2' }} €</div>
               </div>
             </div>
           </div>
@@ -205,6 +200,7 @@
           </div>
         </div>
 
+
         <div class="cobro-buttons">
           <ion-button expand="block" color="success" (click)="confirmarCobro()" style="flex: 1;">
             <ion-icon name="cash-outline" slot="start"></ion-icon>
@@ -212,6 +208,35 @@
           </ion-button>
           <ion-button expand="block" fill="outline" (click)="mostrarModalCobro = false" style="flex: 1;">
             Cancelar
+          </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- MODAL DE TICKET -->
+  <ion-modal [isOpen]="mostrarModalTicket" (willDismiss)="cerrarModalTicket()" class="ticket-modal">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Ticket de Pedido</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="cerrarModalTicket()">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <div class="ticket-contenido">
+          <pre class="ticket-texto">{{ ticketParaImprimir }}</pre>
+        </div>
+        
+        <div class="ticket-buttons">
+          <ion-button expand="block" color="primary" (click)="imprimirTicketDesdeModal()">
+            <ion-icon name="print-outline" slot="start"></ion-icon>
+            Imprimir Ticket
+          </ion-button>
+          <ion-button expand="block" fill="outline" (click)="cerrarModalTicket()">
+            Cerrar
           </ion-button>
         </div>
       </ion-content>

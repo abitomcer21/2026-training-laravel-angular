@@ -628,6 +628,7 @@ $bg-gray: #f8f9fa;
   margin-top: 16px;
   margin-bottom: 8px;
 }
+
 .articulos-lista {
   max-height: 200px;
   overflow-y: auto;
@@ -678,4 +679,46 @@ ion-item {
   --padding-start: 0;
   --inner-padding-end: 0;
   margin-bottom: 8px;
+}
+
+// ============================================
+// ESTILOS MODAL DE TICKET
+// ============================================
+
+.ticket-modal {
+  --width: 90%;
+  --max-width: 400px;
+  --height: auto;
+  --max-height: 80vh;
+  --border-radius: 16px;
+}
+
+.ticket-contenido {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.ticket-texto {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #1a1a2e;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.ticket-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 8px;
+  
+  ion-button {
+    flex: 1;
+  }
 }
