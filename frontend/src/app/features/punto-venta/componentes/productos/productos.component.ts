@@ -17,6 +17,18 @@ import {
   IonCardSubtitle,
   IonCardContent,
   IonLabel,
+  ToastController,
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton as IonButtonModal,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel as IonLabelModal,
+  IonCheckbox,
+  IonList,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -88,6 +100,17 @@ type EstadoPedido = 'editando' | 'confirmado' | 'cobrado';
     IonCardSubtitle,
     IonCardContent,
     IonLabel,
+    IonModal,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
+    IonButtonModal,
+    IonSegment,
+    IonSegmentButton,
+    IonLabelModal,
+    IonCheckbox,
+    IonList,
   ]
 })
 export class ProductosComponent implements OnInit {
@@ -108,14 +131,25 @@ export class ProductosComponent implements OnInit {
   familias: { id: string; name: string }[] = [];
   familiaSeleccionada: string | null = null;
   
-  // Estado del pedido
   estadoPedido: EstadoPedido = 'editando';
+  pedidoInicialEnviado = false;
+  itemsEnviadosACocina: OrderItem[] = [];
+
+  // Propiedades para el modal de cobro
+  mostrarModalCobro = false;
+  tipoCobro: 'completo' | 'dividir' | 'articulos' = 'completo';
+  numeroComensales = 2;
+  montoPorPersona = 0;
+  propina = 0;
+  comentario = '';
+  articulosSeleccionados: { [key: string]: boolean } = {};
 
   constructor(
     private productService: ProductService,
     private orderStateService: OrderStateService,
     private authService: AuthService,
-    private familyService: FamilyService
+    private familyService: FamilyService,
+    private toastController: ToastController
   ) {
     addIcons({ 
       restaurantOutline, 
@@ -144,6 +178,22 @@ export class ProductosComponent implements OnInit {
     this.suscribirseAorden();
   }
 
+  async mostrarToast(mensaje: string, color: string = 'success', duracion: number = 3000) {
+    const toast = await this.toastController.create({
+      message: mensaje,
+      duration: duracion,
+      position: 'top',
+      color: color,
+      buttons: [
+        {
+          text: 'Cerrar',
+          role: 'cancel'
+        }
+      ]
+    });
+    await toast.present();
+  }
+
   cargarProductos() {
     this.cargando = true;
     const userData = this.authService.getUserData();
@@ -162,7 +212,7 @@ export class ProductosComponent implements OnInit {
           .filter((producto: any) => producto.restaurant_id === restaurantId)
           .map((producto: any) => ({
             ...producto,
-            price: producto.price / 100  // Convertir céntimos a euros
+            price: producto.price / 100
           }));
         this.cargarFamilias(restaurantId);
         this.cargando = false;
@@ -170,6 +220,7 @@ export class ProductosComponent implements OnInit {
       error: (error) => {
         console.error('Error al cargar productos:', error);
         this.cargando = false;
+        this.mostrarToast('Error al cargar productos', 'danger', 3000);
       }
     });
   }
@@ -192,7 +243,6 @@ export class ProductosComponent implements OnInit {
           }
         });
         
-        // Asignar nombre de familia a cada producto
         this.productosOriginales = this.productosOriginales.map(producto => {
           let familyName = 'Sin familia';
           if (producto.family_id && familyMap.has(producto.family_id)) {
@@ -204,7 +254,6 @@ export class ProductosComponent implements OnInit {
           };
         });
         
-        // Organizar productos por familia
         this.productosPorFamilia.clear();
         this.productosOriginales.forEach(producto => {
           if (producto.family_id) {
@@ -215,24 +264,22 @@ export class ProductosComponent implements OnInit {
           }
         });
         
-        // Crear lista de familias
         this.familias = familiasDelRestaurant.map((familia: any) => ({
           id: familia.id,
           name: familia.name
         }));
         
-        // Seleccionar la primera familia por defecto (para que se vean productos al cargar)
         if (this.familias.length > 0 && !this.familiaSeleccionada) {
           this.seleccionarFamilia(this.familias[0].id);
         }
       },
       error: (error) => {
         console.error('Error al cargar familias:', error);
+        this.mostrarToast('Error al cargar categorías', 'danger', 3000);
       }
     });
   }
 
-  // Seleccionar una familia y mostrar sus productos
   seleccionarFamilia(familiaId: string) {
     this.familiaSeleccionada = familiaId;
     this.filtroNombre = '';
@@ -240,13 +287,11 @@ export class ProductosComponent implements OnInit {
     this.productosOriginales = [...this.productos];
   }
 
-  // Obtener el nombre de la familia seleccionada
   getNombreFamilia(): string {
     const familia = this.familias.find(f => f.id === this.familiaSeleccionada);
     return familia?.name || '';
   }
 
-  // Aplicar filtros (solo búsqueda por nombre)
   aplicarFiltros() {
     if (!this.familiaSeleccionada) return;
     
@@ -271,27 +316,32 @@ export class ProductosComponent implements OnInit {
       next: (order) => {
         this.currentOrder = order;
         if (this.currentOrder.items.length === 0) {
-          this.estadoPedido = 'editando';
+          this.resetearEstadoPedido();
         }
       }
     });
+  }
+
+  resetearEstadoPedido() {
+    this.estadoPedido = 'editando';
+    this.pedidoInicialEnviado = false;
+    this.itemsEnviadosACocina = [];
   }
 
   get productosFiltrados(): Product[] {
     return this.productos;
   }
 
+  esProductoNuevo(productId: string): boolean {
+    return !this.itemsEnviadosACocina.some(enviado => enviado.productId === productId);
+  }
+
   agregarProducto(producto: Product) {
     if (!this.currentOrder.table || !this.currentOrder.user) {
-      alert('Por favor selecciona una mesa y usuario primero');
+      this.mostrarToast('Selecciona una mesa y usuario primero', 'warning', 2000);
       return;
     }
     
-    if (this.estadoPedido !== 'editando') {
-      alert('No puedes modificar el pedido. Primero regresa a edición.');
-      return;
-    }
-
     const item: OrderItem = {
       productId: producto.id,
       productName: producto.name,
@@ -304,10 +354,6 @@ export class ProductosComponent implements OnInit {
   }
 
   incrementarProducto(productId: string) {
-    if (this.estadoPedido !== 'editando') {
-      alert('No puedes modificar el pedido. Solo en modo edición.');
-      return;
-    }
     const item = this.currentOrder.items.find((i) => i.productId === productId);
     if (item) {
       this.orderStateService.updateItemQuantity(productId, item.quantity + 1);
@@ -315,94 +361,208 @@ export class ProductosComponent implements OnInit {
   }
 
   decrementarProducto(productId: string) {
-    if (this.estadoPedido !== 'editando') {
-      alert('No puedes modificar el pedido. Solo en modo edición.');
-      return;
-    }
     const item = this.currentOrder.items.find((i) => i.productId === productId);
     if (item) {
-      this.orderStateService.updateItemQuantity(productId, item.quantity - 1);
+      if (item.quantity === 1) {
+        this.eliminarProducto(productId);
+      } else {
+        this.orderStateService.updateItemQuantity(productId, item.quantity - 1);
+      }
     }
   }
 
   eliminarProducto(productId: string) {
-    if (this.estadoPedido !== 'editando') {
-      alert('No puedes modificar el pedido. Solo en modo edición.');
-      return;
-    }
     this.orderStateService.removeItem(productId);
   }
 
   limpiarPedido() {
-    if (confirm('¿Limpiar todo el pedido?')) {
-      this.orderStateService.clearOrder();
-      this.estadoPedido = 'editando';
+    if (this.currentOrder.items.length === 0) {
+      this.mostrarToast('No hay productos para limpiar', 'warning', 2000);
+      return;
     }
+    
+    this.orderStateService.clearOrder();
+    this.resetearEstadoPedido();
+    this.mostrarToast('Pedido limpiado correctamente', 'danger', 2000);
   }
 
   enviarACocina() {
     if (this.currentOrder.items.length === 0) {
-      alert('No hay productos en el pedido');
+      this.mostrarToast('No hay productos en el pedido', 'danger', 2000);
       return;
     }
     
-    this.estadoPedido = 'confirmado';
-    alert(`✅ Pedido enviado a cocina\nMesa: ${this.currentOrder.table?.name}\nTotal: ${this.currentOrder.total.toFixed(2)} €`);
+    if (!this.pedidoInicialEnviado) {
+      this.itemsEnviadosACocina = [...this.currentOrder.items];
+      this.pedidoInicialEnviado = true;
+      this.estadoPedido = 'confirmado';
+      
+      const totalItems = this.currentOrder.items.reduce((sum, item) => sum + item.quantity, 0);
+      this.mostrarToast(
+        `Pedido enviado a cocina - Mesa: ${this.currentOrder.table?.name} - ${totalItems} productos`,
+        'success',
+        4000
+      );
+    } else {
+      const nuevosItems: OrderItem[] = [];
+      
+      this.currentOrder.items.forEach(item => {
+        const itemEnviado = this.itemsEnviadosACocina.find(enviado => enviado.productId === item.productId);
+        
+        if (!itemEnviado) {
+          nuevosItems.push({...item});
+        } else if (item.quantity > itemEnviado.quantity) {
+          const diferencia = item.quantity - itemEnviado.quantity;
+          nuevosItems.push({
+            ...item,
+            quantity: diferencia,
+            total: diferencia * item.price
+          });
+        }
+      });
+      
+      if (nuevosItems.length === 0) {
+        this.mostrarToast('No hay nuevos productos para enviar', 'warning', 2000);
+        return;
+      }
+      
+      this.itemsEnviadosACocina = [...this.currentOrder.items];
+      
+      const totalNuevos = nuevosItems.reduce((sum, item) => sum + item.quantity, 0);
+      this.mostrarToast(
+        `Nuevos productos enviados a cocina - Mesa: ${this.currentOrder.table?.name} - ${totalNuevos} productos añadidos`,
+        'success',
+        4000
+      );
+    }
   }
 
   volverAEditar() {
     this.estadoPedido = 'editando';
+    this.mostrarToast('Modo edición activado', 'primary', 2000);
   }
 
-  cobrarPedido() {
-    if (confirm(`💰 ¿Confirmar cobro de ${this.currentOrder.total.toFixed(2)} €?`)) {
-      this.estadoPedido = 'cobrado';
-      alert(`💰 Pedido cobrado correctamente\nMesa: ${this.currentOrder.table?.name}\nTotal: ${this.currentOrder.total.toFixed(2)} €`);
+  // ============================================
+  // MÉTODOS DE COBRO
+  // ============================================
+  
+  abrirModalCobro() {
+    if (this.currentOrder.items.length === 0) {
+      this.mostrarToast('No hay productos en el pedido', 'danger', 2000);
+      return;
     }
+    // Inicializar selección de artículos
+    this.currentOrder.items.forEach(item => {
+      this.articulosSeleccionados[item.productId] = true;
+    });
+    this.propina = 0;
+    this.comentario = '';
+    this.numeroComensales = 2;
+    this.tipoCobro = 'completo';
+    this.calcularMontoPorPersona();
+    this.mostrarModalCobro = true;
+  }
+
+  calcularMontoPorPersona() {
+    this.montoPorPersona = (this.currentOrder.total + this.propina) / this.numeroComensales;
+  }
+
+  getTotalSeleccionado(): number {
+    let total = 0;
+    this.currentOrder.items.forEach(item => {
+      if (this.articulosSeleccionados[item.productId]) {
+        total += item.total;
+      }
+    });
+    return total + this.propina;
+  }
+
+  confirmarCobro() {
+    let mensaje = '';
+    let totalCobrado = 0;
+    
+    switch(this.tipoCobro) {
+      case 'completo':
+        totalCobrado = this.currentOrder.total + this.propina;
+        mensaje = `Cobro completado: ${totalCobrado.toFixed(2)} €`;
+        if (this.comentario) mensaje += `\nComentario: ${this.comentario}`;
+        break;
+      case 'dividir':
+        totalCobrado = this.montoPorPersona * this.numeroComensales;
+        mensaje = `Cuenta dividida entre ${this.numeroComensales} personas.\nCada una paga: ${this.montoPorPersona.toFixed(2)} €`;
+        if (this.propina > 0) mensaje += `\nPropina incluida: ${this.propina.toFixed(2)} €`;
+        break;
+      case 'articulos':
+        totalCobrado = this.getTotalSeleccionado();
+        const itemsSeleccionados = this.currentOrder.items.filter(item => this.articulosSeleccionados[item.productId]);
+        mensaje = `Cobro por artículos seleccionados: ${totalCobrado.toFixed(2)} €\n`;
+        mensaje += `Artículos: ${itemsSeleccionados.length}`;
+        break;
+    }
+    
+    this.estadoPedido = 'cobrado';
+    this.mostrarModalCobro = false;
+    this.mostrarToast(mensaje, 'success', 4000);
+    
+    setTimeout(() => {
+      this.imprimirTicket();
+    }, 500);
   }
 
   imprimirTicket() {
     if (this.currentOrder.items.length === 0) {
-      alert('No hay productos para imprimir');
+      this.mostrarToast('No hay productos para imprimir', 'danger', 2000);
       return;
     }
     
     const ticket = this.generarTicket();
     console.log('Imprimiendo ticket:', ticket);
-    alert(ticket);
+    this.mostrarToast('Ticket impreso correctamente', 'primary', 2000);
     
-    if (confirm('¿Ticket impreso correctamente? ¿Desea comenzar un nuevo pedido?')) {
-      this.nuevoPedido();
-    }
+    setTimeout(() => {
+      if (confirm('¿Desea comenzar un nuevo pedido?')) {
+        this.nuevoPedido();
+      }
+    }, 500);
   }
 
   nuevoPedido() {
     this.orderStateService.clearOrder();
-    this.estadoPedido = 'editando';
-    alert('Puedes comenzar un nuevo pedido');
+    this.resetearEstadoPedido();
+    this.mostrarToast('Nuevo pedido listo para comenzar', 'success', 2000);
   }
 
   private generarTicket(): string {
-    let ticket = '=========================\n';
-    ticket += '    🍽️ RESTAURANTE 🍽️\n';
-    ticket += '=========================\n';
+    let ticket = '================================\n';
+    ticket += '           RESTAURANTE\n';
+    ticket += '================================\n';
     ticket += `Mesa: ${this.currentOrder.table?.name}\n`;
     ticket += `Usuario: ${this.currentOrder.user?.name}\n`;
     ticket += `Fecha: ${new Date().toLocaleString()}\n`;
-    ticket += '=========================\n';
-    ticket += 'Producto     Cant     Total\n';
-    ticket += '-------------------------\n';
+    ticket += '================================\n';
+    ticket += 'Producto          Cant     Total\n';
+    ticket += '--------------------------------\n';
     
     this.currentOrder.items.forEach(item => {
       const nombre = item.productName.length > 15 ? item.productName.substring(0, 12) + '...' : item.productName;
-      ticket += `${nombre.padEnd(12)} ${item.quantity.toString().padStart(3)}    ${item.total.toFixed(2)} €\n`;
+      const enviado = this.itemsEnviadosACocina.some(e => e.productId === item.productId);
+      const marca = enviado ? ' ✓' : ' +';
+      ticket += `${nombre.padEnd(15)} ${item.quantity.toString().padStart(3)}     ${item.total.toFixed(2)} €${marca}\n`;
     });
     
-    ticket += '-------------------------\n';
+    ticket += '--------------------------------\n';
     ticket += `TOTAL: ${this.currentOrder.total.toFixed(2)} €\n`;
-    ticket += '=========================\n';
+    if (this.propina > 0) {
+      ticket += `Propina: ${this.propina.toFixed(2)} €\n`;
+      ticket += `Total con propina: ${(this.currentOrder.total + this.propina).toFixed(2)} €\n`;
+    }
+    if (this.comentario) {
+      ticket += `Comentario: ${this.comentario}\n`;
+    }
+    ticket += '================================\n';
+    ticket += '✓ = Enviado  + = Nuevo\n';
     ticket += '¡Gracias por su visita!\n';
-    ticket += '=========================\n';
+    ticket += '================================\n';
     
     return ticket;
   }

@@ -1,20 +1,14 @@
 <ion-content class="productos-content">
   <div class="triple-layout">
-    
-    <!-- COLUMNA 1: FAMILIAS (SIDEBAR IZQUIERDO) -->
+
+    <!-- COLUMNA 1: FAMILIAS -->
     <div class="col-familias">
       <div class="familias-header">
-        <ion-icon name="restaurant-outline"></ion-icon>
         <span>Categorías</span>
       </div>
       <div class="familias-list">
-        <button 
-          *ngFor="let familia of familias"
-          class="familia-item"
-          [class.active]="familiaSeleccionada === familia.id"
-          (click)="seleccionarFamilia(familia.id)"
-        >
-          <ion-icon name="fast-food-outline"></ion-icon>
+        <button *ngFor="let familia of familias" class="familia-item"
+          [class.active]="familiaSeleccionada === familia.id" (click)="seleccionarFamilia(familia.id)">
           <span>{{ familia.name }}</span>
         </button>
       </div>
@@ -34,17 +28,9 @@
 
         <div class="quick-search">
           <ion-icon name="search-outline"></ion-icon>
-          <input 
-            type="text" 
-            placeholder="Buscar producto..." 
-            [(ngModel)]="filtroNombre" 
-            (input)="aplicarFiltros()"
-          />
-          <ion-icon 
-            *ngIf="filtroNombre" 
-            name="close-circle-outline"
-            (click)="filtroNombre = ''; aplicarFiltros()"
-          ></ion-icon>
+          <input type="text" placeholder="Buscar producto..." [(ngModel)]="filtroNombre" (input)="aplicarFiltros()" />
+          <ion-icon *ngIf="filtroNombre" name="close-circle-outline"
+            (click)="filtroNombre = ''; aplicarFiltros()"></ion-icon>
         </div>
       </div>
 
@@ -53,15 +39,8 @@
       </div>
 
       <div class="productos-grid" *ngIf="!cargando">
-        <button 
-          *ngFor="let producto of productosFiltrados"
-          class="producto-btn"
-          [class.disabled]="!currentOrder.table"
-          (click)="agregarProducto(producto)"
-        >
-          <div class="producto-icon">
-            <ion-icon name="fast-food-outline"></ion-icon>
-          </div>
+        <button *ngFor="let producto of productosFiltrados" class="producto-btn" [class.disabled]="!currentOrder.table"
+          (click)="agregarProducto(producto)">
           <div class="producto-info">
             <span class="producto-nombre">{{ producto.name }}</span>
             <span class="producto-precio">{{ producto.price | number:'1.2-2' }} €</span>
@@ -78,7 +57,7 @@
       </div>
     </div>
 
-    <!-- COLUMNA 3: CARRITO (ESTILO QUE TE GUSTABA) -->
+    <!-- COLUMNA 3: CARRITO -->
     <div class="col-carrito">
       <div class="carrito-header">
         <div class="carrito-title">
@@ -87,11 +66,11 @@
           <ion-badge *ngIf="currentOrder.items.length" class="badge">
             {{ currentOrder.items.length }}
           </ion-badge>
-          <ion-badge *ngIf="estadoPedido === 'confirmado'" class="badge badge-kitchen">
-            🍳 En cocina
+          <ion-badge *ngIf="pedidoInicialEnviado" class="badge badge-kitchen">
+            En cocina
           </ion-badge>
           <ion-badge *ngIf="estadoPedido === 'cobrado'" class="badge badge-paid">
-            💰 Pagado
+            Pagado
           </ion-badge>
         </div>
         <div class="carrito-mesa" *ngIf="currentOrder.table">
@@ -100,47 +79,48 @@
         </div>
       </div>
 
-      <!-- Cabecera de columnas -->
       <div class="carrito-columns" *ngIf="currentOrder.items.length > 0">
         <span class="col-producto">Producto</span>
         <span class="col-cantidad">Cant</span>
         <span class="col-precio">Total</span>
       </div>
 
-      <!-- Lista de items -->
       <div class="carrito-items" *ngIf="currentOrder.items.length > 0; else vacio">
         <div class="carrito-item" *ngFor="let item of currentOrder.items">
           <div class="col-producto">
-            <div class="item-nombre">{{ item.productName }}</div>
+            <div class="item-nombre">
+              {{ item.productName }}
+              <span *ngIf="esProductoNuevo(item.productId)" class="nuevo-badge">
+                Nuevo
+              </span>
+            </div>
             <div class="item-precio-unitario">{{ item.price | number:'1.2-2' }} €</div>
           </div>
           <div class="col-cantidad">
-            <button class="qty-btn" (click)="decrementarProducto(item.productId)" [disabled]="estadoPedido !== 'editando'">
+            <button class="qty-btn" (click)="decrementarProducto(item.productId)">
               -
             </button>
             <span class="qty">{{ item.quantity }}</span>
-            <button class="qty-btn" (click)="incrementarProducto(item.productId)" [disabled]="estadoPedido !== 'editando'">
+            <button class="qty-btn" (click)="incrementarProducto(item.productId)">
               +
             </button>
           </div>
           <div class="col-precio">
             <span class="item-total">{{ item.total | number:'1.2-2' }} €</span>
-            <button class="remove-btn" (click)="eliminarProducto(item.productId)" [disabled]="estadoPedido !== 'editando'">
+            <button class="remove-btn" (click)="eliminarProducto(item.productId)">
               <ion-icon name="trash-outline"></ion-icon>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Footer con total y botones dinámicos -->
       <div class="carrito-footer" *ngIf="currentOrder.items.length > 0">
         <div class="carrito-total">
           <span>TOTAL</span>
           <strong>{{ currentOrder.total | number:'1.2-2' }} €</strong>
         </div>
 
-        <!-- Estado EDITANDO -->
-        <div class="carrito-actions" *ngIf="estadoPedido === 'editando'">
+        <div class="carrito-actions">
           <button class="btn-action btn-clear" (click)="limpiarPedido()">
             <ion-icon name="trash-outline"></ion-icon>
             <span>Limpiar</span>
@@ -149,29 +129,9 @@
             <ion-icon name="restaurant-outline"></ion-icon>
             <span>Enviar a Cocina</span>
           </button>
-        </div>
-
-        <!-- Estado CONFIRMADO (en cocina) -->
-        <div class="carrito-actions" *ngIf="estadoPedido === 'confirmado'">
-          <button class="btn-action btn-edit" (click)="volverAEditar()">
-            <ion-icon name="arrow-back-outline"></ion-icon>
-            <span>Editar</span>
-          </button>
-          <button class="btn-action btn-cash" (click)="cobrarPedido()">
+          <button class="btn-action btn-cash" (click)="abrirModalCobro()">
             <ion-icon name="cash-outline"></ion-icon>
             <span>Cobrar</span>
-          </button>
-        </div>
-
-        <!-- Estado COBRADO -->
-        <div class="carrito-actions" *ngIf="estadoPedido === 'cobrado'">
-          <button class="btn-action btn-print" (click)="imprimirTicket()">
-            <ion-icon name="print-outline"></ion-icon>
-            <span>Imprimir Ticket</span>
-          </button>
-          <button class="btn-action btn-new" (click)="nuevoPedido()">
-            <ion-icon name="add-circle-outline"></ion-icon>
-            <span>Nuevo Pedido</span>
           </button>
         </div>
       </div>
@@ -186,4 +146,76 @@
     </div>
 
   </div>
+
+  <!-- MODAL DE COBRO -->
+  <ion-modal [isOpen]="mostrarModalCobro" (willDismiss)="mostrarModalCobro = false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Cobrar Pedido</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="mostrarModalCobro = false">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <div class="total-cobro">
+          <h2>Total: {{ currentOrder.total | number:'1.2-2' }} €</h2>
+        </div>
+
+        <ion-segment [(ngModel)]="tipoCobro">
+          <ion-segment-button value="completo">
+            <ion-label>Completo</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="dividir">
+            <ion-label>Dividir</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="articulos">
+            <ion-label>Por artículos</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        <div *ngIf="tipoCobro === 'dividir'">
+          <ion-item>
+            <ion-label position="stacked">Número de comensales</ion-label>
+            <ion-input type="number" [(ngModel)]="numeroComensales" (ionChange)="calcularMontoPorPersona()"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Propina (opcional)</ion-label>
+            <ion-input type="number" [(ngModel)]="propina" (ionChange)="calcularMontoPorPersona()"></ion-input>
+          </ion-item>
+          <div class="monto-persona">
+            <strong>Cada persona paga: {{ montoPorPersona | number:'1.2-2' }} €</strong>
+          </div>
+        </div>
+
+        <div *ngIf="tipoCobro === 'articulos'">
+          <div class="articulos-lista">
+            <div class="articulo-item" *ngFor="let item of currentOrder.items">
+              <ion-checkbox [(ngModel)]="articulosSeleccionados[item.productId]"></ion-checkbox>
+              <div class="articulo-info">
+                <div class="articulo-nombre">{{ item.productName }}</div>
+                <div class="articulo-detalle">{{ item.quantity }} x {{ item.price | number:'1.2-2' }} € = {{ item.total
+                  | number:'1.2-2' }} €</div>
+              </div>
+            </div>
+          </div>
+          <div class="monto-persona" *ngIf="getTotalSeleccionado() !== currentOrder.total">
+            <strong>Total seleccionado: {{ getTotalSeleccionado() | number:'1.2-2' }} €</strong>
+          </div>
+        </div>
+
+        <div class="cobro-buttons">
+          <ion-button expand="block" color="success" (click)="confirmarCobro()" style="flex: 1;">
+            <ion-icon name="cash-outline" slot="start"></ion-icon>
+            Confirmar Cobro
+          </ion-button>
+          <ion-button expand="block" fill="outline" (click)="mostrarModalCobro = false" style="flex: 1;">
+            Cancelar
+          </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
 </ion-content>

@@ -29,7 +29,7 @@ $bg-gray: #f8f9fa;
 // COLUMNA 1: FAMILIAS (SIDEBAR IZQUIERDO)
 // ============================================
 .col-familias {
-  width: 200px;
+  width: 180px;
   background: $bg-gray;
   border-right: 1px solid $border;
   display: flex;
@@ -40,17 +40,11 @@ $bg-gray: #f8f9fa;
 .familias-header {
   padding: 16px;
   border-bottom: 1px solid $border;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   font-weight: 600;
   font-size: 0.85rem;
-  color: $text-dark;
-  
-  ion-icon {
-    font-size: 1.2rem;
-    color: $primary;
-  }
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $text-gray;
 }
 
 .familias-list {
@@ -62,7 +56,6 @@ $bg-gray: #f8f9fa;
 .familia-item {
   display: flex;
   align-items: center;
-  gap: 12px;
   width: 100%;
   padding: 12px 16px;
   background: transparent;
@@ -70,29 +63,18 @@ $bg-gray: #f8f9fa;
   cursor: pointer;
   transition: all 0.15s;
   font-size: 0.85rem;
+  font-weight: 500;
   color: $text-gray;
-  
-  ion-icon {
-    font-size: 1.2rem;
-    color: $text-gray;
-  }
+  text-align: left;
   
   &:hover {
     background: rgba($primary, 0.05);
     color: $primary;
-    
-    ion-icon {
-      color: $primary;
-    }
   }
   
   &.active {
     background: $primary;
     color: white;
-    
-    ion-icon {
-      color: white;
-    }
   }
 }
 
@@ -180,6 +162,7 @@ $bg-gray: #f8f9fa;
 .producto-btn {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding: 12px;
   background: white;
@@ -193,22 +176,6 @@ $bg-gray: #f8f9fa;
     transform: translateY(-2px);
     border-color: $primary;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  }
-  
-  .producto-icon {
-    width: 48px;
-    height: 48px;
-    background: #eef2ff;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    
-    ion-icon {
-      font-size: 24px;
-      color: $primary;
-    }
   }
   
   .producto-info {
@@ -489,33 +456,8 @@ $bg-gray: #f8f9fa;
     }
   }
   
-  .btn-edit {
-    background: #e8f0fe;
-    color: #1976d2;
-    
-    &:hover {
-      background: #1976d2;
-      color: white;
-    }
-  }
-  
   .btn-cash {
     background: linear-gradient(135deg, $success 0%, #20c997 100%);
-    color: white;
-  }
-  
-  .btn-print {
-    background: #e8f0fe;
-    color: #1976d2;
-    
-    &:hover {
-      background: #1976d2;
-      color: white;
-    }
-  }
-  
-  .btn-new {
-    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
     color: white;
   }
 }
@@ -554,7 +496,10 @@ $bg-gray: #f8f9fa;
     width: 70px;
   }
   
-  .familias-header span,
+  .familias-header span {
+    display: none;
+  }
+  
   .familia-item span {
     display: none;
   }
@@ -627,4 +572,110 @@ $bg-gray: #f8f9fa;
   &:hover {
     background: #94a3b8;
   }
+}
+
+// ============================================
+// ESTILOS ADICIONALES
+// ============================================
+
+.nuevo-badge {
+  display: inline-block;
+  background: $warning;
+  color: white;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 12px;
+  margin-left: 6px;
+  font-weight: 500;
+}
+
+// ============================================
+// ESTILOS MODAL DE COBRO
+// ============================================
+
+.total-cobro {
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, #e8f0fe 0%, #d4e4fc 100%);
+  border-radius: 12px;
+  
+  h2 {
+    margin: 0;
+    color: $success;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+}
+
+.monto-persona {
+  text-align: center;
+  padding: 10px;
+  background: $bg-gray;
+  border-radius: 8px;
+  margin: 12px 0;
+  
+  strong {
+    font-size: 0.9rem;
+    color: $primary;
+  }
+}
+
+.cobro-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+.articulos-lista {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 12px 0;
+  border: 1px solid $border;
+  border-radius: 8px;
+  background: white;
+}
+
+.articulo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid $border;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  ion-checkbox {
+    --size: 20px;
+    flex-shrink: 0;
+  }
+  
+  .articulo-info {
+    flex: 1;
+    
+    .articulo-nombre {
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: $text-dark;
+      margin-bottom: 2px;
+    }
+    
+    .articulo-detalle {
+      font-size: 0.6rem;
+      color: $text-gray;
+    }
+  }
+}
+
+ion-segment {
+  margin: 12px 0;
+}
+
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 8px;
 }
