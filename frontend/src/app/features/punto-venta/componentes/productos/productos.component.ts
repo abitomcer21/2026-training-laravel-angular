@@ -31,9 +31,9 @@ import {
   IonList,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { 
-  restaurantOutline, 
-  addOutline, 
+import {
+  restaurantOutline,
+  addOutline,
   removeOutline,
   searchOutline,
   removeCircleOutline,
@@ -119,20 +119,20 @@ export class ProductosComponent implements OnInit {
   productos: Product[] = [];
   productosOriginales: Product[] = [];
   productosPorFamilia: Map<string, Product[]> = new Map();
-  
+
   currentOrder: CurrentOrder = {
     table: null,
     user: null,
     items: [],
     total: 0,
   };
-  
+
   cargando = false;
   filtroNombre = '';
-  
+
   familias: { id: string; name: string }[] = [];
   familiaSeleccionada: string | null = null;
-  
+
   estadoPedido: EstadoPedido = 'editando';
   pedidoInicialEnviado = false;
   itemsEnviadosACocina: OrderItem[] = [];
@@ -157,9 +157,9 @@ export class ProductosComponent implements OnInit {
     private familyService: FamilyService,
     private toastController: ToastController
   ) {
-    addIcons({ 
-      restaurantOutline, 
-      addOutline, 
+    addIcons({
+      restaurantOutline,
+      addOutline,
       removeOutline,
       searchOutline,
       removeCircleOutline,
@@ -234,11 +234,11 @@ export class ProductosComponent implements OnInit {
     this.familyService.getFamilies().subscribe({
       next: (familiesResponse: any) => {
         let todasLasFamilias = familiesResponse?.Family || familiesResponse?.families || [];
-        
+
         const familiasDelRestaurant = todasLasFamilias.filter(
           (familia: any) => !restaurantId || familia.restaurant_id === restaurantId
         );
-        
+
         const familyMap = new Map<string, string>();
         familiasDelRestaurant.forEach((familia: any) => {
           const familyId = familia.id;
@@ -247,7 +247,7 @@ export class ProductosComponent implements OnInit {
             familyMap.set(familyId, familyName);
           }
         });
-        
+
         this.productosOriginales = this.productosOriginales.map(producto => {
           let familyName = 'Sin familia';
           if (producto.family_id && familyMap.has(producto.family_id)) {
@@ -258,7 +258,7 @@ export class ProductosComponent implements OnInit {
             family_name: familyName
           };
         });
-        
+
         this.productosPorFamilia.clear();
         this.productosOriginales.forEach(producto => {
           if (producto.family_id) {
@@ -268,12 +268,12 @@ export class ProductosComponent implements OnInit {
             this.productosPorFamilia.get(producto.family_id)!.push(producto);
           }
         });
-        
+
         this.familias = familiasDelRestaurant.map((familia: any) => ({
           id: familia.id,
           name: familia.name
         }));
-        
+
         if (this.familias.length > 0 && !this.familiaSeleccionada) {
           this.seleccionarFamilia(this.familias[0].id);
         }
@@ -299,16 +299,16 @@ export class ProductosComponent implements OnInit {
 
   aplicarFiltros() {
     if (!this.familiaSeleccionada) return;
-    
+
     let resultado = [...(this.productosPorFamilia.get(this.familiaSeleccionada) || [])];
-    
+
     if (this.filtroNombre && this.filtroNombre.trim()) {
       const termino = this.filtroNombre.toLowerCase().trim();
       resultado = resultado.filter(producto =>
         producto.name.toLowerCase().includes(termino)
       );
     }
-    
+
     this.productos = resultado;
   }
 
@@ -322,6 +322,11 @@ export class ProductosComponent implements OnInit {
         this.currentOrder = order;
         if (this.currentOrder.items.length === 0) {
           this.resetearEstadoPedido();
+        } else {
+          // Cargar estados adicionales del servicio
+          this.pedidoInicialEnviado = this.orderStateService.getPedidoInicialEnviadoValue();
+          this.itemsEnviadosACocina = this.orderStateService.getItemsEnviadosACocinaValue();
+          this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
         }
         this.calcularTotalesPendientes();
       }
@@ -352,7 +357,7 @@ export class ProductosComponent implements OnInit {
   calcularTotalesPendientes() {
     let pagado = 0;
     let porPagar = 0;
-    
+
     this.currentOrder.items.forEach(item => {
       if (this.articulosPagados[item.productId]) {
         pagado += item.total;
@@ -360,7 +365,7 @@ export class ProductosComponent implements OnInit {
         porPagar += item.total;
       }
     });
-    
+
     this.totalPagado = pagado;
     this.totalPorPagar = porPagar;
   }
@@ -370,7 +375,7 @@ export class ProductosComponent implements OnInit {
       this.mostrarToast('Selecciona una mesa y usuario primero', 'warning', 2000);
       return;
     }
-    
+
     const item: OrderItem = {
       productId: producto.id,
       productName: producto.name,
@@ -423,7 +428,7 @@ export class ProductosComponent implements OnInit {
       this.mostrarToast('No hay productos para limpiar', 'warning', 2000);
       return;
     }
-    
+
     this.orderStateService.clearOrder();
     this.resetearEstadoPedido();
     this.mostrarToast('Pedido limpiado correctamente', 'danger', 2000);
@@ -435,12 +440,15 @@ export class ProductosComponent implements OnInit {
       this.mostrarToast('No hay productos en el pedido', 'danger', 2000);
       return;
     }
-    
+
     if (!this.pedidoInicialEnviado) {
       this.itemsEnviadosACocina = [...this.currentOrder.items];
       this.pedidoInicialEnviado = true;
       this.estadoPedido = 'confirmado';
-      
+
+      // Guardar en el servicio
+      this.orderStateService.setPedidoInicialEnviado(true, this.itemsEnviadosACocina);
+
       const totalItems = this.currentOrder.items.reduce((sum, item) => sum + item.quantity, 0);
       this.mostrarToast(
         `Pedido enviado a cocina - Mesa: ${this.currentOrder.table?.name} - ${totalItems} productos`,
@@ -449,12 +457,12 @@ export class ProductosComponent implements OnInit {
       );
     } else {
       const nuevosItems: OrderItem[] = [];
-      
+
       this.currentOrder.items.forEach(item => {
         const itemEnviado = this.itemsEnviadosACocina.find(enviado => enviado.productId === item.productId);
-        
+
         if (!itemEnviado) {
-          nuevosItems.push({...item});
+          nuevosItems.push({ ...item });
         } else if (item.quantity > itemEnviado.quantity) {
           const diferencia = item.quantity - itemEnviado.quantity;
           nuevosItems.push({
@@ -464,14 +472,15 @@ export class ProductosComponent implements OnInit {
           });
         }
       });
-      
+
       if (nuevosItems.length === 0) {
         this.mostrarToast('No hay nuevos productos para enviar', 'warning', 2000);
         return;
       }
-      
+
       this.itemsEnviadosACocina = [...this.currentOrder.items];
-      
+      this.orderStateService.setPedidoInicialEnviado(true, this.itemsEnviadosACocina);
+
       const totalNuevos = nuevosItems.reduce((sum, item) => sum + item.quantity, 0);
       this.mostrarToast(
         `Nuevos productos enviados a cocina - Mesa: ${this.currentOrder.table?.name} - ${totalNuevos} productos añadidos`,
@@ -522,13 +531,12 @@ export class ProductosComponent implements OnInit {
       .filter(item => !this.articulosPagados[item.productId])
       .reduce((sum, item) => sum + item.total, 0);
   }
-
   confirmarCobro() {
     let mensaje = '';
     let totalCobrado = 0;
     let itemsCobrados: string[] = [];
-    
-    switch(this.tipoCobro) {
+
+    switch (this.tipoCobro) {
       case 'completo':
         totalCobrado = this.getTotalPendiente();
         this.currentOrder.items.forEach(item => {
@@ -538,7 +546,7 @@ export class ProductosComponent implements OnInit {
         });
         mensaje = `Cobro completado: ${totalCobrado.toFixed(2)} €`;
         break;
-        
+
       case 'dividir':
         totalCobrado = this.montoPorPersona * this.numeroComensales;
         this.currentOrder.items.forEach(item => {
@@ -548,7 +556,7 @@ export class ProductosComponent implements OnInit {
         });
         mensaje = `Cuenta dividida entre ${this.numeroComensales} personas. Cada una paga: ${this.montoPorPersona.toFixed(2)} €`;
         break;
-        
+
       case 'articulos':
         totalCobrado = this.getTotalSeleccionado();
         this.currentOrder.items.forEach(item => {
@@ -560,29 +568,51 @@ export class ProductosComponent implements OnInit {
         mensaje = `Cobro por artículos seleccionados: ${totalCobrado.toFixed(2)} €. Artículos pagados: ${itemsCobrados.length}`;
         break;
     }
-    
+
     this.calcularTotalesPendientes();
-    
+
+    // Guardar los pagos en el servicio
+    this.orderStateService.setArticulosPagados(this.articulosPagados);
+
     if (this.totalPorPagar === 0) {
       this.estadoPedido = 'cobrado';
     }
-    
+
     this.mostrarModalCobro = false;
     this.mostrarToast(mensaje, 'success', 4000);
-    
+
+    // Generar ticket y mostrarlo en modal
     this.ticketParaImprimir = this.generarTicket();
     this.mostrarModalTicket = true;
+
+    // NO redirigir aquí - solo mostrar el ticket
   }
 
   imprimirTicketDesdeModal() {
     this.mostrarToast('Ticket impreso correctamente', 'primary', 2000);
     this.mostrarModalTicket = false;
-    this.volverAMesas();
+
+    // SOLO redirigir si NO hay nada pendiente de pago
+    if (this.totalPorPagar === 0) {
+      this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
+      setTimeout(() => {
+        this.volverAMesas();
+      }, 1500);
+    } else {
+      this.mostrarToast(`Restan por pagar: ${this.totalPorPagar.toFixed(2)} €`, 'warning', 3000);
+    }
   }
 
   cerrarModalTicket() {
     this.mostrarModalTicket = false;
-    this.volverAMesas();
+
+    // SOLO redirigir si NO hay nada pendiente de pago
+    if (this.totalPorPagar === 0) {
+      this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
+      setTimeout(() => {
+        this.volverAMesas();
+      }, 1500);
+    }
   }
 
   nuevoPedido() {
@@ -602,7 +632,7 @@ export class ProductosComponent implements OnInit {
     ticket += '================================\n';
     ticket += 'Producto          Cant     Total\n';
     ticket += '--------------------------------\n';
-    
+
     this.currentOrder.items.forEach(item => {
       const nombre = item.productName.length > 15 ? item.productName.substring(0, 12) + '...' : item.productName;
       const enviado = this.itemsEnviadosACocina.some(e => e.productId === item.productId);
@@ -611,10 +641,10 @@ export class ProductosComponent implements OnInit {
       if (pagado) estado = ' PAGADO';
       else if (enviado) estado = ' EN COCINA';
       else estado = ' NUEVO';
-      
+
       ticket += `${nombre.padEnd(15)} ${item.quantity.toString().padStart(3)}     ${item.total.toFixed(2)} €${estado}\n`;
     });
-    
+
     ticket += '--------------------------------\n';
     if (this.totalPagado > 0) {
       ticket += `PAGADO: ${this.totalPagado.toFixed(2)} €\n`;
@@ -626,7 +656,7 @@ export class ProductosComponent implements OnInit {
     ticket += '================================\n';
     ticket += 'Gracias por su visita\n';
     ticket += '================================\n';
-    
+
     return ticket;
   }
 }
