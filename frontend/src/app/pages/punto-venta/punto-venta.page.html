@@ -23,10 +23,11 @@
   <ion-content class="tpv-content ion-padding">
     <div class="content-wrapper">
 
-      <!-- VISTA: PRODUCTOS -->
-      <app-productos *ngIf="currentView === 'productos'" />
       <!-- VISTA: MESAS -->
       <app-mesas *ngIf="currentView === 'mesas'" (vistaChange)="selectView($event)" />
+
+      <!-- VISTA: PRODUCTOS -->
+      <app-productos *ngIf="currentView === 'productos'" (cambiarVista)="selectView($event)" />
 
       <!-- VISTA: PEDIDOS -->
       <app-pedidos *ngIf="currentView === 'pedidos'" />

@@ -198,7 +198,6 @@
             <ion-label position="stacked">Número de comensales</ion-label>
             <ion-input type="number" [(ngModel)]="numeroComensales" (ionChange)="calcularMontoPorPersona()"></ion-input>
           </ion-item>
-
           <div class="monto-persona">
             <strong>Cada persona paga: {{ montoPorPersona | number:'1.2-2' }} €</strong>
           </div>
@@ -221,9 +220,7 @@
           <div class="monto-persona" *ngIf="getTotalSeleccionado() !== getTotalPendiente()">
             <strong>Total seleccionado: {{ getTotalSeleccionado() | number:'1.2-2' }} €</strong>
           </div>
-
         </div>
-
 
         <div class="cobro-buttons">
           <ion-button expand="block" color="success" (click)="confirmarCobro()" style="flex: 1;">

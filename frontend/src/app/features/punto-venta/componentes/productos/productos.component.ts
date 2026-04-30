@@ -137,21 +137,16 @@ export class ProductosComponent implements OnInit {
   pedidoInicialEnviado = false;
   itemsEnviadosACocina: OrderItem[] = [];
 
-  // Propiedades para el modal de cobro
   mostrarModalCobro = false;
   tipoCobro: 'completo' | 'dividir' | 'articulos' = 'completo';
   numeroComensales = 2;
   montoPorPersona = 0;
-  propina = 0;
-  comentario = '';
   articulosSeleccionados: { [key: string]: boolean } = {};
 
-  // Propiedades para pagos parciales
   articulosPagados: { [key: string]: boolean } = {};
   totalPagado = 0;
   totalPorPagar = 0;
 
-  // Propiedades para el modal de ticket
   mostrarModalTicket = false;
   ticketParaImprimir = '';
 
@@ -195,14 +190,13 @@ export class ProductosComponent implements OnInit {
       duration: duracion,
       position: 'top',
       color: color,
-      buttons: [
-        {
-          text: 'Cerrar',
-          role: 'cancel'
-        }
-      ]
+      buttons: [{ text: 'Cerrar', role: 'cancel' }]
     });
     await toast.present();
+  }
+
+  volverAMesas() {
+    this.cambiarVista.emit('mesas');
   }
 
   cargarProductos() {
@@ -433,6 +427,7 @@ export class ProductosComponent implements OnInit {
     this.orderStateService.clearOrder();
     this.resetearEstadoPedido();
     this.mostrarToast('Pedido limpiado correctamente', 'danger', 2000);
+    this.volverAMesas();
   }
 
   enviarACocina() {
@@ -491,21 +486,14 @@ export class ProductosComponent implements OnInit {
     this.mostrarToast('Modo edición activado', 'primary', 2000);
   }
 
-  // ============================================
-  // MÉTODOS DE COBRO
-  // ============================================
-  
   abrirModalCobro() {
     if (this.currentOrder.items.length === 0) {
       this.mostrarToast('No hay productos en el pedido', 'danger', 2000);
       return;
     }
-    // Inicializar selección de artículos (solo los no pagados)
     this.currentOrder.items.forEach(item => {
       this.articulosSeleccionados[item.productId] = !this.articulosPagados[item.productId];
     });
-    this.propina = 0;
-    this.comentario = '';
     this.numeroComensales = 2;
     this.tipoCobro = 'completo';
     this.calcularMontoPorPersona();
@@ -516,7 +504,7 @@ export class ProductosComponent implements OnInit {
     const totalPendiente = this.currentOrder.items
       .filter(item => !this.articulosPagados[item.productId])
       .reduce((sum, item) => sum + item.total, 0);
-    this.montoPorPersona = (totalPendiente + this.propina) / this.numeroComensales;
+    this.montoPorPersona = totalPendiente / this.numeroComensales;
   }
 
   getTotalSeleccionado(): number {
@@ -526,7 +514,7 @@ export class ProductosComponent implements OnInit {
         total += item.total;
       }
     });
-    return total + this.propina;
+    return total;
   }
 
   getTotalPendiente(): number {
@@ -542,46 +530,39 @@ export class ProductosComponent implements OnInit {
     
     switch(this.tipoCobro) {
       case 'completo':
-        totalCobrado = this.getTotalPendiente() + this.propina;
-        // Marcar todos los artículos pendientes como pagados
+        totalCobrado = this.getTotalPendiente();
         this.currentOrder.items.forEach(item => {
           if (!this.articulosPagados[item.productId]) {
             this.articulosPagados[item.productId] = true;
           }
         });
         mensaje = `Cobro completado: ${totalCobrado.toFixed(2)} €`;
-        if (this.comentario) mensaje += `\nComentario: ${this.comentario}`;
         break;
         
       case 'dividir':
         totalCobrado = this.montoPorPersona * this.numeroComensales;
-        // Marcar todos los artículos pendientes como pagados
         this.currentOrder.items.forEach(item => {
           if (!this.articulosPagados[item.productId]) {
             this.articulosPagados[item.productId] = true;
           }
         });
-        mensaje = `Cuenta dividida entre ${this.numeroComensales} personas.\nCada una paga: ${this.montoPorPersona.toFixed(2)} €`;
-        if (this.propina > 0) mensaje += `\nPropina incluida: ${this.propina.toFixed(2)} €`;
+        mensaje = `Cuenta dividida entre ${this.numeroComensales} personas. Cada una paga: ${this.montoPorPersona.toFixed(2)} €`;
         break;
         
       case 'articulos':
         totalCobrado = this.getTotalSeleccionado();
-        // Marcar solo los artículos seleccionados como pagados
         this.currentOrder.items.forEach(item => {
           if (this.articulosSeleccionados[item.productId] && !this.articulosPagados[item.productId]) {
             this.articulosPagados[item.productId] = true;
             itemsCobrados.push(item.productName);
           }
         });
-        mensaje = `Cobro por artículos seleccionados: ${totalCobrado.toFixed(2)} €\n`;
-        mensaje += `Artículos pagados: ${itemsCobrados.length}`;
+        mensaje = `Cobro por artículos seleccionados: ${totalCobrado.toFixed(2)} €. Artículos pagados: ${itemsCobrados.length}`;
         break;
     }
     
     this.calcularTotalesPendientes();
     
-    // Verificar si ya no hay nada pendiente
     if (this.totalPorPagar === 0) {
       this.estadoPedido = 'cobrado';
     }
@@ -589,47 +570,26 @@ export class ProductosComponent implements OnInit {
     this.mostrarModalCobro = false;
     this.mostrarToast(mensaje, 'success', 4000);
     
-    // Generar ticket y mostrarlo en modal
     this.ticketParaImprimir = this.generarTicket();
     this.mostrarModalTicket = true;
   }
 
   imprimirTicketDesdeModal() {
-    console.log('Imprimiendo ticket:', this.ticketParaImprimir);
     this.mostrarToast('Ticket impreso correctamente', 'primary', 2000);
     this.mostrarModalTicket = false;
-    
-    setTimeout(() => {
-      if (this.totalPorPagar === 0) {
-        this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
-        setTimeout(() => {
-          this.cambiarVista.emit('mesas');
-        }, 1500);
-      } else if (this.totalPorPagar > 0) {
-        this.mostrarToast(`Restan por pagar: ${this.totalPorPagar.toFixed(2)} €`, 'warning', 3000);
-      }
-    }, 500);
+    this.volverAMesas();
   }
 
   cerrarModalTicket() {
     this.mostrarModalTicket = false;
-    setTimeout(() => {
-      if (this.totalPorPagar === 0) {
-        this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
-        setTimeout(() => {
-          this.cambiarVista.emit('mesas');
-        }, 1500);
-      }
-    }, 500);
+    this.volverAMesas();
   }
 
   nuevoPedido() {
     this.orderStateService.clearOrder();
     this.resetearEstadoPedido();
     this.mostrarToast('Nuevo pedido listo para comenzar', 'success', 2000);
-    setTimeout(() => {
-      this.cambiarVista.emit('mesas');
-    }, 1500);
+    this.volverAMesas();
   }
 
   private generarTicket(): string {
@@ -648,9 +608,9 @@ export class ProductosComponent implements OnInit {
       const enviado = this.itemsEnviadosACocina.some(e => e.productId === item.productId);
       const pagado = this.articulosPagados[item.productId];
       let estado = '';
-      if (pagado) estado = ' ✓';
-      else if (enviado) estado = ' 📋';
-      else estado = ' +';
+      if (pagado) estado = ' PAGADO';
+      else if (enviado) estado = ' EN COCINA';
+      else estado = ' NUEVO';
       
       ticket += `${nombre.padEnd(15)} ${item.quantity.toString().padStart(3)}     ${item.total.toFixed(2)} €${estado}\n`;
     });
@@ -663,16 +623,8 @@ export class ProductosComponent implements OnInit {
       ticket += `PENDIENTE: ${this.totalPorPagar.toFixed(2)} €\n`;
     }
     ticket += `TOTAL: ${this.currentOrder.total.toFixed(2)} €\n`;
-    
-    if (this.propina > 0) {
-      ticket += `Propina: ${this.propina.toFixed(2)} €\n`;
-    }
-    if (this.comentario) {
-      ticket += `Comentario: ${this.comentario}\n`;
-    }
     ticket += '================================\n';
-    ticket += '✓ = Pagado  📋 = En cocina  + = Nuevo\n';
-    ticket += '¡Gracias por su visita!\n';
+    ticket += 'Gracias por su visita\n';
     ticket += '================================\n';
     
     return ticket;

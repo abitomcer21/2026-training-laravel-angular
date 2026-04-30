@@ -759,3 +759,78 @@ ion-item {
   margin-top: 8px;
   padding-top: 8px;
 }
+
+.pagado-badge {
+  display: inline-block;
+  background: $success;
+  color: white;
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 12px;
+  margin-left: 6px;
+  font-weight: 500;
+}
+
+.text-muted {
+  color: $text-gray !important;
+  text-decoration: line-through;
+}
+
+.text-danger {
+  color: $danger !important;
+}
+
+.text-success {
+  color: $success !important;
+}
+
+.total-general {
+  border-top: 1px solid $border;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.carrito-item.pagado {
+  opacity: 0.7;
+  background: #f0fdf0;
+  border-left: 3px solid $success;
+}
+
+.ticket-modal {
+  --width: 90%;
+  --max-width: 450px;
+  --height: auto;
+  --max-height: 80vh;
+  --border-radius: 16px;
+}
+
+.ticket-contenido {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.ticket-texto {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #1a1a2e;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ticket-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  
+  ion-button {
+    flex: 1;
+  }
+}
