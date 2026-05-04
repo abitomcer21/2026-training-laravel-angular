@@ -204,18 +204,6 @@ export class ProductosComponent implements OnInit {
       arrowBackOutline,
       documentTextOutline,
     });
-    
-    // Exponer método de debug en la consola para inspeccionar localStorage
-    (window as any).debugPedidos = () => {
-      console.log('📂 Llamando debugLocalStorage()...');
-      this.orderStateService.debugLocalStorage();
-    };
-    
-    // Exponer método de debug para ver estado de bloqueos
-    (window as any).debugBlockStatus = () => {
-      console.log('🔐 Llamando debugBlockStatus()...');
-      this.orderStateService.debugBlockStatus();
-    };
   }
 
   ngOnInit() {
@@ -235,21 +223,14 @@ export class ProductosComponent implements OnInit {
   }
 
   volverAMesas() {
-    console.log('\n🔙 [volverAMesas] Volviendo a mesas - limpiando estado local');
-    
     // Limpiar el estado local COMPLETO antes de volver
     this.resetearEstadoPedido();
-    console.log('✓ Estado local reseteado');
     
     // Invalidar cache para que MesasComponent cargue datos frescos
     this.tableService.invalidateTablesCache();
-    console.log('✓ Cache de mesas invalidado');
     
     // Emitir evento para cambiar de vista
     this.cambiarVista.emit('mesas');
-    console.log('✓ Evento cambiarVista emitido');
-    
-    console.log('✅ Listo para nueva mesa\n');
   }
 
   cargarProductos() {
