@@ -56,6 +56,7 @@ import {
 import { ProductService } from '../../../../services/api/product.service';
 import { FamilyService } from '../../../../services/api/family.service';
 import { TableService } from '../../../../services/api/table.service';
+import { TaxService } from '../../../../services/api/tax.service';
 import { OrderStateService, CurrentOrder, OrderItem } from '../../../../services/order-state.service';
 import { AuthService } from '../../../../services/auth/auth.service';
 
@@ -65,6 +66,7 @@ export interface Product {
   name: string;
   description?: string;
   price: number;
+  iva?: number;  // IVA en porcentaje
   family_id?: string;
   family_name?: string;
   image_src?: string;
@@ -157,12 +159,16 @@ export class ProductosComponent implements OnInit {
     return this.ticketParaImprimir$.value;
   }
 
+  // Mapa de tax_id -> porcentaje de IVA
+  taxMap: Map<string, number> = new Map();
+
   constructor(
     private productService: ProductService,
     private orderStateService: OrderStateService,
     private authService: AuthService,
     private familyService: FamilyService,
     private tableService: TableService,
+    private taxService: TaxService,
     private toastController: ToastController,
     private changeDetector: ChangeDetectorRef
   ) {
@@ -221,15 +227,84 @@ export class ProductosComponent implements OnInit {
       return;
     }
 
+    // Primero cargar los taxes para crear el mapa
+    this.taxService.getTaxes().subscribe({
+      next: (taxesResponse: any) => {
+        console.log('=== RESPUESTA CRUDA getTaxes() ===');
+        console.log('Tipo:', typeof taxesResponse);
+        console.log('Es array:', Array.isArray(taxesResponse));
+        console.log('Contenido completo:', taxesResponse);
+        console.log('Claves principales:', Object.keys(taxesResponse));
+        
+        // Intentar extraer de múltiples formas
+        let todosLosTaxes: any[] = [];
+        
+        if (Array.isArray(taxesResponse)) {
+          todosLosTaxes = taxesResponse;
+          console.log('✓ Era un array directamente');
+        } else if (taxesResponse.tax) {
+          todosLosTaxes = taxesResponse.tax;
+          console.log('✓ Extraído de response.tax');
+        } else if (taxesResponse.taxes) {
+          todosLosTaxes = taxesResponse.taxes;
+          console.log('✓ Extraído de response.taxes');
+        } else if (taxesResponse.Tax) {
+          todosLosTaxes = taxesResponse.Tax;
+          console.log('✓ Extraído de response.Tax');
+        } else if (taxesResponse.data) {
+          todosLosTaxes = taxesResponse.data;
+          console.log('✓ Extraído de response.data');
+        } else {
+          console.warn('✗ No se encontró lista de taxes en ninguna propiedad');
+          console.warn('Propiedades disponibles:', Object.keys(taxesResponse));
+        }
+        
+        console.log('Taxes finales:', todosLosTaxes);
+        console.log('Cantidad:', todosLosTaxes.length);
+        
+        // Crear el mapa de tax_id -> percentage
+        this.taxMap.clear();
+        todosLosTaxes.forEach((tax: any) => {
+          console.log(`Tax encontrado:`, tax);
+          this.taxMap.set(tax.id?.toString(), tax.percentage || 0);
+          if (tax.uuid) {
+            this.taxMap.set(tax.uuid?.toString(), tax.percentage || 0);
+          }
+        });
+        
+        console.log('Tax Map final:', Object.fromEntries(this.taxMap));
+        
+        // Ahora cargar los productos
+        this.cargarProductosConTaxes(restaurantId);
+      },
+      error: (error) => {
+        console.error('❌ Error al cargar taxes:', error);
+        this.cargando = false;
+      }
+    });
+  }
+
+  private cargarProductosConTaxes(restaurantId: string) {
     this.productService.getProducts().subscribe({
       next: (productsResponse: any) => {
         const todosLosProductos = productsResponse.products || [];
+        
         this.productosOriginales = todosLosProductos
           .filter((producto: any) => producto.restaurant_id === restaurantId)
-          .map((producto: any) => ({
-            ...producto,
-            price: producto.price / 100
-          }));
+          .map((producto: any) => {
+            // Usar el mapa para obtener el IVA del tax_id
+            const ivaFromMap = this.taxMap.get(producto.tax_id?.toString()) || 0;
+            
+            console.log(`Producto: "${producto.name}", tax_id: "${producto.tax_id}", IVA: ${ivaFromMap}%`);
+            
+            return {
+              ...producto,
+              price: producto.price / 100,
+              iva: ivaFromMap
+            };
+          });
+        
+        console.log('Productos con IVA mapeado:', this.productosOriginales.slice(0, 3));
         this.cargarFamilias(restaurantId);
         this.cargando = false;
       },
@@ -399,6 +474,7 @@ export class ProductosComponent implements OnInit {
       quantity: 1,
       price: producto.price,
       total: producto.price,
+      iva: producto.iva || 0,  // Incluir el IVA del producto
     };
 
     this.orderStateService.addItem(item);
@@ -711,7 +787,7 @@ export class ProductosComponent implements OnInit {
     // Asegurar que tenemos los datos más recientes
     const order = this.currentOrder || this.orderStateService.getCurrentOrderValue();
     const items = (order && order.items) ? order.items : [];
-    
+
     let ticket = '================================\n';
     ticket += '           RESTAURANTE\n';
     ticket += '================================\n';
@@ -719,26 +795,42 @@ export class ProductosComponent implements OnInit {
     ticket += `Usuario: ${order?.user?.name || 'N/A'}\n`;
     ticket += `Fecha: ${new Date().toLocaleString()}\n`;
     ticket += '================================\n';
-    ticket += 'Producto          Cant     Total\n';
+    ticket += 'Producto       Cant Precio IVA%\n';
     ticket += '--------------------------------\n';
+
+    let subtotalSinIva = 0;
+    let totalIva = 0;
 
     if (items && items.length > 0) {
       items.forEach(item => {
-        const nombre = item.productName.length > 15 ? item.productName.substring(0, 12) + '...' : item.productName;
-        ticket += `${nombre.padEnd(15)} ${item.quantity.toString().padStart(3)}     ${item.total.toFixed(2)} €\n`;
+        // Usar el IVA real del producto
+        const ivaRate = (item.iva || 0) / 100;  // Convertir porcentaje a decimal
+        
+        // Calcular desglose de IVA
+        const precioConIva = item.price;
+        const precioSinIva = ivaRate > 0 ? precioConIva / (1 + ivaRate) : precioConIva;
+        const ivaItem = precioConIva - precioSinIva;
+        
+        // Acumular totales
+        subtotalSinIva += precioSinIva * item.quantity;
+        totalIva += ivaItem * item.quantity;
+
+        const nombre = item.productName.length > 12 ? item.productName.substring(0, 11) + '.' : item.productName;
+        const ivaDisplay = (item.iva || 0).toString().padStart(3);
+        
+        // Formato alineado: Producto | Cant | Precio | IVA%
+        ticket += `${nombre.padEnd(12)} ${item.quantity.toString().padStart(2)}   ${precioConIva.toFixed(2).padStart(5)} ${ivaDisplay}%\n`;
       });
     } else {
       ticket += 'Sin items\n';
     }
 
+    const totalConIva = subtotalSinIva + totalIva;
+
     ticket += '--------------------------------\n';
-    if (this.totalPagado > 0) {
-      ticket += `PAGADO: ${this.totalPagado.toFixed(2)} €\n`;
-    }
-    if (this.totalPorPagar > 0) {
-      ticket += `PENDIENTE: ${this.totalPorPagar.toFixed(2)} €\n`;
-    }
-    ticket += `TOTAL: ${(order?.total || 0).toFixed(2)} €\n`;
+    ticket += `Subtotal: ${subtotalSinIva.toFixed(2).padStart(17)} €\n`;
+    ticket += `IVA:      ${totalIva.toFixed(2).padStart(17)} €\n`;
+    ticket += `TOTAL:    ${totalConIva.toFixed(2).padStart(17)} €\n`;
     ticket += '================================\n';
     ticket += 'Gracias por su visita\n';
     ticket += '================================\n';

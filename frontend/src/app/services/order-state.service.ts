@@ -9,6 +9,7 @@ export interface OrderItem {
   quantity: number;
   price: number;
   total: number;
+  iva?: number;  // IVA en porcentaje (10, 21, etc)
 }
 
 export interface CurrentOrder {
