@@ -240,7 +240,7 @@
     <div class="ticket-popup" (click)="$event.stopPropagation()">
       <div class="ticket-header">
         <h2>Ticket de Pedido</h2>
-        <button class="btn-close" (click)="cerrarModalTicket()">✕</button>
+        <button class="btn-close" (click)="cerrarModalTicket()" title="Cerrar">✕</button>
       </div>
       <div class="ticket-content">
         <pre class="ticket-texto">{{ ticketParaImprimir }}</pre>

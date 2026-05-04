@@ -725,14 +725,7 @@ export class ProductosComponent implements OnInit {
     if (items && items.length > 0) {
       items.forEach(item => {
         const nombre = item.productName.length > 15 ? item.productName.substring(0, 12) + '...' : item.productName;
-        const enviado = this.itemsEnviadosACocina && this.itemsEnviadosACocina.some(e => e.productId === item.productId);
-        const pagado = this.articulosPagados && this.articulosPagados[item.productId];
-        let estado = '';
-        if (pagado) estado = ' PAGADO';
-        else if (enviado) estado = ' EN COCINA';
-        else estado = ' NUEVO';
-
-        ticket += `${nombre.padEnd(15)} ${item.quantity.toString().padStart(3)}     ${item.total.toFixed(2)} €${estado}\n`;
+        ticket += `${nombre.padEnd(15)} ${item.quantity.toString().padStart(3)}     ${item.total.toFixed(2)} €\n`;
       });
     } else {
       ticket += 'Sin items\n';
