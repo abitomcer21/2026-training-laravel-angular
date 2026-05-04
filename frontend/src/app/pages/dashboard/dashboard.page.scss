@@ -597,6 +597,54 @@ ion-content > div > .dashboard-grid {
 }
 
 /* ========================================== */
+/* BOTONES DEL HEADER                        */
+/* ========================================== */
+
+.tpv-button {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --color: white;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.tpv-button:hover {
+  --color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.tpv-button ion-icon {
+  font-size: 24px;
+}
+
+.tpv-text {
+  margin-left: 6px;
+  font-size: 0.95rem;
+}
+
+.logout-button {
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --color: #dc2626;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.logout-button:hover {
+  --color: #b91c1c;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.logout-button ion-icon {
+  font-size: 24px;
+}
+
+.logout-text {
+  margin-left: 6px;
+  font-size: 0.95rem;
+}
+
+/* ========================================== */
 /* RESPONSIVE STYLES                         */
 /* ========================================== */
 

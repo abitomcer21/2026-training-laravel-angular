@@ -10,6 +10,7 @@ export interface Table {
   name: string;
   zone_id: number | string;
   restaurant_id: number;
+  status?: 'available' | 'occupied';
   created_at?: string;
   updated_at?: string;
 }
@@ -22,6 +23,7 @@ export interface TableCreateRequest {
 
 export interface TableUpdateRequest {
   name: string;
+  status?: 'available' | 'occupied';
 }
 
 @Injectable({

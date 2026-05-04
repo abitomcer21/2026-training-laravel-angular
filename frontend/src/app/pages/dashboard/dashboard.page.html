@@ -1,6 +1,12 @@
 <!-- src/app/pages/dashboard/dashboard.page.html -->
 <ion-header>
   <ion-toolbar class="main-toolbar">
+    <ion-buttons slot="start">
+      <ion-button (click)="irAlTPV()" class="tpv-button">
+        <ion-icon name="restaurant-outline" slot="icon-only"></ion-icon>
+        <ion-label class="tpv-text">TPV</ion-label>
+      </ion-button>
+    </ion-buttons>
     <ion-title>{{ restaurantName }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="cerrarSesion()" class="logout-button">

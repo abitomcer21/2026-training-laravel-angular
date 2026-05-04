@@ -10,7 +10,7 @@ export type HttpMethod = 'get' | 'post' | 'patch' | 'put' | 'delete';
 })
 export abstract class BaseApiService {
 
-  protected apiUrl: string = environment.apiUrl;
+  protected apiUrl: string;
 
   public http: HttpClient;
 
@@ -18,6 +18,13 @@ export abstract class BaseApiService {
     protected injector: Injector
   ) {
     this.http = this.injector.get<HttpClient>(HttpClient);
+    // Asegurar que apiUrl siempre tiene un valor válido
+    this.apiUrl = environment.apiUrl || 'http://localhost:8000/api';
+    
+    if (!this.apiUrl || this.apiUrl.trim() === '') {
+      console.error('API URL no está configurada correctamente en environment');
+      this.apiUrl = 'http://localhost:8000/api';
+    }
   }
 
 
@@ -35,6 +42,12 @@ export abstract class BaseApiService {
    *
    */
   makeHttpCall(endpoint: string, params: any = null, method: HttpMethod): Observable<ApiResponse> {
+    // Validar que endpoint sea válido
+    if (!endpoint || endpoint.trim() === '') {
+      console.error('Endpoint no es válido:', endpoint);
+      return throwError(() => new Error('Endpoint no válido'));
+    }
+
     switch (method) {
       case 'get':
         return this.getHttpCall(endpoint, params);

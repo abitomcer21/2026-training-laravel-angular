@@ -1,6 +1,8 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   IonIcon,
   IonLoading,
@@ -43,7 +45,9 @@ import { ZoneService, Zone } from '../../../../services/api/zone.service';
     IonItem,
   ],
 })
-export class MesasComponent implements OnInit {
+export class MesasComponent implements OnInit, OnDestroy {
+  mostrarModalComensales = false;
+  cantidadComensalesIngresada = '';
   @Output() vistaChange = new EventEmitter<string>();
 
   mesas: Table[] = [];
@@ -57,6 +61,8 @@ export class MesasComponent implements OnInit {
   pinIngresado = '';
   mensajeError = '';
   zonaSeleccionada: Zone | null = null;
+  
+  private destroy$ = new Subject<void>();
 
   constructor(
     private tableService: TableService,
@@ -64,14 +70,38 @@ export class MesasComponent implements OnInit {
     private orderStateService: OrderStateService,
     private authService: AuthService,
     private zoneService: ZoneService,
+    private changeDetector: ChangeDetectorRef,
   ) {
     addIcons({ gridOutline, closeOutline, arrowBackOutline, arrowForwardOutline, backspaceOutline });
   }
 
   ngOnInit() {
+    // Cargar datos iniciales
+    this.tableService.invalidateTablesCache();
     this.cargarZonas();
     this.cargarMesas();
     this.cargarUsuarios();
+    
+    // Suscribirse a cambios en pedidos activos para actualizar colores
+    // (NO recargamos las mesas completas, solo forzamos detección de cambios)
+    this.orderStateService.getActiveOrdersChanged()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        // Solo forzar que Angular recalcule los bindings, sin recargar datos del servidor
+        this.changeDetector.markForCheck();
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  refrescarMesas() {
+    // Recargar las mesas (se llama cuando se vuelve desde productos)
+    // Forzar que se recalcule el estado de ocupación de todas las mesas
+    this.tableService.invalidateTablesCache();
+    this.cargarMesas();
   }
 
   cargarZonas() {
@@ -137,12 +167,23 @@ export class MesasComponent implements OnInit {
   cargarUsuarios() {
     this.userService.getUsers().subscribe({
       next: (response: any) => {
-        this.usuarios = response.users || [];
+        // Filtrar usuarios para excluir 'admin' y 'restaurante'
+        const allUsers = response.users || [];
+        this.usuarios = allUsers.filter((u: any) => u.role !== 'restaurante' && u.role !== 'admin');
       },
       error: (error) => {
         console.error('Error al cargar usuarios:', error);
       },
     });
+  }
+
+  isTableOccupied(table: Table): boolean {
+    const occupied = this.orderStateService.hasActiveOrderForTable(table.id);
+    return occupied;
+  }
+
+  trackByMesa(index: number, mesa: Table): string {
+    return mesa.uuid;
   }
 
   seleccionarMesa(mesa: Table) {
@@ -164,11 +205,42 @@ export class MesasComponent implements OnInit {
       return;
     }
 
-    if (this.selectedTable && this.selectedUser) {
-      this.orderStateService.setTableAndUser(this.selectedTable, this.selectedUser);
+    if (!this.selectedTable || !this.selectedUser) {
+      this.mensajeError = 'Error: selecciona mesa y usuario';
+      return;
     }
 
-    this.mostrarModalPin = false;
+    // Verificar si ya existe un pedido CON ITEMS SIN PAGAR para esta mesa+usuario
+    const hasUnpaidItems = this.orderStateService.hasUnpaidItemsForTableAndUser(
+      this.selectedTable.id,
+      this.selectedUser.id
+    );
+
+    if (hasUnpaidItems) {
+      // Mesa ya está ocupada con un pedido en progreso - restaurar ese pedido
+      this.orderStateService.setTableAndUser(this.selectedTable, this.selectedUser);
+      this.mostrarModalPin = false;
+      this.vistaChange.emit('productos');
+    } else {
+      // Mesa es nueva o totalmente pagada - pedir comensales
+      this.mostrarModalPin = false;
+      this.mostrarModalComensales = true;
+      this.cantidadComensalesIngresada = '';
+    }
+  }
+
+  confirmarComensales() {
+    if (!this.cantidadComensalesIngresada || parseInt(this.cantidadComensalesIngresada) < 1) {
+      return;
+    }
+    if (!this.selectedTable || !this.selectedUser) {
+      return;
+    }
+
+    // Inicializar el pedido para marcar la mesa como en uso (aunque no haya items aún)
+    this.orderStateService.initializeTableOrder(this.selectedTable, this.selectedUser);
+    
+    this.mostrarModalComensales = false;
     this.vistaChange.emit('productos');
   }
 
@@ -181,6 +253,16 @@ export class MesasComponent implements OnInit {
 
   borrarDigito() {
     this.pinIngresado = this.pinIngresado.slice(0, -1);
+  }
+
+  agregarDigitoComensales(digito: string) {
+    if (this.cantidadComensalesIngresada.length < 2) {
+      this.cantidadComensalesIngresada += digito;
+    }
+  }
+
+  borrarDigitoComensales() {
+    this.cantidadComensalesIngresada = this.cantidadComensalesIngresada.slice(0, -1);
   }
 
   seleccionarUsuario(usuario: User) {
@@ -213,7 +295,4 @@ export class MesasComponent implements OnInit {
     this.mensajeError = '';
   }
 
-  trackByMesa(index: number, mesa: Table): string {
-    return mesa.uuid;
-  }
 }

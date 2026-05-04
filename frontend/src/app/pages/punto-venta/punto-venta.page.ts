@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -38,6 +38,8 @@ interface MenuItem {
   ]
 })
 export class PuntoVentaPage implements OnInit {
+  @ViewChild(MesasComponent) mesasComponent?: MesasComponent;
+
   currentView: string = 'mesas';
   restaurantName: string = 'Restaurante';
 
@@ -76,6 +78,13 @@ export class PuntoVentaPage implements OnInit {
 
   selectView(valor: string) {
     this.currentView = valor;
+    
+    // Refrescar mesas cuando se cambia a esa vista
+    if (valor === 'mesas' && this.mesasComponent) {
+      setTimeout(() => {
+        this.mesasComponent?.refrescarMesas();
+      }, 0);
+    }
   }
 
   logout() {

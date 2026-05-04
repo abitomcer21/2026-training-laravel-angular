@@ -236,29 +236,33 @@
   </ion-modal>
 
   <!-- MODAL DE TICKET -->
-  <ion-modal [isOpen]="mostrarModalTicket" (willDismiss)="cerrarModalTicket()" class="ticket-modal">
+  <ion-modal [isOpen]="mostrarModalTicket" (didDismiss)="cerrarModalTicket()" class="ticket-modal">
     <ng-template>
       <ion-header>
-        <ion-toolbar>
+        <ion-toolbar color="primary">
           <ion-title>Ticket de Pedido</ion-title>
           <ion-buttons slot="end">
-            <ion-button (click)="cerrarModalTicket()">Cerrar</ion-button>
+            <ion-button (click)="cerrarModalTicket()">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
-      <ion-content class="ion-padding">
-        <div class="ticket-contenido">
-          <pre class="ticket-texto">{{ ticketParaImprimir }}</pre>
-        </div>
-        
-        <div class="ticket-buttons">
-          <ion-button expand="block" color="primary" (click)="imprimirTicketDesdeModal()">
-            <ion-icon name="print-outline" slot="start"></ion-icon>
-            Imprimir Ticket
-          </ion-button>
-          <ion-button expand="block" fill="outline" (click)="cerrarModalTicket()">
-            Cerrar
-          </ion-button>
+      <ion-content>
+        <div class="ticket-wrapper">
+          <div class="ticket-box">
+            <pre class="ticket-texto">{{ ticketParaImprimir }}</pre>
+          </div>
+          
+          <div class="ticket-footer">
+            <ion-button expand="block" color="primary" (click)="imprimirTicketDesdeModal()" class="btn-imprimir">
+              <ion-icon name="print-outline" slot="start"></ion-icon>
+              Imprimir Ticket
+            </ion-button>
+            <ion-button expand="block" fill="outline" color="medium" (click)="cerrarModalTicket()" class="btn-cerrar">
+              Cerrar
+            </ion-button>
+          </div>
         </div>
       </ion-content>
     </ng-template>

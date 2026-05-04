@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons,
   IonButton, IonIcon, IonLabel
@@ -55,7 +56,8 @@ export class DashboardPage implements OnInit {
 
   constructor(
     private restaurantService: RestaurantService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     addIcons({
       logOutOutline, restaurantOutline, peopleOutline,
@@ -82,6 +84,10 @@ export class DashboardPage implements OnInit {
 
   seleccionarOpcion(valor: string) {
     this.opcionSeleccionada = valor;
+  }
+
+  irAlTPV() {
+    this.router.navigate(['/point-of-sale']);
   }
 
   cerrarSesion() {

@@ -51,6 +51,9 @@ export class OrderStateService {
   private pedidoInicialEnviado$ = new BehaviorSubject<boolean>(false);
   private itemsEnviadosACocina$ = new BehaviorSubject<OrderItem[]>([]);
   private articulosPagados$ = new BehaviorSubject<{ [key: string]: boolean }>({});
+  
+  // Subject para notificar cambios en el estado de mesas
+  private activeOrdersChanged$ = new BehaviorSubject<void>(undefined);
 
   constructor() {
     this.loadFromStorage();
@@ -67,6 +70,10 @@ export class OrderStateService {
 
   getArticulosPagados(): Observable<{ [key: string]: boolean }> {
     return this.articulosPagados$.asObservable();
+  }
+
+  getActiveOrdersChanged(): Observable<void> {
+    return this.activeOrdersChanged$.asObservable();
   }
 
   getCurrentOrder(): Observable<CurrentOrder> {
@@ -95,7 +102,7 @@ export class OrderStateService {
     const savedState = this.loadStateFromStorage(key);
     
     if (savedState) {
-      // Cargar estado guardado
+      // Cargar estado guardado (no guardar de nuevo, solo cargar)
       this.currentOrder$.next(savedState.order);
       this.pedidoInicialEnviado = savedState.pedidoInicialEnviado;
       this.itemsEnviadosACocina = savedState.itemsEnviadosACocina;
@@ -103,7 +110,7 @@ export class OrderStateService {
       this.totalPagado = savedState.totalPagado;
       this.totalPorPagar = savedState.totalPorPagar;
     } else {
-      // Nuevo pedido
+      // Nuevo pedido (no se ha iniciado aún)
       const order = { ...this.initialState, table, user };
       this.currentOrder$.next(order);
       this.pedidoInicialEnviado = false;
@@ -117,7 +124,25 @@ export class OrderStateService {
     this.pedidoInicialEnviado$.next(this.pedidoInicialEnviado);
     this.itemsEnviadosACocina$.next(this.itemsEnviadosACocina);
     this.articulosPagados$.next(this.articulosPagados);
+  }
+
+  initializeTableOrder(table: Table, user: User): void {
+    // Inicializar un pedido para una mesa (se guarda incluso sin items)
+    const key = `${table.id}_${user.id}`;
+    const order = { ...this.initialState, table, user };
+    this.currentOrder$.next(order);
+    this.pedidoInicialEnviado = false;
+    this.itemsEnviadosACocina = [];
+    this.articulosPagados = {};
+    this.totalPagado = 0;
+    this.totalPorPagar = 0;
     
+    // Emitir los estados adicionales
+    this.pedidoInicialEnviado$.next(false);
+    this.itemsEnviadosACocina$.next([]);
+    this.articulosPagados$.next({});
+    
+    // Guardar el estado inicial (marca la mesa como en uso)
     this.saveCurrentStateToStorage(key);
   }
 
@@ -163,6 +188,12 @@ export class OrderStateService {
   }
 
   clearOrder(): void {
+    // Guardar la clave antes de resetear (para borrar de localStorage)
+    if (this.currentOrder$.value.table && this.currentOrder$.value.user) {
+      const key = `${this.currentOrder$.value.table.id}_${this.currentOrder$.value.user.id}`;
+      localStorage.removeItem(`pedido_${key}`);
+    }
+
     this.currentOrder$.next(this.initialState);
     this.pedidoInicialEnviado = false;
     this.itemsEnviadosACocina = [];
@@ -174,8 +205,44 @@ export class OrderStateService {
     this.itemsEnviadosACocina$.next([]);
     this.articulosPagados$.next({});
     
-    this.saveCurrentState();
+    // Notificar inmediatamente
+    this.activeOrdersChanged$.next();
+    
+    // Y notificar de nuevo tras un breve delay para asegurar que localStorage está libre
+    setTimeout(() => {
+      this.activeOrdersChanged$.next();
+    }, 100);
   }
+
+  clearTableOrder(tableId: string, userId: string | number): void {
+    // Limpiar pedido específico de una mesa+usuario
+    const key = `${tableId}_${userId}`;
+    localStorage.removeItem(`pedido_${key}`);
+    
+    // Si es el pedido actual, también limpiar el estado
+    if (this.currentOrder$.value.table?.id === tableId && 
+        this.currentOrder$.value.user?.id === userId) {
+      this.currentOrder$.next(this.initialState);
+      this.pedidoInicialEnviado = false;
+      this.itemsEnviadosACocina = [];
+      this.articulosPagados = {};
+      this.totalPagado = 0;
+      this.totalPorPagar = 0;
+      
+      this.pedidoInicialEnviado$.next(false);
+      this.itemsEnviadosACocina$.next([]);
+      this.articulosPagados$.next({});
+    }
+    
+    // Notificar inmediatamente
+    this.activeOrdersChanged$.next();
+    
+    // Y notificar de nuevo tras un breve delay para asegurar que localStorage está libre
+    setTimeout(() => {
+      this.activeOrdersChanged$.next();
+    }, 100);
+  }
+
 
   setPedidoInicialEnviado(enviado: boolean, itemsEnviados?: OrderItem[]): void {
     this.pedidoInicialEnviado = enviado;
@@ -203,6 +270,53 @@ export class OrderStateService {
 
   getTotalesPendientes(): { totalPagado: number; totalPorPagar: number } {
     return { totalPagado: this.totalPagado, totalPorPagar: this.totalPorPagar };
+  }
+
+  hasOrderForTableAndUser(tableId: string, userId: string | number): boolean {
+    const key = `${tableId}_${userId}`;
+    const stored = localStorage.getItem(`pedido_${key}`);
+    return stored !== null;
+  }
+
+  hasUnpaidItemsForTableAndUser(tableId: string, userId: string | number): boolean {
+    const key = `${tableId}_${userId}`;
+    const savedState = this.loadStateFromStorage(key);
+    
+    // Una mesa está ocupada si tiene un pedido activo (con items sin pagar)
+    return savedState !== null && savedState.totalPorPagar > 0;
+  }
+
+  hasActiveOrderForTableAndUser(tableId: string, userId: string | number): boolean {
+    const key = `${tableId}_${userId}`;
+    const savedState = this.loadStateFromStorage(key);
+    
+    // Una mesa tiene un pedido activo si existe en localStorage (incluso sin items)
+    return savedState !== null;
+  }
+
+  hasActiveOrderForTable(tableId: string): boolean {
+    // Verificar si existe ALGÚN pedido para esta mesa directamente en localStorage
+    const prefix = `pedido_${tableId}_`;
+    
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix)) {
+          const stored = localStorage.getItem(key);
+          if (stored) {
+            const state = JSON.parse(stored) as EstadoPedidoCompleto;
+            // Una mesa está realmente ocupada si tiene items sin pagar O si acaba de ser inicializada (totalPorPagar es 0 pero existe)
+            // Para ser más robustos, si el objeto existe, la consideramos OCUPADA.
+            // Solo deja de estar ocupada cuando el registro se ELIMINA de localStorage.
+            return true;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error checking active orders:', e);
+    }
+    
+    return false;
   }
 
   private calcularTotalesPendientes(): void {
@@ -244,6 +358,9 @@ export class OrderStateService {
       totalPorPagar: this.totalPorPagar
     };
     localStorage.setItem(`pedido_${key}`, JSON.stringify(estadoCompleto));
+    
+    // Notificar inmediatamente
+    this.activeOrdersChanged$.next();
   }
 
   private loadStateFromStorage(key: string): EstadoPedidoCompleto | null {

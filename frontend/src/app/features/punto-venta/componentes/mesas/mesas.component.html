@@ -23,7 +23,15 @@
   </div>
 
   <div class="mesas-grid">
-    <div *ngFor="let mesa of mesasFiltradas; trackBy: trackByMesa" class="mesa-card" (click)="seleccionarMesa(mesa)">
+    <div *ngFor="let mesa of mesasFiltradas; trackBy: trackByMesa" 
+      class="mesa-card" 
+      [class.occupied]="isTableOccupied(mesa)"
+      [class.available]="!isTableOccupied(mesa)"
+      (click)="seleccionarMesa(mesa)">
+      <div class="mesa-status-indicator" 
+        [class.occupied]="isTableOccupied(mesa)"
+        [title]="isTableOccupied(mesa) ? 'Ocupada' : 'Disponible'">
+      </div>
       <ion-icon name="grid-outline"></ion-icon>
       <h3>{{ mesa.name }}</h3>
     </div>
@@ -88,6 +96,41 @@
           <!-- Mensaje de error -->
           <div *ngIf="mensajeError" class="error-message">
             {{ mensajeError }}
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal de comensales -->
+  <ion-modal [isOpen]="mostrarModalComensales" class="comensales-modal">
+    <ng-template>
+      <ion-content class="ion-padding">
+        <div class="comensales-header">
+          <h2>¿Cuántos comensales hay en la mesa?</h2>
+        </div>
+
+        <!-- Display del número de comensales -->
+        <div class="comensales-display">
+          <input type="text" [value]="cantidadComensalesIngresada" class="comensales-input" readonly placeholder="0" />
+        </div>
+
+        <!-- Teclado numérico -->
+        <div class="numeric-keyboard">
+          <div class="keyboard-row" *ngFor="let row of [0, 1, 2]">
+            <button *ngFor="let num of getKeyboardNumbers(row)" class="key-button"
+              (click)="agregarDigitoComensales(num.toString())" [disabled]="cantidadComensalesIngresada.length >= 2">
+              {{ num }}
+            </button>
+          </div>
+          <div class="keyboard-row keyboard-actions">
+            <button class="key-button back-arrow-btn" (click)="borrarDigitoComensales()">
+              <ion-icon name="backspace-outline"></ion-icon>
+            </button>
+            <button class="key-button" (click)="agregarDigitoComensales('0')" [disabled]="cantidadComensalesIngresada.length >= 2">0</button>
+            <button class="key-button forward-arrow-btn" (click)="confirmarComensales()" [disabled]="!cantidadComensalesIngresada">
+              <ion-icon name="arrow-forward-outline"></ion-icon>
+            </button>
           </div>
         </div>
       </ion-content>

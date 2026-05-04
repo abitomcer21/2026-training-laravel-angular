@@ -31,3 +31,4 @@ class UpdateTable
         return UpdateTableResponse::create($table);
     }
 }
+

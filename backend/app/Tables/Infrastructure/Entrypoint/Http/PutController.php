@@ -33,3 +33,4 @@ class PutController
         return new JsonResponse($response->toArray(), 200);
     }
 }
+

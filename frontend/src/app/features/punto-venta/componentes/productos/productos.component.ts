@@ -49,12 +49,14 @@ import {
   closeCircleOutline,
   printOutline,
   cashOutline,
-  arrowBackOutline
+  arrowBackOutline,
 } from 'ionicons/icons';
+
 import { ProductService } from '../../../../services/api/product.service';
+import { FamilyService } from '../../../../services/api/family.service';
+import { TableService } from '../../../../services/api/table.service';
 import { OrderStateService, CurrentOrder, OrderItem } from '../../../../services/order-state.service';
 import { AuthService } from '../../../../services/auth/auth.service';
-import { FamilyService } from '../../../../services/api/family.service';
 
 export interface Product {
   id: string;
@@ -155,6 +157,7 @@ export class ProductosComponent implements OnInit {
     private orderStateService: OrderStateService,
     private authService: AuthService,
     private familyService: FamilyService,
+    private tableService: TableService,
     private toastController: ToastController
   ) {
     addIcons({
@@ -196,6 +199,8 @@ export class ProductosComponent implements OnInit {
   }
 
   volverAMesas() {
+    // Invalidar cache para que MesasComponent cargue datos frescos
+    this.tableService.invalidateTablesCache();
     this.cambiarVista.emit('mesas');
   }
 
@@ -429,9 +434,15 @@ export class ProductosComponent implements OnInit {
       return;
     }
 
-    this.orderStateService.clearOrder();
+    // Limpiar el pedido específico de esta mesa+usuario
+    if (this.currentOrder.table && this.currentOrder.user) {
+      this.orderStateService.clearTableOrder(this.currentOrder.table.id, this.currentOrder.user.id);
+    } else {
+      this.orderStateService.clearOrder();
+    }
+    
     this.resetearEstadoPedido();
-    this.mostrarToast('Pedido limpiado correctamente', 'danger', 2000);
+    this.mostrarToast('Mesa limpiada y disponible', 'danger', 2000);
     this.volverAMesas();
   }
 
@@ -581,21 +592,35 @@ export class ProductosComponent implements OnInit {
     this.mostrarModalCobro = false;
     this.mostrarToast(mensaje, 'success', 4000);
 
-    // Generar ticket y mostrarlo en modal
-    this.ticketParaImprimir = this.generarTicket();
-    this.mostrarModalTicket = true;
-
-    // NO redirigir aquí - solo mostrar el ticket
+    // Generar ticket y mostrarlo en modal - con pequeño delay para asegurar que el modal anterior se cierre
+    setTimeout(() => {
+      // Forzar a cargar los datos actuales del servicio
+      this.pedidoInicialEnviado = this.orderStateService.getPedidoInicialEnviadoValue();
+      this.itemsEnviadosACocina = this.orderStateService.getItemsEnviadosACocinaValue();
+      this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
+      
+      this.ticketParaImprimir = this.generarTicket();
+      this.mostrarModalTicket = true;
+    }, 300);
   }
 
   imprimirTicketDesdeModal() {
     this.mostrarToast('Ticket impreso correctamente', 'primary', 2000);
     this.mostrarModalTicket = false;
 
-    // SOLO redirigir si NO hay nada pendiente de pago
+    // Sincronizar datos actuales
+    this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
+    this.calcularTotalesPendientes();
+
     if (this.totalPorPagar === 0) {
       this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
       setTimeout(() => {
+        if (this.currentOrder.table && this.currentOrder.user) {
+          this.orderStateService.clearTableOrder(this.currentOrder.table.id, this.currentOrder.user.id);
+        } else {
+          this.orderStateService.clearOrder();
+        }
+        this.resetearEstadoPedido();
         this.volverAMesas();
       }, 1500);
     } else {
@@ -606,44 +631,64 @@ export class ProductosComponent implements OnInit {
   cerrarModalTicket() {
     this.mostrarModalTicket = false;
 
+    // Sincronizar datos actuales
+    this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
+    this.calcularTotalesPendientes();
+
     // SOLO redirigir si NO hay nada pendiente de pago
     if (this.totalPorPagar === 0) {
       this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
       setTimeout(() => {
+        if (this.currentOrder.table && this.currentOrder.user) {
+          this.orderStateService.clearTableOrder(this.currentOrder.table.id, this.currentOrder.user.id);
+        } else {
+          this.orderStateService.clearOrder();
+        }
+        this.resetearEstadoPedido();
         this.volverAMesas();
       }, 1500);
     }
   }
 
   nuevoPedido() {
-    this.orderStateService.clearOrder();
+    if (this.currentOrder.table && this.currentOrder.user) {
+      this.orderStateService.clearTableOrder(this.currentOrder.table.id, this.currentOrder.user.id);
+    } else {
+      this.orderStateService.clearOrder();
+    }
     this.resetearEstadoPedido();
     this.mostrarToast('Nuevo pedido listo para comenzar', 'success', 2000);
     this.volverAMesas();
   }
 
+
+
   private generarTicket(): string {
     let ticket = '================================\n';
     ticket += '           RESTAURANTE\n';
     ticket += '================================\n';
-    ticket += `Mesa: ${this.currentOrder.table?.name}\n`;
-    ticket += `Usuario: ${this.currentOrder.user?.name}\n`;
+    ticket += `Mesa: ${this.currentOrder.table?.name || 'N/A'}\n`;
+    ticket += `Usuario: ${this.currentOrder.user?.name || 'N/A'}\n`;
     ticket += `Fecha: ${new Date().toLocaleString()}\n`;
     ticket += '================================\n';
     ticket += 'Producto          Cant     Total\n';
     ticket += '--------------------------------\n';
 
-    this.currentOrder.items.forEach(item => {
-      const nombre = item.productName.length > 15 ? item.productName.substring(0, 12) + '...' : item.productName;
-      const enviado = this.itemsEnviadosACocina.some(e => e.productId === item.productId);
-      const pagado = this.articulosPagados[item.productId];
-      let estado = '';
-      if (pagado) estado = ' PAGADO';
-      else if (enviado) estado = ' EN COCINA';
-      else estado = ' NUEVO';
+    if (this.currentOrder.items && this.currentOrder.items.length > 0) {
+      this.currentOrder.items.forEach(item => {
+        const nombre = item.productName.length > 15 ? item.productName.substring(0, 12) + '...' : item.productName;
+        const enviado = this.itemsEnviadosACocina && this.itemsEnviadosACocina.some(e => e.productId === item.productId);
+        const pagado = this.articulosPagados && this.articulosPagados[item.productId];
+        let estado = '';
+        if (pagado) estado = ' PAGADO';
+        else if (enviado) estado = ' EN COCINA';
+        else estado = ' NUEVO';
 
-      ticket += `${nombre.padEnd(15)} ${item.quantity.toString().padStart(3)}     ${item.total.toFixed(2)} €${estado}\n`;
-    });
+        ticket += `${nombre.padEnd(15)} ${item.quantity.toString().padStart(3)}     ${item.total.toFixed(2)} €${estado}\n`;
+      });
+    } else {
+      ticket += 'Sin items\n';
+    }
 
     ticket += '--------------------------------\n';
     if (this.totalPagado > 0) {
@@ -652,7 +697,7 @@ export class ProductosComponent implements OnInit {
     if (this.totalPorPagar > 0) {
       ticket += `PENDIENTE: ${this.totalPorPagar.toFixed(2)} €\n`;
     }
-    ticket += `TOTAL: ${this.currentOrder.total.toFixed(2)} €\n`;
+    ticket += `TOTAL: ${(this.currentOrder.total || 0).toFixed(2)} €\n`;
     ticket += '================================\n';
     ticket += 'Gracias por su visita\n';
     ticket += '================================\n';
