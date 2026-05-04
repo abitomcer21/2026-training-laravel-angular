@@ -1,6 +1,7 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
 import {
   IonIcon,
   IonLoading,
@@ -150,7 +151,11 @@ export class ProductosComponent implements OnInit {
   totalPorPagar = 0;
 
   mostrarModalTicket = false;
-  ticketParaImprimir = '';
+  ticketParaImprimir$ = new BehaviorSubject<string>('');
+
+  get ticketParaImprimir(): string {
+    return this.ticketParaImprimir$.value;
+  }
 
   constructor(
     private productService: ProductService,
@@ -158,7 +163,8 @@ export class ProductosComponent implements OnInit {
     private authService: AuthService,
     private familyService: FamilyService,
     private tableService: TableService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private changeDetector: ChangeDetectorRef
   ) {
     addIcons({
       restaurantOutline,
@@ -362,8 +368,10 @@ export class ProductosComponent implements OnInit {
   calcularTotalesPendientes() {
     let pagado = 0;
     let porPagar = 0;
+    let total = 0;
 
     this.currentOrder.items.forEach(item => {
+      total += item.total;
       if (this.articulosPagados[item.productId]) {
         pagado += item.total;
       } else {
@@ -373,6 +381,10 @@ export class ProductosComponent implements OnInit {
 
     this.totalPagado = pagado;
     this.totalPorPagar = porPagar;
+    // Actualizar el total del pedido si no estaba calculado
+    if (this.currentOrder.total !== total) {
+      this.currentOrder.total = total;
+    }
   }
 
   agregarProducto(producto: Product) {
@@ -597,12 +609,32 @@ export class ProductosComponent implements OnInit {
 
     // Generar ticket y mostrarlo en modal - con pequeño delay para asegurar que el modal anterior se cierre
     setTimeout(() => {
-      // Forzar a cargar los datos actuales del servicio
+      // Sincronizar TODOS los datos del ticket ANTES de generarlo
+      // 1. Obtener el pedido actual más reciente del servicio
+      const currentOrderFromService = this.orderStateService.getCurrentOrderValue();
+      
+      // 2. Asegurar que tenemos los items
+      if (currentOrderFromService && currentOrderFromService.items) {
+        this.currentOrder = currentOrderFromService;
+      }
+      
+      // 3. Sincronizar estados
+      this.calcularTotalesPendientes();
       this.pedidoInicialEnviado = this.orderStateService.getPedidoInicialEnviadoValue();
       this.itemsEnviadosACocina = this.orderStateService.getItemsEnviadosACocinaValue();
       this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
       
-      this.ticketParaImprimir = this.generarTicket();
+      // 4. Asegurar que currentOrder.total está calculado
+      if (!this.currentOrder.total || this.currentOrder.total === 0) {
+        this.currentOrder.total = this.currentOrder.items.reduce((sum, item) => sum + item.total, 0);
+      }
+      
+      // 5. Generar el ticket y guardarlo en el BehaviorSubject
+      const ticket = this.generarTicket();
+      this.ticketParaImprimir$.next(ticket);
+      console.log('Ticket generado:', ticket);
+      
+      // 6. Mostrar popup
       this.mostrarModalTicket = true;
     }, 300);
   }
@@ -676,18 +708,22 @@ export class ProductosComponent implements OnInit {
 
 
   private generarTicket(): string {
+    // Asegurar que tenemos los datos más recientes
+    const order = this.currentOrder || this.orderStateService.getCurrentOrderValue();
+    const items = (order && order.items) ? order.items : [];
+    
     let ticket = '================================\n';
     ticket += '           RESTAURANTE\n';
     ticket += '================================\n';
-    ticket += `Mesa: ${this.currentOrder.table?.name || 'N/A'}\n`;
-    ticket += `Usuario: ${this.currentOrder.user?.name || 'N/A'}\n`;
+    ticket += `Mesa: ${order?.table?.name || 'N/A'}\n`;
+    ticket += `Usuario: ${order?.user?.name || 'N/A'}\n`;
     ticket += `Fecha: ${new Date().toLocaleString()}\n`;
     ticket += '================================\n';
     ticket += 'Producto          Cant     Total\n';
     ticket += '--------------------------------\n';
 
-    if (this.currentOrder.items && this.currentOrder.items.length > 0) {
-      this.currentOrder.items.forEach(item => {
+    if (items && items.length > 0) {
+      items.forEach(item => {
         const nombre = item.productName.length > 15 ? item.productName.substring(0, 12) + '...' : item.productName;
         const enviado = this.itemsEnviadosACocina && this.itemsEnviadosACocina.some(e => e.productId === item.productId);
         const pagado = this.articulosPagados && this.articulosPagados[item.productId];
@@ -709,7 +745,7 @@ export class ProductosComponent implements OnInit {
     if (this.totalPorPagar > 0) {
       ticket += `PENDIENTE: ${this.totalPorPagar.toFixed(2)} €\n`;
     }
-    ticket += `TOTAL: ${(this.currentOrder.total || 0).toFixed(2)} €\n`;
+    ticket += `TOTAL: ${(order?.total || 0).toFixed(2)} €\n`;
     ticket += '================================\n';
     ticket += 'Gracias por su visita\n';
     ticket += '================================\n';

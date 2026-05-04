@@ -235,8 +235,27 @@
     </ng-template>
   </ion-modal>
 
-  <!-- MODAL DE TICKET -->
-  <ion-modal [isOpen]="mostrarModalTicket" (didDismiss)="cerrarModalTicket()" class="ticket-modal">
+  <!-- POPUP DE TICKET (alternativa a modal) -->
+  <div class="ticket-overlay" *ngIf="mostrarModalTicket" (click)="cerrarModalTicket()">
+    <div class="ticket-popup" (click)="$event.stopPropagation()">
+      <div class="ticket-header">
+        <h2>Ticket de Pedido</h2>
+        <button class="btn-close" (click)="cerrarModalTicket()">✕</button>
+      </div>
+      <div class="ticket-content">
+        <pre class="ticket-texto">{{ ticketParaImprimir }}</pre>
+      </div>
+      <div class="ticket-actions">
+        <button class="btn-primary" (click)="imprimirTicketDesdeModal()">
+          <ion-icon name="print-outline"></ion-icon> Imprimir
+        </button>
+        <button class="btn-secondary" (click)="cerrarModalTicket()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE TICKET ANTERIOR (comentado por si acaso) -->
+  <!-- <ion-modal [isOpen]="mostrarModalTicket" (didDismiss)="cerrarModalTicket()" (ionModalDidPresent)="onModalPresent()" class="ticket-modal">
     <ng-template>
       <ion-header>
         <ion-toolbar color="primary">
@@ -249,9 +268,9 @@
         </ion-toolbar>
       </ion-header>
       <ion-content>
-        <div class="ticket-wrapper">
+        <div class="ticket-wrapper" *ngIf="ticketListo">
           <div class="ticket-box">
-            <pre class="ticket-texto">{{ ticketParaImprimir }}</pre>
+            <div class="ticket-texto">{{ ticketParaImprimir }}</div>
           </div>
           
           <div class="ticket-footer">
@@ -266,6 +285,6 @@
         </div>
       </ion-content>
     </ng-template>
-  </ion-modal>
+  </ion-modal> -->
 
 </ion-content>
