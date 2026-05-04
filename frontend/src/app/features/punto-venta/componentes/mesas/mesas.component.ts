@@ -213,6 +213,10 @@ export class MesasComponent implements OnInit, OnDestroy {
     return occupied;
   }
 
+  getTableOccupiedInfo(table: Table): { comensales: number; total: number } | null {
+    return this.orderStateService.getTableOccupiedInfo(table.id);
+  }
+
   debugPedidos() {
     // Método para ver qué hay en localStorage (solo en desarrollo)
     const activos = this.orderStateService.getActivos();
@@ -297,6 +301,10 @@ export class MesasComponent implements OnInit, OnDestroy {
 
     // Inicializar el pedido para marcar la mesa como en uso (aunque no haya items aún)
     this.orderStateService.initializeTableOrder(this.selectedTable, this.selectedUser);
+    
+    // Guardar el número de comensales
+    const comensales = parseInt(this.cantidadComensalesIngresada);
+    this.orderStateService.setComensales(comensales);
     
     this.mostrarModalComensales = false;
     this.vistaChange.emit('productos');

@@ -32,8 +32,18 @@
         [class.occupied]="isTableOccupied(mesa)"
         [title]="isTableOccupied(mesa) ? 'Ocupada' : 'Disponible'">
       </div>
-      <ion-icon name="grid-outline"></ion-icon>
-      <h3>{{ mesa.name }}</h3>
+      
+      <!-- Si está disponible: mostrar icono y nombre -->
+      <div *ngIf="!isTableOccupied(mesa)" class="mesa-disponible">
+        <ion-icon name="grid-outline"></ion-icon>
+        <h3>{{ mesa.name }}</h3>
+      </div>
+
+      <!-- Si está ocupada: mostrar comensales y total -->
+      <div *ngIf="isTableOccupied(mesa)" class="mesa-ocupada">
+        <div class="comensales-numero">{{ getTableOccupiedInfo(mesa)?.comensales }}</div>
+        <div class="total-display">{{ getTableOccupiedInfo(mesa)?.total | number:'1.2-2' }} €</div>
+      </div>
     </div>
   </div>
 

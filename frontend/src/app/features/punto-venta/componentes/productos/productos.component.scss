@@ -118,15 +118,62 @@ $border-radius-lg: 16px;
   flex-shrink: 0;
   
   .mesa-info {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: space-between;
+    gap: 12px;
     font-size: 0.75rem;
-    padding: 6px 12px;
+    padding: 8px 12px;
     background: $bg-gray;
     border-radius: 20px;
     color: $text-gray;
     margin-bottom: 12px;
+    
+    .mesa-nombre {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .comensales-control {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      border: 1px solid $border;
+
+      .btn-comensales {
+        background: none;
+        border: none;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 16px;
+        color: $text-gray;
+        padding: 0;
+
+        &:hover {
+          color: $primary;
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+
+      .comensales-valor {
+        font-weight: 600;
+        min-width: 20px;
+        text-align: center;
+      }
+    }
     
     &.warning {
       background: #fef2f2;
@@ -275,12 +322,15 @@ $border-radius-lg: 16px;
 .carrito-header {
   padding: 20px;
   border-bottom: 1px solid $border-light;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   
   .carrito-title {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 8px;
+    flex: 1;
     
     ion-icon {
       font-size: 1.2rem;
@@ -310,6 +360,62 @@ $border-radius-lg: 16px;
     .badge-paid {
       background: #e8f5e9;
       color: $success;
+    }
+  }
+
+  .carrito-actions-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    
+    .btn-header-kitchen {
+      background: none;
+      border: none;
+      color: $warning;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-radius: 6px;
+      
+      ion-icon {
+        font-size: 1.1rem;
+      }
+      
+      &:hover {
+        background: rgba($warning, 0.1);
+        color: darken($warning, 5%);
+      }
+      
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+    
+    .btn-header-action {
+      background: none;
+      border: none;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: $text-dark;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      
+      ion-icon {
+        font-size: 1.2rem;
+      }
+      
+      &:hover {
+        background: $bg-gray;
+        color: $primary;
+      }
     }
   }
   
@@ -517,6 +623,15 @@ $border-radius-lg: 16px;
     
     &:hover {
       background: #e0e0e0;
+    }
+  }
+
+  .btn-preview {
+    background: #e3f2fd;
+    color: #1976d2;
+    
+    &:hover {
+      background: #bbdefb;
     }
   }
   
@@ -892,6 +1007,474 @@ ion-item {
   font-weight: 600;
 }
 
+// ============================================
+// MODAL DE COBRO - DISEÑO MINIMALISTA DOS COLUMNAS
+// ============================================
+
+.cobro-header {
+  --background: transparent;
+  --border-color: transparent;
+}
+
+.toolbar-cobro {
+  --background: transparent;
+  --color: white;
+  --border-color: transparent;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 60px;
+
+  ion-title {
+    font-size: 18px;
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .total-header {
+    font-size: 28px;
+    font-weight: 700;
+    min-width: 120px;
+    text-align: right;
+  }
+}
+
+.cobro-content-minimalista {
+  --background: #fafafa;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+// LAYOUT DOS COLUMNAS
+.cobro-layout {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  height: 100%;
+  gap: 0;
+}
+
+// ============================================
+// COLUMNA IZQUIERDA: MENU LATERAL
+// ============================================
+.cobro-menu-lateral {
+  background: white;
+  border-right: 1px solid #e0e0e0;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+
+  .menu-titulo {
+    font-size: 12px;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    padding: 0 12px 12px 12px;
+    letter-spacing: 0.5px;
+  }
+}
+
+.metodo-menu-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  color: #999;
+  border-left: 3px solid transparent;
+  margin: 0 8px;
+  border-radius: 6px;
+
+  .metodo-menu-icono {
+    font-size: 28px;
+    display: block;
+  }
+
+  .metodo-menu-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  &.active {
+    background: #000;
+    color: white;
+    border-left-color: #000;
+
+    .metodo-menu-label {
+      font-weight: 600;
+    }
+  }
+}
+
+// ============================================
+// COLUMNA DERECHA: CONTENIDO
+// ============================================
+.cobro-contenido {
+  background: white;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contenido-titulo {
+  font-size: 18px;
+  font-weight: 600;
+  color: #000;
+  border-bottom: 2px solid #000;
+  padding-bottom: 12px;
+}
+
+// Métodos de pago en Mixto
+.mixto-config-derecha {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .input-row-derecha {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #424242;
+      min-width: 80px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Courier New', monospace;
+
+      &:focus {
+        outline: none;
+        border-color: #000;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}
+
+.mixto-total-derecha {
+  padding: 10px 12px;
+  background: #f5f5f5;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2e7d32;
+  border: 2px solid #81c784;
+  text-align: center;
+
+  &.error {
+    color: #d32f2f;
+    border-color: #e57373;
+  }
+}
+
+// Tipos de cobro
+.tipos-cobro-derecha {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tipo-cobro-btn {
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+
+  span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #424242;
+  }
+
+  small {
+    font-size: 12px;
+    color: #999;
+    font-weight: 400;
+  }
+
+  &:hover {
+    background: #eeeeee;
+    border-color: #bbb;
+  }
+
+  &.active {
+    background: #000;
+    border-color: #000;
+
+    span {
+      color: white;
+    }
+
+    small {
+      color: #ccc;
+    }
+  }
+}
+
+// Configuración dinámica
+.config-dinamica {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 6px;
+
+  > label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #424242;
+  }
+}
+
+.input-comensales-derecha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 4px;
+  width: fit-content;
+
+  button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #f0f0f0;
+    color: #000;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+
+    &:hover {
+      background: #e0e0e0;
+    }
+  }
+
+  input {
+    width: 50px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.monto-comensal {
+  font-size: 13px;
+  color: #616161;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 600;
+}
+
+// Artículos
+.articulos-derecha {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.articulo-derecha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+
+  ion-checkbox {
+    flex-shrink: 0;
+  }
+
+  .articulo-info-derecha {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+
+    .articulo-nombre {
+      font-size: 12px;
+      font-weight: 600;
+      color: #424242;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .articulo-precio {
+      font-size: 11px;
+      color: #999;
+      font-weight: 500;
+    }
+  }
+}
+
+.total-articulos {
+  font-size: 13px;
+  color: #616161;
+  padding: 8px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  text-align: center;
+
+  strong {
+    color: #000;
+    font-weight: 700;
+  }
+}
+
+// ============================================
+// ESTADO VACÍO
+// ============================================
+.cobro-vacio {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #999;
+
+  .vacio-icono {
+    font-size: 48px;
+  }
+
+  .vacio-texto {
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+// ============================================
+// BOTÓN CONFIRMAR
+// ============================================
+.btn-confirmar-derecha {
+  padding: 14px 20px;
+  background: #000;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  margin-top: auto;
+
+  &:not(:disabled):hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+@media (max-width: 600px) {
+  .cobro-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cobro-menu-lateral {
+    display: flex;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .menu-titulo {
+    display: none;
+  }
+
+  .metodo-menu-btn {
+    flex-direction: row;
+    padding: 10px 12px;
+    gap: 8px;
+    margin: 0;
+    white-space: nowrap;
+
+    .metodo-menu-icono {
+      font-size: 20px;
+    }
+
+    .metodo-menu-label {
+      font-size: 12px;
+    }
+  }
+
+  .toolbar-cobro {
+    flex-wrap: wrap;
+
+    .total-header {
+      font-size: 20px;
+    }
+  }
+}
+
+// ============================================
+// RESPONSIVE
 // ============================================
 // RESPONSIVE
 // ============================================

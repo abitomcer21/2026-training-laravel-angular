@@ -35,7 +35,6 @@
       letter-spacing: 8px;
       border: 2px solid var(--primary-color);
       border-radius: 8px;
-      background: white;
       color: var(--text-dark);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
     }
@@ -170,7 +169,6 @@
     border-color: var(--primary-color);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     transform: translateY(-4px);
-    background: #f8f9fa;
   }
 
   &:active {
@@ -224,6 +222,57 @@
     color: var(--primary-color);
     text-align: center;
     letter-spacing: 0.3px;
+  }
+
+  .mesa-disponible {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+
+    ion-icon {
+      font-size: 48px;
+      color: var(--primary-color);
+      opacity: 0.9;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      text-align: center;
+      letter-spacing: 0.3px;
+    }
+  }
+
+  .mesa-ocupada {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    font-weight: 600;
+
+    .comensales-numero {
+      font-size: 36px;
+      font-weight: 700;
+      color: #d32f2f;
+      line-height: 1;
+    }
+
+    .total-display {
+      font-size: 16px;
+      font-weight: 700;
+      color: #000;
+      padding: 4px 12px;
+      border-radius: 6px;
+      min-width: 80px;
+      text-align: center;
+    }
   }
 
   .mesa-id {

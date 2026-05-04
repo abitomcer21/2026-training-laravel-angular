@@ -17,6 +17,7 @@ export interface CurrentOrder {
   user: User | null;
   items: OrderItem[];
   total: number;
+  comensales?: number;  // Número de comensales en la mesa
 }
 
 export interface EstadoPedidoCompleto {
@@ -37,6 +38,7 @@ export class OrderStateService {
     user: null,
     items: [],
     total: 0,
+    comensales: 1,
   };
 
   private currentOrder$ = new BehaviorSubject<CurrentOrder>(this.initialState);
@@ -138,7 +140,8 @@ export class OrderStateService {
         table,
         user,
         items: [],
-        total: 0
+        total: 0,
+        comensales: 1
       };
       this.currentOrder$.next(order);
       this.pedidoInicialEnviado = false;
@@ -184,7 +187,8 @@ export class OrderStateService {
         table,
         user,
         items: [],
-        total: 0
+        total: 0,
+        comensales: 1
       };
       this.currentOrder$.next(order);
       this.pedidoInicialEnviado = false;
@@ -209,12 +213,17 @@ export class OrderStateService {
     const tableId = String(table.id);
     const userId = String(user.id);
     const key = `${tableId}_${userId}`;
+    
+    // Obtener comensales del estado actual si ya existen
+    const comensalesActual = this.currentOrder$.value?.comensales || 1;
+    
     // Crear orden explícitamente (no shallow copy)
     const order: CurrentOrder = {
       table,
       user,
       items: [],
-      total: 0
+      total: 0,
+      comensales: comensalesActual
     };
     this.currentOrder$.next(order);
     this.pedidoInicialEnviado = false;
@@ -539,6 +548,66 @@ export class OrderStateService {
     return false;
   }
 
+  // Obtener información de mesa ocupada (comensales y total)
+  getTableOccupiedInfo(tableId: string): { comensales: number; total: number } | null {
+    const normalizedTableId = String(tableId);
+    const prefix = `pedido_${normalizedTableId}_`;
+    
+    let totalComensales = 0;
+    let totalCuenta = 0;
+    let found = false;
+
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix)) {
+          const stored = localStorage.getItem(key);
+          if (stored) {
+            try {
+              const state = JSON.parse(stored) as EstadoPedidoCompleto;
+              if (state.order?.items && state.order.items.length > 0) {
+                found = true;
+                // Usar el número real de comensales guardado en cada pedido
+                totalComensales += (state.order.comensales || 1);
+                // Sumar total de la cuenta
+                if (state.order.total) {
+                  totalCuenta += state.order.total;
+                }
+              }
+            } catch (e) {
+              // JSON inválido, ignorar
+              console.warn(`Registro corrupto en localStorage: ${key}`, e);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error getting table occupied info:', e);
+    }
+
+    return found ? { comensales: totalComensales, total: totalCuenta } : null;
+  }
+
+  // Guardar el número de comensales en el pedido actual
+  setComensales(comensales: number): void {
+    const currentOrder = this.currentOrder$.value;
+    if (currentOrder) {
+      const updatedOrder: CurrentOrder = {
+        ...currentOrder,
+        comensales: comensales,
+      };
+      this.currentOrder$.next(updatedOrder);
+      
+      // Guardar en localStorage
+      if (currentOrder.table && currentOrder.user) {
+        const tableId = String(currentOrder.table.id);
+        const userId = String(currentOrder.user.id);
+        const key = `${tableId}_${userId}`;
+        this.saveCurrentStateToStorage(key);
+      }
+    }
+  }
+
   private calcularTotalesPendientes(): void {
     let pagado = 0;
     let porPagar = 0;
@@ -832,7 +901,8 @@ export class OrderStateService {
               table: currentOrder.table,  // ← Preservar table
               user: currentOrder.user,    // ← Preservar user
               items: [],                  // ← EXPLÍCITAMENTE nuevo array vacío
-              total: 0                    // ← EXPLÍCITAMENTE 0
+              total: 0,                   // ← EXPLÍCITAMENTE 0
+              comensales: currentOrder.comensales  // ← Preservar comensales
             };
             
             console.log(`   Reseteando con order: table=${cleanedOrder.table?.id}, user=${cleanedOrder.user?.id}, items=${cleanedOrder.items.length}`);

@@ -51,6 +51,7 @@ import {
   printOutline,
   cashOutline,
   arrowBackOutline,
+  documentTextOutline,
 } from 'ionicons/icons';
 
 import { ProductService } from '../../../../services/api/product.service';
@@ -148,6 +149,13 @@ export class ProductosComponent implements OnInit {
   montoPorPersona = 0;
   articulosSeleccionados: { [key: string]: boolean } = {};
 
+  // Método de pago
+  metodoSeleccionado: 'efectivo' | 'tarjeta' | 'mixto' | null = 'tarjeta';
+  montosMetodoPago = {
+    efectivo: 0,
+    tarjeta: 0
+  };
+
   articulosPagados: { [key: string]: boolean } = {};
   totalPagado = 0;
   totalPorPagar = 0;
@@ -158,6 +166,9 @@ export class ProductosComponent implements OnInit {
   get ticketParaImprimir(): string {
     return this.ticketParaImprimir$.value;
   }
+
+  // Número de ticket
+  numeroTicketActual: string | null = null;
 
   // Mapa de tax_id -> porcentaje de IVA
   taxMap: Map<string, number> = new Map();
@@ -190,7 +201,8 @@ export class ProductosComponent implements OnInit {
       closeCircleOutline,
       printOutline,
       cashOutline,
-      arrowBackOutline
+      arrowBackOutline,
+      documentTextOutline,
     });
     
     // Exponer método de debug en la consola para inspeccionar localStorage
@@ -475,6 +487,7 @@ export class ProductosComponent implements OnInit {
     this.articulosPagados = {};
     this.totalPagado = 0;
     this.totalPorPagar = 0;
+    this.numeroTicketActual = null;
 
     // Resetear carrito completo
     this.currentOrder = {
@@ -687,6 +700,20 @@ export class ProductosComponent implements OnInit {
     this.montoPorPersona = totalPendiente / this.numeroComensales;
   }
 
+  aumentarComensales() {
+    const comensalesActual = this.currentOrder.comensales || 1;
+    const nuevosComensal = comensalesActual + 1;
+    this.orderStateService.setComensales(nuevosComensal);
+  }
+
+  disminuirComensales() {
+    const comensalesActual = this.currentOrder.comensales || 1;
+    if (comensalesActual > 1) {
+      const nuevosComensal = comensalesActual - 1;
+      this.orderStateService.setComensales(nuevosComensal);
+    }
+  }
+
   getTotalSeleccionado(): number {
     let total = 0;
     this.currentOrder.items.forEach(item => {
@@ -697,12 +724,37 @@ export class ProductosComponent implements OnInit {
     return total;
   }
 
+  // Exponer Math para usar en template
+  Math = Math;
+
   getTotalPendiente(): number {
     return this.currentOrder.items
       .filter(item => !this.articulosPagados[item.productId])
       .reduce((sum, item) => sum + item.total, 0);
   }
   confirmarCobro() {
+    // 1. Validar que hay método de pago seleccionado
+    if (!this.metodoSeleccionado) {
+      this.mostrarToast('Selecciona un método de pago', 'warning', 2000);
+      return;
+    }
+
+    // 2. Validar pago mixto
+    if (this.metodoSeleccionado === 'mixto') {
+      const totalMixto = this.montosMetodoPago.efectivo + this.montosMetodoPago.tarjeta;
+      const totalPendiente = this.getTotalPendiente();
+      
+      if (Math.abs(totalMixto - totalPendiente) > 0.01) {
+        this.mostrarToast(
+          `Total mixto (${totalMixto.toFixed(2)}€) no coincide con pendiente (${totalPendiente.toFixed(2)}€)`,
+          'warning',
+          3000
+        );
+        return;
+      }
+    }
+
+    // 3. Procesar el cobro según el tipo seleccionado
     let mensaje = '';
     let totalCobrado = 0;
     let itemsCobrados: string[] = [];
@@ -749,37 +801,54 @@ export class ProductosComponent implements OnInit {
       this.estadoPedido = 'cobrado';
     }
 
+    // 4. Mostrar mensaje del cobro y método
+    let mensajeMetodo = '';
+    switch (this.metodoSeleccionado) {
+      case 'efectivo':
+        mensajeMetodo = ' (Efectivo)';
+        break;
+      case 'tarjeta':
+        mensajeMetodo = ' (Tarjeta)';
+        break;
+      case 'mixto':
+        mensajeMetodo = ` (Mixto: ${this.montosMetodoPago.efectivo.toFixed(2)}€ + ${this.montosMetodoPago.tarjeta.toFixed(2)}€)`;
+        break;
+    }
+    
+    this.mostrarToast(mensaje + mensajeMetodo, 'success', 2000);
     this.mostrarModalCobro = false;
-    this.mostrarToast(mensaje, 'success', 4000);
 
-    // Generar ticket y mostrarlo en modal - con pequeño delay para asegurar que el modal anterior se cierre
+    // 5. Generar ticket inmediatamente
     setTimeout(() => {
       // Sincronizar TODOS los datos del ticket ANTES de generarlo
-      // 1. Obtener el pedido actual más reciente del servicio
       const currentOrderFromService = this.orderStateService.getCurrentOrderValue();
       
-      // 2. Asegurar que tenemos los items
       if (currentOrderFromService && currentOrderFromService.items) {
         this.currentOrder = currentOrderFromService;
       }
       
-      // 3. Sincronizar estados
+      // Sincronizar estados
       this.calcularTotalesPendientes();
       this.pedidoInicialEnviado = this.orderStateService.getPedidoInicialEnviadoValue();
       this.itemsEnviadosACocina = this.orderStateService.getItemsEnviadosACocinaValue();
       this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
       
-      // 4. Asegurar que currentOrder.total está calculado
+      // Asegurar que currentOrder.total está calculado
       if (!this.currentOrder.total || this.currentOrder.total === 0) {
         this.currentOrder.total = this.currentOrder.items.reduce((sum, item) => sum + item.total, 0);
       }
       
-      // 5. Generar el ticket y guardarlo en el BehaviorSubject
+      // Generar número de ticket (solo si no se ha generado aún)
+      if (!this.numeroTicketActual) {
+        this.numeroTicketActual = this.generarNumeroTicket();
+      }
+      
+      // Generar el ticket y guardarlo en el BehaviorSubject
       const ticket = this.generarTicket();
       this.ticketParaImprimir$.next(ticket);
       console.log('Ticket generado:', ticket);
       
-      // 6. Mostrar popup
+      // Mostrar popup
       this.mostrarModalTicket = true;
     }, 300);
   }
@@ -880,9 +949,30 @@ export class ProductosComponent implements OnInit {
     this.volverAMesas();
   }
 
+  verTicketProvisional() {
+    if (this.currentOrder.items.length === 0) {
+      this.mostrarToast('No hay productos en el pedido', 'danger', 2000);
+      return;
+    }
+    const ticket = this.generarTicket('PROVISIONAL');
+    this.ticketParaImprimir$.next(ticket);
+    this.mostrarModalTicket = true;
+  }
+
+  private generarNumeroTicket(): string {
+    // Obtener el último número de ticket del localStorage
+    const ultimoNumero = localStorage.getItem('ultimoNumeroTicket');
+    const numero = ultimoNumero ? parseInt(ultimoNumero) + 1 : 1;
+    
+    // Guardar el nuevo número
+    localStorage.setItem('ultimoNumeroTicket', numero.toString());
+    
+    // Formatear: T-001, T-002, etc.
+    return `T-${numero.toString().padStart(3, '0')}`;
+  }
 
 
-  private generarTicket(): string {
+  private generarTicket(tipoTicket?: string): string {
     // Asegurar que tenemos los datos más recientes
     const order = this.currentOrder || this.orderStateService.getCurrentOrderValue();
     const items = (order && order.items) ? order.items : [];
@@ -890,6 +980,14 @@ export class ProductosComponent implements OnInit {
     let ticket = '================================\n';
     ticket += '           RESTAURANTE\n';
     ticket += '================================\n';
+    
+    // Añadir número de ticket si es un ticket final
+    if (tipoTicket !== 'PROVISIONAL' && this.numeroTicketActual) {
+      ticket += `Ticket: ${this.numeroTicketActual}\n`;
+    } else if (tipoTicket === 'PROVISIONAL') {
+      ticket += `Ticket: PROVISIONAL\n`;
+    }
+    
     ticket += `Mesa: ${order?.table?.name || 'N/A'}\n`;
     ticket += `Usuario: ${order?.user?.name || 'N/A'}\n`;
     ticket += `Fecha: ${new Date().toLocaleString()}\n`;
