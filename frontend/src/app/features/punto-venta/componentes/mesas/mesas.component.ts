@@ -73,6 +73,17 @@ export class MesasComponent implements OnInit, OnDestroy {
     private changeDetector: ChangeDetectorRef,
   ) {
     addIcons({ gridOutline, closeOutline, arrowBackOutline, arrowForwardOutline, backspaceOutline });
+    
+    // Exponer métodos de debug en la consola
+    (window as any).debugPedidos = () => {
+      console.log('📂 Llamando debugLocalStorage()...');
+      this.orderStateService.debugLocalStorage();
+    };
+    
+    (window as any).debugBlockStatus = () => {
+      console.log('🔐 Llamando debugBlockStatus()...');
+      this.orderStateService.debugBlockStatus();
+    };
   }
 
   ngOnInit() {

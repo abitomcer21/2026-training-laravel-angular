@@ -192,6 +192,18 @@ export class ProductosComponent implements OnInit {
       cashOutline,
       arrowBackOutline
     });
+    
+    // Exponer método de debug en la consola para inspeccionar localStorage
+    (window as any).debugPedidos = () => {
+      console.log('📂 Llamando debugLocalStorage()...');
+      this.orderStateService.debugLocalStorage();
+    };
+    
+    // Exponer método de debug para ver estado de bloqueos
+    (window as any).debugBlockStatus = () => {
+      console.log('🔐 Llamando debugBlockStatus()...');
+      this.orderStateService.debugBlockStatus();
+    };
   }
 
   ngOnInit() {
@@ -211,9 +223,21 @@ export class ProductosComponent implements OnInit {
   }
 
   volverAMesas() {
+    console.log('\n🔙 [volverAMesas] Volviendo a mesas - limpiando estado local');
+    
+    // Limpiar el estado local COMPLETO antes de volver
+    this.resetearEstadoPedido();
+    console.log('✓ Estado local reseteado');
+    
     // Invalidar cache para que MesasComponent cargue datos frescos
     this.tableService.invalidateTablesCache();
+    console.log('✓ Cache de mesas invalidado');
+    
+    // Emitir evento para cambiar de vista
     this.cambiarVista.emit('mesas');
+    console.log('✓ Evento cambiarVista emitido');
+    
+    console.log('✅ Listo para nueva mesa\n');
   }
 
   cargarProductos() {
@@ -405,27 +429,72 @@ export class ProductosComponent implements OnInit {
   suscribirseAorden() {
     this.orderStateService.getCurrentOrder().subscribe({
       next: (order) => {
-        this.currentOrder = order;
-        if (this.currentOrder.items.length === 0) {
+        console.log('\n📦 [suscribirseAorden] Orden recibida del servicio');
+        console.log('   table.id:', order.table?.id, `(tipo: ${typeof order.table?.id})`);
+        console.log('   user.id:', order.user?.id, `(tipo: ${typeof order.user?.id})`);
+        console.log('   items.length:', order.items?.length || 0);
+        
+        if (order.items && order.items.length > 0) {
+          console.log('   📋 ITEMS ENCONTRADOS EN LA ORDEN:');
+          order.items.forEach((item, idx) => {
+            console.log(`     ${idx + 1}. ${item.productName} x${item.quantity} = ${item.total}€`);
+          });
+        }
+        
+        // Si es una orden vacía (nueva mesa), resetear completamente
+        if (!order || !order.items || order.items.length === 0) {
+          console.log('🆕 Orden vacía - reseteando estado local');
           this.resetearEstadoPedido();
+          // Asignar la referencia de table y user si los tiene
+          if (order) {
+            this.currentOrder.table = order.table;
+            this.currentOrder.user = order.user;
+          }
         } else {
-          // Cargar estados adicionales del servicio
+          // Orden existente con items - cargar todos los datos
+          console.log(`📋 Orden existente con ${order.items.length} items`);
+          this.currentOrder = order;
           this.pedidoInicialEnviado = this.orderStateService.getPedidoInicialEnviadoValue();
           this.itemsEnviadosACocina = this.orderStateService.getItemsEnviadosACocinaValue();
           this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
         }
+        
         this.calcularTotalesPendientes();
+        console.log(`✓ Estado sincronizado - Total: ${this.currentOrder.total}€\n`);
       }
     });
   }
 
   resetearEstadoPedido() {
+    console.log('🔄 Reseteando estado del pedido...');
+    
+    // Resetear estado del pedido
     this.estadoPedido = 'editando';
     this.pedidoInicialEnviado = false;
     this.itemsEnviadosACocina = [];
     this.articulosPagados = {};
     this.totalPagado = 0;
     this.totalPorPagar = 0;
+
+    // Resetear carrito completo
+    this.currentOrder = {
+      table: null,
+      user: null,
+      items: [],
+      total: 0,
+    };
+
+    // Resetear modales y flags de UI
+    this.mostrarModalCobro = false;
+    this.mostrarModalTicket = false;
+    this.tipoCobro = 'completo';
+    this.numeroComensales = 2;
+    this.montoPorPersona = 0;
+    this.articulosSeleccionados = {};
+    this.filtroNombre = '';
+    this.familiaSeleccionada = null;
+
+    console.log('✓ Estado del pedido completamente reseteado');
   }
 
   get productosFiltrados(): Product[] {
@@ -716,54 +785,84 @@ export class ProductosComponent implements OnInit {
   }
 
   imprimirTicketDesdeModal() {
-    this.mostrarToast('Ticket impreso correctamente', 'primary', 2000);
+    console.log('\n\n🔴🔴🔴 === INICIANDO CICLO DE LIBERACIÓN ===');
+    console.log('📋 Imprimiendo ticket y liberando mesa...');
+    console.log('Datos actuales ANTES de limpiar:');
+    console.log(`   currentOrder.table: ${this.currentOrder.table?.id} (${this.currentOrder.table?.name})`);
+    console.log(`   currentOrder.user: ${this.currentOrder.user?.id} (${this.currentOrder.user?.name})`);
+    console.log(`   currentOrder.items: ${this.currentOrder.items.length} items`);
+    
+    this.mostrarToast('Ticket impreso correctamente ✓', 'primary', 2000);
     this.mostrarModalTicket = false;
 
-    // Sincronizar datos actuales
-    this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
-    this.calcularTotalesPendientes();
+    // Limpiar SIEMPRE la orden y mesa cuando se imprime el ticket
+    // No depender de cálculos de totalPorPagar que pueden fallar
+    const tableId = this.currentOrder.table ? String(this.currentOrder.table.id) : null;
+    const userId = this.currentOrder.user ? String(this.currentOrder.user.id) : null;
 
-    if (this.totalPorPagar === 0) {
-      this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
+    console.log(`🗑️ Preparando limpieza - Mesa: ${tableId}, Usuario: ${userId}`);
+
+    setTimeout(() => {
+      console.log(`\n⏱️ Ejecutando limpieza con delay...`);
+      
+      // Limpiar la orden del servicio
+      if (tableId && userId) {
+        console.log(`📢 Llamando clearTableOrder(${tableId}, ${userId})`);
+        this.orderStateService.clearTableOrder(tableId, userId);
+        console.log('✓ clearTableOrder() completado');
+      } else {
+        console.log('📢 Llamando clearOrder() - no hay mesa/usuario válido');
+        this.orderStateService.clearOrder();
+        console.log('✓ clearOrder() completado');
+      }
+
+      // Resetear el estado local del componente
+      console.log('🔄 Reseteando estado local del componente');
+      this.resetearEstadoPedido();
+      console.log('✓ resetearEstadoPedido() completado');
+
+      // Mostrar confirmación y volver a mesas
+      this.mostrarToast('Mesa liberada. Volviendo...', 'success', 1500);
+      
       setTimeout(() => {
-        if (this.currentOrder.table && this.currentOrder.user) {
-          // Normalizar IDs antes de limpiar
-          const tableId = String(this.currentOrder.table.id);
-          const userId = String(this.currentOrder.user.id);
-          this.orderStateService.clearTableOrder(tableId, userId);
-        } else {
-          this.orderStateService.clearOrder();
-        }
-        this.resetearEstadoPedido();
+        console.log('↩️ Redirigiendo a mesas');
         this.volverAMesas();
-      }, 1500);
-    } else {
-      this.mostrarToast(`Restan por pagar: ${this.totalPorPagar.toFixed(2)} €`, 'warning', 3000);
-    }
+        console.log('🔴🔴🔴 === FIN CICLO DE LIBERACIÓN ===\n');
+      }, 500);
+    }, 500);
   }
 
   cerrarModalTicket() {
     this.mostrarModalTicket = false;
 
-    // Sincronizar datos actuales
+    // Sincronizar datos actuales para saber si hay pendiente
     this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
     this.calcularTotalesPendientes();
 
+    console.log(`📋 Cerrando ticket - totalPorPagar: ${this.totalPorPagar.toFixed(2)}€`);
+
     // SOLO redirigir si NO hay nada pendiente de pago
+    // Si el usuario cierra SIN pagar todo, permanece en el carrito
     if (this.totalPorPagar === 0) {
-      this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
+      console.log('✓ Todo pagado - limpiando mesa');
+      
+      const tableId = this.currentOrder.table ? String(this.currentOrder.table.id) : null;
+      const userId = this.currentOrder.user ? String(this.currentOrder.user.id) : null;
+
+      this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 1500);
+      
       setTimeout(() => {
-        if (this.currentOrder.table && this.currentOrder.user) {
-          // Normalizar IDs antes de limpiar
-          const tableId = String(this.currentOrder.table.id);
-          const userId = String(this.currentOrder.user.id);
+        if (tableId && userId) {
           this.orderStateService.clearTableOrder(tableId, userId);
         } else {
           this.orderStateService.clearOrder();
         }
         this.resetearEstadoPedido();
         this.volverAMesas();
-      }, 1500);
+      }, 500);
+    } else {
+      console.log(`⚠️ Aún quedan por pagar: ${this.totalPorPagar.toFixed(2)}€`);
+      // Permanecer en el carrito para continuar el pago
     }
   }
 

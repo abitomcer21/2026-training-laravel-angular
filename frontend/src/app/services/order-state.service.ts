@@ -55,6 +55,12 @@ export class OrderStateService {
   
   // Subject para notificar cambios en el estado de mesas
   private activeOrdersChanged$ = new BehaviorSubject<void>(undefined);
+  
+  // Flag para bloquear almacenamiento temporal (usado después de limpiar)
+  private blockStorageUntil = 0;
+  
+  // Flag para bloquear CARGA/RECARGA de órdenes después de limpiar (evita ciclos de reaparición)
+  private blockReloadUntil = 0;
 
   constructor() {
     this.loadFromStorage();
@@ -102,9 +108,65 @@ export class OrderStateService {
     const tableId = String(table.id);
     const userId = String(user.id);
     const key = `${tableId}_${userId}`;
+    
+    console.log(`\n\n🟢🟢🟢 === ABRIENDO NUEVA MESA ===`);
+    console.log(`🔄 [setTableAndUser] Configurando mesa y usuario`);
+    console.log(`   table.id: ${table.id} (tipo: ${typeof table.id})`);
+    console.log(`   table.uuid: ${table.uuid}`);
+    console.log(`   user.id: ${user.id} (tipo: ${typeof user.id})`);
+    console.log(`   user.uuid: ${user.uuid}`);
+    console.log(`   → tableId normalizado: ${tableId}`);
+    console.log(`   → userId normalizado: ${userId}`);
+    console.log(`   → Clave construida: ${key}`);
+    console.log(`   → Buscando en localStorage: pedido_${key}`);
+    
+    // 🔐 PROTECCIÓN: Revisar estado del bloqueo
+    const ahora = Date.now();
+    const tiempoRestante = this.blockReloadUntil - ahora;
+    console.log(`\n🔍 ESTADO DEL BLOQUEO:`);
+    console.log(`   blockReloadUntil: ${this.blockReloadUntil}`);
+    console.log(`   Ahora: ${ahora}`);
+    console.log(`   Tiempo restante: ${tiempoRestante}ms (${Math.round(tiempoRestante / 1000)}s)`);
+    
+    // 🔐 PROTECCIÓN: Si hay un bloqueo de recarga activo, simplemente crear nuevo pedido sin cargar
+    if (this.blockReloadUntil > ahora) {
+      console.log(`\n🚫 BLOQUEO DE RECARGA ACTIVO - NO se cargará orden anterior`);
+      console.log(`   Tiempo restante: ${Math.round(tiempoRestante / 1000)}s`);
+      
+      // Crear nuevo objeto explícitamente (no shallow copy)
+      const order: CurrentOrder = {
+        table,
+        user,
+        items: [],
+        total: 0
+      };
+      this.currentOrder$.next(order);
+      this.pedidoInicialEnviado = false;
+      this.itemsEnviadosACocina = [];
+      this.articulosPagados = {};
+      this.totalPagado = 0;
+      this.totalPorPagar = 0;
+      
+      console.log(`   Mesa NUEVA (bloqueada de recarga) - lista para nuevo pedido`);
+      
+      // Emitir los estados adicionales
+      this.pedidoInicialEnviado$.next(this.pedidoInicialEnviado);
+      this.itemsEnviadosACocina$.next(this.itemsEnviadosACocina);
+      this.articulosPagados$.next(this.articulosPagados);
+      
+      console.log(`✅ [setTableAndUser] Completado\n`);
+      return;
+    }
+    
+    console.log(`\n✅ Bloqueo EXPIRADO - procediendo a cargar orden si existe\n`);
+    
     const savedState = this.loadStateFromStorage(key);
     
     if (savedState) {
+      console.log(`\n🔴 ADVERTENCIA: Se encontró estado guardado - cargando pedido existente`);
+      console.log(`   ESTADO CARGADO - continuando con pedido existente`);
+      console.log(`   Items cargados: ${savedState.order?.items?.length || 0}`);
+      
       // Cargar estado guardado (no guardar de nuevo, solo cargar)
       this.currentOrder$.next(savedState.order);
       this.pedidoInicialEnviado = savedState.pedidoInicialEnviado;
@@ -112,21 +174,34 @@ export class OrderStateService {
       this.articulosPagados = savedState.articulosPagados;
       this.totalPagado = savedState.totalPagado;
       this.totalPorPagar = savedState.totalPorPagar;
+      
+      console.log(`   📦 Orden cargada - Total: ${this.currentOrder$.value.total}, Pagado: ${this.totalPagado}, Por pagar: ${this.totalPorPagar}`);
     } else {
-      // Nuevo pedido (no se ha iniciado aún)
-      const order = { ...this.initialState, table, user };
+      console.log(`\n✅ NO se encontró estado guardado - CREANDO NUEVO PEDIDO VACÍO`);
+      
+      // Nuevo pedido (no se ha iniciado aún) - crear objeto explícitamente
+      const order: CurrentOrder = {
+        table,
+        user,
+        items: [],
+        total: 0
+      };
       this.currentOrder$.next(order);
       this.pedidoInicialEnviado = false;
       this.itemsEnviadosACocina = [];
       this.articulosPagados = {};
       this.totalPagado = 0;
       this.totalPorPagar = 0;
+      
+      console.log(`   Mesa lista para nuevo pedido`);
     }
     
     // Emitir los estados adicionales
     this.pedidoInicialEnviado$.next(this.pedidoInicialEnviado);
     this.itemsEnviadosACocina$.next(this.itemsEnviadosACocina);
     this.articulosPagados$.next(this.articulosPagados);
+    
+    console.log(`✅ [setTableAndUser] Completado\n`);
   }
 
   initializeTableOrder(table: Table, user: User): void {
@@ -134,7 +209,13 @@ export class OrderStateService {
     const tableId = String(table.id);
     const userId = String(user.id);
     const key = `${tableId}_${userId}`;
-    const order = { ...this.initialState, table, user };
+    // Crear orden explícitamente (no shallow copy)
+    const order: CurrentOrder = {
+      table,
+      user,
+      items: [],
+      total: 0
+    };
     this.currentOrder$.next(order);
     this.pedidoInicialEnviado = false;
     this.itemsEnviadosACocina = [];
@@ -157,19 +238,29 @@ export class OrderStateService {
   }
 
   addItem(item: OrderItem): void {
+    console.log(`\n➕ [addItem] Agregando producto: ${item.productName} x${item.quantity}`);
+    
     const order = this.currentOrder$.value;
+    console.log(`   table.id: ${order.table?.id} (tipo: ${typeof order.table?.id})`);
+    console.log(`   user.id: ${order.user?.id} (tipo: ${typeof order.user?.id})`);
+    
     const existingItem = order.items.find((i) => i.productId === item.productId);
 
     if (existingItem) {
       existingItem.quantity += item.quantity;
       existingItem.total = existingItem.quantity * existingItem.price;
+      console.log(`   (actualizada cantidad existente)`);
     } else {
       order.items.push(item);
+      console.log(`   (nuevo producto agregado)`);
     }
 
     this.calculateTotal();
     this.currentOrder$.next(order);
+    console.log(`   Items totales en orden: ${order.items.length}, Total: ${this.currentOrder$.value.total}€`);
+    
     this.saveCurrentState();
+    console.log();
   }
 
   removeItem(productId: string): void {
@@ -198,13 +289,27 @@ export class OrderStateService {
   }
 
   clearOrder(): void {
+    console.log(`\n🗑️ [clearOrder] Limpiando orden completamente`);
+    
+    // BLOQUEAR ALMACENAMIENTO por 3 segundos
+    this.blockStorageUntil = Date.now() + 3000;
+    console.log(`   🔒 Almacenamiento bloqueado por 3 segundos`);
+    
     // Guardar la clave antes de resetear (para borrar de localStorage)
     if (this.currentOrder$.value.table && this.currentOrder$.value.user) {
       const key = `${this.currentOrder$.value.table.id}_${this.currentOrder$.value.user.id}`;
       localStorage.removeItem(`pedido_${key}`);
+      console.log(`   ✓ Eliminada de localStorage: pedido_${key}`);
     }
 
-    this.currentOrder$.next(this.initialState);
+    // Crear nuevo objeto limpio (no usar referencia a initialState para evitar referencias compartidas)
+    const cleanState: CurrentOrder = {
+      table: null,
+      user: null,
+      items: [],
+      total: 0
+    };
+    this.currentOrder$.next(cleanState);
     this.pedidoInicialEnviado = false;
     this.itemsEnviadosACocina = [];
     this.articulosPagados = {};
@@ -215,16 +320,28 @@ export class OrderStateService {
     this.itemsEnviadosACocina$.next([]);
     this.articulosPagados$.next({});
     
-    // Notificar TRES VECES para asegurar que se propague correctamente
+    // Notificar CUATRO VECES para asegurar que se propague correctamente
     this.activeOrdersChanged$.next();
+    console.log(`   📢 Notificación 1/4`);
     
     setTimeout(() => {
       this.activeOrdersChanged$.next();
+      console.log(`   📢 Notificación 2/4`);
     }, 50);
     
     setTimeout(() => {
       this.activeOrdersChanged$.next();
+      console.log(`   📢 Notificación 3/4`);
     }, 150);
+    
+    setTimeout(() => {
+      // EJECUTAR LIMPIEZA RESIDUAL después de todo
+      this.limpiarPedidosResiduales();
+      console.log(`   📢 Notificación 4/4 (después de limpieza residual)`);
+      this.activeOrdersChanged$.next();
+    }, 300);
+    
+    console.log(`✅ [clearOrder] Completado\n`);
   }
 
   clearTableOrder(tableId: string, userId: string | number): void {
@@ -233,33 +350,68 @@ export class OrderStateService {
     const normalizedUserId = String(userId);
     const key = `${normalizedTableId}_${normalizedUserId}`;
     
+    console.log(`\n🗑️ [clearTableOrder] Iniciando limpieza COMPLETA`);
+    console.log(`   TableID: ${normalizedTableId}, UserID: ${normalizedUserId}`);
+    console.log(`   Clave del usuario actual: pedido_${key}`);
+    
+    // BLOQUEAR ALMACENAMIENTO durante 3 segundos para evitar que se guarde nuevamente
+    this.blockStorageUntil = Date.now() + 3000;
+    console.log(`   🔒 Almacenamiento bloqueado por 3 segundos`);
+    
+    // 🔐 BLOQUEAR RECARGA DE ÓRDENES durante 10 segundos para evitar ciclos de reaparición
+    this.blockReloadUntil = Date.now() + 10000;
+    console.log(`   🔐 RECARGA DE ÓRDENES BLOQUEADA por 10 segundos (prevenir reaparición)`);
+    console.log(`   blockReloadUntil timestamp: ${this.blockReloadUntil}`);
+    
+    
     // Eliminar el pedido del usuario actual
     localStorage.removeItem(`pedido_${key}`);
+    console.log(`   ✓ Eliminada clave del usuario actual`);
     
-    // TAMBIÉN eliminar todos los demás pedidos de esta mesa (de otros usuarios)
-    // para evitar inconsistencias
+    // TAMBIÉN eliminar TODAS las demás órdenes de esta mesa (de todos los usuarios)
     const prefix = `pedido_${normalizedTableId}_`;
     const keysAEliminar: string[] = [];
+    
+    console.log(`   Buscando todas las órdenes de la mesa (prefijo: ${prefix})`);
     
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const storedKey = localStorage.key(i);
-        if (storedKey && storedKey.startsWith(prefix) && storedKey !== `pedido_${key}`) {
+        if (storedKey && storedKey.startsWith(prefix)) {
+          console.log(`   Encontrada: ${storedKey}`);
           keysAEliminar.push(storedKey);
         }
       }
     } catch (e) {
-      console.error('Error clearing all table orders:', e);
+      console.error('❌ Error iterando localStorage:', e);
     }
+    
+    console.log(`   Total de claves a eliminar: ${keysAEliminar.length}`);
     
     keysAEliminar.forEach(k => {
       localStorage.removeItem(k);
+      console.log(`   ✓ Eliminada: ${k}`);
     });
     
-    // Si es el pedido actual, también limpiar el estado
-    if (this.currentOrder$.value.table?.id === tableId && 
-        this.currentOrder$.value.user?.id === userId) {
-      this.currentOrder$.next(this.initialState);
+    // Si es el pedido actual, también limpiar el estado del servicio
+    const currentTableId = this.currentOrder$.value.table?.id;
+    const currentUserId = this.currentOrder$.value.user?.id;
+    const currentTableIdStr = currentTableId ? String(currentTableId) : null;
+    const currentUserIdStr = currentUserId ? String(currentUserId) : null;
+    
+    console.log(`   Estado actual - TableID: ${currentTableIdStr}, UserID: ${currentUserIdStr}`);
+    
+    if (currentTableIdStr === normalizedTableId && currentUserIdStr === normalizedUserId) {
+      console.log(`   ✓ Limpiando estado del servicio (es el orden actual)`);
+      
+      // Crear nuevo objeto limpio (no usar referencia a initialState para evitar referencias compartidas)
+      const cleanState: CurrentOrder = {
+        table: null,
+        user: null,
+        items: [],
+        total: 0
+      };
+      this.currentOrder$.next(cleanState);
       this.pedidoInicialEnviado = false;
       this.itemsEnviadosACocina = [];
       this.articulosPagados = {};
@@ -271,19 +423,28 @@ export class OrderStateService {
       this.articulosPagados$.next({});
     }
     
-    // Notificar TRES VECES para asegurar que se propague correctamente:
-    // - Inmediatamente
-    // - Después de 50ms
-    // - Después de 150ms
+    // Notificar CUATRO VECES para asegurar que se propague correctamente
     this.activeOrdersChanged$.next();
+    console.log(`   📢 Notificación 1/4`);
     
     setTimeout(() => {
       this.activeOrdersChanged$.next();
+      console.log(`   📢 Notificación 2/4`);
     }, 50);
     
     setTimeout(() => {
       this.activeOrdersChanged$.next();
+      console.log(`   📢 Notificación 3/4`);
     }, 150);
+    
+    setTimeout(() => {
+      // EJECUTAR LIMPIEZA RESIDUAL después de todo
+      this.limpiarPedidosResiduales();
+      console.log(`   📢 Notificación 4/4 (después de limpieza residual)`);
+      this.activeOrdersChanged$.next();
+    }, 300);
+    
+    console.log(`✅ [clearTableOrder] Limpieza completada\n`);
   }
 
 
@@ -405,11 +566,32 @@ export class OrderStateService {
       const tableId = String(this.currentOrder$.value.table.id);
       const userId = String(this.currentOrder$.value.user?.id);
       const key = `${tableId}_${userId}`;
+      
+      console.log(`💾 [saveCurrentState] Guardando estado`);
+      console.log(`   TableID: ${tableId}`);
+      console.log(`   UserID: ${userId}`);
+      console.log(`   Clave: ${key}`);
+      console.log(`   Clave completa: pedido_${key}`);
+      console.log(`   Items: ${this.currentOrder$.value.items.length}`);
+      
       this.saveCurrentStateToStorage(key);
     }
   }
 
   private saveCurrentStateToStorage(key: string): void {
+    // Si el almacenamiento está bloqueado (ej: después de limpiar), no guardar
+    if (Date.now() < this.blockStorageUntil) {
+      console.log(`   🔒 BLOQUEADO - no se guarda (${Math.round(this.blockStorageUntil - Date.now())}ms restantes)`);
+      return;
+    }
+    
+    // 🚫 PROTECCIÓN: NO guardar órdenes vacías (sin items)
+    const itemsCount = this.currentOrder$.value.items?.length || 0;
+    if (itemsCount === 0) {
+      console.log(`   🚫 NO SE GUARDA - orden vacía (0 items). Solo se guardará cuando haya items.`);
+      return;
+    }
+    
     const estadoCompleto: EstadoPedidoCompleto = {
       order: this.currentOrder$.value,
       pedidoInicialEnviado: this.pedidoInicialEnviado,
@@ -418,22 +600,51 @@ export class OrderStateService {
       totalPagado: this.totalPagado,
       totalPorPagar: this.totalPorPagar
     };
-    localStorage.setItem(`pedido_${key}`, JSON.stringify(estadoCompleto));
+    
+    const storageKey = `pedido_${key}`;
+    localStorage.setItem(storageKey, JSON.stringify(estadoCompleto));
+    
+    console.log(`   💾 GUARDADO en localStorage:`);
+    console.log(`      Clave: ${storageKey}`);
+    console.log(`      Items: ${estadoCompleto.order?.items?.length || 0}`);
+    console.log(`      Total: ${estadoCompleto.order?.total}€`);
     
     // Notificar inmediatamente para que las mesas se actualicen
     this.activeOrdersChanged$.next();
   }
 
   private loadStateFromStorage(key: string): EstadoPedidoCompleto | null {
-    const stored = localStorage.getItem(`pedido_${key}`);
+    const searchKey = `pedido_${key}`;
+    const stored = localStorage.getItem(searchKey);
+    
     if (stored) {
       try {
-        return JSON.parse(stored);
+        const state = JSON.parse(stored) as EstadoPedidoCompleto;
+        
+        console.log(`   📖 ENCONTRADO en localStorage: ${searchKey}`);
+        console.log(`      Items: ${state.order?.items?.length || 0}, Pagado: ${state.totalPagado}, Por pagar: ${state.totalPorPagar}`);
+        
+        // VALIDACIÓN 1: Si no hay items, considerarlo como un pedido vacío/eliminado
+        if (!state.order?.items || state.order.items.length === 0) {
+          console.log(`      ⚠️ Sin items - RECHAZADO`);
+          return null;
+        }
+        
+        // VALIDACIÓN 2: Si tiene items PERO totalPorPagar === 0, es un residuo de pago
+        if (state.order.items.length > 0 && state.totalPorPagar === 0) {
+          console.log(`      ⚠️ RECHAZADO: residuo de pago (${state.order.items.length} items sin deuda)`);
+          return null;
+        }
+        
+        console.log(`      ✅ ACEPTADO - orden válida`);
+        return state;
       } catch (error) {
-        console.error('Error loading order state:', error);
+        console.error('❌ Error parsing order state:', error);
         return null;
       }
     }
+    
+    console.log(`   📖 NO ENCONTRADO: ${searchKey}`);
     return null;
   }
 
@@ -508,14 +719,67 @@ export class OrderStateService {
   }
 
   private loadFromStorage(): void {
+    console.log('\n📂 [loadFromStorage] Inspeccionando localStorage al iniciar servicio...');
+    this.debugLocalStorage();
   }
 
-  /**
-   * Limpia todos los pedidos residuales (sin items)
-   * Se ejecuta automáticamente al cargar las mesas
-   */
+  public debugLocalStorage(): void {
+    console.log('\n🔍 === DEBUG COMPLETO DE localStorage ===');
+    console.log(`Total de claves en localStorage: ${localStorage.length}`);
+    
+    console.log('\n📋 Todas las claves con prefijo "pedido_":');
+    let encontradas = 0;
+    
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const storedKey = localStorage.key(i);
+        if (storedKey && storedKey.startsWith('pedido_')) {
+          encontradas++;
+          const content = localStorage.getItem(storedKey);
+          
+          try {
+            const parsed = JSON.parse(content || '{}');
+            console.log(`\n${encontradas}. ${storedKey}`);
+            console.log(`   table.id: ${parsed.order?.table?.id}`);
+            console.log(`   table.uuid: ${parsed.order?.table?.uuid}`);
+            console.log(`   user.id: ${parsed.order?.user?.id}`);
+            console.log(`   user.uuid: ${parsed.order?.user?.uuid}`);
+            console.log(`   items: ${parsed.order?.items?.length || 0}`);
+            console.log(`   totalPagado: ${parsed.totalPagado}`);
+            console.log(`   totalPorPagar: ${parsed.totalPorPagar}`);
+          } catch (e) {
+            console.log(`${encontradas}. ${storedKey} [contenido inválido]`);
+          }
+        }
+      }
+      
+      if (encontradas === 0) {
+        console.log('   (vacío - no hay pedidos guardados)');
+      }
+    } catch (e) {
+      console.error('❌ Error leyendo localStorage:', e);
+    }
+    
+    console.log('\n=== FIN DEBUG ===\n');
+  }
+
+  public debugBlockStatus(): void {
+    const ahora = Date.now();
+    console.log('\n🔐 === DEBUG ESTADO DE BLOQUEOS ===');
+    console.log(`Hora actual: ${ahora}`);
+    console.log(`blockStorageUntil: ${this.blockStorageUntil}`);
+    console.log(`blockReloadUntil: ${this.blockReloadUntil}`);
+    console.log(`\nAlmacenamiento bloqueado: ${this.blockStorageUntil > ahora ? `SÍ (${Math.round((this.blockStorageUntil - ahora) / 1000)}s)` : 'NO'}`);
+    console.log(`Recarga bloqueada: ${this.blockReloadUntil > ahora ? `SÍ (${Math.round((this.blockReloadUntil - ahora) / 1000)}s)` : 'NO'}`);
+    console.log('=== FIN DEBUG BLOQUEOS ===\n');
+  }
+
   public limpiarPedidosResiduales(): void {
+    console.log(`\n🧹 [limpiarPedidosResiduales] Limpiando pedidos sin deuda pendiente...`);
+    
     const keysAEliminar: string[] = [];
+    const currentTableId = this.currentOrder$.value.table?.id;
+    const currentUserId = this.currentOrder$.value.user?.id;
     
     try {
       for (let i = 0; i < localStorage.length; i++) {
@@ -525,28 +789,79 @@ export class OrderStateService {
           if (stored) {
             try {
               const state = JSON.parse(stored) as EstadoPedidoCompleto;
-              // Eliminar si NO tiene items (una mesa sin items no está realmente ocupada)
+              
+              // CRITERIO 1: Sin items - definitivamente debe eliminarse
               if (!state.order?.items || state.order.items.length === 0) {
+                console.log(`   ✓ ${key} - sin items`);
+                keysAEliminar.push(key);
+              }
+              // CRITERIO 2: Tiene items PERO totalPorPagar === 0 (fue pagado completamente pero no limpiado)
+              else if (state.order.items.length > 0 && state.totalPorPagar === 0) {
+                console.log(`   ✓ ${key} - ${state.order.items.length} items SIN deuda (totalPorPagar=0) - RESIDUO DE PAGO`);
                 keysAEliminar.push(key);
               }
             } catch (e) {
-              // Registro corrupto, eliminarlo
-              console.warn(`Registro corrupto eliminado: ${key}`);
-              keysAEliminar.push(key);
+              console.warn(`   ⚠️ ${key} - contenido corrupto`);
             }
           }
         }
       }
+      
+      if (keysAEliminar.length > 0) {
+        console.log(`\n   Eliminando ${keysAEliminar.length} pedido(s) residual(es)...`);
+        
+        keysAEliminar.forEach(k => {
+          localStorage.removeItem(k);
+          console.log(`   ✓ Eliminada de localStorage: ${k}`);
+          
+          // 🔑 Si este residuo es el pedido actual en memoria, también resetear el estado en memoria
+          // Extraer tableId y userId del formato: pedido_[tableId]_[userId]
+          const lastUnderscoreIndex = k.lastIndexOf('_');
+          const tableIdFromKey = k.substring('pedido_'.length, lastUnderscoreIndex);
+          const userIdFromKey = k.substring(lastUnderscoreIndex + 1);
+          
+          const currentTableIdStr = currentTableId ? String(currentTableId) : null;
+          const currentUserIdStr = currentUserId ? String(currentUserId) : null;
+          
+          if (currentTableIdStr === tableIdFromKey && currentUserIdStr === userIdFromKey) {
+            console.log(`   ⚠️ Este es el pedido actual en memoria (${tableIdFromKey}_${userIdFromKey}) - reseteando...`);
+            
+            // 🔑 IMPORTANTE: Crear nuevo objeto EXPLÍCITAMENTE (no shallow copy) para evitar referencias compartidas
+            const currentOrder = this.currentOrder$.value;
+            const cleanedOrder: CurrentOrder = {
+              table: currentOrder.table,  // ← Preservar table
+              user: currentOrder.user,    // ← Preservar user
+              items: [],                  // ← EXPLÍCITAMENTE nuevo array vacío
+              total: 0                    // ← EXPLÍCITAMENTE 0
+            };
+            
+            console.log(`   Reseteando con order: table=${cleanedOrder.table?.id}, user=${cleanedOrder.user?.id}, items=${cleanedOrder.items.length}`);
+            
+            this.currentOrder$.next(cleanedOrder);
+            this.pedidoInicialEnviado = false;
+            this.itemsEnviadosACocina = [];
+            this.articulosPagados = {};
+            this.totalPagado = 0;
+            this.totalPorPagar = 0;
+            
+            this.pedidoInicialEnviado$.next(false);
+            this.itemsEnviadosACocina$.next([]);
+            this.articulosPagados$.next({});
+          }
+        });
+        
+        console.log(`✅ Limpieza completada - notificando cambios`);
+        
+        // Notificar DESPUÉS de resetear todo para que `suscribirseAorden()` vea el estado nuevo
+        setTimeout(() => {
+          this.activeOrdersChanged$.next();
+          console.log(`📢 Notificación enviada después de limpieza\n`);
+        }, 10);
+      } else {
+        console.log(`   (ningún residuo encontrado)\n`);
+      }
     } catch (e) {
-      console.error('Error cleaning up orders:', e);
-    }
-    
-    keysAEliminar.forEach(key => {
-      localStorage.removeItem(key);
-    });
-    
-    if (keysAEliminar.length > 0) {
-      this.activeOrdersChanged$.next();
+      console.error('❌ Error limpiando pedidos:', e);
     }
   }
 
