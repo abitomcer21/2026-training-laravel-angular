@@ -16,6 +16,7 @@ final readonly class GetAllTablesResponse
         $tablesData = array_map(
             static fn (Table $tables): array => [
                 'id' => $tables->id()->value(),
+                'uuid' => $tables->id()->value(),
                 'zone_id' => $tables->zoneId(),
                 'name' => $tables->name(),
                 'restaurant_id' => $tables->restaurantId(),

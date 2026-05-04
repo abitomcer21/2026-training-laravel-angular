@@ -31,6 +31,7 @@ final readonly class GetTableByIdResponse
     {
         return [
             'id' => $this->id,
+            'uuid' => $this->id,
             'zone_id' => $this->zoneId,
             'name' => $this->name,
             'restaurant_id' => $this->restaurantId,

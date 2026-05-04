@@ -97,8 +97,10 @@ export class OrderStateService {
   }
 
   setTableAndUser(table: Table, user: User): void {
-    // Generar clave única para identificar el pedido de esta mesa+usuario
-    const key = `${table.id}_${user.id}`;
+    // Normalizar IDs para consistencia
+    const tableId = String(table.id);
+    const userId = String(user.id);
+    const key = `${tableId}_${userId}`;
     const savedState = this.loadStateFromStorage(key);
     
     if (savedState) {
@@ -127,8 +129,10 @@ export class OrderStateService {
   }
 
   initializeTableOrder(table: Table, user: User): void {
-    // Inicializar un pedido para una mesa (se guarda incluso sin items)
-    const key = `${table.id}_${user.id}`;
+    // Normalizar IDs para consistencia
+    const tableId = String(table.id);
+    const userId = String(user.id);
+    const key = `${tableId}_${userId}`;
     const order = { ...this.initialState, table, user };
     this.currentOrder$.next(order);
     this.pedidoInicialEnviado = false;
@@ -144,6 +148,11 @@ export class OrderStateService {
     
     // Guardar el estado inicial (marca la mesa como en uso)
     this.saveCurrentStateToStorage(key);
+    
+    // Notificar adicional para asegurar que se propaguen cambios a las mesas
+    setTimeout(() => {
+      this.activeOrdersChanged$.next();
+    }, 50);
   }
 
   addItem(item: OrderItem): void {
@@ -205,19 +214,46 @@ export class OrderStateService {
     this.itemsEnviadosACocina$.next([]);
     this.articulosPagados$.next({});
     
-    // Notificar inmediatamente
+    // Notificar TRES VECES para asegurar que se propague correctamente
     this.activeOrdersChanged$.next();
     
-    // Y notificar de nuevo tras un breve delay para asegurar que localStorage está libre
     setTimeout(() => {
       this.activeOrdersChanged$.next();
-    }, 100);
+    }, 50);
+    
+    setTimeout(() => {
+      this.activeOrdersChanged$.next();
+    }, 150);
   }
 
   clearTableOrder(tableId: string, userId: string | number): void {
-    // Limpiar pedido específico de una mesa+usuario
-    const key = `${tableId}_${userId}`;
+    // Normalizar IDs para consistencia
+    const normalizedTableId = String(tableId);
+    const normalizedUserId = String(userId);
+    const key = `${normalizedTableId}_${normalizedUserId}`;
+    
+    // Eliminar el pedido del usuario actual
     localStorage.removeItem(`pedido_${key}`);
+    
+    // TAMBIÉN eliminar todos los demás pedidos de esta mesa (de otros usuarios)
+    // para evitar inconsistencias
+    const prefix = `pedido_${normalizedTableId}_`;
+    const keysAEliminar: string[] = [];
+    
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const storedKey = localStorage.key(i);
+        if (storedKey && storedKey.startsWith(prefix) && storedKey !== `pedido_${key}`) {
+          keysAEliminar.push(storedKey);
+        }
+      }
+    } catch (e) {
+      console.error('Error clearing all table orders:', e);
+    }
+    
+    keysAEliminar.forEach(k => {
+      localStorage.removeItem(k);
+    });
     
     // Si es el pedido actual, también limpiar el estado
     if (this.currentOrder$.value.table?.id === tableId && 
@@ -234,13 +270,19 @@ export class OrderStateService {
       this.articulosPagados$.next({});
     }
     
-    // Notificar inmediatamente
+    // Notificar TRES VECES para asegurar que se propague correctamente:
+    // - Inmediatamente
+    // - Después de 50ms
+    // - Después de 150ms
     this.activeOrdersChanged$.next();
     
-    // Y notificar de nuevo tras un breve delay para asegurar que localStorage está libre
     setTimeout(() => {
       this.activeOrdersChanged$.next();
-    }, 100);
+    }, 50);
+    
+    setTimeout(() => {
+      this.activeOrdersChanged$.next();
+    }, 150);
   }
 
 
@@ -273,13 +315,17 @@ export class OrderStateService {
   }
 
   hasOrderForTableAndUser(tableId: string, userId: string | number): boolean {
-    const key = `${tableId}_${userId}`;
+    const normalizedTableId = String(tableId);
+    const normalizedUserId = String(userId);
+    const key = `${normalizedTableId}_${normalizedUserId}`;
     const stored = localStorage.getItem(`pedido_${key}`);
     return stored !== null;
   }
 
   hasUnpaidItemsForTableAndUser(tableId: string, userId: string | number): boolean {
-    const key = `${tableId}_${userId}`;
+    const normalizedTableId = String(tableId);
+    const normalizedUserId = String(userId);
+    const key = `${normalizedTableId}_${normalizedUserId}`;
     const savedState = this.loadStateFromStorage(key);
     
     // Una mesa está ocupada si tiene un pedido activo (con items sin pagar)
@@ -287,7 +333,9 @@ export class OrderStateService {
   }
 
   hasActiveOrderForTableAndUser(tableId: string, userId: string | number): boolean {
-    const key = `${tableId}_${userId}`;
+    const normalizedTableId = String(tableId);
+    const normalizedUserId = String(userId);
+    const key = `${normalizedTableId}_${normalizedUserId}`;
     const savedState = this.loadStateFromStorage(key);
     
     // Una mesa tiene un pedido activo si existe en localStorage (incluso sin items)
@@ -295,8 +343,9 @@ export class OrderStateService {
   }
 
   hasActiveOrderForTable(tableId: string): boolean {
-    // Verificar si existe ALGÚN pedido para esta mesa directamente en localStorage
-    const prefix = `pedido_${tableId}_`;
+    // Normalizar el tableId a string
+    const normalizedTableId = String(tableId);
+    const prefix = `pedido_${normalizedTableId}_`;
     
     try {
       for (let i = 0; i < localStorage.length; i++) {
@@ -304,11 +353,20 @@ export class OrderStateService {
         if (key && key.startsWith(prefix)) {
           const stored = localStorage.getItem(key);
           if (stored) {
-            const state = JSON.parse(stored) as EstadoPedidoCompleto;
-            // Una mesa está realmente ocupada si tiene items sin pagar O si acaba de ser inicializada (totalPorPagar es 0 pero existe)
-            // Para ser más robustos, si el objeto existe, la consideramos OCUPADA.
-            // Solo deja de estar ocupada cuando el registro se ELIMINA de localStorage.
-            return true;
+            try {
+              const state = JSON.parse(stored) as EstadoPedidoCompleto;
+              // Una mesa está OCUPADA solo si tiene AL MENOS 1 ITEM
+              // (aunque todos estén pagados, si hay items, está siendo usada)
+              if (state.order?.items && state.order.items.length > 0) {
+                return true;
+              }
+              // Si no tiene items, está vacía - eliminar registro
+              localStorage.removeItem(key);
+            } catch (e) {
+              // JSON inválido, eliminar registro corrupto
+              console.warn(`Registro corrupto en localStorage: ${key}`, e);
+              localStorage.removeItem(key);
+            }
           }
         }
       }
@@ -343,7 +401,9 @@ export class OrderStateService {
 
   private saveCurrentState(): void {
     if (this.currentOrder$.value.table) {
-      const key = `${this.currentOrder$.value.table.id}_${this.currentOrder$.value.user?.id}`;
+      const tableId = String(this.currentOrder$.value.table.id);
+      const userId = String(this.currentOrder$.value.user?.id);
+      const key = `${tableId}_${userId}`;
       this.saveCurrentStateToStorage(key);
     }
   }
@@ -359,7 +419,7 @@ export class OrderStateService {
     };
     localStorage.setItem(`pedido_${key}`, JSON.stringify(estadoCompleto));
     
-    // Notificar inmediatamente
+    // Notificar inmediatamente para que las mesas se actualicen
     this.activeOrdersChanged$.next();
   }
 
@@ -376,6 +436,143 @@ export class OrderStateService {
     return null;
   }
 
+  /**
+   * Obtiene el primer pedido activo de una mesa (de cualquier usuario)
+   * Útil para permitir que otro usuario continúe con un pedido existente
+   */
+  public getActiveOrderForTable(tableId: string): { key: string; data: EstadoPedidoCompleto } | null {
+    const normalizedTableId = String(tableId);
+    const prefix = `pedido_${normalizedTableId}_`;
+    
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(prefix)) {
+          const stored = localStorage.getItem(key);
+          if (stored) {
+            try {
+              const state = JSON.parse(stored) as EstadoPedidoCompleto;
+              // Si tiene items, devolver este pedido
+              if (state.order?.items && state.order.items.length > 0) {
+                return { key, data: state };
+              }
+            } catch (e) {
+              console.warn(`Registro corrupto: ${key}`);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error getting active order for table:', e);
+    }
+    
+    return null;
+  }
+
+  /**
+   * Carga un pedido existente para un usuario diferente
+   * Permite que otro usuario continúe con un pedido que fue iniciado por otro usuario
+   */
+  public loadExistingOrderForCurrentUser(table: Table, user: User, existingOrderData: EstadoPedidoCompleto): void {
+    // Cargar el pedido existente pero cambiar el usuario a quien lo abre ahora
+    const normalizedTableId = String(table.id);
+    const normalizedUserId = String(user.id);
+    const newKey = `${normalizedTableId}_${normalizedUserId}`;
+    
+    // Copiar el pedido existente pero con la nueva combinación mesa+usuario
+    const newOrderData: EstadoPedidoCompleto = {
+      ...existingOrderData,
+      order: {
+        ...existingOrderData.order,
+        table,
+        user
+      }
+    };
+    
+    // Guardar bajo la nueva clave
+    localStorage.setItem(`pedido_${newKey}`, JSON.stringify(newOrderData));
+    
+    // Actualizar el estado del servicio
+    this.currentOrder$.next(newOrderData.order);
+    this.pedidoInicialEnviado = newOrderData.pedidoInicialEnviado;
+    this.itemsEnviadosACocina = newOrderData.itemsEnviadosACocina;
+    this.articulosPagados = newOrderData.articulosPagados;
+    this.totalPagado = newOrderData.totalPagado;
+    this.totalPorPagar = newOrderData.totalPorPagar;
+    
+    // Emitir los estados
+    this.pedidoInicialEnviado$.next(this.pedidoInicialEnviado);
+    this.itemsEnviadosACocina$.next(this.itemsEnviadosACocina);
+    this.articulosPagados$.next(this.articulosPagados);
+  }
+
   private loadFromStorage(): void {
+  }
+
+  /**
+   * Limpia todos los pedidos residuales (sin items)
+   * Se ejecuta automáticamente al cargar las mesas
+   */
+  public limpiarPedidosResiduales(): void {
+    const keysAEliminar: string[] = [];
+    
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('pedido_')) {
+          const stored = localStorage.getItem(key);
+          if (stored) {
+            try {
+              const state = JSON.parse(stored) as EstadoPedidoCompleto;
+              // Eliminar si NO tiene items (una mesa sin items no está realmente ocupada)
+              if (!state.order?.items || state.order.items.length === 0) {
+                keysAEliminar.push(key);
+              }
+            } catch (e) {
+              // Registro corrupto, eliminarlo
+              console.warn(`Registro corrupto eliminado: ${key}`);
+              keysAEliminar.push(key);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error cleaning up orders:', e);
+    }
+    
+    keysAEliminar.forEach(key => {
+      localStorage.removeItem(key);
+    });
+    
+    if (keysAEliminar.length > 0) {
+      this.activeOrdersChanged$.next();
+    }
+  }
+
+  /**
+   * Devuelve un listado de todos los pedidos activos (para debugging)
+   */
+  public getActivos(): { [key: string]: any } {
+    const activos: { [key: string]: any } = {};
+    
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('pedido_')) {
+          const stored = localStorage.getItem(key);
+          if (stored) {
+            try {
+              activos[key] = JSON.parse(stored);
+            } catch (e) {
+              activos[key] = { error: 'JSON corrupto' };
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error getting active orders:', e);
+    }
+    
+    return activos;
   }
 }

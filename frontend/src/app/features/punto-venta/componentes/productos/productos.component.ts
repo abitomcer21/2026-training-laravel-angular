@@ -436,7 +436,10 @@ export class ProductosComponent implements OnInit {
 
     // Limpiar el pedido específico de esta mesa+usuario
     if (this.currentOrder.table && this.currentOrder.user) {
-      this.orderStateService.clearTableOrder(this.currentOrder.table.id, this.currentOrder.user.id);
+      // Normalizar IDs antes de limpiar
+      const tableId = String(this.currentOrder.table.id);
+      const userId = String(this.currentOrder.user.id);
+      this.orderStateService.clearTableOrder(tableId, userId);
     } else {
       this.orderStateService.clearOrder();
     }
@@ -616,7 +619,10 @@ export class ProductosComponent implements OnInit {
       this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
       setTimeout(() => {
         if (this.currentOrder.table && this.currentOrder.user) {
-          this.orderStateService.clearTableOrder(this.currentOrder.table.id, this.currentOrder.user.id);
+          // Normalizar IDs antes de limpiar
+          const tableId = String(this.currentOrder.table.id);
+          const userId = String(this.currentOrder.user.id);
+          this.orderStateService.clearTableOrder(tableId, userId);
         } else {
           this.orderStateService.clearOrder();
         }
@@ -640,7 +646,10 @@ export class ProductosComponent implements OnInit {
       this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 2000);
       setTimeout(() => {
         if (this.currentOrder.table && this.currentOrder.user) {
-          this.orderStateService.clearTableOrder(this.currentOrder.table.id, this.currentOrder.user.id);
+          // Normalizar IDs antes de limpiar
+          const tableId = String(this.currentOrder.table.id);
+          const userId = String(this.currentOrder.user.id);
+          this.orderStateService.clearTableOrder(tableId, userId);
         } else {
           this.orderStateService.clearOrder();
         }
@@ -652,7 +661,10 @@ export class ProductosComponent implements OnInit {
 
   nuevoPedido() {
     if (this.currentOrder.table && this.currentOrder.user) {
-      this.orderStateService.clearTableOrder(this.currentOrder.table.id, this.currentOrder.user.id);
+      // Normalizar IDs antes de limpiar
+      const tableId = String(this.currentOrder.table.id);
+      const userId = String(this.currentOrder.user.id);
+      this.orderStateService.clearTableOrder(tableId, userId);
     } else {
       this.orderStateService.clearOrder();
     }

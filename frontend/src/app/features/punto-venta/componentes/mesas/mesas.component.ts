@@ -76,19 +76,28 @@ export class MesasComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    // Limpiar datos residuales antes de hacer nada
+    this.orderStateService.limpiarPedidosResiduales();
+    
     // Cargar datos iniciales
     this.tableService.invalidateTablesCache();
     this.cargarZonas();
     this.cargarMesas();
     this.cargarUsuarios();
     
-    // Suscribirse a cambios en pedidos activos para actualizar colores
-    // (NO recargamos las mesas completas, solo forzamos detección de cambios)
+    // Suscribirse a cambios en pedidos activos para actualizar colores y estado
+    // Cuando se limpia un pedido (mesa se libera), forzar detección de cambios
     this.orderStateService.getActiveOrdersChanged()
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        // Solo forzar que Angular recalcule los bindings, sin recargar datos del servidor
+        // Limpiar residuales cada vez que hay un cambio
+        this.orderStateService.limpiarPedidosResiduales();
+        // Forzar que Angular recalcule los bindings de isTableOccupied
         this.changeDetector.markForCheck();
+        // También hacer un segundo chequeo con delay para asegurar sincronización
+        setTimeout(() => {
+          this.changeDetector.markForCheck();
+        }, 50);
       });
   }
 
@@ -102,6 +111,10 @@ export class MesasComponent implements OnInit, OnDestroy {
     // Forzar que se recalcule el estado de ocupación de todas las mesas
     this.tableService.invalidateTablesCache();
     this.cargarMesas();
+    // Forzar detección de cambios después de recargar
+    setTimeout(() => {
+      this.changeDetector.markForCheck();
+    }, 100);
   }
 
   cargarZonas() {
@@ -126,6 +139,10 @@ export class MesasComponent implements OnInit, OnDestroy {
 
   cargarMesas() {
     this.cargando = true;
+    
+    // Limpiar pedidos residuales antes de cargar
+    this.orderStateService.limpiarPedidosResiduales();
+    
     const userData = this.authService.getUserData();
     const restaurantId = userData?.restaurant_id;
 
@@ -179,11 +196,25 @@ export class MesasComponent implements OnInit, OnDestroy {
 
   isTableOccupied(table: Table): boolean {
     const occupied = this.orderStateService.hasActiveOrderForTable(table.id);
+    if (occupied) {
+      console.debug(`Mesa ${table.name} (${table.id}) está ocupada`);
+    }
     return occupied;
   }
 
+  debugPedidos() {
+    // Método para ver qué hay en localStorage (solo en desarrollo)
+    const activos = this.orderStateService.getActivos();
+    console.log('Pedidos activos en localStorage:', activos);
+    console.log('Total de mesas en pantalla:', this.mesasFiltradas.length);
+    this.mesasFiltradas.forEach(mesa => {
+      const ocupada = this.isTableOccupied(mesa);
+      console.log(`  - Mesa ${mesa.name}: ${ocupada ? 'OCUPADA' : 'LIBRE'}`);
+    });
+  }
+
   trackByMesa(index: number, mesa: Table): string {
-    return mesa.uuid;
+    return mesa.id || mesa.uuid || index.toString();
   }
 
   seleccionarMesa(mesa: Table) {
@@ -210,19 +241,35 @@ export class MesasComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Verificar si ya existe un pedido CON ITEMS SIN PAGAR para esta mesa+usuario
+    // Primero: Verificar si ya existe un pedido para ESTE usuario en ESTA mesa
     const hasUnpaidItems = this.orderStateService.hasUnpaidItemsForTableAndUser(
       this.selectedTable.id,
       this.selectedUser.id
     );
 
     if (hasUnpaidItems) {
-      // Mesa ya está ocupada con un pedido en progreso - restaurar ese pedido
+      // Mesa ya está ocupada por ESTE usuario - restaurar ese pedido
       this.orderStateService.setTableAndUser(this.selectedTable, this.selectedUser);
       this.mostrarModalPin = false;
       this.vistaChange.emit('productos');
+      return;
+    }
+
+    // Segundo: Verificar si hay un pedido activo de OTRO usuario en ESTA mesa
+    const existingOrder = this.orderStateService.getActiveOrderForTable(this.selectedTable.id);
+    
+    if (existingOrder) {
+      // Mesa está ocupada - cargar el pedido existente para este usuario
+      // (No preguntar, simplemente cargar el pedido ya que la mesa está en uso)
+      this.orderStateService.loadExistingOrderForCurrentUser(
+        this.selectedTable,
+        this.selectedUser,
+        existingOrder.data
+      );
+      this.mostrarModalPin = false;
+      this.vistaChange.emit('productos');
     } else {
-      // Mesa es nueva o totalmente pagada - pedir comensales
+      // Mesa está libre - pedir comensales para crear un nuevo pedido
       this.mostrarModalPin = false;
       this.mostrarModalComensales = true;
       this.cantidadComensalesIngresada = '';
