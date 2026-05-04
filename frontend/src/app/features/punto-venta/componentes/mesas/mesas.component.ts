@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import {
   IonIcon,
   IonLoading,
@@ -46,25 +45,29 @@ import { ZoneService, Zone } from '../../../../services/api/zone.service';
 })
 
 export class MesasComponent implements OnInit {
+  @Output() vistaChange = new EventEmitter<string>();
+
   mesas: Table[] = [];
   mesasFiltradas: Table[] = [];
   zonas: Zone[] = [];
   usuarios: User[] = [];
   cargando = false;
   mostrarModalPin = false;
+  mostrarModalComensales = false;
   selectedTable: Table | null = null;
   selectedUser: User | null = null;
   pinIngresado = '';
   mensajeError = '';
   zonaSeleccionada: Zone | null = null;
+  cantidadComensalesIngresada = '';
+  mesaEsNueva = false;
 
   constructor(
     private tableService: TableService,
     private userService: UserService,
     private orderStateService: OrderStateService,
     private authService: AuthService,
-    private zoneService: ZoneService,
-    private router: Router
+    private zoneService: ZoneService
   ) {
     addIcons({ gridOutline, closeOutline, arrowBackOutline, arrowForwardOutline, backspaceOutline });
   }
@@ -141,6 +144,7 @@ export class MesasComponent implements OnInit {
 
   seleccionarMesa(mesa: Table) {
     this.selectedTable = mesa;
+    this.mesaEsNueva = !this.isTableOccupied(mesa);
     this.mostrarModalPin = true;
     this.pinIngresado = '';
     this.mensajeError = '';
@@ -162,8 +166,23 @@ export class MesasComponent implements OnInit {
       this.orderStateService.setTableAndUser(this.selectedTable, this.selectedUser);
     }
 
+    // Limpiar estado del modal PIN
     this.mostrarModalPin = false;
-    this.router.navigate(['/punto-venta/productos']);
+    this.pinIngresado = '';
+    this.mensajeError = '';
+    
+    // Si es mesa nueva, pedir comensales; si es ocupada, ir a productos
+    if (this.mesaEsNueva) {
+      this.cantidadComensalesIngresada = '';
+      setTimeout(() => {
+        this.mostrarModalComensales = true;
+      }, 100);
+    } else {
+      // Mesa ocupada: ir directo a productos
+      setTimeout(() => {
+        this.vistaChange.emit('productos');
+      }, 100);
+    }
   }
 
   agregarDigito(digito: string) {
@@ -199,14 +218,57 @@ export class MesasComponent implements OnInit {
     return rows[row] || [];
   }
 
+  agregarDigitoComensales(digito: string) {
+    if (this.cantidadComensalesIngresada.length < 2) {
+      this.cantidadComensalesIngresada += digito;
+    }
+  }
+
+  borrarDigitoComensales() {
+    this.cantidadComensalesIngresada = this.cantidadComensalesIngresada.slice(0, -1);
+  }
+
 
 
   cerrarModal() {
     this.mostrarModalPin = false;
+    this.mostrarModalComensales = false;
+    this.selectedTable = null;
+    this.selectedUser = null;
+    this.pinIngresado = '';
+    this.cantidadComensalesIngresada = '';
+    this.mensajeError = '';
+    this.mesaEsNueva = false;
+  }
+
+  confirmarComensales() {
+    if (!this.cantidadComensalesIngresada) {
+      return;
+    }
+
+    const cantidad = parseInt(this.cantidadComensalesIngresada, 10);
+    if (isNaN(cantidad) || cantidad <= 0) {
+      return;
+    }
+
+    // Guardar comensales
+    this.orderStateService.setComensales(cantidad);
+    
+    // Cerrar modal
+    this.mostrarModalComensales = false;
+    
+    // Limpiar estado
+    this.cantidadComensalesIngresada = '';
     this.selectedTable = null;
     this.selectedUser = null;
     this.pinIngresado = '';
     this.mensajeError = '';
+    this.mesaEsNueva = false;
+    
+    // Emitir evento para cambiar a productos
+    setTimeout(() => {
+      this.vistaChange.emit('productos');
+    }, 50);
   }
 
   trackByMesa(index: number, mesa: Table): string {
@@ -219,6 +281,10 @@ export class MesasComponent implements OnInit {
 
   getTableOccupiedInfo(mesa: Table): { comensales: number; total: number } | null {
     return this.orderStateService.getTableOccupiedInfo(String(mesa.id));
+  }
+
+  refrescarMesas() {
+    this.cargarMesas();
   }
 }
 
