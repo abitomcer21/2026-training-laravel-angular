@@ -168,7 +168,15 @@ export class MesasComponent implements OnInit {
 
     // Limpiar estado del modal PIN
     this.mostrarModalPin = false;
-    this.vistaChange.emit('productos');
+    
+    // Si es una mesa nueva, pedir comensales antes de ir a productos
+    if (this.mesaEsNueva) {
+      this.mostrarModalComensales = true;
+      this.cantidadComensalesIngresada = '';
+    } else {
+      // Si la mesa ya tiene orden, ir directamente a productos
+      this.vistaChange.emit('productos');
+    }
   }
 
   agregarDigito(digito: string) {
@@ -268,7 +276,6 @@ export class MesasComponent implements OnInit {
   getTableOccupiedInfo(mesa: Table): { comensales: number; total: number } | null {
     return this.orderStateService.getTableOccupiedInfo(String(mesa.id));
   }
-
   refrescarMesas() {
     this.cargarMesas();
   }

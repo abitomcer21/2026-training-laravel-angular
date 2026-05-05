@@ -131,6 +131,7 @@ export class ProductosComponent implements OnInit {
     user: null,
     items: [],
     total: 0,
+    comensales: 1,
   };
 
   cargando = false;
@@ -438,10 +439,11 @@ export class ProductosComponent implements OnInit {
         if (!order || !order.items || order.items.length === 0) {
           console.log('🆕 Orden vacía - reseteando estado local');
           this.resetearEstadoPedido();
-          // Asignar la referencia de table y user si los tiene
+          // Asignar la referencia de table, user y comensales si los tiene
           if (order) {
             this.currentOrder.table = order.table;
             this.currentOrder.user = order.user;
+            this.currentOrder.comensales = order.comensales || 1;
           }
         } else {
           // Orden existente con items - cargar todos los datos
@@ -476,6 +478,7 @@ export class ProductosComponent implements OnInit {
       user: null,
       items: [],
       total: 0,
+      comensales: 1,
     };
 
     // Resetear modales y flags de UI

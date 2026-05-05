@@ -23,16 +23,13 @@
   </div>
 
   <div class="mesas-grid">
-    <div *ngFor="let mesa of mesasFiltradas; trackBy: trackByMesa" 
-      class="mesa-card" 
-      [class.occupied]="isTableOccupied(mesa)"
-      [class.available]="!isTableOccupied(mesa)"
+    <div *ngFor="let mesa of mesasFiltradas; trackBy: trackByMesa" class="mesa-card"
+      [class.occupied]="isTableOccupied(mesa)" [class.available]="!isTableOccupied(mesa)"
       (click)="seleccionarMesa(mesa)">
-      <div class="mesa-status-indicator" 
-        [class.occupied]="isTableOccupied(mesa)"
+      <div class="mesa-status-indicator" [class.occupied]="isTableOccupied(mesa)"
         [title]="isTableOccupied(mesa) ? 'Ocupada' : 'Disponible'">
       </div>
-      
+
       <!-- Si está disponible: mostrar icono y nombre -->
       <div *ngIf="!isTableOccupied(mesa)" class="mesa-disponible">
         <ion-icon name="grid-outline"></ion-icon>
@@ -41,6 +38,7 @@
 
       <!-- Si está ocupada: mostrar comensales y total -->
       <div *ngIf="isTableOccupied(mesa)" class="mesa-ocupada">
+        <div class="mesa-nombre">{{ mesa.name }}</div>
         <div class="comensales-numero">{{ getTableOccupiedInfo(mesa)?.comensales }}</div>
         <div class="total-display">{{ getTableOccupiedInfo(mesa)?.total | number:'1.2-2' }} €</div>
       </div>
@@ -137,8 +135,10 @@
             <button class="key-button back-arrow-btn" (click)="borrarDigitoComensales()">
               <ion-icon name="backspace-outline"></ion-icon>
             </button>
-            <button class="key-button" (click)="agregarDigitoComensales('0')" [disabled]="cantidadComensalesIngresada.length >= 2">0</button>
-            <button class="key-button forward-arrow-btn" (click)="confirmarComensales()" [disabled]="!cantidadComensalesIngresada">
+            <button class="key-button" (click)="agregarDigitoComensales('0')"
+              [disabled]="cantidadComensalesIngresada.length >= 2">0</button>
+            <button class="key-button forward-arrow-btn" (click)="confirmarComensales()"
+              [disabled]="!cantidadComensalesIngresada">
               <ion-icon name="arrow-forward-outline"></ion-icon>
             </button>
           </div>

@@ -44,6 +44,8 @@ export class PuntoVentaPage implements OnInit {
   currentView: string = 'mesas';
   restaurantName: string = 'Restaurante';
 
+  userRole: string = '';
+
   menuItems: MenuItem[] = [
     { nombre: 'Productos', valor: 'productos', icono: 'restaurant-outline' },
     { nombre: 'Mesas', valor: 'mesas', icono: 'grid-outline' },
@@ -64,6 +66,16 @@ export class PuntoVentaPage implements OnInit {
 
   ngOnInit() {
     this.cargarRestaurantName();
+    // Obtener el rol del usuario desde localStorage
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        this.userRole = user.role || '';
+      } catch (e) {
+        this.userRole = '';
+      }
+    }
   }
 
   cargarRestaurantName() {
@@ -81,7 +93,6 @@ export class PuntoVentaPage implements OnInit {
   selectView(valor: string) {
     this.currentView = valor;
     
-    // Refrescar mesas cuando se cambia a esa vista
     if (valor === 'mesas' && this.mesasComponent) {
       setTimeout(() => {
         this.mesasComponent?.refrescarMesas();
@@ -105,4 +116,5 @@ export class PuntoVentaPage implements OnInit {
   volverAlDashboard() {
     this.router.navigate(['/dashboard']);
   }
+  
 }
