@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -46,15 +46,19 @@ import { ZoneService, Zone } from '../../../../services/api/zone.service';
 })
 
 export class MesasComponent implements OnInit {
+  @Output() vistaChange = new EventEmitter<string>();
+
   mesas: Table[] = [];
   mesasFiltradas: Table[] = [];
   zonas: Zone[] = [];
   usuarios: User[] = [];
   cargando = false;
   mostrarModalPin = false;
+  mostrarModalComensales = false;
   selectedTable: Table | null = null;
   selectedUser: User | null = null;
   pinIngresado = '';
+  cantidadComensalesIngresada = '';
   mensajeError = '';
   zonaSeleccionada: Zone | null = null;
 
@@ -163,7 +167,13 @@ export class MesasComponent implements OnInit {
     }
 
     this.mostrarModalPin = false;
-    this.router.navigate(['/punto-venta/productos']);
+
+    // Si la mesa está libre, pedir comensales; si no, ir directamente a productos
+    if (this.selectedTable && !this.isTableOccupied(this.selectedTable)) {
+      this.mostrarModalComensales = true;
+    } else {
+      this.vistaChange.emit('productos');
+    }
   }
 
   agregarDigito(digito: string) {
@@ -219,6 +229,36 @@ export class MesasComponent implements OnInit {
 
   getTableOccupiedInfo(mesa: Table): { comensales: number; total: number } | null {
     return this.orderStateService.getTableOccupiedInfo(String(mesa.id));
+  }
+
+  agregarDigitoComensales(digito: string) {
+    if (this.cantidadComensalesIngresada.length < 2) {
+      this.cantidadComensalesIngresada += digito;
+    }
+  }
+
+  borrarDigitoComensales() {
+    this.cantidadComensalesIngresada = this.cantidadComensalesIngresada.slice(0, -1);
+  }
+
+  confirmarComensales() {
+    // Lógica para confirmar la cantidad de comensales
+    const cantidad = parseInt(this.cantidadComensalesIngresada, 10);
+    if (cantidad > 0) {
+      // Guardar la cantidad de comensales en la mesa
+      if (this.selectedTable) {
+        // Aquí puedes guardar la cantidad asociada a la mesa si es necesario
+      }
+      this.mostrarModalComensales = false;
+      this.cantidadComensalesIngresada = '';
+      
+      // Ir a la vista de productos después de confirmar comensales
+      this.vistaChange.emit('productos');
+    }
+  }
+
+  refrescarMesas() {
+    this.cargarMesas();
   }
 }
 
