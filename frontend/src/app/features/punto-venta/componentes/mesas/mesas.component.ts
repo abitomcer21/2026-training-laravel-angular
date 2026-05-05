@@ -1,7 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import {
   IonIcon,
   IonLoading,
@@ -61,14 +60,14 @@ export class MesasComponent implements OnInit {
   cantidadComensalesIngresada = '';
   mensajeError = '';
   zonaSeleccionada: Zone | null = null;
+  mesaEsNueva = false;
 
   constructor(
     private tableService: TableService,
     private userService: UserService,
     private orderStateService: OrderStateService,
     private authService: AuthService,
-    private zoneService: ZoneService,
-    private router: Router
+    private zoneService: ZoneService
   ) {
     addIcons({ gridOutline, closeOutline, arrowBackOutline, arrowForwardOutline, backspaceOutline });
   }
@@ -145,6 +144,7 @@ export class MesasComponent implements OnInit {
 
   seleccionarMesa(mesa: Table) {
     this.selectedTable = mesa;
+    this.mesaEsNueva = !this.isTableOccupied(mesa);
     this.mostrarModalPin = true;
     this.pinIngresado = '';
     this.mensajeError = '';
@@ -166,14 +166,9 @@ export class MesasComponent implements OnInit {
       this.orderStateService.setTableAndUser(this.selectedTable, this.selectedUser);
     }
 
+    // Limpiar estado del modal PIN
     this.mostrarModalPin = false;
-
-    // Si la mesa está libre, pedir comensales; si no, ir directamente a productos
-    if (this.selectedTable && !this.isTableOccupied(this.selectedTable)) {
-      this.mostrarModalComensales = true;
-    } else {
-      this.vistaChange.emit('productos');
-    }
+    this.vistaChange.emit('productos');
   }
 
   agregarDigito(digito: string) {
@@ -209,14 +204,57 @@ export class MesasComponent implements OnInit {
     return rows[row] || [];
   }
 
+  agregarDigitoComensales(digito: string) {
+    if (this.cantidadComensalesIngresada.length < 2) {
+      this.cantidadComensalesIngresada += digito;
+    }
+  }
+
+  borrarDigitoComensales() {
+    this.cantidadComensalesIngresada = this.cantidadComensalesIngresada.slice(0, -1);
+  }
+
 
 
   cerrarModal() {
     this.mostrarModalPin = false;
+    this.mostrarModalComensales = false;
+    this.selectedTable = null;
+    this.selectedUser = null;
+    this.pinIngresado = '';
+    this.cantidadComensalesIngresada = '';
+    this.mensajeError = '';
+    this.mesaEsNueva = false;
+  }
+
+  confirmarComensales() {
+    if (!this.cantidadComensalesIngresada) {
+      return;
+    }
+
+    const cantidad = parseInt(this.cantidadComensalesIngresada, 10);
+    if (isNaN(cantidad) || cantidad <= 0) {
+      return;
+    }
+
+    // Guardar comensales
+    this.orderStateService.setComensales(cantidad);
+    
+    // Cerrar modal
+    this.mostrarModalComensales = false;
+    
+    // Limpiar estado
+    this.cantidadComensalesIngresada = '';
     this.selectedTable = null;
     this.selectedUser = null;
     this.pinIngresado = '';
     this.mensajeError = '';
+    this.mesaEsNueva = false;
+    
+    // Emitir evento para cambiar a productos
+    setTimeout(() => {
+      this.vistaChange.emit('productos');
+    }, 50);
   }
 
   trackByMesa(index: number, mesa: Table): string {
@@ -229,32 +267,6 @@ export class MesasComponent implements OnInit {
 
   getTableOccupiedInfo(mesa: Table): { comensales: number; total: number } | null {
     return this.orderStateService.getTableOccupiedInfo(String(mesa.id));
-  }
-
-  agregarDigitoComensales(digito: string) {
-    if (this.cantidadComensalesIngresada.length < 2) {
-      this.cantidadComensalesIngresada += digito;
-    }
-  }
-
-  borrarDigitoComensales() {
-    this.cantidadComensalesIngresada = this.cantidadComensalesIngresada.slice(0, -1);
-  }
-
-  confirmarComensales() {
-    // Lógica para confirmar la cantidad de comensales
-    const cantidad = parseInt(this.cantidadComensalesIngresada, 10);
-    if (cantidad > 0) {
-      // Guardar la cantidad de comensales en la mesa
-      if (this.selectedTable) {
-        // Aquí puedes guardar la cantidad asociada a la mesa si es necesario
-      }
-      this.mostrarModalComensales = false;
-      this.cantidadComensalesIngresada = '';
-      
-      // Ir a la vista de productos después de confirmar comensales
-      this.vistaChange.emit('productos');
-    }
   }
 
   refrescarMesas() {
