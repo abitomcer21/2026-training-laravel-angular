@@ -18,6 +18,8 @@ class PutController
     {
         $validated = $request->validate([
             'name' => ['nullable', 'string', 'max:255'],
+            'family_id' => ['nullable', 'string', 'max:255'],
+            'tax_id' => ['nullable', 'string', 'max:255'],
             'price' => ['nullable', 'integer', 'min:0'],
             'stock' => ['nullable', 'integer', 'min:0'],
             'image_src' => ['nullable', 'string', 'max:255'],
@@ -26,6 +28,8 @@ class PutController
 
         $response = ($this->updateProduct)(
             $id,
+            $validated['family_id'] ?? null,
+            $validated['tax_id'] ?? null,
             $validated['name'] ?? null,
             $validated['price'] ?? null,
             $validated['stock'] ?? null,
@@ -40,3 +44,4 @@ class PutController
         return new JsonResponse($response->toArray(), 200);
     }
 }
+

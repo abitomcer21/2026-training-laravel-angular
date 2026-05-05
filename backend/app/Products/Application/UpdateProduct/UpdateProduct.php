@@ -8,6 +8,7 @@ use App\Products\Domain\ValueObject\ProductName;
 use App\Products\Domain\ValueObject\ProductPrice;
 use App\Products\Domain\ValueObject\ProductStatus;
 use App\Products\Domain\ValueObject\ProductStock;
+use App\Shared\Domain\ValueObject\Uuid;
 
 class UpdateProduct
 {
@@ -17,6 +18,8 @@ class UpdateProduct
 
     public function __invoke(
         string $id,
+        ?string $familyId,
+        ?string $taxId,
         ?string $name,
         ?int $price,
         ?int $stock,
@@ -28,6 +31,18 @@ class UpdateProduct
 
         if (! $product) {
             return null;
+        }
+
+        if ($familyId === null) {
+            $familyIdVO = $product->FamilyId();
+        } else {
+            $familyIdVO = Uuid::create($familyId);
+        }
+
+        if ($taxId === null) {
+            $taxIdVO = $product->taxId();
+        } else {
+            $taxIdVO = Uuid::create($taxId);
         }
 
         if ($name === null) {
@@ -60,7 +75,7 @@ class UpdateProduct
             $activeVO = ProductStatus::create($status);
         }
 
-        $product = $product->updateData($nameVO, $priceVO, $stockVO, $imageSrcVO, $activeVO);
+        $product = $product->updateData($familyIdVO, $taxIdVO, $nameVO, $priceVO, $stockVO, $imageSrcVO, $activeVO);
         $this->productRepository->save($product);
 
         return UpdateProductResponse::create($product);

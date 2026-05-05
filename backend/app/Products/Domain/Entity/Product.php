@@ -82,6 +82,8 @@ class Product
     }
 
     public function updateData(
+        Uuid $familyId,
+        Uuid $taxId,
         ProductName $name,
         ProductPrice $price,
         ProductStock $stock,
@@ -90,8 +92,8 @@ class Product
     ): self {
         return new self(
             $this->id,
-            $this->familyId,
-            $this->taxId,
+            $familyId,
+            $taxId,
             $name,
             $price,
             $stock,
