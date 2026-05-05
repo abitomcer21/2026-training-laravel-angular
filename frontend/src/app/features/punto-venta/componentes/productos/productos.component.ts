@@ -588,12 +588,11 @@ export class ProductosComponent implements OnInit {
       return;
     }
 
-    // Limpiar el pedido específico de esta mesa+usuario
-    if (this.currentOrder.table && this.currentOrder.user) {
+    // Limpiar el pedido específico de esta mesa
+    if (this.currentOrder.table) {
       // Normalizar IDs antes de limpiar
       const tableId = String(this.currentOrder.table.id);
-      const userId = String(this.currentOrder.user.id);
-      this.orderStateService.clearTableOrder(tableId, userId);
+      this.orderStateService.clearTableOrder(tableId);
     } else {
       this.orderStateService.clearOrder();
     }
@@ -860,8 +859,8 @@ export class ProductosComponent implements OnInit {
       
       // Limpiar la orden del servicio
       if (tableId && userId) {
-        console.log(`📢 Llamando clearTableOrder(${tableId}, ${userId})`);
-        this.orderStateService.clearTableOrder(tableId, userId);
+        console.log(`📢 Llamando clearTableOrder(${tableId})`);
+        this.orderStateService.clearTableOrder(tableId);
         console.log('✓ clearTableOrder() completado');
       } else {
         console.log('📢 Llamando clearOrder() - no hay mesa/usuario válido');
@@ -906,7 +905,7 @@ export class ProductosComponent implements OnInit {
       
       setTimeout(() => {
         if (tableId && userId) {
-          this.orderStateService.clearTableOrder(tableId, userId);
+          this.orderStateService.clearTableOrder(tableId);
         } else {
           this.orderStateService.clearOrder();
         }
@@ -920,11 +919,10 @@ export class ProductosComponent implements OnInit {
   }
 
   nuevoPedido() {
-    if (this.currentOrder.table && this.currentOrder.user) {
+    if (this.currentOrder.table) {
       // Normalizar IDs antes de limpiar
       const tableId = String(this.currentOrder.table.id);
-      const userId = String(this.currentOrder.user.id);
-      this.orderStateService.clearTableOrder(tableId, userId);
+      this.orderStateService.clearTableOrder(tableId);
     } else {
       this.orderStateService.clearOrder();
     }

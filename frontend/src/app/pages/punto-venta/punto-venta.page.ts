@@ -47,7 +47,6 @@ export class PuntoVentaPage implements OnInit {
   userRole: string = '';
 
   menuItems: MenuItem[] = [
-    { nombre: 'Productos', valor: 'productos', icono: 'restaurant-outline' },
     { nombre: 'Mesas', valor: 'mesas', icono: 'grid-outline' },
     { nombre: 'Pedidos', valor: 'pedidos', icono: 'list-outline' },
     { nombre: 'Caja', valor: 'caja', icono: 'cash-outline' }

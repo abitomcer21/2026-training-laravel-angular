@@ -101,8 +101,7 @@ export class OrderStateService {
 
   setTableAndUser(table: Table, user: User): void {
     const tableId = String(table.id);
-    const userId = String(user.id);
-    const key = `${tableId}_${userId}`;
+    const key = `${tableId}`;
 
     const ahora = Date.now();
     const tiempoRestante = this.blockReloadUntil - ahora;
@@ -131,8 +130,12 @@ export class OrderStateService {
     const savedState = this.loadStateFromStorage(key);
 
     if (savedState) {
-
-      this.currentOrder$.next(savedState.order);
+      const updatedOrder: CurrentOrder = {
+        ...savedState.order,
+        table,
+        user,
+      };
+      this.currentOrder$.next(updatedOrder);
       this.pedidoInicialEnviado = savedState.pedidoInicialEnviado;
       this.itemsEnviadosACocina = savedState.itemsEnviadosACocina;
       this.articulosPagados = savedState.articulosPagados;
@@ -165,8 +168,7 @@ export class OrderStateService {
 
   initializeTableOrder(table: Table, user: User): void {
     const tableId = String(table.id);
-    const userId = String(user.id);
-    const key = `${tableId}_${userId}`;
+    const key = `${tableId}`;
 
     const comensalesActual = this.currentOrder$.value?.comensales || 1;
 
@@ -242,8 +244,8 @@ export class OrderStateService {
 
     this.blockStorageUntil = Date.now() + 3000;
 
-    if (this.currentOrder$.value.table && this.currentOrder$.value.user) {
-      const key = `${this.currentOrder$.value.table.id}_${this.currentOrder$.value.user.id}`;
+    if (this.currentOrder$.value.table) {
+      const key = `${this.currentOrder$.value.table.id}`;
       localStorage.removeItem(`pedido_${key}`);
     }
 
@@ -281,40 +283,19 @@ export class OrderStateService {
 
   }
 
-  clearTableOrder(tableId: string, userId: string | number): void {
+  clearTableOrder(tableId: string): void {
     const normalizedTableId = String(tableId);
-    const normalizedUserId = String(userId);
-    const key = `${normalizedTableId}_${normalizedUserId}`;
+    const key = `${normalizedTableId}`;
 
     this.blockStorageUntil = Date.now() + 3000;
-
     this.blockReloadUntil = Date.now() + 10000;
 
     localStorage.removeItem(`pedido_${key}`);
 
-    const prefix = `pedido_${normalizedTableId}_`;
-    const keysAEliminar: string[] = [];
-
-
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const storedKey = localStorage.key(i);
-        if (storedKey && storedKey.startsWith(prefix)) {
-          keysAEliminar.push(storedKey);
-        }
-      }
-    } catch (e) {
-    }
-    keysAEliminar.forEach(k => {
-      localStorage.removeItem(k);
-    });
-
     const currentTableId = this.currentOrder$.value.table?.id;
-    const currentUserId = this.currentOrder$.value.user?.id;
     const currentTableIdStr = currentTableId ? String(currentTableId) : null;
-    const currentUserIdStr = currentUserId ? String(currentUserId) : null;
 
-    if (currentTableIdStr === normalizedTableId && currentUserIdStr === normalizedUserId) {
+    if (currentTableIdStr === normalizedTableId) {
       const cleanState: CurrentOrder = {
         table: null,
         user: null,
@@ -377,50 +358,42 @@ export class OrderStateService {
     return { totalPagado: this.totalPagado, totalPorPagar: this.totalPorPagar };
   }
 
-  hasOrderForTableAndUser(tableId: string, userId: string | number): boolean {
+  hasOrderForTableAndUser(tableId: string): boolean {
     const normalizedTableId = String(tableId);
-    const normalizedUserId = String(userId);
-    const key = `${normalizedTableId}_${normalizedUserId}`;
+    const key = `${normalizedTableId}`;
     const stored = localStorage.getItem(`pedido_${key}`);
     return stored !== null;
   }
 
-  hasUnpaidItemsForTableAndUser(tableId: string, userId: string | number): boolean {
+  hasUnpaidItemsForTableAndUser(tableId: string): boolean {
     const normalizedTableId = String(tableId);
-    const normalizedUserId = String(userId);
-    const key = `${normalizedTableId}_${normalizedUserId}`;
+    const key = `${normalizedTableId}`;
     const savedState = this.loadStateFromStorage(key);
     return savedState !== null && savedState.totalPorPagar > 0;
   }
 
-  hasActiveOrderForTableAndUser(tableId: string, userId: string | number): boolean {
+  hasActiveOrderForTableAndUser(tableId: string): boolean {
     const normalizedTableId = String(tableId);
-    const normalizedUserId = String(userId);
-    const key = `${normalizedTableId}_${normalizedUserId}`;
+    const key = `${normalizedTableId}`;
     const savedState = this.loadStateFromStorage(key);
     return savedState !== null;
   }
 
   hasActiveOrderForTable(tableId: string): boolean {
     const normalizedTableId = String(tableId);
-    const prefix = `pedido_${normalizedTableId}_`;
+    const key = `pedido_${normalizedTableId}`;
 
     try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(prefix)) {
-          const stored = localStorage.getItem(key);
-          if (stored) {
-            try {
-              const state = JSON.parse(stored) as EstadoPedidoCompleto;
-              if (state.order?.items && state.order.items.length > 0) {
-                return true;
-              }
-              localStorage.removeItem(key);
-            } catch (e) {
-              localStorage.removeItem(key);
-            }
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        try {
+          const state = JSON.parse(stored) as EstadoPedidoCompleto;
+          if (state.order?.items && state.order.items.length > 0) {
+            return true;
           }
+          localStorage.removeItem(key);
+        } catch (e) {
+          localStorage.removeItem(key);
         }
       }
     } catch (e) {
@@ -430,39 +403,27 @@ export class OrderStateService {
   }
   getTableOccupiedInfo(tableId: string): { comensales: number; total: number } | null {
     const normalizedTableId = String(tableId);
-    const prefix = `pedido_${normalizedTableId}_`;
-
-    let totalComensales = 0;
-    let totalCuenta = 0;
-    let found = false;
+    const key = `pedido_${normalizedTableId}`;
 
     try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(prefix)) {
-          const stored = localStorage.getItem(key);
-          if (stored) {
-            try {
-              const state = JSON.parse(stored) as EstadoPedidoCompleto;
-              if (state.order?.items && state.order.items.length > 0) {
-                found = true;
-                totalComensales += (state.order.comensales || 1);
-                if (state.order.total) {
-                  totalCuenta += state.order.total;
-                }
-              }
-            } catch (e) {
-            }
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        try {
+          const state = JSON.parse(stored) as EstadoPedidoCompleto;
+          if (state.order?.items && state.order.items.length > 0) {
+            const totalComensales = state.order.comensales || 1;
+            const totalCuenta = state.order.total || 0;
+            return { comensales: totalComensales, total: totalCuenta };
           }
+        } catch (e) {
         }
       }
     } catch (e) {
     }
 
-    return found ? { comensales: totalComensales, total: totalCuenta } : null;
+    return null;
   }
 
-  // Guardar el número de comensales en el pedido actual
   setComensales(comensales: number): void {
     const currentOrder = this.currentOrder$.value;
     if (currentOrder) {
@@ -473,10 +434,9 @@ export class OrderStateService {
       this.currentOrder$.next(updatedOrder);
 
       // Guardar en localStorage
-      if (currentOrder.table && currentOrder.user) {
+      if (currentOrder.table) {
         const tableId = String(currentOrder.table.id);
-        const userId = String(currentOrder.user.id);
-        const key = `${tableId}_${userId}`;
+        const key = `${tableId}`;
         this.saveCurrentStateToStorage(key);
       }
     }
@@ -507,15 +467,13 @@ export class OrderStateService {
   private saveCurrentState(): void {
     if (this.currentOrder$.value.table) {
       const tableId = String(this.currentOrder$.value.table.id);
-      const userId = String(this.currentOrder$.value.user?.id);
-      const key = `${tableId}_${userId}`;
+      const key = `${tableId}`;
 
       this.saveCurrentStateToStorage(key);
     }
   }
 
   private saveCurrentStateToStorage(key: string): void {
-    // Si el almacenamiento está bloqueado (ej: después de limpiar), no guardar
     if (Date.now() < this.blockStorageUntil) {
       return;
     }
@@ -560,31 +518,24 @@ export class OrderStateService {
     return null;
   }
 
-
   public getActiveOrderForTable(tableId: string): { key: string; data: EstadoPedidoCompleto } | null {
     const normalizedTableId = String(tableId);
-    const prefix = `pedido_${normalizedTableId}_`;
+    const key = `pedido_${normalizedTableId}`;
 
     try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(prefix)) {
-          const stored = localStorage.getItem(key);
-          if (stored) {
-            try {
-              const state = JSON.parse(stored) as EstadoPedidoCompleto;
-              // Si tiene items, devolver este pedido
-              if (state.order?.items && state.order.items.length > 0) {
-                return { key, data: state };
-              }
-            } catch (e) {
-              console.warn(`Registro corrupto: ${key}`);
-            }
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        try {
+          const state = JSON.parse(stored) as EstadoPedidoCompleto;
+          if (state.order?.items && state.order.items.length > 0) {
+            return { key, data: state };
           }
+        } catch (e) {
+          console.warn(`Registro corrupto: ${key}`);
         }
       }
     } catch (e) {
-      console.error('Error getting active order for table:', e);
+      console.error('Error obteniendo pedido activo para la mesa:', e);
     }
 
     return null;
@@ -592,12 +543,9 @@ export class OrderStateService {
 
 
   public loadExistingOrderForCurrentUser(table: Table, user: User, existingOrderData: EstadoPedidoCompleto): void {
-    // Cargar el pedido existente pero cambiar el usuario a quien lo abre ahora
     const normalizedTableId = String(table.id);
-    const normalizedUserId = String(user.id);
-    const newKey = `${normalizedTableId}_${normalizedUserId}`;
+    const newKey = `${normalizedTableId}`;
 
-    // Copiar el pedido existente pero con la nueva combinación mesa+usuario
     const newOrderData: EstadoPedidoCompleto = {
       ...existingOrderData,
       order: {
@@ -607,10 +555,8 @@ export class OrderStateService {
       }
     };
 
-    // Guardar bajo la nueva clave
     localStorage.setItem(`pedido_${newKey}`, JSON.stringify(newOrderData));
 
-    // Actualizar el estado del servicio
     this.currentOrder$.next(newOrderData.order);
     this.pedidoInicialEnviado = newOrderData.pedidoInicialEnviado;
     this.itemsEnviadosACocina = newOrderData.itemsEnviadosACocina;
@@ -649,15 +595,12 @@ export class OrderStateService {
       }
     } catch (e) {
     }
-
   }
-
 
   public limpiarPedidosResiduales(): void {
 
     const keysAEliminar: string[] = [];
     const currentTableId = this.currentOrder$.value.table?.id;
-    const currentUserId = this.currentOrder$.value.user?.id;
 
     try {
       for (let i = 0; i < localStorage.length; i++) {
@@ -668,11 +611,9 @@ export class OrderStateService {
             try {
               const state = JSON.parse(stored) as EstadoPedidoCompleto;
 
-              // CRITERIO 1: Sin items - definitivamente debe eliminarse
               if (!state.order?.items || state.order.items.length === 0) {
                 keysAEliminar.push(key);
               }
-              // CRITERIO 2: Tiene items PERO totalPorPagar === 0 (fue pagado completamente pero no limpiado)
               else if (state.order.items.length > 0 && state.totalPorPagar === 0) {
                 keysAEliminar.push(key);
               }
@@ -686,23 +627,18 @@ export class OrderStateService {
 
         keysAEliminar.forEach(k => {
           localStorage.removeItem(k);
-
-          const lastUnderscoreIndex = k.lastIndexOf('_');
-          const tableIdFromKey = k.substring('pedido_'.length, lastUnderscoreIndex);
-          const userIdFromKey = k.substring(lastUnderscoreIndex + 1);
-
+          const tableIdFromKey = k.substring('pedido_'.length);
           const currentTableIdStr = currentTableId ? String(currentTableId) : null;
-          const currentUserIdStr = currentUserId ? String(currentUserId) : null;
 
-          if (currentTableIdStr === tableIdFromKey && currentUserIdStr === userIdFromKey) {
+          if (currentTableIdStr === tableIdFromKey) {
 
             const currentOrder = this.currentOrder$.value;
             const cleanedOrder: CurrentOrder = {
-              table: currentOrder.table,  // ← Preservar table
-              user: currentOrder.user,    // ← Preservar user
-              items: [],                  // ← EXPLÍCITAMENTE nuevo array vacío
-              total: 0,                   // ← EXPLÍCITAMENTE 0
-              comensales: currentOrder.comensales  // ← Preservar comensales
+              table: currentOrder.table,  
+              user: currentOrder.user,  
+              items: [],
+              total: 0,
+              comensales: currentOrder.comensales
             };
 
 
@@ -719,7 +655,6 @@ export class OrderStateService {
           }
         });
 
-        // Notificar DESPUÉS de resetear todo para que `suscribirseAorden()` vea el estado nuevo
         setTimeout(() => {
           this.activeOrdersChanged$.next();
         }, 10);
