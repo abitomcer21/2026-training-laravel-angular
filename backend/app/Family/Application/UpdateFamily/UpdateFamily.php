@@ -56,6 +56,8 @@ class UpdateFamily
 
         foreach ($products as $product) {
             $updatedProduct = $product->updateData(
+                $product->FamilyId(),
+                $product->taxId(),
                 $product->name(),
                 $product->price(),
                 $product->stock(),
