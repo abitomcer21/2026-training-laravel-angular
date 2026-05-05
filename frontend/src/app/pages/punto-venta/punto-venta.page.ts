@@ -1,12 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   IonContent, IonIcon
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  gridOutline, restaurantOutline, listOutline, cashOutline, logOutOutline
+  gridOutline, restaurantOutline, listOutline, cashOutline, logOutOutline, optionsOutline
 } from 'ionicons/icons';
 
 import { MesasComponent } from '../../features/punto-venta/componentes/mesas/mesas.component';
@@ -50,13 +51,14 @@ export class PuntoVentaPage implements OnInit {
     { nombre: 'Caja', valor: 'caja', icono: 'cash-outline' }
   ];
 
-  constructor(private restaurantService: RestaurantService) {
+  constructor(private restaurantService: RestaurantService, private router: Router) {
     addIcons({
       gridOutline,
       restaurantOutline,
       listOutline,
       cashOutline,
-      logOutOutline
+      logOutOutline,
+      optionsOutline
     });
   }
 
@@ -98,5 +100,9 @@ export class PuntoVentaPage implements OnInit {
     if (confirm('¿Estás seguro de que deseas cerrar esta sesión?')) {
       this.logout();
     }
+  }
+
+  volverAlDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 }
