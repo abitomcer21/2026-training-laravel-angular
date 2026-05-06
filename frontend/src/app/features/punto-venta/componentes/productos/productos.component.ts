@@ -67,7 +67,7 @@ export interface Product {
   name: string;
   description?: string;
   price: number;
-  iva?: number;  // IVA en porcentaje
+  iva?: number;
   family_id?: string;
   family_name?: string;
   image_src?: string;
@@ -240,63 +240,40 @@ export class ProductosComponent implements OnInit {
     const restaurantId = userData?.restaurant_id;
 
     if (!restaurantId) {
-      console.error('No se encontró restaurant_id del usuario');
       this.cargando = false;
       return;
     }
 
-    // Primero cargar los taxes para crear el mapa
     this.taxService.getTaxes().subscribe({
       next: (taxesResponse: any) => {
-        console.log('=== RESPUESTA CRUDA getTaxes() ===');
-        console.log('Tipo:', typeof taxesResponse);
-        console.log('Es array:', Array.isArray(taxesResponse));
-        console.log('Contenido completo:', taxesResponse);
-        console.log('Claves principales:', Object.keys(taxesResponse));
-        
-        // Intentar extraer de múltiples formas
         let todosLosTaxes: any[] = [];
         
         if (Array.isArray(taxesResponse)) {
           todosLosTaxes = taxesResponse;
-          console.log('✓ Era un array directamente');
         } else if (taxesResponse.tax) {
           todosLosTaxes = taxesResponse.tax;
-          console.log('✓ Extraído de response.tax');
         } else if (taxesResponse.taxes) {
           todosLosTaxes = taxesResponse.taxes;
-          console.log('✓ Extraído de response.taxes');
         } else if (taxesResponse.Tax) {
           todosLosTaxes = taxesResponse.Tax;
-          console.log('✓ Extraído de response.Tax');
         } else if (taxesResponse.data) {
           todosLosTaxes = taxesResponse.data;
-          console.log('✓ Extraído de response.data');
         } else {
-          console.warn('✗ No se encontró lista de taxes en ninguna propiedad');
+          console.warn('No se encontró lista de taxes en ninguna propiedad');
           console.warn('Propiedades disponibles:', Object.keys(taxesResponse));
         }
-        
-        console.log('Taxes finales:', todosLosTaxes);
-        console.log('Cantidad:', todosLosTaxes.length);
-        
         // Crear el mapa de tax_id -> percentage
         this.taxMap.clear();
         todosLosTaxes.forEach((tax: any) => {
-          console.log(`Tax encontrado:`, tax);
           this.taxMap.set(tax.id?.toString(), tax.percentage || 0);
           if (tax.uuid) {
             this.taxMap.set(tax.uuid?.toString(), tax.percentage || 0);
           }
         });
         
-        console.log('Tax Map final:', Object.fromEntries(this.taxMap));
-        
-        // Ahora cargar los productos
         this.cargarProductosConTaxes(restaurantId);
       },
       error: (error) => {
-        console.error('❌ Error al cargar taxes:', error);
         this.cargando = false;
       }
     });
@@ -310,10 +287,7 @@ export class ProductosComponent implements OnInit {
         this.productosOriginales = todosLosProductos
           .filter((producto: any) => producto.restaurant_id === restaurantId)
           .map((producto: any) => {
-            // Usar el mapa para obtener el IVA del tax_id
             const ivaFromMap = this.taxMap.get(producto.tax_id?.toString()) || 0;
-            
-            console.log(`Producto: "${producto.name}", tax_id: "${producto.tax_id}", IVA: ${ivaFromMap}%`);
             
             return {
               ...producto,
@@ -322,12 +296,10 @@ export class ProductosComponent implements OnInit {
             };
           });
         
-        console.log('Productos con IVA mapeado:', this.productosOriginales.slice(0, 3));
         this.cargarFamilias(restaurantId);
         this.cargando = false;
       },
       error: (error) => {
-        console.error('Error al cargar productos:', error);
         this.cargando = false;
         this.mostrarToast('Error al cargar productos', 'danger', 3000);
       }
@@ -383,7 +355,6 @@ export class ProductosComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error al cargar familias:', error);
         this.mostrarToast('Error al cargar categorías', 'danger', 3000);
       }
     });
@@ -423,21 +394,13 @@ export class ProductosComponent implements OnInit {
   suscribirseAorden() {
     this.orderStateService.getCurrentOrder().subscribe({
       next: (order) => {
-        console.log('\n📦 [suscribirseAorden] Orden recibida del servicio');
-        console.log('   table.id:', order.table?.id, `(tipo: ${typeof order.table?.id})`);
-        console.log('   user.id:', order.user?.id, `(tipo: ${typeof order.user?.id})`);
-        console.log('   items.length:', order.items?.length || 0);
         
         if (order.items && order.items.length > 0) {
-          console.log('   📋 ITEMS ENCONTRADOS EN LA ORDEN:');
           order.items.forEach((item, idx) => {
-            console.log(`     ${idx + 1}. ${item.productName} x${item.quantity} = ${item.total}€`);
           });
         }
         
-        // Si es una orden vacía (nueva mesa), resetear completamente
         if (!order || !order.items || order.items.length === 0) {
-          console.log('🆕 Orden vacía - reseteando estado local');
           this.resetearEstadoPedido();
           // Asignar la referencia de table, user y comensales si los tiene
           if (order) {
@@ -446,8 +409,6 @@ export class ProductosComponent implements OnInit {
             this.currentOrder.comensales = order.comensales || 1;
           }
         } else {
-          // Orden existente con items - cargar todos los datos
-          console.log(`📋 Orden existente con ${order.items.length} items`);
           this.currentOrder = order;
           this.pedidoInicialEnviado = this.orderStateService.getPedidoInicialEnviadoValue();
           this.itemsEnviadosACocina = this.orderStateService.getItemsEnviadosACocinaValue();
@@ -455,13 +416,11 @@ export class ProductosComponent implements OnInit {
         }
         
         this.calcularTotalesPendientes();
-        console.log(`✓ Estado sincronizado - Total: ${this.currentOrder.total}€\n`);
       }
     });
   }
 
   resetearEstadoPedido() {
-    console.log('🔄 Reseteando estado del pedido...');
     
     // Resetear estado del pedido
     this.estadoPedido = 'editando';
@@ -481,7 +440,7 @@ export class ProductosComponent implements OnInit {
       comensales: 1,
     };
 
-    // Resetear modales y flags de UI
+    // Resetear modales
     this.mostrarModalCobro = false;
     this.mostrarModalTicket = false;
     this.tipoCobro = 'completo';
@@ -491,7 +450,6 @@ export class ProductosComponent implements OnInit {
     this.filtroNombre = '';
     this.familiaSeleccionada = null;
 
-    console.log('✓ Estado del pedido completamente reseteado');
   }
 
   get productosFiltrados(): Product[] {
@@ -540,7 +498,7 @@ export class ProductosComponent implements OnInit {
       quantity: 1,
       price: producto.price,
       total: producto.price,
-      iva: producto.iva || 0,  // Incluir el IVA del producto
+      iva: producto.iva || 0,
     };
 
     this.orderStateService.addItem(item);
@@ -588,7 +546,6 @@ export class ProductosComponent implements OnInit {
       return;
     }
 
-    // Limpiar el pedido específico de esta mesa
     if (this.currentOrder.table) {
       // Normalizar IDs antes de limpiar
       const tableId = String(this.currentOrder.table.id);
@@ -598,13 +555,11 @@ export class ProductosComponent implements OnInit {
     }
     
     this.resetearEstadoPedido();
-    this.mostrarToast('Mesa limpiada y disponible', 'danger', 2000);
     this.volverAMesas();
   }
 
   enviarACocina() {
     if (this.currentOrder.items.length === 0) {
-      this.mostrarToast('No hay productos en el pedido', 'danger', 2000);
       return;
     }
 
@@ -617,11 +572,7 @@ export class ProductosComponent implements OnInit {
       this.orderStateService.setPedidoInicialEnviado(true, this.itemsEnviadosACocina);
 
       const totalItems = this.currentOrder.items.reduce((sum, item) => sum + item.quantity, 0);
-      this.mostrarToast(
-        `Pedido enviado a cocina - Mesa: ${this.currentOrder.table?.name} - ${totalItems} productos`,
-        'success',
-        4000
-      );
+      
     } else {
       const nuevosItems: OrderItem[] = [];
 
@@ -750,7 +701,6 @@ export class ProductosComponent implements OnInit {
             this.articulosPagados[item.productId] = true;
           }
         });
-        mensaje = `Cobro completado: ${totalCobrado.toFixed(2)} €`;
         break;
 
       case 'dividir':
@@ -760,7 +710,6 @@ export class ProductosComponent implements OnInit {
             this.articulosPagados[item.productId] = true;
           }
         });
-        mensaje = `Cuenta dividida entre ${this.numeroComensales} personas. Cada una paga: ${this.montoPorPersona.toFixed(2)} €`;
         break;
 
       case 'articulos':
@@ -788,17 +737,16 @@ export class ProductosComponent implements OnInit {
     let mensajeMetodo = '';
     switch (this.metodoSeleccionado) {
       case 'efectivo':
-        mensajeMetodo = ' (Efectivo)';
+        mensajeMetodo = ' (Pagado en efectivo)';
         break;
       case 'tarjeta':
-        mensajeMetodo = ' (Tarjeta)';
+        mensajeMetodo = ' (Pagado con tarjeta)';
         break;
       case 'mixto':
-        mensajeMetodo = ` (Mixto: ${this.montosMetodoPago.efectivo.toFixed(2)}€ + ${this.montosMetodoPago.tarjeta.toFixed(2)}€)`;
+        mensajeMetodo = ` (Pago mixto: ${this.montosMetodoPago.efectivo.toFixed(2)}€ + ${this.montosMetodoPago.tarjeta.toFixed(2)}€)`;
         break;
     }
-    
-    this.mostrarToast(mensaje + mensajeMetodo, 'success', 2000);
+  
     this.mostrarModalCobro = false;
 
     // 5. Generar ticket inmediatamente
@@ -837,49 +785,26 @@ export class ProductosComponent implements OnInit {
   }
 
   imprimirTicketDesdeModal() {
-    console.log('\n\n🔴🔴🔴 === INICIANDO CICLO DE LIBERACIÓN ===');
-    console.log('📋 Imprimiendo ticket y liberando mesa...');
-    console.log('Datos actuales ANTES de limpiar:');
-    console.log(`   currentOrder.table: ${this.currentOrder.table?.id} (${this.currentOrder.table?.name})`);
-    console.log(`   currentOrder.user: ${this.currentOrder.user?.id} (${this.currentOrder.user?.name})`);
-    console.log(`   currentOrder.items: ${this.currentOrder.items.length} items`);
     
-    this.mostrarToast('Ticket impreso correctamente ✓', 'primary', 2000);
     this.mostrarModalTicket = false;
 
-    // Limpiar SIEMPRE la orden y mesa cuando se imprime el ticket
-    // No depender de cálculos de totalPorPagar que pueden fallar
     const tableId = this.currentOrder.table ? String(this.currentOrder.table.id) : null;
     const userId = this.currentOrder.user ? String(this.currentOrder.user.id) : null;
 
-    console.log(`🗑️ Preparando limpieza - Mesa: ${tableId}, Usuario: ${userId}`);
 
     setTimeout(() => {
-      console.log(`\n⏱️ Ejecutando limpieza con delay...`);
       
       // Limpiar la orden del servicio
       if (tableId && userId) {
-        console.log(`📢 Llamando clearTableOrder(${tableId})`);
         this.orderStateService.clearTableOrder(tableId);
-        console.log('✓ clearTableOrder() completado');
       } else {
-        console.log('📢 Llamando clearOrder() - no hay mesa/usuario válido');
         this.orderStateService.clearOrder();
-        console.log('✓ clearOrder() completado');
       }
 
-      // Resetear el estado local del componente
-      console.log('🔄 Reseteando estado local del componente');
       this.resetearEstadoPedido();
-      console.log('✓ resetearEstadoPedido() completado');
-
-      // Mostrar confirmación y volver a mesas
-      this.mostrarToast('Mesa liberada. Volviendo...', 'success', 1500);
       
       setTimeout(() => {
-        console.log('↩️ Redirigiendo a mesas');
         this.volverAMesas();
-        console.log('🔴🔴🔴 === FIN CICLO DE LIBERACIÓN ===\n');
       }, 500);
     }, 500);
   }
@@ -891,17 +816,11 @@ export class ProductosComponent implements OnInit {
     this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
     this.calcularTotalesPendientes();
 
-    console.log(`📋 Cerrando ticket - totalPorPagar: ${this.totalPorPagar.toFixed(2)}€`);
 
-    // SOLO redirigir si NO hay nada pendiente de pago
-    // Si el usuario cierra SIN pagar todo, permanece en el carrito
     if (this.totalPorPagar === 0) {
-      console.log('✓ Todo pagado - limpiando mesa');
       
       const tableId = this.currentOrder.table ? String(this.currentOrder.table.id) : null;
       const userId = this.currentOrder.user ? String(this.currentOrder.user.id) : null;
-
-      this.mostrarToast('Pedido completado. Volviendo a mesas...', 'success', 1500);
       
       setTimeout(() => {
         if (tableId && userId) {
@@ -913,8 +832,6 @@ export class ProductosComponent implements OnInit {
         this.volverAMesas();
       }, 500);
     } else {
-      console.log(`⚠️ Aún quedan por pagar: ${this.totalPorPagar.toFixed(2)}€`);
-      // Permanecer en el carrito para continuar el pago
     }
   }
 
@@ -927,13 +844,11 @@ export class ProductosComponent implements OnInit {
       this.orderStateService.clearOrder();
     }
     this.resetearEstadoPedido();
-    this.mostrarToast('Nuevo pedido listo para comenzar', 'success', 2000);
     this.volverAMesas();
   }
 
   verTicketProvisional() {
     if (this.currentOrder.items.length === 0) {
-      this.mostrarToast('No hay productos en el pedido', 'danger', 2000);
       return;
     }
     const ticket = this.generarTicket('PROVISIONAL');

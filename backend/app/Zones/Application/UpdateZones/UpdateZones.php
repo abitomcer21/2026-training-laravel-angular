@@ -17,15 +17,10 @@ class UpdateZones
             return null;
         }
 
-        if ($zones === null) {
-            $zonesVO = $zones->name();
-        } else {
-            $zonesVO = ZoneName::create($name);
-        }
-
+        $zonesVO = ZoneName::create($name);
         $zone = $zones->updateData($zonesVO);
         $this->zonesRepository->save($zone);
 
-        return UpdateZonesResponse::create($zonesVO);
+        return UpdateZonesResponse::create($zone);
     }
 }

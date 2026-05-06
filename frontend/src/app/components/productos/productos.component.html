@@ -89,7 +89,6 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th class="col-id">ID</th>
                     <th class="col-user">Nombre</th>
                     <th class="col-email">Familia</th>
                     <th class="col-role">Precio</th>
@@ -101,9 +100,6 @@
                 <tbody>
                   <tr *ngFor="let product of productosFiltrados; let i = index"
                     [ngClass]="{'product-inactive': !product.active}">
-                    <td class="col-id">
-                      <span class="id-badge">{{ i + 1 }}</span>
-                    </td>
                     <td class="col-user">
                       <div class="user-cell">
                         <div class="user-avatar" style="background: linear-gradient(135deg, #2c5f8a 0%, #1a3d5c 100%);">
