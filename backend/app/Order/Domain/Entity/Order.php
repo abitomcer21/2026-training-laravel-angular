@@ -8,27 +8,34 @@ use App\Shared\Domain\ValueObject\Uuid;
 
 class Order
 {
+
+    private array $orderLines;
+
     private function __construct(
         private Uuid $id,
         private int $restaurantId,
         private string $tableId,
         private string $openedByUserId,
-        private string $closedByUserId,
+        private ?string $closedByUserId,
         private OrderStatus $status,
         private int $diners,
         private DomainDateTime $openedAt,
         private ?DomainDateTime $closedAt,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
-    ) {}
+        array $orderLines = [],
+    ) {
+        $this->orderLines = $orderLines;
+    }
 
     public static function dddCreate(
         int $restaurantId,
         string $tableId,
         string $openedByUserId,
-        string $closedByUserId,
+        ?string $closedByUserId,
         OrderStatus $status,
         int $diners,
+        array $orderLines = [],
     ): self {
         $now = DomainDateTime::now();
 
@@ -44,7 +51,7 @@ class Order
             null,
             $now,
             $now,
-            null,
+            $orderLines,
         );
     }
 
@@ -60,6 +67,7 @@ class Order
         \DateTimeImmutable $closedAt,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
+        array $orderLines = [],
     ): self {
         return new self(
             Uuid::create($id),
@@ -73,6 +81,7 @@ class Order
             $closedAt !== null ? DomainDateTime::create($closedAt) : null,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
+            $orderLines,
         );
     }
 
@@ -129,5 +138,16 @@ class Order
     public function updatedAt(): DomainDateTime
     {
         return $this->updatedAt;
+    }
+
+    
+    public function addOrderLine(OrderLine $line): void
+    {
+        $this->orderLines[] = $line;
+    }
+
+    public function orderLines(): array
+    {
+        return $this->orderLines;
     }
 }

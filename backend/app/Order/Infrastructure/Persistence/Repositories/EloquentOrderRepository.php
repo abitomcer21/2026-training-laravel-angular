@@ -5,6 +5,8 @@ namespace App\Order\Infrastructure\Persistence\Repositories;
 use App\Order\Domain\Entity\Order;
 use App\Order\Domain\Interfaces\OrderRepositoryInterface;
 use App\Order\Infrastructure\Persistence\Models\EloquentOrder;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 class EloquentOrderRepository implements OrderRepositoryInterface
 {
@@ -14,11 +16,16 @@ class EloquentOrderRepository implements OrderRepositoryInterface
 
     public function save(Order $order): void
     {
-        $this->model->newQuery()->updateOrCreate(
+        $tableId = $this->getTableIdByName(
+            $order->restaurantId(),
+            $order->tableId()
+        );
+
+        $orderModel = $this->model->newQuery()->updateOrCreate(
             ['uuid' => $order->id()->value()],
             [
                 'restaurant_id' => $order->restaurantId(),
-                'table_id' => $order->tableId(),
+                'table_id' => $tableId,
                 'opened_by_user_id' => $order->openedByUserId(),
                 'closed_by_user_id' => $order->closedByUserId(),
                 'status' => $order->status()->value(),
@@ -29,6 +36,24 @@ class EloquentOrderRepository implements OrderRepositoryInterface
                 'updated_at' => $order->updatedAt()->value(),
             ]
         );
+        foreach ($order->orderLines() as $orderLine) {
+            \App\Order\Infrastructure\Persistence\Models\EloquentOrderLine::updateOrCreate(
+                [
+                    'uuid' => $orderLine->id()->value(),
+                ],
+                [
+                    'restaurant_id' => $order->restaurantId(),
+                    'order_id' => $orderModel->id,
+                    'product_id' => $orderLine->productId(),
+                    'user_id' => $orderLine->userId(),
+                    'quantity' => $orderLine->quantity(),
+                    'price' => $orderLine->price(),
+                    'tax_percentage' => $orderLine->taxPercentage(),
+                    'created_at' => $orderLine->createdAt()->value(),
+                    'updated_at' => $orderLine->updatedAt()->value(),
+                ]
+            );
+        }
     }
 
     public function findById(string $id): ?Order
@@ -39,10 +64,15 @@ class EloquentOrderRepository implements OrderRepositoryInterface
             return null;
         }
 
+        $tableName = $this->getTableNameById(
+            $model->restaurant_id,
+            $model->table_id
+        );
+
         return Order::fromPersistence(
             $model->uuid,
             $model->restaurant_id,
-            $model->table_id,
+            $tableName,
             $model->opened_by_user_id,
             $model->closed_by_user_id,
             $model->status,
@@ -52,6 +82,38 @@ class EloquentOrderRepository implements OrderRepositoryInterface
             $model->created_at->toDateTimeImmutable(),
             $model->updated_at->toDateTimeImmutable(),
             $model->deleted_at?->toDateTimeImmutable(),
+        );
+    }
+
+    private function getTableIdByName(int $restaurantId, string $tableName): int
+    {
+        $tableId = DB::table('tables')
+            ->where('restaurant_id', $restaurantId)
+            ->where('name', $tableName)  // Buscar por 'name'
+            ->value('id');
+
+        if ($tableId) {
+            return (int) $tableId;
+        }
+
+        throw new InvalidArgumentException(
+            "Table with name '{$tableName}' not found for restaurant {$restaurantId}"
+        );
+    }
+
+    private function getTableNameById(int $restaurantId, int $tableId): string
+    {
+        $tableName = DB::table('tables')
+            ->where('restaurant_id', $restaurantId)
+            ->where('id', $tableId)
+            ->value('name');
+
+        if ($tableName) {
+            return $tableName;
+        }
+
+        throw new InvalidArgumentException(
+            "Table ID {$tableId} not found for restaurant {$restaurantId}"
         );
     }
 }
