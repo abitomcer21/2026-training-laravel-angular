@@ -4,8 +4,8 @@ import { shareReplay, tap } from 'rxjs/operators';
 import { BaseApiService, ApiResponse } from './base-api.service';
 
 export interface Product {
-  id: string | number;
-  uuid?: string;
+  id: number;
+  uuid: string;
   family_id: string;
   tax_id: number;
   name: string;
@@ -40,8 +40,8 @@ export class ProductService extends BaseApiService {
     this.productsCache$ = null;
   }
 
-  getProduct(id: string): Observable<ApiResponse> {
-    return this.httpCall(`${this.endpoint}/${id}`, null, 'get');
+  getProduct(uuid: string): Observable<ApiResponse> {
+    return this.httpCall(`${this.endpoint}/${uuid}`, null, 'get');
   }
 
   getProductsByFamily(familyId: number): Observable<ApiResponse> {
@@ -56,11 +56,12 @@ export class ProductService extends BaseApiService {
     return this.httpCall(this.endpoint, product, 'post');
   }
 
-  updateProduct(id: string, product: any): Observable<ApiResponse> {
-    return this.httpCall(`${this.endpoint}/${id}`, product, 'put');
+  updateProduct(uuid: string, product: any): Observable<ApiResponse> {
+    return this.httpCall(`${this.endpoint}/${uuid}`, product, 'put');
   }
 
-  deleteProduct(id: string): Observable<ApiResponse> {
-    return this.httpCall(`${this.endpoint}/${id}`, null, 'delete');
+  deleteProduct(uuid: string): Observable<ApiResponse> {
+    return this.httpCall(`${this.endpoint}/${uuid}`, null, 'delete');
   }
 }
+  

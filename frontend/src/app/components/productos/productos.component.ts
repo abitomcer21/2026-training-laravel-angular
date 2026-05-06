@@ -115,26 +115,26 @@ export class ProductosComponent implements OnInit, OnDestroy {
         const cachedProducts = this.dataCacheService.getProducts();
         const cachedFamilies = this.dataCacheService.getFamilies();
         const cachedTaxes = this.dataCacheService.getTaxes();
-        
+
         if (cachedProducts.length > 0) {
             this.products = [...cachedProducts];
             this.productosFiltrados = [...this.products];
             this.productosCargados = true;
         }
-        
+
         if (cachedFamilies.length > 0) {
             this.familiasParaProductos = [...cachedFamilies];
         }
-        
+
         if (cachedTaxes.length > 0) {
             this.taxes = [...cachedTaxes];
         }
-        
+
         if (cachedProducts.length === 0 || cachedFamilies.length === 0 || cachedTaxes.length === 0) {
             // Si no hay caché o falta algo, cargar de la API
             this.cargarProductos();
         }
-        
+
         this.suscribirseACambiosFamilia();
     }
 
@@ -186,10 +186,10 @@ export class ProductosComponent implements OnInit, OnDestroy {
     private agregarFamiliaAlSelecto(family: Family) {
         // Verificar que la familia no exista ya en la lista
         const familyExists = this.familiasParaProductos.some(f => f.id?.toString() === family.id?.toString());
-        
+
         if (!familyExists) {
             this.familiasParaProductos = [...this.familiasParaProductos, family];
-            
+
             // Actualizar caché
             this.dataCacheService.setFamiliesCache(this.familiasParaProductos);
         }
@@ -198,10 +198,10 @@ export class ProductosComponent implements OnInit, OnDestroy {
     private eliminarProductosPorFamiliaEliminada(familyId: string) {
         // Eliminar productos de la lista
         this.products = this.products.filter(p => p.family_id?.toString() !== familyId);
-        
+
         // Eliminar de la lista filtrada
         this.productosFiltrados = this.productosFiltrados.filter(p => p.family_id?.toString() !== familyId);
-        
+
         // Actualizar caché
         this.dataCacheService.setProductsCache(this.products);
     }
@@ -264,7 +264,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
                         } else {
                             this.familiasParaProductos = families;
                         }
-                        
+
                         // Guardar familias en caché
                         this.dataCacheService.setFamiliesCache(this.familiasParaProductos);
                     }
@@ -285,7 +285,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
                         } else {
                             this.taxes = taxes;
                         }
-                        
+
                         // Guardar impuestos en caché
                         this.dataCacheService.setTaxesCache(this.taxes);
                     }
@@ -323,7 +323,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 this.productosFiltrados = [...this.products];
                 this.productosCargados = true;
                 this.productosLoading = false;
-                
+
                 // Guardar en caché
                 this.dataCacheService.setProductsCache(this.products);
             },
@@ -351,7 +351,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
                     const displayId = (index + 1).toString();
                     return displayId.includes(termino);
                 case 'familia':
-                    const family = this.familiasParaProductos.find(f => f.id === product.family_id);
+                    const family = this.familiasParaProductos.find(f => f.uuid === product.family_id);
                     return family?.name.toLowerCase().includes(termino) || false;
                 case 'nombre':
                 default:
@@ -523,7 +523,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const selectedFamily = this.familiasParaProductos.find(f => f.id === familyId);
+        const selectedFamily = this.familiasParaProductos.find(f => f.id?.toString() === familyId);
 
         if (!selectedFamily) {
             alert(`Error: La familia seleccionada no es válida.`);
@@ -565,6 +565,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 const createdProduct: Product = {
                     id: response?.id ?? response?.uuid,
+                    uuid: response?.uuid,
                     name: response?.name ?? this.createProductForm.name.trim(),
                     family_id: response?.family_id ?? this.createProductForm.family_id,
                     tax_id: response?.tax_id ?? this.createProductForm.tax_id,
@@ -621,10 +622,10 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 // Remover del array local
                 this.products = this.products.filter(p => p.id?.toString() !== id.toString());
                 this.productosFiltrados = this.productosFiltrados.filter(p => p.id?.toString() !== id.toString());
-                
+
                 // Actualizar caché
                 this.dataCacheService.setProductsCache(this.products);
-                
+
                 // Invalidar cache de API
                 this.productService.invalidateProductsCache();
             },
@@ -708,8 +709,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
             return 'Sin familia';
         }
 
-        const family = this.familiasParaProductos.find(f => f.id === familyId);
-
+        const family = this.familiasParaProductos.find(f => f.id?.toString() === familyId);
+        
         return family?.name ?? `Familia ${familyId}`;
     }
 
@@ -788,16 +789,17 @@ export class ProductosComponent implements OnInit, OnDestroy {
             next: (response: any) => {
                 const newFamily: Family = {
                     id: response?.id ?? response?.uuid,
+                    uuid: response?.uuid,
                     name: response?.name,
                     active: response?.active ?? true,
                     restaurant_id: response?.restaurant_id
                 };
                 this.familiasParaProductos = [...this.familiasParaProductos, newFamily];
-                this.createProductForm.family_id = newFamily.id;
-                
+                this.createProductForm.family_id = newFamily.uuid;
+
                 // Invalidar cache para que FamiliasComponent cargue la nueva familia
                 this.familyService.invalidateFamiliesCache();
-                
+
                 this.mostrarConfirmacionFamiliaCreada(name);
             },
             error: (error) => {
@@ -880,13 +882,13 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 };
                 this.taxes = [...this.taxes, newTax];
                 this.createProductForm.tax_id = newTax.id.toString();
-                
+
                 // Guardar impuestos en caché
                 this.dataCacheService.setTaxesCache(this.taxes);
-                
+
                 // Invalidar cache para que ImpuestosComponent cargue el nuevo impuesto
                 this.taxService.invalidateTaxesCache();
-                
+
                 this.mostrarConfirmacionImpuestoCreado(name);
             },
             error: (error) => {

@@ -262,6 +262,7 @@ export class FamiliasComponent implements OnInit {
             next: (response: any) => {
                 const createdFamily: Family = {
                     id: response?.id ?? response?.uuid,
+                    uuid: response?.uuid,
                     name: response?.name ?? this.createFamilyForm.name.trim(),
                     active: response?.active ?? this.createFamilyForm.active,
                     restaurant_id: response?.restaurant_id ?? restaurantId,

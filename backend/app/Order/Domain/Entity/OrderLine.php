@@ -5,14 +5,15 @@ namespace App\Order\Domain\Entity;
 use App\Shared\Domain\ValueObject\Uuid;
 use App\Shared\Domain\ValueObject\DomainDateTime;
 
+
 class OrderLine
 {
     private function __construct(
         private Uuid $id,
         private int $restaurantId,
         private Uuid $orderId,
-        private int $productId, // ahora int
-        private int $userId,    // ahora int
+        private int $productId,
+        private int $userId,
         private int $quantity,
         private float $price,
         private float $taxPercentage,
@@ -70,6 +71,7 @@ class OrderLine
             DomainDateTime::create($updatedAt),
         );
     }
+
 
     public function id(): Uuid
     {

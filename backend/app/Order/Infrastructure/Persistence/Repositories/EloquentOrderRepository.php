@@ -36,18 +36,18 @@ class EloquentOrderRepository implements OrderRepositoryInterface
                 'updated_at' => $order->updatedAt()->value(),
             ]
         );
+
         foreach ($order->orderLines() as $orderLine) {
-            \App\Order\Infrastructure\Persistence\Models\EloquentOrderLine::updateOrCreate(
+            DB::table('order_lines')->updateOrInsert(
+                ['uuid' => $orderLine->id()->value()],
                 [
                     'uuid' => $orderLine->id()->value(),
-                ],
-                [
-                    'restaurant_id' => $order->restaurantId(),
+                    'restaurant_id' => $orderLine->restaurantId(),
                     'order_id' => $orderModel->id,
                     'product_id' => $orderLine->productId(),
                     'user_id' => $orderLine->userId(),
                     'quantity' => $orderLine->quantity(),
-                    'price' => $orderLine->price(),
+                    'price' => $orderLine->price() * 100,
                     'tax_percentage' => $orderLine->taxPercentage(),
                     'created_at' => $orderLine->createdAt()->value(),
                     'updated_at' => $orderLine->updatedAt()->value(),
@@ -81,7 +81,7 @@ class EloquentOrderRepository implements OrderRepositoryInterface
             $model->closed_at?->toDateTimeImmutable(),
             $model->created_at->toDateTimeImmutable(),
             $model->updated_at->toDateTimeImmutable(),
-            $model->deleted_at?->toDateTimeImmutable(),
+            $model->deleted_at?->toDateTimeImmutable()
         );
     }
 

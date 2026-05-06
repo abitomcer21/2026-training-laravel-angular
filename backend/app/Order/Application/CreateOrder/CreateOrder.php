@@ -38,7 +38,7 @@ class CreateOrder
             $orderLine = OrderLine::dddCreate(
                 $restaurantId,
                 Uuid::create($order->id()->value()),
-                (int)$lineData['product_id'],
+                    (int)$lineData['product_id'],
                 (int)$lineData['user_id'],
                 $lineData['quantity'],
                 $lineData['price'],

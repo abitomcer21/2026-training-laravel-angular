@@ -4,7 +4,8 @@ import { shareReplay } from 'rxjs/operators';
 import { BaseApiService, ApiResponse } from './base-api.service';
 
 export interface Family {
-  id: string;
+  id: number;
+  uuid: string,
   name: string;
   active: boolean;
   restaurant_id: number;
@@ -30,20 +31,20 @@ export class FamilyService extends BaseApiService {
     return this.familiesCache$;
   }
 
-  getFamily(id: string): Observable<ApiResponse> {
-    return this.httpCall(`${this.endpoint}/${id}`, null, 'get');
+  getFamily(uuid: string): Observable<ApiResponse> {
+    return this.httpCall(`${this.endpoint}/${uuid}`, null, 'get');
   }
 
   createFamily(family: any): Observable<ApiResponse> {
     return this.httpCall(this.endpoint, family, 'post');
   }
 
-  updateFamily(id: string, family: any): Observable<ApiResponse> {
-    return this.httpCall(`${this.endpoint}/${id}`, family, 'put');
+  updateFamily(uuid: string, family: any): Observable<ApiResponse> {
+    return this.httpCall(`${this.endpoint}/${uuid}`, family, 'put');
   }
 
-  deleteFamily(id: string): Observable<ApiResponse> {
-    return this.httpCall(`${this.endpoint}/${id}`, null, 'delete');
+  deleteFamily(uuid: string): Observable<ApiResponse> {
+    return this.httpCall(`${this.endpoint}/${uuid}`, null, 'delete');
   }
 
   invalidateFamiliesCache(): void {

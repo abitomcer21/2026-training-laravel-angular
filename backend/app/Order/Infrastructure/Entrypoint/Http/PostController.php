@@ -22,7 +22,7 @@ class PostController
             'status' => ['required', 'string', 'in:open,closed,cancelled'],
             'diners' => ['required', 'integer', 'min:1'],
             'order_lines' => ['required', 'array', 'min:1'],
-            'order_lines.*.product_id' => ['required', 'integer'],
+            'order_lines.*.product_id' => ['required', 'string', 'uuid'],
             'order_lines.*.user_id' => ['required', 'integer'],
             'order_lines.*.quantity' => ['required', 'integer', 'min:1'],
             'order_lines.*.price' => ['required', 'numeric', 'min:0'],
