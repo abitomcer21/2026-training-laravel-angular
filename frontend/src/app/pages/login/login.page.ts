@@ -4,7 +4,7 @@ import {
   IonContent, IonGrid, IonRow, IonCol, IonCard, 
   IonCardHeader, IonCardTitle, IonCardSubtitle, 
   IonCardContent, IonItem, IonLabel, IonInput, 
-  IonButton, IonToast, IonSpinner  // ← Añade IonSpinner aquí
+  IonButton, IonSpinner
 } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -21,7 +21,7 @@ import { AuthService } from '../../services/auth/auth.service';
     IonContent, IonGrid, IonRow, IonCol, IonCard,
     IonCardHeader, IonCardTitle,
     IonCardContent, IonItem, IonLabel, IonInput,
-    IonButton, IonToast, IonSpinner
+    IonButton, IonSpinner
   ]
 })
 export class LoginPage implements OnInit {

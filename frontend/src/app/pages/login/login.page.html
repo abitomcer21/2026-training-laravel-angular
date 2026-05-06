@@ -1,43 +1,39 @@
-<ion-content>
-  <div class="fondo-imagen"></div>
-  <div class="filtro-azul"></div>
-  
-  <ion-grid class="contenido-grid">
-    <ion-row>
-      <ion-col size="12" size-sm="8" size-md="6" size-lg="4">
-        
-        <ion-card>
-          <ion-card-header class="ion-text-center">
-            <ion-card-title>TPV - Yurest</ion-card-title>
-          </ion-card-header>
-
-          <ion-card-content>
-            <ion-item>
-              <ion-label position="floating">Email</ion-label>
-              <ion-input type="email" [(ngModel)]="email"></ion-input>
-            </ion-item>
-
-            <ion-item>
-              <ion-label position="floating">Contraseña</ion-label>
-              <ion-input type="password" [(ngModel)]="password"></ion-input>
-            </ion-item>
-
-            <ion-button expand="block" (click)="login()" [disabled]="loading">
-              <ion-spinner name="crescent" *ngIf="loading"></ion-spinner>
-              <span *ngIf="!loading">Iniciar sesión</span>
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
-  <ion-toast
-    [isOpen]="showError"
-    message="{{ errorMessage }}"
-    duration="3000"
-    color="danger"
-    (didDismiss)="cerrarError()">
-  </ion-toast>
+<ion-content class="login-container">
+  <div class="login-split-container">
+    <div class="login-left">
+      <div class="login-image"></div>
+    </div>
+    <div class="login-right">
+      <div class="login-form-wrapper">
+        <h1 class="login-title">Iniciar sesión</h1>
+        <form (ngSubmit)="login()">
+          <div class="form-group">
+            <ion-input 
+              type="email" 
+              [(ngModel)]="email" 
+              name="email"
+              placeholder="Correo electrónico"
+              class="login-input">
+            </ion-input>
+          </div>
+          <div class="form-group">
+            <ion-input 
+              type="password" 
+              [(ngModel)]="password" 
+              name="password"
+              placeholder="Contraseña"
+              class="login-input">
+            </ion-input>
+          </div>
+          <ion-button expand="block" type="submit" [disabled]="loading" class="login-button">
+            <ion-spinner name="crescent" *ngIf="loading"></ion-spinner>
+            <span *ngIf="!loading">Iniciar sesión</span>
+          </ion-button>
+          <div class="error-message" *ngIf="showError">
+            {{ errorMessage }}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </ion-content>
