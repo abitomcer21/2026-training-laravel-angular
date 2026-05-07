@@ -562,8 +562,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
                     restaurant_id: response?.restaurant_id ?? restaurantId,
                 };
 
-                this.products = [...this.products, createdProduct];
                 this.productService.invalidateProductsCache();
+                // Recargar productos desde la API para mantener el listado sincronizado
+                this.cargarProductos();
 
                 if (this.terminoBusquedaProduct) {
                     this.buscarProductos();
