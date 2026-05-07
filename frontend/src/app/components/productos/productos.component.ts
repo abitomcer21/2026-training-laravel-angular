@@ -803,7 +803,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
                     restaurant_id: response?.restaurant_id
                 };
                 this.familiasParaProductos = [...this.familiasParaProductos, newFamily];
-                this.createProductForm.family_id = newFamily.uuid;
+                // Usar siempre el id principal como string para el select
+                this.createProductForm.family_id = (newFamily.id ?? newFamily.uuid)?.toString();
 
                 // Notificar a otros componentes la creación de la familia
                 this.familyStateService.notifyFamilyCreated(newFamily);
