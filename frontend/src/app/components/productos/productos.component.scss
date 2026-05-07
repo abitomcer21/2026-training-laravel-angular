@@ -1,3 +1,47 @@
+/* Badge de stock */
+
+/* Badge de stock igual que el de precio */
+.stock-badge {
+    display: inline-block;
+    min-width: 36px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    background: #e5e7eb;
+    color: #111827;
+    box-sizing: border-box;
+}
+
+/* Badge de precio (referencia visual) */
+.price-badge {
+    display: inline-block;
+    min-width: 36px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    background: #e0e7ff;
+    color: #3730a3;
+    box-sizing: border-box;
+}
+
+.stock-available {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.stock-warning {
+    background: #fef9c3;
+    color: #b45309;
+}
+
+.stock-low {
+    background: #fee2e2;
+    color: #dc2626;
+}
 /* ========================================== */
 /* PRODUCTOS COMPONENT - ESTILOS ESPECÍFICOS  */
 /* ========================================== */
