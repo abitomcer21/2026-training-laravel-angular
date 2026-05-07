@@ -602,6 +602,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
         await alert.present();
     }
 
+
     eliminarProduct(id: string | number) {
         this.productService.deleteProduct(id.toString()).subscribe({
             next: () => {
@@ -614,11 +615,32 @@ export class ProductosComponent implements OnInit, OnDestroy {
 
                 // Invalidar cache de API
                 this.productService.invalidateProductsCache();
+
+                // Forzar actualización de la vista
+                this.cd.detectChanges();
+
+                // Mostrar alerta de éxito
+                this.mostrarConfirmacionEliminadoProduct();
             },
             error: (error) => {
                 console.error('Error al eliminar:', error);
             }
         });
+    }
+
+    async mostrarConfirmacionEliminadoProduct() {
+        const alert = await this.alertController.create({
+            header: 'Producto eliminado',
+            message: 'El producto ha sido eliminado correctamente.',
+            buttons: [
+                {
+                    text: 'Aceptar',
+                    role: 'confirm',
+                    cssClass: 'success'
+                }
+            ]
+        });
+        await alert.present();
     }
 
     editarProduct(product: Product) {
