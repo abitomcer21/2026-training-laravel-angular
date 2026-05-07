@@ -311,8 +311,9 @@ export class ProductosComponent implements OnInit {
       next: (familiesResponse: any) => {
         let todasLasFamilias = familiesResponse?.Family || familiesResponse?.families || [];
 
+        // Filtrar solo familias activas
         const familiasDelRestaurant = todasLasFamilias.filter(
-          (familia: any) => !restaurantId || familia.restaurant_id === restaurantId
+          (familia: any) => (!restaurantId || familia.restaurant_id === restaurantId) && familia.active
         );
 
         const familyMap = new Map<string, string>();
