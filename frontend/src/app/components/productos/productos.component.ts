@@ -563,9 +563,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 };
 
                 this.productService.invalidateProductsCache();
-                // Recargar productos desde la API para mantener el listado sincronizado
-                this.cargarProductos();
-
+                // Añadir el producto directamente a la lista local
+                this.products = [createdProduct, ...this.products];
+                // Si hay búsqueda activa, volver a filtrar; si no, mostrar todos
                 if (this.terminoBusquedaProduct) {
                     this.buscarProductos();
                 } else {
