@@ -289,7 +289,7 @@ export class ImpuestosComponent implements OnInit {
   async confirmarEliminarTax(tax: Tax) {
     const alert = await this.alertController.create({
       header: 'Eliminar impuesto',
-      message: `¿Estás seguro de que quieres eliminar <strong>${tax.name}</strong>?`,
+      message: `¿Estás seguro de que quieres eliminar ${tax.name}?`,
       buttons: [
         {
           text: 'Cancelar',

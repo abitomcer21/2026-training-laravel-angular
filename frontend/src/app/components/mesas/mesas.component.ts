@@ -459,7 +459,7 @@ export class MesasComponent implements OnInit, OnDestroy {
   async confirmarEliminarTable(table: Table) {
     const alert = await this.alertController.create({
       header: 'Eliminar mesa',
-      message: `¿Estás seguro de que quieres eliminar <strong>${table.name}</strong>?`,
+      message: `¿Estás seguro de que quieres eliminar ${table.name}?`,
       buttons: [
         {
           text: 'Cancelar',
