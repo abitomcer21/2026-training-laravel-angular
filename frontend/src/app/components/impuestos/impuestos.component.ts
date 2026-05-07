@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -76,7 +76,8 @@ export class ImpuestosComponent implements OnInit {
   constructor(
     private taxService: TaxService,
     private authService: AuthService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private cd: ChangeDetectorRef
   ) {
     addIcons({
       cashOutline, searchOutline, closeOutline,
@@ -117,6 +118,8 @@ export class ImpuestosComponent implements OnInit {
         this.impuestosFiltrados = [...this.taxes];
         this.impuestoCargados = true;
         this.impuestosLoading = false;
+        // Forzar refresco visual
+        this.cd.detectChanges();
       },
       error: (error) => {
         console.error('Error al cargar impuestos:', error);

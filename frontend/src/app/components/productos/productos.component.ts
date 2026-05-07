@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonIcon } from '@ionic/angular/standalone';
@@ -59,6 +59,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
     private familyStateSubscription: Subscription | null = null;
     private familyDeletedSubscription: Subscription | null = null;
     private familyCreatedSubscription: Subscription | null = null;
+    private familiesCacheSubscription: Subscription | null = null;
 
     // Loading
     productosLoading = false;
@@ -102,7 +103,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
         private familyStateService: FamilyStateService,
         private dataCacheService: DataCacheService,
         private authService: AuthService,
-        private alertController: AlertController
+        private alertController: AlertController,
+        private cd: ChangeDetectorRef
     ) {
         addIcons({
             searchOutline, closeOutline, createOutline, trashOutline,
@@ -135,6 +137,12 @@ export class ProductosComponent implements OnInit, OnDestroy {
             this.cargarProductos();
         }
 
+        // Suscribirse a cambios en el caché de familias para refrescar automáticamente
+        this.familiesCacheSubscription = this.dataCacheService.getFamiliesCache$.subscribe(families => {
+            this.familiasParaProductos = [...families];
+            this.cd.detectChanges();
+        });
+
         this.suscribirseACambiosFamilia();
     }
 
@@ -148,6 +156,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
         }
         if (this.familyCreatedSubscription) {
             this.familyCreatedSubscription.unsubscribe();
+        }
+        if (this.familiesCacheSubscription) {
+            this.familiesCacheSubscription.unsubscribe();
         }
     }
 
@@ -171,28 +182,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 }
             }
         );
-
-        // Suscribirse a creaciones de familia
-        this.familyCreatedSubscription = this.familyStateService.getFamilyCreated$().subscribe(
-            (family) => {
-                if (family) {
-                    // Agregar la nueva familia a la lista sin recargar
-                    this.agregarFamiliaAlSelector(family);
-                }
-            }
-        );
-    }
-
-    private agregarFamiliaAlSelector(family: Family) {
-        // Verificar que la familia no exista ya en la lista
-        const familyExists = this.familiasParaProductos.some(f => f.id?.toString() === family.id?.toString());
-
-        if (!familyExists) {
-            this.familiasParaProductos = [...this.familiasParaProductos, family];
-
-            // Actualizar caché
-            this.dataCacheService.setFamiliesCache(this.familiasParaProductos);
-        }
     }
 
     private eliminarProductosPorFamiliaEliminada(familyId: string) {

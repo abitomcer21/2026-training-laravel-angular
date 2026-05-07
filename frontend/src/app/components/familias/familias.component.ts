@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonIcon } from '@ionic/angular/standalone';
@@ -62,6 +62,7 @@ export class FamiliasComponent implements OnInit {
     filtroActualFamily = 'nombre';
 
     private familyCreatedSubscription: any;
+    private familyDeletedSubscription: any;
 
     constructor(
         private familyService: FamilyService,
@@ -70,6 +71,7 @@ export class FamiliasComponent implements OnInit {
         private dataCacheService: DataCacheService,
         private authService: AuthService,
         private alertController: AlertController,
+        private cd: ChangeDetectorRef,
     ) {
         addIcons({
             searchOutline, closeOutline, createOutline, trashOutline,
@@ -101,11 +103,24 @@ export class FamiliasComponent implements OnInit {
                 this.dataCacheService.setFamiliesCache(this.families);
             }
         });
+
+        // Suscribirse a la eliminación de familias desde otros componentes
+        this.familyDeletedSubscription = this.familyStateService.getFamilyDeleted$().subscribe((deleted: { familyId: string } | null) => {
+            if (deleted && deleted.familyId) {
+                this.families = this.families.filter(f => f.id?.toString() !== deleted.familyId);
+                this.familiasFiltradas = this.familiasFiltradas.filter(f => f.id?.toString() !== deleted.familyId);
+                this.dataCacheService.setFamiliesCache(this.families);
+                this.cd.detectChanges();
+            }
+        });
     }
 
     ngOnDestroy() { 
         if (this.familyCreatedSubscription) {
             this.familyCreatedSubscription.unsubscribe();
+        }
+        if (this.familyDeletedSubscription) {
+            this.familyDeletedSubscription.unsubscribe();
         }
     }
 
@@ -146,9 +161,10 @@ export class FamiliasComponent implements OnInit {
                 this.familiasFiltradas = [...this.families];
                 this.familiasCargadas = true;
                 this.familiasLoading = false;
-
                 // Guardar en caché
                 this.dataCacheService.setFamiliesCache(this.families);
+                // Forzar refresco visual
+                this.cd.detectChanges();
             },
             error: (error) => {
                 console.error('Error al cargar familias:', error);
@@ -438,22 +454,10 @@ export class FamiliasComponent implements OnInit {
 
         this.familyService.deleteFamily(id.toString()).subscribe({
             next: () => {
-                // Actualizar array local: remover la familia eliminada
-                this.families = this.families.filter(f => f.id?.toString() !== id.toString());
-                // Forzar actualización visual: vaciar y luego reasignar para asegurar el refresco
-                this.familiasFiltradas = [];
-                setTimeout(() => {
-                    if (this.terminoBusquedaFamily) {
-                        this.buscarFamilias();
-                    } else {
-                        this.familiasFiltradas = [...this.families];
-                    }
-                });
+                // Recargar la lista completa desde la API para refresco inmediato
+                this.cargarFamilias();
 
                 this.mostrarConfirmacionFamiliaEliminada(familiaEliminada?.name ?? 'La familia');
-
-                // Actualizar caché
-                this.dataCacheService.setFamiliesCache(this.families);
 
                 // Notificar a otros componentes sobre la eliminación
                 this.familyStateService.notifyFamilyDeleted(id.toString());
