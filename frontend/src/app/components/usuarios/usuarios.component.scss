@@ -1,3 +1,10 @@
+// Estilos para botones deshabilitados en la tabla de usuarios
+.action-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(0.7);
+}
 
 /* ========================================== */
 /* USUARIOS COMPONENT - ESTILOS ESPECÍFICOS   */

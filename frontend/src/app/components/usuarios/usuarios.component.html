@@ -131,11 +131,13 @@
                                     <td class="col-actions">
                                         <div class="action-buttons">
                                             <button class="action-btn edit" (click)="editarUsuario(user)"
-                                                title="Editar">
+                                                title="Editar"
+                                                [disabled]="user.role === 'admin'">
                                                 <ion-icon name="create-outline"></ion-icon>
                                             </button>
                                             <button class="action-btn delete" (click)="confirmarEliminar(user)"
-                                                title="Eliminar">
+                                                title="Eliminar"
+                                                [disabled]="user.role === 'admin'">
                                                 <ion-icon name="trash-outline"></ion-icon>
                                             </button>
                                         </div>
