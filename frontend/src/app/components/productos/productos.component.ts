@@ -177,13 +177,13 @@ export class ProductosComponent implements OnInit, OnDestroy {
             (family) => {
                 if (family) {
                     // Agregar la nueva familia a la lista sin recargar
-                    this.agregarFamiliaAlSelecto(family);
+                    this.agregarFamiliaAlSelector(family);
                 }
             }
         );
     }
 
-    private agregarFamiliaAlSelecto(family: Family) {
+    private agregarFamiliaAlSelector(family: Family) {
         // Verificar que la familia no exista ya en la lista
         const familyExists = this.familiasParaProductos.some(f => f.id?.toString() === family.id?.toString());
 
@@ -793,6 +793,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 };
                 this.familiasParaProductos = [...this.familiasParaProductos, newFamily];
                 this.createProductForm.family_id = newFamily.uuid;
+
+                // Notificar a otros componentes la creación de la familia
+                this.familyStateService.notifyFamilyCreated(newFamily);
 
                 // Invalidar cache para que FamiliasComponent cargue la nueva familia
                 this.familyService.invalidateFamiliesCache();

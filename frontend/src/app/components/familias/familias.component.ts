@@ -35,7 +35,10 @@ interface FamilyCreateForm {
 export class FamiliasComponent implements OnInit {
     @Input() set active(value: boolean) {
         this._active = value;
-        // Sin lógica extra, dejar que ngOnInit maneje
+        if (value && this.familiasCargadas) {
+            // Al activar el panel, recargar familias desde caché/API
+            this.cargarFamilias();
+        }
     }
 
     get active(): boolean {
@@ -57,6 +60,8 @@ export class FamiliasComponent implements OnInit {
     familiasFiltradas: Family[] = [];
     terminoBusquedaFamily = '';
     filtroActualFamily = 'nombre';
+
+    private familyCreatedSubscription: any;
 
     constructor(
         private familyService: FamilyService,
@@ -82,6 +87,25 @@ export class FamiliasComponent implements OnInit {
         } else {
             // Si no hay caché, cargar de la API
             this.cargarFamilias();
+        }
+
+        // Suscribirse a la creación de familias desde otros componentes
+        this.familyCreatedSubscription = this.familyStateService.getFamilyCreated$().subscribe((newFamily: Family | null) => {
+            if (newFamily && !this.families.some(f => f.id?.toString() === newFamily.id?.toString())) {
+                this.families = [...this.families, newFamily];
+                if (this.terminoBusquedaFamily) {
+                    this.buscarFamilias();
+                } else {
+                    this.familiasFiltradas = [...this.families];
+                }
+                this.dataCacheService.setFamiliesCache(this.families);
+            }
+        });
+    }
+
+    ngOnDestroy() { 
+        if (this.familyCreatedSubscription) {
+            this.familyCreatedSubscription.unsubscribe();
         }
     }
 
