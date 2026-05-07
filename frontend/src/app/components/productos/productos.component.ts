@@ -350,9 +350,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 case 'id':
                     const displayId = (index + 1).toString();
                     return displayId.includes(termino);
-                case 'familia':
-                    const family = this.familiasParaProductos.find(f => f.uuid === product.family_id);
-                    return family?.name.toLowerCase().includes(termino) || false;
                 case 'nombre':
                 default:
                     return product.name.toLowerCase().includes(termino);
@@ -377,14 +374,14 @@ export class ProductosComponent implements OnInit, OnDestroy {
         if (familyId === null) {
             this.productosFiltrados = [...this.products];
         } else {
-            this.productosFiltrados = this.products.filter(product => product.family_id === familyId);
+            this.productosFiltrados = this.products.filter(product => product.family_id?.toString() === familyId);
         }
 
         this.terminoBusquedaProduct = '';
     }
 
     contarProductosPorFamilia(familyId: string): number {
-        return this.products.filter(product => product.family_id === familyId).length;
+        return this.products.filter(product => product.family_id?.toString() === familyId).length;
     }
 
     abrirEdicionProduct(product: Product) {
@@ -598,7 +595,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
     async confirmarEliminarProduct(product: Product) {
         const alert = await this.alertController.create({
             header: 'Eliminar producto',
-            message: `¿Estás seguro de que quieres eliminar <strong>${product.name}</strong>?`,
+            message: `¿Estás seguro de que quieres eliminar ${product.name}?`,
             buttons: [
                 {
                     text: 'Cancelar',

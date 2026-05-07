@@ -122,7 +122,7 @@ export class FamiliasComponent implements OnInit {
                 this.familiasFiltradas = [...this.families];
                 this.familiasCargadas = true;
                 this.familiasLoading = false;
-                
+
                 // Guardar en caché
                 this.dataCacheService.setFamiliesCache(this.families);
             },
@@ -321,7 +321,7 @@ export class FamiliasComponent implements OnInit {
 
     async mostrarAlertaConfirmacionEliminacionFamilia(family: Family, productCount: number) {
         let message = `¿Estás seguro de que quieres eliminar ${family.name}?`;
-        
+
         if (productCount > 0) {
             const productoTexto = productCount === 1 ? 'producto' : 'productos';
             message += ` Se eliminarán ${productCount} ${productoTexto} asociado${productCount === 1 ? '' : 's'}.`;
@@ -348,6 +348,15 @@ export class FamiliasComponent implements OnInit {
         await alert.present();
     }
 
+    async mostrarConfirmacionFamiliaEliminada(nombreFamilia: string) {
+        const alert = await this.alertController.create({
+            header: 'Familia eliminada',
+            message: `La familia "${nombreFamilia}" ha sido eliminada correctamente.`,
+            buttons: [{ text: 'Aceptar', role: 'confirm', cssClass: 'success' }]
+        });
+        await alert.present();
+    }
+
     private eliminarFamilyConProductos(familyId: string | number, productCount: number) {
         if (productCount > 0) {
             // Obtener todos los productos
@@ -363,7 +372,7 @@ export class FamiliasComponent implements OnInit {
                     }
 
                     const relatedProducts = allProducts.filter(p => p.family_id === familyId);
-                    
+
                     // Crear array de observables para eliminar productos en paralelo
                     const deleteObservables = relatedProducts.map(product =>
                         this.productService.deleteProduct(product.id)
@@ -400,18 +409,31 @@ export class FamiliasComponent implements OnInit {
     }
 
     private eliminarFamily(id: string | number) {
+        // Obtener el nombre antes de eliminar para mostrarlo en la confirmación
+        const familiaEliminada = this.familiasFiltradas.find(f => f.id?.toString() === id.toString());
+
         this.familyService.deleteFamily(id.toString()).subscribe({
             next: () => {
                 // Actualizar array local: remover la familia eliminada
                 this.families = this.families.filter(f => f.id?.toString() !== id.toString());
-                this.familiasFiltradas = this.familiasFiltradas.filter(f => f.id?.toString() !== id.toString());
-                
+                // Forzar actualización visual: vaciar y luego reasignar para asegurar el refresco
+                this.familiasFiltradas = [];
+                setTimeout(() => {
+                    if (this.terminoBusquedaFamily) {
+                        this.buscarFamilias();
+                    } else {
+                        this.familiasFiltradas = [...this.families];
+                    }
+                });
+
+                this.mostrarConfirmacionFamiliaEliminada(familiaEliminada?.name ?? 'La familia');
+
                 // Actualizar caché
                 this.dataCacheService.setFamiliesCache(this.families);
-                
+
                 // Notificar a otros componentes sobre la eliminación
                 this.familyStateService.notifyFamilyDeleted(id.toString());
-                
+
                 // Invalidar caches pero NO recargar
                 this.familyService.invalidateFamiliesCache();
                 this.productService.invalidateProductsCache();

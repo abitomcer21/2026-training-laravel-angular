@@ -22,11 +22,11 @@
           <button 
             *ngFor="let family of familiasParaProductos"
             class="family-filter-item"
-            [class.active]="familiaSeleccionadaFiltro === family.id"
-            (click)="filtrarPorFamilia(family.id)">
+            [class.active]="familiaSeleccionadaFiltro === family.id.toString()"
+            (click)="filtrarPorFamilia(family.id.toString())">
             <ion-icon name="pricetag-outline" class="filter-icon"></ion-icon>
             <span class="filter-name">{{ family.name }}</span>
-            <span class="filter-count">{{ contarProductosPorFamilia(family.id) }}</span>
+            <span class="filter-count">{{ contarProductosPorFamilia(family.id.toString()) }}</span>
           </button>
 
           <div *ngIf="familiasParaProductos.length === 0" class="sidebar-empty">
@@ -47,7 +47,7 @@
                 <ion-icon name="search-outline" class="search-icon"></ion-icon>
                 <input 
                   type="text" 
-                  placeholder="Buscar por nombre, ID, familia..." 
+                  placeholder="Buscar por nombre, ID, " 
                   [(ngModel)]="terminoBusquedaProduct"
                   (input)="buscarProductos()"
                   class="search-input-field">
@@ -62,12 +62,6 @@
                   [class.active]="filtroActualProduct === 'nombre'"
                   (click)="filtrarPorTipoProduct('nombre')">
                   Nombre
-                </button>
-                <button 
-                  class="chip" 
-                  [class.active]="filtroActualProduct === 'familia'"
-                  (click)="filtrarPorTipoProduct('familia')">
-                  Familia
                 </button>
                 <button 
                   class="chip" 
