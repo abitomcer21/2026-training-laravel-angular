@@ -85,7 +85,15 @@ export class ImpuestosComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.cargarImpuestos();
+    // Solo cargar desde backend si no hay datos en caché
+    const cachedTaxes = this.dataCacheService.getTaxes();
+    if (cachedTaxes && cachedTaxes.length > 0) {
+      this.taxes = [...cachedTaxes];
+      this.impuestosFiltrados = [...this.taxes];
+      this.impuestoCargados = true;
+    } else {
+      this.cargarImpuestos();
+    }
   }
 
   cargarImpuestos() {
