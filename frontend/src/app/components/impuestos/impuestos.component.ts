@@ -10,6 +10,7 @@ import {
 } from 'ionicons/icons';
 
 import { TaxService, Tax } from '../../services/api/tax.service';
+import { DataCacheService } from '../../services/shared/data-cache.service';
 import { AuthService } from '../../services/auth/auth.service';
 
 interface TaxEditForm {
@@ -36,9 +37,6 @@ interface TaxCreateForm {
 export class ImpuestosComponent implements OnInit {
   @Input() set active(value: boolean) {
     this._active = value;
-    if (value && !this.impuestoCargados) {
-      this.cargarImpuestos();
-    }
   }
 
   get active(): boolean {
@@ -77,7 +75,8 @@ export class ImpuestosComponent implements OnInit {
     private taxService: TaxService,
     private authService: AuthService,
     private alertController: AlertController,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private dataCacheService: DataCacheService
   ) {
     addIcons({
       cashOutline, searchOutline, closeOutline,
@@ -310,13 +309,36 @@ export class ImpuestosComponent implements OnInit {
   eliminarTax(id: string | number) {
     this.taxService.deleteTax(id.toString()).subscribe({
       next: () => {
+        // Eliminar de la lista local inmediatamente
+        const idStr = id.toString();
+        this.taxes = this.taxes.filter(t => t.id?.toString() !== idStr);
         this.taxService.invalidateTaxesCache();
-        this.cargarImpuestos();
+        this.dataCacheService.setTaxesCache(this.taxes);
+        // Actualizar la lista filtrada según el filtro/búsqueda actual
+        this.buscarImpuestos();
+        // Forzar refresco visual
+        this.cd.detectChanges();
+        this.mostrarConfirmacionEliminadoTax();
       },
       error: (error) => {
         console.error('Error al eliminar:', error);
       }
     });
+  }
+
+  async mostrarConfirmacionEliminadoTax() {
+    const alert = await this.alertController.create({
+      header: 'IVA eliminado',
+      message: 'El impuesto ha sido eliminado correctamente.',
+      buttons: [
+        {
+          text: 'Aceptar',
+          role: 'confirm',
+          cssClass: 'success'
+        }
+      ]
+    });
+    await alert.present();
   }
 
   editarTax(tax: Tax) {
