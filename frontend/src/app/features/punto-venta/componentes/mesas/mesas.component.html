@@ -90,15 +90,6 @@
                 {{ num }}
               </button>
             </div>
-            <div class="keyboard-row keyboard-actions">
-              <button class="key-button back-arrow-btn" (click)="borrarDigito()">
-                <ion-icon name="backspace-outline"></ion-icon>
-              </button>
-              <button class="key-button" (click)="agregarDigito('0')" [disabled]="pinIngresado.length >= 4">0</button>
-              <button class="key-button forward-arrow-btn" (click)="validarPin()">
-                <ion-icon name="arrow-forward-outline"></ion-icon>
-              </button>
-            </div>
           </div>
 
           <!-- Mensaje de error -->

@@ -33,14 +33,7 @@ import { ZoneService, Zone } from '../../../../services/api/zone.service';
     IonIcon,
     IonLoading,
     IonModal,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
-    IonButton,
-    IonInput,
-    IonLabel,
-    IonItem,
   ],
 })
 
@@ -159,6 +152,7 @@ export class MesasComponent implements OnInit {
 
     if (this.pinIngresado !== this.selectedUser.pin) {
       this.mensajeError = 'PIN inválido';
+      this.pinIngresado = ''; 
       return;
     }
 
@@ -179,13 +173,17 @@ export class MesasComponent implements OnInit {
     }
   }
 
-  agregarDigito(digito: string) {
-    if (this.pinIngresado.length < 4) {
-      this.pinIngresado += digito;
-      this.mensajeError = '';
+agregarDigito(digito: string) {
+  if (this.pinIngresado.length < 4) {
+    this.pinIngresado += digito;
+    this.mensajeError = '';
 
+    if (this.pinIngresado.length === 4) {
+      setTimeout(() => this.validarPin(), 150);
     }
   }
+}
+
 
   borrarDigito() {
     this.pinIngresado = this.pinIngresado.slice(0, -1);

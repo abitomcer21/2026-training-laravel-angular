@@ -45,19 +45,15 @@ export class ImpuestosComponent implements OnInit {
 
   private _active: boolean = false;
 
-  // Loading indicadores
   impuestosLoading: boolean = false;
   impuestoCargados: boolean = false;
 
-  // Datos
   taxes: Tax[] = [];
   impuestosFiltrados: Tax[] = [];
 
-  // Estado del panel
   taxPanelMode: 'edit' | 'create' = 'create';
   editingTax: Tax | null = null;
 
-  // Formularios
   editTaxForm: TaxEditForm = {
     name: '',
     percentage: 0,
@@ -67,7 +63,6 @@ export class ImpuestosComponent implements OnInit {
     percentage: 0,
   };
 
-  // Búsqueda
   terminoBusquedaTax: string = '';
   filtroActualTax: string = 'nombre';
 
@@ -85,7 +80,6 @@ export class ImpuestosComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Solo cargar desde backend si no hay datos en caché
     const cachedTaxes = this.dataCacheService.getTaxes();
     if (cachedTaxes && cachedTaxes.length > 0) {
       this.taxes = [...cachedTaxes];
@@ -125,7 +119,6 @@ export class ImpuestosComponent implements OnInit {
         this.impuestosFiltrados = [...this.taxes];
         this.impuestoCargados = true;
         this.impuestosLoading = false;
-        // Forzar refresco visual
         this.cd.detectChanges();
       },
       error: (error) => {
@@ -318,14 +311,11 @@ export class ImpuestosComponent implements OnInit {
   eliminarTax(id: string | number) {
     this.taxService.deleteTax(id.toString()).subscribe({
       next: () => {
-        // Eliminar de la lista local inmediatamente
         const idStr = id.toString();
         this.taxes = this.taxes.filter(t => t.id?.toString() !== idStr);
         this.taxService.invalidateTaxesCache();
         this.dataCacheService.setTaxesCache(this.taxes);
-        // Actualizar la lista filtrada según el filtro/búsqueda actual
         this.buscarImpuestos();
-        // Forzar refresco visual
         this.cd.detectChanges();
         this.mostrarConfirmacionEliminadoTax();
       },

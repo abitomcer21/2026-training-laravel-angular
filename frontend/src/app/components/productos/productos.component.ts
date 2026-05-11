@@ -55,20 +55,18 @@ export class ProductosComponent implements OnInit, OnDestroy {
     private _active: boolean = false;
     @Input() familias: Family[] = [];
 
-    // Subscripciones
     private familyStateSubscription: Subscription | null = null;
     private familyDeletedSubscription: Subscription | null = null;
     private familyCreatedSubscription: Subscription | null = null;
     private familiesCacheSubscription: Subscription | null = null;
 
-    // Loading
     productosLoading = false;
     productosCargados = false;
+    isSavingProduct = false; 
 
     productPanelMode: 'edit' | 'create' = 'create';
     editingProduct: Product | null = null;
 
-    // Formularios
     editProductForm: ProductEditForm = {
         name: '',
         family_id: '',
@@ -113,7 +111,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        // Intentar recuperar del caché primero
         const cachedProducts = this.dataCacheService.getProducts();
         const cachedFamilies = this.dataCacheService.getFamilies();
         const cachedTaxes = this.dataCacheService.getTaxes();
@@ -133,11 +130,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
         }
 
         if (cachedProducts.length === 0 || cachedFamilies.length === 0 || cachedTaxes.length === 0) {
-            // Si no hay caché o falta algo, cargar de la API
             this.cargarProductos();
         }
 
-        // Suscribirse a cambios en el caché de familias para refrescar automáticamente
         this.familiesCacheSubscription = this.dataCacheService.getFamiliesCache$.subscribe(families => {
             this.familiasParaProductos = [...families];
             this.cd.detectChanges();
@@ -147,7 +142,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        // Desuscribirse para evitar memory leaks
         if (this.familyStateSubscription) {
             this.familyStateSubscription.unsubscribe();
         }
@@ -163,21 +157,17 @@ export class ProductosComponent implements OnInit, OnDestroy {
     }
 
     private suscribirseACambiosFamilia() {
-        // Suscribirse a cambios de estado de familia
         this.familyStateSubscription = this.familyStateService.getFamilyStatusChange$().subscribe(
             (change) => {
                 if (change) {
-                    // Actualizar estado de productos localmente
                     this.actualizarEstadoProductosPorFamilia(change.familyId, change.active);
                 }
             }
         );
 
-        // Suscribirse a eliminaciones de familia
         this.familyDeletedSubscription = this.familyStateService.getFamilyDeleted$().subscribe(
             (deleted) => {
                 if (deleted) {
-                    // Eliminar productos de la familia eliminada
                     this.eliminarProductosPorFamiliaEliminada(deleted.familyId);
                 }
             }
@@ -185,18 +175,14 @@ export class ProductosComponent implements OnInit, OnDestroy {
     }
 
     private eliminarProductosPorFamiliaEliminada(familyId: string) {
-        // Eliminar productos de la lista
         this.products = this.products.filter(p => p.family_id?.toString() !== familyId);
 
-        // Eliminar de la lista filtrada
         this.productosFiltrados = this.productosFiltrados.filter(p => p.family_id?.toString() !== familyId);
 
-        // Actualizar caché
         this.dataCacheService.setProductsCache(this.products);
     }
 
     private actualizarEstadoProductosPorFamilia(familyId: string, newActive: boolean) {
-        // Actualizar en la lista de productos
         this.products = this.products.map(product => {
             if (product.family_id === familyId) {
                 return { ...product, active: newActive };
@@ -204,7 +190,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
             return product;
         });
 
-        // Actualizar en la lista filtrada
         this.productosFiltrados = this.productosFiltrados.map(product => {
             if (product.family_id === familyId) {
                 return { ...product, active: newActive };
@@ -254,7 +239,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
                             this.familiasParaProductos = families;
                         }
 
-                        // Guardar familias en caché
                         this.dataCacheService.setFamiliesCache(this.familiasParaProductos);
                     }
 
@@ -275,7 +259,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
                             this.taxes = taxes;
                         }
 
-                        // Guardar impuestos en caché
                         this.dataCacheService.setTaxesCache(this.taxes);
                     }
 
@@ -313,7 +296,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 this.productosCargados = true;
                 this.productosLoading = false;
 
-                // Guardar en caché
                 this.dataCacheService.setProductsCache(this.products);
             },
             error: (error) => {
@@ -412,6 +394,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
     }
 
     guardarProductoPanel() {
+        if (this.isSavingProduct) return; 
+        
         if (this.productPanelMode === 'edit') {
             this.guardarEdicionProduct();
             return;
@@ -431,6 +415,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
             alert('Faltan campos obligatorios');
             return;
         }
+
+        this.isSavingProduct = true;
 
         const payload: any = {
             name: this.editProductForm.name.trim(),
@@ -462,10 +448,12 @@ export class ProductosComponent implements OnInit, OnDestroy {
 
                 this.mostrarConfirmacionGuardadoProduct();
                 this.salirEdicionProduct();
+                this.isSavingProduct = false;
             },
             error: (error) => {
                 console.error('Error al actualizar:', error);
                 this.mostrarErrorGuardadoProduct();
+                this.isSavingProduct = false;
             }
         });
     }
@@ -536,6 +524,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
             activeValue = activeValue === 'true' || activeValue === '1';
         }
 
+        this.isSavingProduct = true;
+
         const payload: any = {
             name: this.createProductForm.name.trim(),
             family_id: familyId,
@@ -563,9 +553,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 };
 
                 this.productService.invalidateProductsCache();
-                // Añadir el producto directamente a la lista local
                 this.products = [createdProduct, ...this.products];
-                // Si hay búsqueda activa, volver a filtrar; si no, mostrar todos
                 if (this.terminoBusquedaProduct) {
                     this.buscarProductos();
                 } else {
@@ -574,10 +562,12 @@ export class ProductosComponent implements OnInit, OnDestroy {
 
                 this.createProductForm = this.creatEmptyProductForm();
                 this.mostrarConfirmacionGuardadoProduct();
+                this.isSavingProduct = false;
             },
             error: (error) => {
                 console.error('Error al crear:', error);
                 this.mostrarErrorGuardadoProduct();
+                this.isSavingProduct = false;
             }
         });
     }
@@ -607,20 +597,16 @@ export class ProductosComponent implements OnInit, OnDestroy {
     eliminarProduct(id: string | number) {
         this.productService.deleteProduct(id.toString()).subscribe({
             next: () => {
-                // Remover del array local
+
                 this.products = this.products.filter(p => p.id?.toString() !== id.toString());
                 this.productosFiltrados = this.productosFiltrados.filter(p => p.id?.toString() !== id.toString());
 
-                // Actualizar caché
                 this.dataCacheService.setProductsCache(this.products);
 
-                // Invalidar cache de API
                 this.productService.invalidateProductsCache();
 
-                // Forzar actualización de la vista
                 this.cd.detectChanges();
 
-                // Mostrar alerta de éxito
                 this.mostrarConfirmacionEliminadoProduct();
             },
             error: (error) => {
@@ -649,7 +635,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
     }
 
     cambiarEstadoProduct(product: Product) {
-        // Verificar si la familia está activa
         if (!this.isFamilyActive(product.family_id)) {
             alert('No puedes activar este producto porque su familia está desactivada');
             return;
@@ -804,13 +789,10 @@ export class ProductosComponent implements OnInit, OnDestroy {
                     restaurant_id: response?.restaurant_id
                 };
                 this.familiasParaProductos = [...this.familiasParaProductos, newFamily];
-                // Usar siempre el id principal como string para el select
                 this.createProductForm.family_id = (newFamily.id ?? newFamily.uuid)?.toString();
 
-                // Notificar a otros componentes la creación de la familia
                 this.familyStateService.notifyFamilyCreated(newFamily);
 
-                // Invalidar cache para que FamiliasComponent cargue la nueva familia
                 this.familyService.invalidateFamiliesCache();
 
                 this.mostrarConfirmacionFamiliaCreada(name);
@@ -896,10 +878,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
                 this.taxes = [...this.taxes, newTax];
                 this.createProductForm.tax_id = newTax.id.toString();
 
-                // Guardar impuestos en caché
                 this.dataCacheService.setTaxesCache(this.taxes);
 
-                // Invalidar cache para que ImpuestosComponent cargue el nuevo impuesto
                 this.taxService.invalidateTaxesCache();
 
                 this.mostrarConfirmacionImpuestoCreado(name);

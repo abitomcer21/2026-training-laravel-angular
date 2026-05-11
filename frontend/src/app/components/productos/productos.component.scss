@@ -1,6 +1,3 @@
-/* Badge de stock */
-
-/* Badge de stock igual que el de precio */
 .stock-badge {
     display: inline-block;
     min-width: 36px;
@@ -14,7 +11,6 @@
     box-sizing: border-box;
 }
 
-/* Badge de precio (referencia visual) */
 .price-badge {
     display: inline-block;
     min-width: 36px;
@@ -42,11 +38,6 @@
     background: #fee2e2;
     color: #dc2626;
 }
-/* ========================================== */
-/* PRODUCTOS COMPONENT - ESTILOS ESPECÍFICOS  */
-/* ========================================== */
-
-/* Layout de productos */
 .products-layout {
     display: flex;
     gap: 20px;
@@ -122,7 +113,6 @@
     padding: 12px;
 }
 
-/* Filter items */
 .family-filter-item {
     display: flex;
     align-items: center;
@@ -226,7 +216,6 @@
     color: #9ca3af;
 }
 
-/* Dashboard grid dentro del componente */
 .dashboard-grid {
     display: flex;
     flex-direction: row;
@@ -270,7 +259,6 @@
     overflow: auto;
 }
 
-/* Headers */
 .users-header {
     display: flex;
     justify-content: space-between;
@@ -557,7 +545,6 @@
     min-width: 160px;
 }
 
-/* Action buttons */
 .editor-actions {
     display: flex;
     gap: 8px;
@@ -714,7 +701,6 @@
     }
 }
 
-/* Estilos para productos inactivos */
 .product-inactive {
     opacity: 0.6;
     background-color: rgba(239, 68, 68, 0.05);
@@ -722,4 +708,34 @@
 
 .product-inactive td {
     color: #9ca3af;
+}
+
+.spinner-border {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: text-bottom;
+    border: 0.2em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.2em;
+}
+
+.me-2 {
+    margin-right: 0.5rem;
+}
+
+@keyframes spinner-border {
+    to { transform: rotate(360deg); }
+}
+
+button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
 }
