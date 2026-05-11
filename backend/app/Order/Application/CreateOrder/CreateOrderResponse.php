@@ -26,8 +26,8 @@ final readonly class CreateOrderResponse
                 'product_id' => $line->productId(),
                 'user_id' => $line->userId(),
                 'quantity' => $line->quantity(),
-                'price' => $line->price(),
-                'tax_percentage' => $line->taxPercentage(),
+                'price' => $line->price()->cents(),
+                'tax_percentage' => $line->taxPercentage()->value(),
                 'created_at' => $line->createdAt()->format(\DateTimeInterface::ATOM),
                 'updated_at' => $line->updatedAt()->format(\DateTimeInterface::ATOM),
             ];

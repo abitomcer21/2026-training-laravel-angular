@@ -1,159 +1,89 @@
 <?php
-
 namespace App\Sales\Domain\Entity;
 
-use App\Sales\Domain\ValueObject\Quantity;
-use App\Sales\Domain\ValueObject\SalesLinePrice;
-use App\Sales\Domain\ValueObject\SalesLineTaxPercentage;
 use App\Shared\Domain\ValueObject\DomainDateTime;
+use App\Shared\Domain\ValueObject\Price;
+use App\Shared\Domain\ValueObject\TaxPercentage;
 use App\Shared\Domain\ValueObject\Uuid;
 
 class SalesLine
 {
-    private Uuid $uuid;
-
-    private Uuid $saleId;
-
-    private Uuid $orderLineId;
-
-    private Uuid $userId;
-
-    private Quantity $quantity;
-
-    private SalesLinePrice $price;
-
-    private SalesLineTaxPercentage $taxPercentage;
-
-    private DomainDateTime $createdAt;
-
-    private ?DomainDateTime $deletedAt;
-
     private function __construct(
-        Uuid $uuid,
-        Uuid $saleId,
-        Uuid $orderLineId,
-        Uuid $userId,
-        Quantity $quantity,
-        SalesLinePrice $price,
-        SalesLineTaxPercentage $taxPercentage,
-        DomainDateTime $createdAt,
-        ?DomainDateTime $deletedAt = null
-    ) {
-        $this->uuid = $uuid;
-        $this->saleId = $saleId;
-        $this->orderLineId = $orderLineId;
-        $this->userId = $userId;
-        $this->quantity = $quantity;
-        $this->price = $price;
-        $this->taxPercentage = $taxPercentage;
-        $this->createdAt = $createdAt;
-        $this->deletedAt = $deletedAt;
-    }
+        private Uuid            $id,
+        private int             $restaurantId,
+        private Uuid            $saleId,
+        private Uuid            $orderLineId,
+        private string          $userId,
+        private int             $quantity,
+        private Price           $price,
+        private TaxPercentage   $taxPercentage,
+        private DomainDateTime  $createdAt,
+        private DomainDateTime  $updatedAt,
+        private ?DomainDateTime $deletedAt,
+    ) {}
 
-    public static function dddCreate(
-        Uuid $saleId,
-        Uuid $orderLineId,
-        Uuid $userId,
-        Quantity $quantity,
-        SalesLinePrice $price,
-        SalesLineTaxPercentage $taxPercentage
+    public static function create(
+        int           $restaurantId,
+        Uuid          $orderLineId,
+        string        $userId,
+        int           $quantity,
+        Price         $price,
+        TaxPercentage $taxPercentage,
     ): self {
+        $now = DomainDateTime::now();
+
         return new self(
             Uuid::generate(),
-            $saleId,
+            $restaurantId,
+            Uuid::generate(), // saleId se asigna desde fuera, ver nota abajo
             $orderLineId,
             $userId,
             $quantity,
             $price,
             $taxPercentage,
-            DomainDateTime::now(),
-            null
+            $now,
+            $now,
+            null,
         );
     }
 
     public static function fromPersistence(
-        string $uuid,
+        string $id,
+        int $restaurantId,
         string $saleId,
         string $orderLineId,
         string $userId,
         int $quantity,
         int $price,
         int $taxPercentage,
-        \DateTime $createdAt,
-        \DateTime $updatedAt,
-        ?\DateTime $deletedAt = null
+        \DateTimeImmutable $createdAt,
+        \DateTimeImmutable $updatedAt,
+        ?\DateTimeImmutable $deletedAt = null,
     ): self {
         return new self(
-            Uuid::create($uuid),
+            Uuid::create($id),
+            $restaurantId,
             Uuid::create($saleId),
             Uuid::create($orderLineId),
-            Uuid::create($userId),
-            Quantity::create($quantity),
-            SalesLinePrice::create($price),
-            SalesLineTaxPercentage::create($taxPercentage),
-            DomainDateTime::create(\DateTimeImmutable::createFromMutable($createdAt)),
-            $deletedAt ? DomainDateTime::create(\DateTimeImmutable::createFromMutable($deletedAt)) : null
+            $userId,
+            $quantity,
+            Price::create($price),
+            TaxPercentage::create($taxPercentage),
+            DomainDateTime::create($createdAt),
+            DomainDateTime::create($updatedAt),
+            $deletedAt !== null ? DomainDateTime::create($deletedAt) : null,
         );
     }
 
-    public function uuid(): Uuid
-    {
-        return $this->uuid;
-    }
-
-    public function saleId(): Uuid
-    {
-        return $this->saleId;
-    }
-
-    public function orderLineId(): Uuid
-    {
-        return $this->orderLineId;
-    }
-
-    public function userId(): Uuid
-    {
-        return $this->userId;
-    }
-
-    public function quantity(): Quantity
-    {
-        return $this->quantity;
-    }
-
-    public function price(): SalesLinePrice
-    {
-        return $this->price;
-    }
-
-    public function taxPercentage(): SalesLineTaxPercentage
-    {
-        return $this->taxPercentage;
-    }
-
-    public function createdAt(): DomainDateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function deletedAt(): ?DomainDateTime
-    {
-        return $this->deletedAt;
-    }
-
-    public function subtotal(): SalesLinePrice
-    {
-        $subtotal = $this->price->cents() * $this->quantity->quantity();
-
-        return SalesLinePrice::create($subtotal);
-    }
-
-    public function total(): SalesLinePrice
-    {
-        $subtotalCents = $this->subtotal()->cents();
-        $taxCents = (int) ($subtotalCents * $this->taxPercentage->asDecimal());
-        $totalCents = $subtotalCents + $taxCents;
-
-        return SalesLinePrice::create($totalCents);
-    }
+    public function id(): Uuid                     { return $this->id; }
+    public function restaurantId(): int            { return $this->restaurantId; }
+    public function saleId(): Uuid                 { return $this->saleId; }
+    public function orderLineId(): Uuid            { return $this->orderLineId; }
+    public function userId(): string               { return $this->userId; }
+    public function quantity(): int                { return $this->quantity; }
+    public function price(): Price                 { return $this->price; }
+    public function taxPercentage(): TaxPercentage { return $this->taxPercentage; }
+    public function createdAt(): DomainDateTime    { return $this->createdAt; }
+    public function updatedAt(): DomainDateTime    { return $this->updatedAt; }
+    public function deletedAt(): ?DomainDateTime   { return $this->deletedAt; }
 }

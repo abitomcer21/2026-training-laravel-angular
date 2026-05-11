@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Sales\Domain\ValueObject;
+namespace App\Shared\Domain\ValueObject;
 
-class SalesLineTaxPercentage
+class TaxPercentage
 {
     private int $percentage;
 

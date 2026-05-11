@@ -10,13 +10,5 @@ interface SalesRepositoryInterface
     public function save(Sales $sales): void;
 
     public function findById(string $id): ?Sales;
-
-    public function saveSalesLine(SalesLine $line): void;
-
-    /**
-     * @return SalesLine[]
-     */
-    public function findSalesLinesBySaleId(string $saleId): array;
-
-    public function findSalesLineById(string $id): ?SalesLine;
+    
 }

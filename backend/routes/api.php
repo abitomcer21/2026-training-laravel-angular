@@ -41,6 +41,7 @@ use App\Zones\Infrastructure\Entrypoint\Http\PostController as ZonesPostControll
 use App\Zones\Infrastructure\Entrypoint\Http\PutController as ZonesPutController;
 use Illuminate\Support\Facades\Route;
 use App\Order\Infrastructure\Entrypoint\Http\PostController as OrderPostController;
+use App\Sales\Infrastructure\Entrypoint\Http\PostController as SalesPostController;
 
 
 Route::post('/login', LoginController::class);
@@ -99,3 +100,4 @@ Route::delete('/tables/{id}', TablesDeleteController::class);
 Route::post('/restaurants', RestaurantsPostController::class);
 
 Route::post('/orders', OrderPostController::class);
+Route::post('/sales', SalesPostController::class);

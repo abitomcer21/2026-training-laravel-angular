@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Sales\Domain\ValueObject;
+namespace App\Shared\Domain\ValueObject;
 
-class SalesLinePrice
+class Price
 {
     private int $cents;
 

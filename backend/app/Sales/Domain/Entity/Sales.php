@@ -2,8 +2,6 @@
 
 namespace App\Sales\Domain\Entity;
 
-use App\Sales\Domain\ValueObject\Diners;
-use App\Sales\Domain\ValueObject\SalesStatus;
 use App\Sales\Domain\ValueObject\TicketNumber;
 use App\Sales\Domain\ValueObject\Total;
 use App\Shared\Domain\ValueObject\DomainDateTime;
@@ -11,74 +9,74 @@ use App\Shared\Domain\ValueObject\Uuid;
 
 class Sales
 {
+    private array $salesLines;
+
     private function __construct(
-        private Uuid $id,
-        private Uuid $tableId,
-        private Uuid $openedByUserId,
-        private ?Uuid $closedByUserId,
-        private SalesStatus $status,
-        private Diners $diners,
-        private DomainDateTime $openedAt,
-        private ?DomainDateTime $closedAt,
-        private ?TicketNumber $ticketNumber,
-        private ?Total $total,
-        private DomainDateTime $createdAt,
-        private DomainDateTime $updatedAt,
-        private ?DomainDateTime $deletedAt = null,
-    ) {}
+        private Uuid            $id,
+        private int             $restaurantId,
+        private Uuid            $orderId,
+        private string          $userId,
+        private ?TicketNumber   $ticketNumber,
+        private ?DomainDateTime $valueDate,
+        private ?Total          $total,
+        private DomainDateTime  $createdAt,
+        private DomainDateTime  $updatedAt,
+        private ?DomainDateTime $deletedAt,
+        array $salesLines = [],
+    ) {
+        $this->salesLines = $salesLines;
+    }
 
     public static function dddCreate(
-        Uuid $tableId,
-        Uuid $openedByUserId,
-        Diners $diners,
+        int           $restaurantId,
+        Uuid          $orderId,
+        string        $userId,
+        ?TicketNumber $ticketNumber,
+        ?Total        $total,
+        array         $salesLines = [],
     ): self {
         $now = DomainDateTime::now();
 
         return new self(
             Uuid::generate(),
-            $tableId,
-            $openedByUserId,
+            $restaurantId,
+            $orderId,
+            $userId,
+            $ticketNumber,
             null,
-            SalesStatus::open(),
-            $diners,
-            $now,
-            null,
-            null,
-            null,
+            $total,
             $now,
             $now,
+            null,
+            $salesLines,
         );
     }
 
     public static function fromPersistence(
         string $id,
-        string $tableId,
-        string $openedByUserId,
-        ?string $closedByUserId,
-        string $status,
-        int $diners,
-        \DateTimeImmutable $openedAt,
-        ?\DateTimeImmutable $closedAt,
-        ?int $ticketNumber,
+        int $restaurantId,
+        string $orderId,
+        string $userId,
+        ?string $ticketNumber,
+        ?string $valueDate,
         ?int $total,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        ?\DateTimeImmutable $deletedAt = null,
+        ?\DateTimeImmutable $deletedAt,
+        array $salesLines = [],
     ): self {
         return new self(
             Uuid::create($id),
-            Uuid::create($tableId),
-            Uuid::create($openedByUserId),
-            $closedByUserId ? Uuid::create($closedByUserId) : null,
-            SalesStatus::create($status),
-            Diners::create($diners),
-            DomainDateTime::create($openedAt),
-            $closedAt ? DomainDateTime::create($closedAt) : null,
-            $ticketNumber ? TicketNumber::create($ticketNumber) : null,
+            $restaurantId,
+            Uuid::create($orderId),
+            $userId,
+            $ticketNumber !== null ? TicketNumber::create($ticketNumber) : null,
+            $valueDate !== null ? DomainDateTime::create(new \DateTimeImmutable($valueDate)) : null,
             $total !== null ? Total::create($total) : null,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
-            $deletedAt ? DomainDateTime::create($deletedAt) : null,
+            $deletedAt !== null ? DomainDateTime::create($deletedAt) : null,
+            $salesLines,
         );
     }
 
@@ -86,64 +84,44 @@ class Sales
     {
         return $this->id;
     }
-
-    public function tableId(): Uuid
+    public function restaurantId(): int
     {
-        return $this->tableId;
+        return $this->restaurantId;
     }
-
-    public function openedByUserId(): Uuid
+    public function orderId(): Uuid
     {
-        return $this->openedByUserId;
+        return $this->orderId;
     }
-
-    public function closedByUserId(): ?Uuid
+    public function userId(): string
     {
-        return $this->closedByUserId;
+        return $this->userId;
     }
-
-    public function status(): SalesStatus
-    {
-        return $this->status;
-    }
-
-    public function diners(): Diners
-    {
-        return $this->diners;
-    }
-
-    public function openedAt(): DomainDateTime
-    {
-        return $this->openedAt;
-    }
-
-    public function closedAt(): ?DomainDateTime
-    {
-        return $this->closedAt;
-    }
-
     public function ticketNumber(): ?TicketNumber
     {
         return $this->ticketNumber;
     }
-
+    public function valueDate(): ?DomainDateTime
+    {
+        return $this->valueDate;
+    }
     public function total(): ?Total
     {
         return $this->total;
     }
-
     public function createdAt(): DomainDateTime
     {
         return $this->createdAt;
     }
-
     public function updatedAt(): DomainDateTime
     {
         return $this->updatedAt;
     }
-
     public function deletedAt(): ?DomainDateTime
     {
         return $this->deletedAt;
+    }
+    public function salesLines(): array
+    {
+        return $this->salesLines;
     }
 }

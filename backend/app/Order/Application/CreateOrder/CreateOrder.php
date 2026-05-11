@@ -1,11 +1,12 @@
 <?php
-
 namespace App\Order\Application\CreateOrder;
 
 use App\Order\Domain\Entity\Order;
 use App\Order\Domain\Entity\OrderLine;
 use App\Order\Domain\Interfaces\OrderRepositoryInterface;
 use App\Order\Domain\ValueObject\OrderStatus;
+use App\Shared\Domain\ValueObject\Price;
+use App\Shared\Domain\ValueObject\TaxPercentage;
 use App\Shared\Domain\ValueObject\Uuid;
 
 class CreateOrder
@@ -15,15 +16,30 @@ class CreateOrder
     ) {}
 
     public function __invoke(
-        int $restaurantId,
-        string $tableId,
-        string $openedByUserId,
+        int     $restaurantId,
+        string  $tableId,
+        string  $openedByUserId,
         ?string $closedByUserId,
-        string $status,
-        int $diners,
-        array $orderLinesData = [],
+        string  $status,
+        int     $diners,
+        array   $orderLinesData = [],
     ): CreateOrderResponse {
         $statusVO = OrderStatus::create($status);
+
+        $orderId = Uuid::generate();
+
+        $orderLines = [];
+        foreach ($orderLinesData as $lineData) {
+            $orderLines[] = OrderLine::dddCreate(
+                $restaurantId,
+                $orderId,
+                $lineData['product_id'],
+                $lineData['user_id'],
+                $lineData['quantity'],
+                Price::create($lineData['price']),
+                TaxPercentage::create($lineData['tax_percentage']),
+            );
+        }
 
         $order = Order::dddCreate(
             $restaurantId,
@@ -32,20 +48,8 @@ class CreateOrder
             $closedByUserId,
             $statusVO,
             $diners,
+            $orderLines,
         );
-
-        foreach ($orderLinesData as $lineData) {
-            $orderLine = OrderLine::dddCreate(
-                $restaurantId,
-                Uuid::create($order->id()->value()),
-                $lineData['product_id'],
-                $lineData['user_id'],
-                $lineData['quantity'],
-                $lineData['price'],
-                $lineData['tax_percentage'],
-            );
-            $order->addOrderLine($orderLine);
-        }
 
         $this->orderRepository->save($order);
 

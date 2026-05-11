@@ -2,28 +2,26 @@
 
 namespace App\Sales\Infrastructure\Entrypoint\Http;
 
-use App\Sales\Application\CreateSales\CreateSales;
+use App\Sales\Application\CreateSale\CreateSale;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PostController
 {
     public function __construct(
-        private CreateSales $createSales,
+        private CreateSale $createSale,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'table_id' => ['required', 'uuid'],
-            'opened_by_user_id' => ['required', 'uuid'],
-            'diners' => ['required', 'integer', 'min:1'],
+            'order_id' => ['required', 'string', 'uuid'],
+            'user_id' => ['required', 'integer'],
         ]);
 
-        $response = ($this->createSales)(
-            $validated['table_id'],
-            $validated['opened_by_user_id'],
-            $validated['diners'],
+        $response = ($this->createSale)(
+            $validated['order_id'],
+            $validated['user_id'],
         );
 
         return new JsonResponse($response->toArray(), 201);

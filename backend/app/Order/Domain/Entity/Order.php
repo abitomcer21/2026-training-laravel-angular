@@ -4,6 +4,7 @@ namespace App\Order\Domain\Entity;
 
 use App\Order\Domain\ValueObject\OrderStatus;
 use App\Shared\Domain\ValueObject\DomainDateTime;
+use App\Shared\Domain\ValueObject\OrderLine;
 use App\Shared\Domain\ValueObject\Uuid;
 
 class Order

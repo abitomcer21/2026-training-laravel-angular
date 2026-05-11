@@ -38,17 +38,21 @@ class EloquentOrderRepository implements OrderRepositoryInterface
         );
 
         foreach ($order->orderLines() as $orderLine) {
+
+            $priceValue = $orderLine->price()->value();
+            $taxPercentageValue = $orderLine->taxPercentage()->value();
+
             DB::table('order_lines')->updateOrInsert(
                 ['uuid' => $orderLine->id()->value()],
                 [
                     'uuid' => $orderLine->id()->value(),
                     'restaurant_id' => $orderLine->restaurantId(),
                     'order_id' => $orderModel->id,
-                    'product_id' => $this->getProductIdByUuid((string) $orderLine->productId()),
+                    'product_id' => $this->getProductIdByUuid($orderLine->productId()),
                     'user_id' => $orderLine->userId(),
                     'quantity' => $orderLine->quantity(),
-                    'price' => $orderLine->price() * 100,
-                    'tax_percentage' => $orderLine->taxPercentage(),
+                    'price' => $priceValue * 100,
+                    'tax_percentage' => $taxPercentageValue,
                     'created_at' => $orderLine->createdAt()->value(),
                     'updated_at' => $orderLine->updatedAt()->value(),
                 ]
