@@ -275,6 +275,7 @@ export class ImpuestosComponent implements OnInit {
         };
 
         this.taxes = [...this.taxes, createdTax];
+        this.cd.detectChanges();
         this.taxService.invalidateTaxesCache();
 
         if (this.terminoBusquedaTax) {
