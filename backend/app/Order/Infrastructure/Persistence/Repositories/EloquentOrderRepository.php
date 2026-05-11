@@ -44,7 +44,7 @@ class EloquentOrderRepository implements OrderRepositoryInterface
                     'uuid' => $orderLine->id()->value(),
                     'restaurant_id' => $orderLine->restaurantId(),
                     'order_id' => $orderModel->id,
-                    'product_id' => $orderLine->productId(),
+                    'product_id' => $this->getProductIdByUuid((string) $orderLine->productId()),
                     'user_id' => $orderLine->userId(),
                     'quantity' => $orderLine->quantity(),
                     'price' => $orderLine->price() * 100,
@@ -85,11 +85,11 @@ class EloquentOrderRepository implements OrderRepositoryInterface
         );
     }
 
-    private function getTableIdByName(int $restaurantId, string $tableName): int
+    private function getTableIdByName(int $restaurantId, string $tableUuid): int
     {
         $tableId = DB::table('tables')
             ->where('restaurant_id', $restaurantId)
-            ->where('name', $tableName)  // Buscar por 'name'
+            ->where('uuid', $tableUuid)
             ->value('id');
 
         if ($tableId) {
@@ -97,7 +97,7 @@ class EloquentOrderRepository implements OrderRepositoryInterface
         }
 
         throw new InvalidArgumentException(
-            "Table with name '{$tableName}' not found for restaurant {$restaurantId}"
+            "Table with uuid '{$tableUuid}' not found for restaurant {$restaurantId}"
         );
     }
 
@@ -114,6 +114,21 @@ class EloquentOrderRepository implements OrderRepositoryInterface
 
         throw new InvalidArgumentException(
             "Table ID {$tableId} not found for restaurant {$restaurantId}"
+        );
+    }
+
+    private function getProductIdByUuid(string $productUuid): int
+    {
+        $productId = DB::table('products')
+            ->where('uuid', $productUuid)
+            ->value('id');
+
+        if ($productId) {
+            return (int) $productId;
+        }
+
+        throw new InvalidArgumentException(
+            "Product with uuid '{$productUuid}' not found"
         );
     }
 }

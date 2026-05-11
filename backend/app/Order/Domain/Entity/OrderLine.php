@@ -1,10 +1,8 @@
 <?php
-
 namespace App\Order\Domain\Entity;
 
 use App\Shared\Domain\ValueObject\Uuid;
 use App\Shared\Domain\ValueObject\DomainDateTime;
-
 
 class OrderLine
 {
@@ -12,8 +10,8 @@ class OrderLine
         private Uuid $id,
         private int $restaurantId,
         private Uuid $orderId,
-        private int $productId,
-        private int $userId,
+        private string $productId,
+        private string $userId,
         private int $quantity,
         private float $price,
         private float $taxPercentage,
@@ -24,8 +22,8 @@ class OrderLine
     public static function dddCreate(
         int $restaurantId,
         Uuid $orderId,
-        int $productId,
-        int $userId,
+        string $productId,
+        string $userId,
         int $quantity,
         float $price,
         float $taxPercentage,
@@ -50,8 +48,8 @@ class OrderLine
         string $id,
         int $restaurantId,
         string $orderId,
-        int $productId,
-        int $userId,
+        string $productId,
+        string $userId,
         int $quantity,
         float $price,
         float $taxPercentage,
@@ -72,7 +70,6 @@ class OrderLine
         );
     }
 
-
     public function id(): Uuid
     {
         return $this->id;
@@ -88,12 +85,12 @@ class OrderLine
         return $this->orderId;
     }
 
-    public function productId(): int
+    public function productId(): string
     {
         return $this->productId;
     }
 
-    public function userId(): int
+    public function userId(): string
     {
         return $this->userId;
     }

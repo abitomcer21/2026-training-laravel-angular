@@ -2,7 +2,6 @@
 
 namespace App\Order\Application\CreateOrder;
 
-
 use App\Order\Domain\Entity\Order;
 use App\Order\Domain\Entity\OrderLine;
 use App\Order\Domain\Interfaces\OrderRepositoryInterface;
@@ -34,12 +33,13 @@ class CreateOrder
             $statusVO,
             $diners,
         );
+
         foreach ($orderLinesData as $lineData) {
             $orderLine = OrderLine::dddCreate(
                 $restaurantId,
                 Uuid::create($order->id()->value()),
-                    (int)$lineData['product_id'],
-                (int)$lineData['user_id'],
+                $lineData['product_id'],
+                $lineData['user_id'],
                 $lineData['quantity'],
                 $lineData['price'],
                 $lineData['tax_percentage'],
