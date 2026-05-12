@@ -2,6 +2,8 @@
 
 namespace App\Shared\Domain\ValueObject;
 
+use App\Shared\Domain\Exceptions\InvalidTaxPercentageException;
+
 class TaxPercentage
 {
     private int $percentage;
@@ -9,7 +11,7 @@ class TaxPercentage
     private function __construct(int $percentage)
     {
         if ($percentage < 0 || $percentage > 100) {
-            throw new \InvalidArgumentException('Tax percentage must be between 0 and 100.');
+            throw new InvalidTaxPercentageException($percentage);
         }
         $this->percentage = $percentage;
     }

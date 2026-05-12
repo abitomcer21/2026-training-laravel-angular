@@ -3,6 +3,7 @@
 namespace App\Family\Infrastructure\Entrypoint\Http;
 
 use App\Family\Application\DeleteFamily\DeleteFamily;
+use App\Family\Domain\Exceptions\FamilyNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,14 +28,14 @@ class DeleteController
             ], 422);
         }
 
-        $deleted = ($this->deleteFamily)($id);
+        try {
+            ($this->deleteFamily)($id);
+            return new JsonResponse(null, 204);
 
-        if (! $deleted) {
+        } catch (FamilyNotFoundException $e) {
             return new JsonResponse([
-                'message' => 'Family not found',
-            ], 404);
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
-
-        return new JsonResponse(null, 204);
     }
 }

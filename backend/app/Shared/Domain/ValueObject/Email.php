@@ -2,15 +2,18 @@
 
 namespace App\Shared\Domain\ValueObject;
 
+use App\Shared\Domain\Exceptions\InvalidEmailException;
+
 class Email
 {
     private string $value;
 
     private function __construct(string $value)
     {
-        if (! filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException("Invalid email: $value");
+        if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidEmailException($value);
         }
+        
         $this->value = $value;
     }
 

@@ -2,6 +2,9 @@
 
 namespace App\Family\Domain\ValueObject;
 
+use App\Family\Domain\Exceptions\EmptyFamilyNameException;
+use App\Family\Domain\Exceptions\FamilyNameTooLongException;
+
 class FamilyName
 {
     private const MAX_LENGTH = 255;
@@ -11,14 +14,16 @@ class FamilyName
     private function __construct(string $value)
     {
         $trimmed = trim($value);
+        
         if ($trimmed === '') {
-            throw new \InvalidArgumentException('Family name cannot be empty.');
+            throw new EmptyFamilyNameException();
         }
-        if (mb_strlen($trimmed) > self::MAX_LENGTH) {
-            throw new \InvalidArgumentException(
-                sprintf('Family name cannot exceed %d characters.', self::MAX_LENGTH)
-            );
+        
+        $length = mb_strlen($trimmed);
+        if ($length > self::MAX_LENGTH) {
+            throw new FamilyNameTooLongException(self::MAX_LENGTH, $length);
         }
+        
         $this->value = $trimmed;
     }
 

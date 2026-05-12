@@ -2,6 +2,7 @@
 
 namespace App\Family\Application\UpdateFamily;
 
+use App\Family\Domain\Exceptions\FamilyNotFoundException;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
 use App\Family\Domain\ValueObject\FamilyName;
 use App\Family\Domain\ValueObject\FamilyStatus;
@@ -19,12 +20,12 @@ class UpdateFamily
         string $id,
         ?string $name,
         ?bool $status
-    ): ?UpdateFamilyResponse {
+    ): UpdateFamilyResponse {
 
         $family = $this->familyRepository->findById($id);
 
         if (! $family) {
-            return null;
+            throw new FamilyNotFoundException($id);
         }
 
         if ($name === null) {
@@ -39,15 +40,14 @@ class UpdateFamily
             $isActive = FamilyStatus::create($status);
         }
 
-        $Family = $family->updateData($nameVO, $isActive);
-        $this->familyRepository->save($Family);
+        $updatedFamily = $family->updateData($nameVO, $isActive);
+        $this->familyRepository->save($updatedFamily);
 
-        // Sincronizar estado de productos con el estado de la familia
         if ($status !== null) {
             $this->syncProductsStatus($id, $status);
         }
 
-        return UpdateFamilyResponse::create($Family);
+        return UpdateFamilyResponse::create($updatedFamily);
     }
 
     private function syncProductsStatus(string $familyId, bool $status): void
@@ -56,7 +56,7 @@ class UpdateFamily
 
         foreach ($products as $product) {
             $updatedProduct = $product->updateData(
-                $product->FamilyId(),
+                $product->familyId(),
                 $product->taxId(),
                 $product->name(),
                 $product->price(),

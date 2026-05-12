@@ -3,6 +3,7 @@
 namespace App\Family\Infrastructure\Entrypoint\Http;
 
 use App\Family\Application\GetFamilyById\GetFamilyById;
+use App\Family\Domain\Exceptions\FamilyNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
@@ -27,14 +28,14 @@ class GetByIdController
             ], 422);
         }
 
-        $response = ($this->getFamilyById)($id);
+        try {
+            $response = ($this->getFamilyById)($id);
+            return new JsonResponse($response->toArray(), 200);
 
-        if ($response === null) {
+        } catch (FamilyNotFoundException $e) {
             return new JsonResponse([
-                'message' => 'Error not found',
-            ], 404);
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
-
-        return new JsonResponse($response->toArray(), 200);
     }
 }
