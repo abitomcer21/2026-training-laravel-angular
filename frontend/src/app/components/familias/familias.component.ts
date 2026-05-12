@@ -36,7 +36,6 @@ export class FamiliasComponent implements OnInit {
     @Input() set active(value: boolean) {
         this._active = value;
         if (value && this.familiasCargadas) {
-            // Al activar el panel, recargar familias desde caché/API
             this.cargarFamilias();
         }
     }
@@ -80,18 +79,14 @@ export class FamiliasComponent implements OnInit {
     }
 
     ngOnInit() {
-        // Intentar recuperar del caché primero
         const cachedFamilies = this.dataCacheService.getFamilies();
         if (cachedFamilies.length > 0) {
             this.families = [...cachedFamilies];
             this.familiasFiltradas = [...this.families];
             this.familiasCargadas = true;
         } else {
-            // Si no hay caché, cargar de la API
             this.cargarFamilias();
         }
-
-        // Suscribirse a la creación de familias desde otros componentes
         this.familyCreatedSubscription = this.familyStateService.getFamilyCreated$().subscribe((newFamily: Family | null) => {
             if (newFamily && !this.families.some(f => f.id?.toString() === newFamily.id?.toString())) {
                 this.families = [...this.families, newFamily];
@@ -103,8 +98,6 @@ export class FamiliasComponent implements OnInit {
                 this.dataCacheService.setFamiliesCache(this.families);
             }
         });
-
-        // Suscribirse a la eliminación de familias desde otros componentes
         this.familyDeletedSubscription = this.familyStateService.getFamilyDeleted$().subscribe((deleted: { familyId: string } | null) => {
             if (deleted && deleted.familyId) {
                 this.families = this.families.filter(f => f.id?.toString() !== deleted.familyId);
@@ -143,8 +136,6 @@ export class FamiliasComponent implements OnInit {
                 } else {
                     families = [];
                 }
-
-                // Mapear familias para asegurar que tengan database_id
                 families = families.map(f => {
                     if (!f.database_id && f.id && !isNaN(Number(f.id))) {
                         return { ...f, database_id: Number(f.id) };
@@ -161,9 +152,7 @@ export class FamiliasComponent implements OnInit {
                 this.familiasFiltradas = [...this.families];
                 this.familiasCargadas = true;
                 this.familiasLoading = false;
-                // Guardar en caché
                 this.dataCacheService.setFamiliesCache(this.families);
-                // Forzar refresco visual
                 this.cd.detectChanges();
             },
             error: (error) => {
@@ -310,11 +299,7 @@ export class FamiliasComponent implements OnInit {
 
                 this.families = [...this.families, createdFamily];
                 this.familyService.invalidateFamiliesCache();
-
-                // Actualizar caché
                 this.dataCacheService.setFamiliesCache(this.families);
-
-                // Notificar a otros componentes sobre la nueva familia
                 this.familyStateService.notifyFamilyCreated(createdFamily);
 
                 if (this.terminoBusquedaFamily) {
@@ -334,7 +319,6 @@ export class FamiliasComponent implements OnInit {
     }
 
     async confirmarEliminarFamily(family: Family) {
-        // Obtener productos de esta familia
         this.productService.getProducts().subscribe({
             next: (response: any) => {
                 let allProducts: any[] = [];
@@ -353,7 +337,6 @@ export class FamiliasComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error al obtener productos:', error);
-                // Si hay error obteniendo productos, mostrar alerta simple
                 this.mostrarAlertaConfirmacionEliminacionFamilia(family, 0);
             }
         });
@@ -399,7 +382,6 @@ export class FamiliasComponent implements OnInit {
 
     private eliminarFamilyConProductos(familyId: string | number, productCount: number) {
         if (productCount > 0) {
-            // Obtener todos los productos
             this.productService.getProducts().subscribe({
                 next: (response: any) => {
                     let allProducts: any[] = [];
@@ -412,57 +394,41 @@ export class FamiliasComponent implements OnInit {
                     }
 
                     const relatedProducts = allProducts.filter(p => p.family_id === familyId);
-
-                    // Crear array de observables para eliminar productos en paralelo
                     const deleteObservables = relatedProducts.map(product =>
                         this.productService.deleteProduct(product.id)
                     );
-
-                    // Usar forkJoin para ejecutar todas las eliminaciones en paralelo
                     if (deleteObservables.length > 0) {
                         forkJoin(deleteObservables).subscribe({
                             next: () => {
-                                // Todos los productos se eliminaron, ahora eliminar la familia
                                 this.eliminarFamily(familyId);
                             },
                             error: (error) => {
                                 console.error('Error al eliminar productos:', error);
-                                // Si hay error, intentar eliminar la familia de todas formas
                                 this.eliminarFamily(familyId);
                             }
                         });
                     } else {
-                        // Sin productos, solo eliminar la familia
                         this.eliminarFamily(familyId);
                     }
                 },
                 error: (error) => {
                     console.error('Error al obtener productos para eliminar:', error);
-                    // Si hay error, intentar eliminar la familia de todas formas
                     this.eliminarFamily(familyId);
                 }
             });
         } else {
-            // Sin productos, solo eliminar la familia
             this.eliminarFamily(familyId);
         }
     }
 
     private eliminarFamily(id: string | number) {
-        // Obtener el nombre antes de eliminar para mostrarlo en la confirmación
         const familiaEliminada = this.familiasFiltradas.find(f => f.id?.toString() === id.toString());
 
         this.familyService.deleteFamily(id.toString()).subscribe({
             next: () => {
-                // Recargar la lista completa desde la API para refresco inmediato
                 this.cargarFamilias();
-
                 this.mostrarConfirmacionFamiliaEliminada(familiaEliminada?.name ?? 'La familia');
-
-                // Notificar a otros componentes sobre la eliminación
                 this.familyStateService.notifyFamilyDeleted(id.toString());
-
-                // Invalidar caches pero NO recargar
                 this.familyService.invalidateFamiliesCache();
                 this.productService.invalidateProductsCache();
             },
@@ -484,13 +450,10 @@ export class FamiliasComponent implements OnInit {
         this.familyService.updateFamily(family.id.toString(), payload).subscribe({
             next: (response: any) => {
                 const familyIndex = this.families.findIndex(f => f.id?.toString() === family.id?.toString());
-
                 if (familyIndex >= 0) {
                     this.families[familyIndex].active = response?.active ?? !this.families[familyIndex].active;
                     this.familiasFiltradas = [...this.families];
                 }
-
-                // Notificar el cambio de estado para que ProductosComponent actualice localmente
                 this.familyStateService.notifyFamilyStatusChange(family.id.toString(), response?.active ?? !family.active);
             },
             error: (error) => {
