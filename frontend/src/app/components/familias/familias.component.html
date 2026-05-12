@@ -4,8 +4,6 @@
             <div class="dashboard-grid">
                 <div class="users-panel users-panel-main">
 
-
-            <!-- Barra de búsqueda y filtros -->
             <div class="search-bar">
                 <div class="search-input-wrapper">
                     <ion-icon name="search-outline" class="search-icon"></ion-icon>
@@ -28,13 +26,11 @@
                 </div>
             </div>
 
-            <!-- Loading -->
             <div *ngIf="familiasLoading" class="loading-state">
                 <div class="spinner"></div>
                 <p>Cargando familias...</p>
             </div>
 
-            <!-- Tabla profesional -->
             <div *ngIf="!familiasLoading" class="table-wrapper">
                 <table class="data-table">
                     <thead>
@@ -117,7 +113,6 @@
                     </div>
                     <div>
                         <strong>{{ editingFamily.name }}</strong>
-                        <!-- <p>UUID: {{ editingFamily.uuid || editingFamily.id }}</p> -->
                     </div>
                 </div>
 

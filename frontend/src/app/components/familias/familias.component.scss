@@ -1,4 +1,3 @@
-/* Layout de familias (sin aside para filtros) */
 .families-layout {
   display: flex;
   flex-direction: column;
@@ -31,7 +30,6 @@
   max-height: none;
 }
 
-/* Dashboard grid dentro del componente */
 .dashboard-grid {
   display: flex;
   flex-direction: row;
@@ -74,7 +72,6 @@
   overflow: auto;
 }
 
-/* Headers */
 .users-header {
   display: flex;
   justify-content: space-between;
@@ -98,7 +95,6 @@
   margin: 0;
 }
 
-/* Editor panel - FORMULARIO CON FONDO */
 .editor-panel {
   position: static;
   top: auto;
@@ -247,9 +243,6 @@
   justify-content: flex-end;
 }
 
-/* ========================================== */
-/* RESPONSIVE STYLES                         */
-/* ========================================== */
 
 @media (max-width: 1024px) {
   .families-layout {

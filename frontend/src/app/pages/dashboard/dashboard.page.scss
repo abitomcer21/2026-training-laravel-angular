@@ -1,4 +1,3 @@
-/* Contenedor principal de contenido */
 ion-content {
   --padding-start: 20px;
   --padding-end: 20px;
@@ -159,9 +158,6 @@ ion-content::part(scroll) {
   color: #64748b;
 }
 
-/* ========================================== */
-/* DASHBOARD GRID - LAYOUT PRINCIPAL          */
-/* ========================================== */
 
 .users-panel {
   background: rgba(255, 255, 255, 0.72);
@@ -212,9 +208,6 @@ ion-content > div > .dashboard-grid {
   overflow: auto;
 }
 
-/* ========================================== */
-/* EDITOR PANEL - PANEL LATERAL DE EDICIÓN    */
-/* ========================================== */
 
 .editor-panel {
   position: static;
@@ -329,10 +322,6 @@ ion-content > div > .dashboard-grid {
   text-align: center;
 }
 
-/* ========================================== */
-/* HEADERS - TÍTULOS Y DESCRIPCIONES          */
-/* ========================================== */
-
 .users-header {
   display: flex;
   justify-content: space-between;
@@ -356,11 +345,6 @@ ion-content > div > .dashboard-grid {
   margin: 0;
 }
 
-/* ========================================== */
-/* LAYOUTS CON FILTRO LATERAL                 */
-/* ========================================== */
-
-/* Layout de usuarios */
 .users-layout {
   display: flex;
   gap: 20px;
@@ -393,7 +377,6 @@ ion-content > div > .dashboard-grid {
   top: 0;
 }
 
-/* Layout de productos */
 .products-layout {
   display: flex;
   gap: 20px;
@@ -553,7 +536,6 @@ ion-content > div > .dashboard-grid {
   top: 0;
 }
 
-/* Layout de mesas */
 .tables-layout {
   display: flex;
   gap: 20px;
@@ -586,10 +568,6 @@ ion-content > div > .dashboard-grid {
   top: 0;
 }
 
-/* ========================================== */
-/* BOTONES DEL HEADER                        */
-/* ========================================== */
-
 .tpv-button {
   --padding-start: 12px;
   --padding-end: 12px;
@@ -599,7 +577,7 @@ ion-content > div > .dashboard-grid {
 }
 
 .tpv-button:hover {
-  --color: #1d4ed8;
+  --color: white;
   background: rgba(37, 99, 235, 0.1);
 }
 
@@ -633,10 +611,6 @@ ion-content > div > .dashboard-grid {
   margin-left: 6px;
   font-size: 0.95rem;
 }
-
-/* ========================================== */
-/* RESPONSIVE STYLES                         */
-/* ========================================== */
 
 @media (max-width: 1024px) {
   .dashboard-overview {
@@ -898,7 +872,6 @@ ion-content > div > .dashboard-grid {
   align-items: stretch;
 }
 
-/* Altura fija para pantallas simples */
 ion-content > div > .dashboard-grid {
   height: auto;
   min-height: auto;
@@ -1072,7 +1045,6 @@ select.editor-input {
   padding-right: 36px;
 }
 
-/* TOGGLE SWITCH STYLES */
 .toggle-wrapper {
   display: flex;
   align-items: center;
@@ -1225,9 +1197,6 @@ select.editor-input {
   text-align: center;
 }
 
-/* ========================================== */
-/* LAYOUT DE PRODUCTOS CON FILTRO LATERAL     */
-/* ========================================== */
 
 .products-layout {
   display: flex;
@@ -1388,10 +1357,6 @@ select.editor-input {
   top: 0;
 }
 
-/* ========================================== */
-/* LAYOUT DE MESAS CON FILTRO LATERAL         */
-/* ========================================== */
-
 .tables-layout {
   display: flex;
   gap: 20px;
@@ -1424,9 +1389,6 @@ select.editor-input {
   top: 0;
 }
 
-/* ========================================== */
-/* LAYOUT DE USUARIOS CON FILTRO LATERAL     */
-/* ========================================== */
 
 .users-layout {
   display: flex;
@@ -1460,11 +1422,6 @@ select.editor-input {
   top: 0;
 }
 
-/* ========================================== */
-/* RESPONSIVE STYLES                         */
-/* ========================================== */
-
-/* Tablets y pantallas medianas (768px - 1024px) */
 @media (max-width: 1024px) {
   .dashboard-overview {
     grid-template-columns: 1fr;
@@ -1564,7 +1521,6 @@ select.editor-input {
   }
 }
 
-/* Pantallas pequeñas (768px y menos) */
 @media (max-width: 768px) {
   ion-content.ion-padding::part(scroll) {
     padding: 12px;
@@ -1783,7 +1739,6 @@ select.editor-input {
   }
 }
 
-/* Pantallas muy pequeñas (480px y menos) */
 @media (max-width: 480px) {
   ion-content.ion-padding::part(scroll) {
     padding: 8px;

@@ -5,7 +5,6 @@
   background: var(--bg-light);
 }
 
-/* SIDEBAR */
 .tpv-sidebar {
   width: 80px;
   background: var(--primary-dark);
@@ -95,7 +94,6 @@
   align-items: center;
 }
 
-/* CONTENIDO PRINCIPAL */
 .tpv-content {
   flex: 1;
   --background: var(--bg-light);
@@ -113,7 +111,6 @@
   min-height: 0;
 }
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .tpv-sidebar {
     width: 70px;

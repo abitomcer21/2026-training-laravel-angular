@@ -128,9 +128,31 @@ export abstract class BaseApiService {
    *
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
-    return throwError(() => new Error(error.message));
+    let mensaje: string;
+    
+    switch (error.status) {
+      case 401:
+        mensaje = 'Credenciales incorrectas';
+        break;
+      case 404:
+        mensaje = 'Servicio no encontrado';
+        break;
+      case 500:
+        mensaje = 'Error interno del servidor';
+        break;
+      case 403:
+        mensaje = 'Acceso denegado';
+        break;
+      case 422:
+        mensaje = 'Datos inválidos';
+        break;
+      default:
+        mensaje = error.message || 'Ocurrió un error inesperado';
+        break;
+    }
+    
+    return throwError(() => new Error(mensaje));
   }
-
 }
 
 export interface ApiResponse {

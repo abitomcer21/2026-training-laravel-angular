@@ -49,21 +49,17 @@ export class MesasComponent implements OnInit, OnDestroy {
 
   private _active: boolean = false;
 
-  // Loading indicadores
   mesasLoading: boolean = false;
   mesasCargadas: boolean = false;
 
-  // Datos
   tables: Table[] = [];
   mesasFiltradas: Table[] = [];
   zones: Zone[] = [];
 
-  // Estado del panel
   tablePanelMode: 'edit' | 'create' = 'create';
   zonaSeleccionadaFiltro: string | number | null = null;
   editingTable: Table | null = null;
 
-  // Formularios
   editTableForm: TableEditForm = {
     name: '',
   };
@@ -72,11 +68,9 @@ export class MesasComponent implements OnInit, OnDestroy {
     zone_id: '',
   };
 
-  // Búsqueda
   terminoBusquedaTable: string = '';
   filtroActualTable: string = 'nombre';
 
-  // Suscripciones
   private zoneDeletedSubscription: Subscription | null = null;
 
   constructor(
@@ -108,7 +102,6 @@ export class MesasComponent implements OnInit, OnDestroy {
   }
 
   private eliminarMesasPorZonaEliminada(zoneId: string) {
-    // Filtrar las mesas que pertenecen a la zona eliminada
     this.tables = this.tables.filter(t => t.zone_id?.toString() !== zoneId);
     this.mesasFiltradas = this.mesasFiltradas.filter(t => t.zone_id?.toString() !== zoneId);
   }
@@ -124,7 +117,6 @@ export class MesasComponent implements OnInit, OnDestroy {
     const userData = this.authService.getUserData();
     const userRestaurantId = userData?.restaurant_id;
 
-    // Asegurar que las zonas estén cargadas
     if (this.zones.length === 0) {
       this.zoneService.getZones().subscribe({
         next: (response: any) => {

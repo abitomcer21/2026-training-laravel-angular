@@ -65,7 +65,6 @@ export class PuntoVentaPage implements OnInit {
 
   ngOnInit() {
     this.cargarRestaurantName();
-    // Obtener el rol del usuario desde localStorage
     const userData = localStorage.getItem('userData');
     if (userData) {
       try {

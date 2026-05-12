@@ -42,10 +42,6 @@ $border-radius-lg: 16px;
   margin: 0;
   padding: 0;
 }
-
-// ============================================
-// COLUMNA 1: FAMILIAS - MINIMALISTA
-// ============================================
 .col-familias {
   width: 200px;
   background: $bg-white;
@@ -99,9 +95,6 @@ $border-radius-lg: 16px;
   }
 }
 
-// ============================================
-// COLUMNA 2: PRODUCTOS - MINIMALISTA
-// ============================================
 .col-productos {
   flex: 1;
   display: flex;
@@ -306,9 +299,6 @@ $border-radius-lg: 16px;
   }
 }
 
-// ============================================
-// COLUMNA 3: CARRITO - MINIMALISTA
-// ============================================
 .col-carrito {
   width: 320px;
   background: $bg-white;
@@ -689,9 +679,6 @@ $border-radius-lg: 16px;
   }
 }
 
-// ============================================
-// BADGES
-// ============================================
 
 .nuevo-badge {
   display: inline-block;
@@ -720,9 +707,6 @@ $border-radius-lg: 16px;
   text-decoration: line-through;
 }
 
-// ============================================
-// MODALES MINIMALISTAS
-// ============================================
 
 .total-cobro {
   text-align: center;
@@ -1007,9 +991,6 @@ ion-item {
   font-weight: 600;
 }
 
-// ============================================
-// MODAL DE COBRO - DISEÑO MINIMALISTA DOS COLUMNAS
-// ============================================
 
 .cobro-header {
   --background: transparent;
@@ -1050,7 +1031,6 @@ ion-item {
   --padding-bottom: 0;
 }
 
-// LAYOUT DOS COLUMNAS
 .cobro-layout {
   display: grid;
   grid-template-columns: 140px 1fr;
@@ -1058,9 +1038,6 @@ ion-item {
   gap: 0;
 }
 
-// ============================================
-// COLUMNA IZQUIERDA: MENU LATERAL
-// ============================================
 .cobro-menu-lateral {
   background: white;
   border-right: 1px solid #e0e0e0;
@@ -1123,9 +1100,6 @@ ion-item {
   }
 }
 
-// ============================================
-// COLUMNA DERECHA: CONTENIDO
-// ============================================
 .cobro-contenido {
   background: white;
   padding: 24px;
@@ -1143,7 +1117,6 @@ ion-item {
   padding-bottom: 12px;
 }
 
-// Métodos de pago en Mixto
 .mixto-config-derecha {
   display: flex;
   flex-direction: column;
@@ -1195,7 +1168,6 @@ ion-item {
   }
 }
 
-// Tipos de cobro
 .tipos-cobro-derecha {
   display: flex;
   flex-direction: column;
@@ -1246,7 +1218,6 @@ ion-item {
   }
 }
 
-// Configuración dinámica
 .config-dinamica {
   display: flex;
   flex-direction: column;
@@ -1314,7 +1285,6 @@ ion-item {
   font-weight: 600;
 }
 
-// Artículos
 .articulos-derecha {
   display: flex;
   flex-direction: column;
@@ -1375,9 +1345,6 @@ ion-item {
   }
 }
 
-// ============================================
-// ESTADO VACÍO
-// ============================================
 .cobro-vacio {
   flex: 1;
   display: flex;
@@ -1397,9 +1364,6 @@ ion-item {
   }
 }
 
-// ============================================
-// BOTÓN CONFIRMAR
-// ============================================
 .btn-confirmar-derecha {
   padding: 14px 20px;
   background: #000;
@@ -1425,9 +1389,6 @@ ion-item {
   }
 }
 
-// ============================================
-// RESPONSIVE
-// ============================================
 @media (max-width: 600px) {
   .cobro-layout {
     grid-template-columns: 1fr;
@@ -1472,12 +1433,6 @@ ion-item {
     }
   }
 }
-
-// ============================================
-// RESPONSIVE
-// ============================================
-// RESPONSIVE
-// ============================================
 @media (max-width: 900px) {
   .col-familias {
     width: 70px;
@@ -1543,9 +1498,6 @@ ion-item {
   }
 }
 
-// ============================================
-// SCROLLBAR
-// ============================================
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;

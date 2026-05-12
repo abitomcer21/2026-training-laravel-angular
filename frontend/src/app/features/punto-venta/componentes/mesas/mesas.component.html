@@ -6,7 +6,6 @@
 
   <ion-loading [isOpen]="cargando" message="Cargando mesas..."></ion-loading>
 
-  <!-- Selector de zonas -->
   <div class="zones-filter" *ngIf="zonas.length > 0">
     <div class="zones-header">
       <h3>Filtrar por zona:</h3>
@@ -30,13 +29,11 @@
         [title]="isTableOccupied(mesa) ? 'Ocupada' : 'Disponible'">
       </div>
 
-      <!-- Si está disponible: mostrar icono y nombre -->
       <div *ngIf="!isTableOccupied(mesa)" class="mesa-disponible">
         <ion-icon name="grid-outline"></ion-icon>
         <h3>{{ mesa.name }}</h3>
       </div>
 
-      <!-- Si está ocupada: mostrar comensales y total -->
       <div *ngIf="isTableOccupied(mesa)" class="mesa-ocupada">
         <div class="mesa-nombre">{{ mesa.name }}</div>
         <div class="comensales-numero">{{ getTableOccupiedInfo(mesa)?.comensales }}</div>
@@ -48,7 +45,6 @@
   <ion-modal [isOpen]="mostrarModalPin" class="pin-modal">
     <ng-template>
       <ion-content class="ion-padding">
-        <!-- Información de la mesa con botón cerrar -->
         <div *ngIf="selectedTable" class="mesa-info-header">
           <h2 class="mesa-title">{{ selectedTable.name }}</h2>
           <button class="btn-close-modal" (click)="cerrarModal()" title="Cerrar">
@@ -56,7 +52,6 @@
           </button>
         </div>
 
-        <!-- VISTA 1: Seleccionar Usuario -->
         <div *ngIf="!selectedUser" class="usuarios-view">
           <p class="view-label">Selecciona un usuario:</p>
           <div class="usuarios-grid">
@@ -67,7 +62,6 @@
           </div>
         </div>
 
-        <!-- VISTA 2: Ingresar PIN -->
         <div *ngIf="selectedUser" class="pin-view">
           <div class="usuario-seleccionado">
             <div class="usuario-avatar-large">{{ selectedUser.name.charAt(0).toUpperCase() }}</div>
@@ -77,12 +71,10 @@
             </button>
           </div>
 
-          <!-- Display del PIN -->
           <div class="pin-display">
             <input type="password" [value]="pinIngresado" class="pin-input" readonly placeholder="• • • •" />
           </div>
 
-          <!-- Teclado numérico -->
           <div class="numeric-keyboard">
             <div class="keyboard-row" *ngFor="let row of [0, 1, 2]">
               <button *ngFor="let num of getKeyboardNumbers(row)" class="key-button"
@@ -92,7 +84,6 @@
             </div>
           </div>
 
-          <!-- Mensaje de error -->
           <div *ngIf="mensajeError" class="error-message">
             {{ mensajeError }}
           </div>
@@ -101,7 +92,6 @@
     </ng-template>
   </ion-modal>
 
-  <!-- Modal de comensales -->
   <ion-modal [isOpen]="mostrarModalComensales" class="comensales-modal">
     <ng-template>
       <ion-content class="ion-padding">
@@ -109,12 +99,10 @@
           <h2>¿Cuántos comensales hay en la mesa?</h2>
         </div>
 
-        <!-- Display del número de comensales -->
         <div class="comensales-display">
           <input type="text" [value]="cantidadComensalesIngresada" class="comensales-input" readonly placeholder="0" />
         </div>
 
-        <!-- Teclado numérico -->
         <div class="numeric-keyboard">
           <div class="keyboard-row" *ngFor="let row of [0, 1, 2]">
             <button *ngFor="let num of getKeyboardNumbers(row)" class="key-button"

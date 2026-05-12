@@ -1,8 +1,6 @@
-<!-- Layout con filtro lateral por rol -->
 <div>
 
     <div class="users-layout">
-        <!-- Aside lateral: Filtro por roles -->
         <aside class="role-filter-sidebar">
             <div class="sidebar-header">
                 <ion-icon name="people-outline" class="sidebar-icon"></ion-icon>
@@ -10,7 +8,6 @@
             </div>
 
             <div class="sidebar-content">
-                <!-- Todos los roles -->
                 <button class="family-filter-item" [class.active]="rolSeleccionadoFiltro === null"
                     (click)="filtrarPorRol(null)">
                     <ion-icon name="grid-outline" class="filter-icon"></ion-icon>
@@ -20,7 +17,6 @@
 
                 <div class="family-divider"></div>
 
-                <!-- Admin -->
                 <button class="family-filter-item" [class.active]="rolSeleccionadoFiltro === 'admin'"
                     (click)="filtrarPorRol('admin')">
                     <ion-icon name="shield-checkmark-outline" class="filter-icon"></ion-icon>
@@ -28,7 +24,6 @@
                     <span class="filter-count">{{ contarUsuariosPorRol('admin') }}</span>
                 </button>
 
-                <!-- Supervisor -->
                 <button class="family-filter-item" [class.active]="rolSeleccionadoFiltro === 'supervisor'"
                     (click)="filtrarPorRol('supervisor')">
                     <ion-icon name="person-outline" class="filter-icon"></ion-icon>
@@ -36,7 +31,6 @@
                     <span class="filter-count">{{ contarUsuariosPorRol('supervisor') }}</span>
                 </button>
 
-                <!-- Camarero -->
                 <button class="family-filter-item" [class.active]="rolSeleccionadoFiltro === 'camarero'"
                     (click)="filtrarPorRol('camarero')">
                     <ion-icon name="restaurant-outline" class="filter-icon"></ion-icon>
@@ -44,7 +38,6 @@
                     <span class="filter-count">{{ contarUsuariosPorRol('camarero') }}</span>
                 </button>
 
-                <!-- Chef -->
                 <button class="family-filter-item" [class.active]="rolSeleccionadoFiltro === 'chef'"
                     (click)="filtrarPorRol('chef')">
                     <ion-icon name="flame-outline" class="filter-icon"></ion-icon>
@@ -87,13 +80,11 @@
                             </button>
                         </div>
                     </div>
-                    <!-- Loading -->
                     <div *ngIf="usuariosLoading" class="loading-state">
                         <div class="spinner"></div>
                         <p>Cargando usuarios...</p>
                     </div>
 
-                    <!-- Tabla profesional -->
                     <div *ngIf="!usuariosLoading" class="table-wrapper">
                         <table class="data-table">
                             <thead>

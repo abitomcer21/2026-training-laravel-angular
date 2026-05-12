@@ -36,7 +36,6 @@ export class LoginPage implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Detectar si venimos del TPV
     const currentUrl = window.location.pathname;
     if (currentUrl.includes('point-of-sale') || currentUrl.includes('punto-venta')) {
       this.tpvMode = true;

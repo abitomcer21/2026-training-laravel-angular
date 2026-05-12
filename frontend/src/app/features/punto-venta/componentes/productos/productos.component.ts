@@ -147,7 +147,6 @@ export class ProductosComponent implements OnInit {
   montoPorPersona = 0;
   articulosSeleccionados: { [key: string]: boolean } = {};
 
-  // Método de pago
   metodoSeleccionado: 'efectivo' | 'tarjeta' | 'mixto' | null = 'tarjeta';
   montosMetodoPago = {
     efectivo: 0,
@@ -165,10 +164,8 @@ export class ProductosComponent implements OnInit {
     return this.ticketParaImprimir$.value;
   }
 
-  // Número de ticket
   numeroTicketActual: string | null = null;
 
-  // Mapa de tax_id -> porcentaje de IVA
   taxMap: Map<string, number> = new Map();
 
   constructor(
@@ -227,13 +224,10 @@ export class ProductosComponent implements OnInit {
   }
 
   volverAMesas() {
-    // Limpiar el estado local COMPLETO antes de volver
     this.resetearEstadoPedido();
 
-    // Invalidar cache para que MesasComponent cargue datos frescos
     this.tableService.invalidateTablesCache();
 
-    // Emitir evento para cambiar de vista
     this.cambiarVista.emit('mesas');
   }
 
@@ -316,7 +310,6 @@ export class ProductosComponent implements OnInit {
         let todasLasFamilias =
           familiesResponse?.Family || familiesResponse?.families || [];
 
-        // Filtrar solo familias activas
         const familiasDelRestaurant = todasLasFamilias.filter(
           (familia: any) =>
             (!restaurantId || familia.restaurant_id === restaurantId) &&
@@ -412,7 +405,6 @@ export class ProductosComponent implements OnInit {
 
         if (!order || !order.items || order.items.length === 0) {
           this.resetearEstadoPedido();
-          // Asignar la referencia de table, user y comensales si los tiene
           if (order) {
             this.currentOrder.table = order.table;
             this.currentOrder.user = order.user;
@@ -434,7 +426,6 @@ export class ProductosComponent implements OnInit {
   }
 
   resetearEstadoPedido() {
-    // Resetear estado del pedido
     this.estadoPedido = 'editando';
     this.pedidoInicialEnviado = false;
     this.itemsEnviadosACocina = [];
@@ -443,7 +434,6 @@ export class ProductosComponent implements OnInit {
     this.totalPorPagar = 0;
     this.numeroTicketActual = null;
 
-    // Resetear carrito completo
     this.currentOrder = {
       table: null,
       user: null,
@@ -452,7 +442,6 @@ export class ProductosComponent implements OnInit {
       comensales: 1,
     };
 
-    // Resetear modales
     this.mostrarModalCobro = false;
     this.mostrarModalTicket = false;
     this.tipoCobro = 'completo';
@@ -493,7 +482,6 @@ export class ProductosComponent implements OnInit {
 
     this.totalPagado = pagado;
     this.totalPorPagar = porPagar;
-    // Actualizar el total del pedido si no estaba calculado
     if (this.currentOrder.total !== total) {
       this.currentOrder.total = total;
     }
@@ -576,7 +564,6 @@ export class ProductosComponent implements OnInit {
     }
 
     if (this.currentOrder.table) {
-      // Normalizar IDs antes de limpiar
       const tableId = String(this.currentOrder.table.id);
       this.orderStateService.clearTableOrder(tableId);
     } else {
@@ -719,7 +706,6 @@ export class ProductosComponent implements OnInit {
     return total;
   }
 
-  // Exponer Math para usar en template
   Math = Math;
 
   getTotalPendiente(): number {
@@ -728,13 +714,11 @@ export class ProductosComponent implements OnInit {
       .reduce((sum, item) => sum + item.total, 0);
   }
   confirmarCobro() {
-    // 1. Validar que hay método de pago seleccionado
     if (!this.metodoSeleccionado) {
       this.mostrarToast('Selecciona un método de pago', 'warning', 2000);
       return;
     }
 
-    // 2. Validar pago mixto
     if (this.metodoSeleccionado === 'mixto') {
       const totalMixto =
         this.montosMetodoPago.efectivo + this.montosMetodoPago.tarjeta;
@@ -750,7 +734,6 @@ export class ProductosComponent implements OnInit {
       }
     }
 
-    // 3. Procesar el cobro según el tipo seleccionado
     let mensaje = '';
     let totalCobrado = 0;
     let itemsCobrados: string[] = [];
@@ -791,14 +774,12 @@ export class ProductosComponent implements OnInit {
 
     this.calcularTotalesPendientes();
 
-    // Guardar los pagos en el servicio
     this.orderStateService.setArticulosPagados(this.articulosPagados);
 
     if (this.totalPorPagar === 0) {
       this.estadoPedido = 'cobrado';
     }
 
-    // 4. Mostrar mensaje del cobro y método
     let mensajeMetodo = '';
     switch (this.metodoSeleccionado) {
       case 'efectivo':
@@ -812,7 +793,6 @@ export class ProductosComponent implements OnInit {
         break;
     }
 
-    // 5. Crear la venta (Sale) en la base de datos
     const orderId = this.orderStateService.getOrderIdValue();
     if (this.currentOrder.user && this.currentOrder.user.id && orderId) {
       const salePayload = {
@@ -837,9 +817,7 @@ export class ProductosComponent implements OnInit {
 
     this.mostrarModalCobro = false;
 
-    // 5. Generar ticket inmediatamente
     setTimeout(() => {
-      // Sincronizar TODOS los datos del ticket ANTES de generarlo
       const currentOrderFromService =
         this.orderStateService.getCurrentOrderValue();
 
@@ -847,7 +825,6 @@ export class ProductosComponent implements OnInit {
         this.currentOrder = currentOrderFromService;
       }
 
-      // Sincronizar estados
       this.calcularTotalesPendientes();
       this.pedidoInicialEnviado =
         this.orderStateService.getPedidoInicialEnviadoValue();
@@ -855,7 +832,6 @@ export class ProductosComponent implements OnInit {
         this.orderStateService.getItemsEnviadosACocinaValue();
       this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
 
-      // Asegurar que currentOrder.total está calculado
       if (!this.currentOrder.total || this.currentOrder.total === 0) {
         this.currentOrder.total = this.currentOrder.items.reduce(
           (sum, item) => sum + item.total,
@@ -863,17 +839,14 @@ export class ProductosComponent implements OnInit {
         );
       }
 
-      // Generar número de ticket (solo si no se ha generado aún)
       if (!this.numeroTicketActual) {
         this.numeroTicketActual = this.generarNumeroTicket();
       }
 
-      // Generar el ticket y guardarlo en el BehaviorSubject
       const ticket = this.generarTicket();
       this.ticketParaImprimir$.next(ticket);
       console.log('Ticket generado:', ticket);
 
-      // Mostrar popup
       this.mostrarModalTicket = true;
     }, 300);
   }
@@ -889,7 +862,6 @@ export class ProductosComponent implements OnInit {
       : null;
 
     setTimeout(() => {
-      // Limpiar la orden del servicio
       if (tableId && userId) {
         this.orderStateService.clearTableOrder(tableId);
       } else {
@@ -934,7 +906,6 @@ export class ProductosComponent implements OnInit {
 
   nuevoPedido() {
     if (this.currentOrder.table) {
-      // Normalizar IDs antes de limpiar
       const tableId = String(this.currentOrder.table.id);
       this.orderStateService.clearTableOrder(tableId);
     } else {
@@ -954,19 +925,15 @@ export class ProductosComponent implements OnInit {
   }
 
   private generarNumeroTicket(): string {
-    // Obtener el último número de ticket del localStorage
     const ultimoNumero = localStorage.getItem('ultimoNumeroTicket');
     const numero = ultimoNumero ? parseInt(ultimoNumero) + 1 : 1;
 
-    // Guardar el nuevo número
     localStorage.setItem('ultimoNumeroTicket', numero.toString());
 
-    // Formatear: T-001, T-002, etc.
     return `T-${numero.toString().padStart(3, '0')}`;
   }
 
   private generarTicket(tipoTicket?: string): string {
-    // Asegurar que tenemos los datos más recientes
     const order =
       this.currentOrder || this.orderStateService.getCurrentOrderValue();
     const items = order && order.items ? order.items : [];
@@ -975,7 +942,6 @@ export class ProductosComponent implements OnInit {
     ticket += '           RESTAURANTE\n';
     ticket += '================================\n';
 
-    // Añadir número de ticket si es un ticket final
     if (tipoTicket !== 'PROVISIONAL' && this.numeroTicketActual) {
       ticket += `Ticket: ${this.numeroTicketActual}\n`;
     } else if (tipoTicket === 'PROVISIONAL') {
@@ -994,16 +960,13 @@ export class ProductosComponent implements OnInit {
 
     if (items && items.length > 0) {
       items.forEach((item) => {
-        // Usar el IVA real del producto
-        const ivaRate = (item.iva || 0) / 100; // Convertir porcentaje a decimal
+        const ivaRate = (item.iva || 0) / 100;
 
-        // Calcular desglose de IVA
         const precioConIva = item.price;
         const precioSinIva =
           ivaRate > 0 ? precioConIva / (1 + ivaRate) : precioConIva;
         const ivaItem = precioConIva - precioSinIva;
 
-        // Acumular totales
         subtotalSinIva += precioSinIva * item.quantity;
         totalIva += ivaItem * item.quantity;
 
@@ -1013,7 +976,6 @@ export class ProductosComponent implements OnInit {
             : item.productName;
         const ivaDisplay = (item.iva || 0).toString().padStart(3);
 
-        // Formato alineado: Producto | Cant | Precio | IVA%
         ticket += `${nombre.padEnd(12)} ${item.quantity.toString().padStart(2)}   ${precioConIva.toFixed(2).padStart(5)} ${ivaDisplay}%\n`;
       });
     } else {

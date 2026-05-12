@@ -106,7 +106,6 @@
     margin: 0;
 }
 
-/* Sidebar content */
 .sidebar-content {
     flex: 1;
     overflow-y: auto;
@@ -282,7 +281,6 @@
     margin: 0;
 }
 
-/* Editor panel - FORMULARIO CON FONDO */
 .editor-panel {
     position: static;
     top: auto;
@@ -389,7 +387,6 @@
     color: #64748b;
 }
 
-/* Form fields */
 .form-field {
     display: flex;
     flex-direction: column;
@@ -422,7 +419,6 @@
     box-shadow: 0 0 0 3px rgba(44, 95, 138, 0.1);
 }
 
-/* Toggle fields */
 .toggle-field,
 .toggle-wrapper {
     display: flex;
@@ -507,7 +503,6 @@
     cursor: not-allowed !important;
 }
 
-/* Form info */
 .form-info {
     padding: 12px;
     background: #fef3c7;
@@ -528,7 +523,6 @@
     font-size: 0.75rem;
 }
 
-/* Form with action wrapper */
 .form-field-with-action {
     display: flex;
     gap: 12px;
@@ -602,7 +596,6 @@
     font-size: 0.75rem;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
     .products-layout {
         flex-direction: column;

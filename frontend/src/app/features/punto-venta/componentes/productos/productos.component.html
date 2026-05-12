@@ -1,7 +1,6 @@
 <ion-content class="productos-content">
   <div class="triple-layout">
 
-    <!-- COLUMNA 1: FAMILIAS -->
     <div class="col-familias">
       <div class="familias-header">
         <span>Categorías</span>
@@ -14,7 +13,6 @@
       </div>
     </div>
 
-    <!-- COLUMNA 2: PRODUCTOS -->
     <div class="col-productos">
       <div class="productos-header">
         <div class="mesa-info" *ngIf="currentOrder.table">
@@ -65,7 +63,6 @@
       </div>
     </div>
 
-    <!-- COLUMNA 3: CARRITO -->
     <div class="col-carrito">
       <div class="carrito-header">
         <div class="carrito-title">
@@ -82,7 +79,8 @@
           </ion-badge>
         </div>
         <div class="carrito-actions-header">
-          <button class="btn-header-kitchen" *ngIf="currentOrder.items.length > 0 && totalPorPagar > 0" (click)="enviarACocina()" title="Enviar a cocina">
+          <button class="btn-header-kitchen" *ngIf="currentOrder.items.length > 0 && totalPorPagar > 0"
+            (click)="enviarACocina()" title="Enviar a cocina">
             <ion-icon name="restaurant-outline"></ion-icon>
           </button>
         </div>
@@ -95,7 +93,8 @@
       </div>
 
       <div class="carrito-items" *ngIf="currentOrder.items.length > 0; else vacio">
-        <div class="carrito-item" *ngFor="let item of currentOrder.items" [class.pagado]="esProductoPagado(item.productId)">
+        <div class="carrito-item" *ngFor="let item of currentOrder.items"
+          [class.pagado]="esProductoPagado(item.productId)">
           <div class="col-producto">
             <div class="item-nombre">
               {{ item.productName }}
@@ -105,17 +104,21 @@
             <div class="item-precio-unitario">{{ item.price | number:'1.2-2' }} €</div>
           </div>
           <div class="col-cantidad">
-            <button class="qty-btn" (click)="decrementarProducto(item.productId)" [disabled]="esProductoPagado(item.productId)">
+            <button class="qty-btn" (click)="decrementarProducto(item.productId)"
+              [disabled]="esProductoPagado(item.productId)">
               -
             </button>
             <span class="qty">{{ item.quantity }}</span>
-            <button class="qty-btn" (click)="incrementarProducto(item.productId)" [disabled]="esProductoPagado(item.productId)">
+            <button class="qty-btn" (click)="incrementarProducto(item.productId)"
+              [disabled]="esProductoPagado(item.productId)">
               +
             </button>
           </div>
           <div class="col-precio">
-            <span class="item-total" [class.text-muted]="esProductoPagado(item.productId)">{{ item.total | number:'1.2-2' }} €</span>
-            <button class="remove-btn" (click)="eliminarProducto(item.productId)" [disabled]="esProductoPagado(item.productId)">
+            <span class="item-total" [class.text-muted]="esProductoPagado(item.productId)">{{ item.total |
+              number:'1.2-2' }} €</span>
+            <button class="remove-btn" (click)="eliminarProducto(item.productId)"
+              [disabled]="esProductoPagado(item.productId)">
               <ion-icon name="trash-outline"></ion-icon>
             </button>
           </div>
@@ -150,7 +153,7 @@
             <span>Cobrar</span>
           </button>
         </div>
-        
+
         <div class="carrito-actions" *ngIf="totalPorPagar === 0 && currentOrder.items.length > 0">
           <button class="btn-action btn-print" (click)="imprimirTicketDesdeModal()">
             <ion-icon name="print-outline"></ion-icon>
@@ -174,7 +177,6 @@
 
   </div>
 
-  <!-- MODAL DE COBRO - DISEÑO MINIMALISTA -->
   <ion-modal [isOpen]="mostrarModalCobro" (willDismiss)="mostrarModalCobro = false">
     <ng-template>
       <ion-header class="cobro-header">
@@ -189,91 +191,74 @@
         </ion-toolbar>
       </ion-header>
       <ion-content class="cobro-content-minimalista">
-        
+
         <div class="cobro-layout">
-          <!-- COLUMNA IZQUIERDA: MÉTODOS DE PAGO -->
           <div class="cobro-menu-lateral">
             <div class="menu-titulo">Método de Pago</div>
-            
-            <button class="metodo-menu-btn" 
-                    [class.active]="metodoSeleccionado === 'efectivo'"
-                    (click)="metodoSeleccionado = 'efectivo'">
+
+            <button class="metodo-menu-btn" [class.active]="metodoSeleccionado === 'efectivo'"
+              (click)="metodoSeleccionado = 'efectivo'">
               <span class="metodo-menu-icono">💵</span>
               <span class="metodo-menu-label">Efectivo</span>
             </button>
-            
-            <button class="metodo-menu-btn" 
-                    [class.active]="metodoSeleccionado === 'tarjeta'"
-                    (click)="metodoSeleccionado = 'tarjeta'">
+
+            <button class="metodo-menu-btn" [class.active]="metodoSeleccionado === 'tarjeta'"
+              (click)="metodoSeleccionado = 'tarjeta'">
               <span class="metodo-menu-icono">💳</span>
               <span class="metodo-menu-label">Tarjeta</span>
             </button>
-            
-            <button class="metodo-menu-btn" 
-                    [class.active]="metodoSeleccionado === 'mixto'"
-                    (click)="metodoSeleccionado = 'mixto'">
+
+            <button class="metodo-menu-btn" [class.active]="metodoSeleccionado === 'mixto'"
+              (click)="metodoSeleccionado = 'mixto'">
               <span class="metodo-menu-icono">🔄</span>
               <span class="metodo-menu-label">Mixto</span>
             </button>
           </div>
 
-          <!-- COLUMNA DERECHA: TIPO DE COBRO Y CONFIGURACIÓN -->
           <div class="cobro-contenido" *ngIf="metodoSeleccionado">
-            
-            <!-- Título -->
+
             <div class="contenido-titulo">
               <div *ngIf="metodoSeleccionado === 'efectivo'">💵 Pago en Efectivo</div>
               <div *ngIf="metodoSeleccionado === 'tarjeta'">💳 Pago con Tarjeta</div>
               <div *ngIf="metodoSeleccionado === 'mixto'">🔄 Pago Mixto</div>
             </div>
 
-            <!-- Para Mixto: Inputs directamente -->
             <div *ngIf="metodoSeleccionado === 'mixto'" class="mixto-config-derecha">
               <div class="input-row-derecha">
                 <label>Efectivo:</label>
-                <input type="number" 
-                       [(ngModel)]="montosMetodoPago.efectivo" 
-                       step="0.01"
-                       placeholder="0.00">
+                <input type="number" [(ngModel)]="montosMetodoPago.efectivo" step="0.01" placeholder="0.00">
               </div>
               <div class="input-row-derecha">
                 <label>Tarjeta:</label>
-                <input type="number" 
-                       [(ngModel)]="montosMetodoPago.tarjeta" 
-                       step="0.01"
-                       placeholder="0.00">
+                <input type="number" [(ngModel)]="montosMetodoPago.tarjeta" step="0.01" placeholder="0.00">
               </div>
-              <div class="mixto-total-derecha" [class.error]="Math.abs((montosMetodoPago.efectivo + montosMetodoPago.tarjeta) - getTotalPendiente()) > 0.01">
-                {{ (montosMetodoPago.efectivo + montosMetodoPago.tarjeta) | number:'1.2-2' }} € / {{ getTotalPendiente() | number:'1.2-2' }} €
+              <div class="mixto-total-derecha"
+                [class.error]="Math.abs((montosMetodoPago.efectivo + montosMetodoPago.tarjeta) - getTotalPendiente()) > 0.01">
+                {{ (montosMetodoPago.efectivo + montosMetodoPago.tarjeta) | number:'1.2-2' }} € / {{ getTotalPendiente()
+                | number:'1.2-2' }} €
               </div>
             </div>
 
-            <!-- Para Efectivo/Tarjeta: Tipo de Cobro -->
             <div *ngIf="metodoSeleccionado !== 'mixto'">
               <div class="tipos-cobro-derecha">
-                <button class="tipo-cobro-btn" 
-                        [class.active]="tipoCobro === 'completo'"
-                        (click)="tipoCobro = 'completo'">
+                <button class="tipo-cobro-btn" [class.active]="tipoCobro === 'completo'"
+                  (click)="tipoCobro = 'completo'">
                   <span>Completo</span>
                   <small>{{ getTotalPendiente() | number:'1.2-2' }} €</small>
                 </button>
-                
-                <button class="tipo-cobro-btn" 
-                        [class.active]="tipoCobro === 'dividir'"
-                        (click)="tipoCobro = 'dividir'">
+
+                <button class="tipo-cobro-btn" [class.active]="tipoCobro === 'dividir'" (click)="tipoCobro = 'dividir'">
                   <span>Dividir</span>
                   <small>Entre comensales</small>
                 </button>
-                
-                <button class="tipo-cobro-btn" 
-                        [class.active]="tipoCobro === 'articulos'"
-                        (click)="tipoCobro = 'articulos'">
+
+                <button class="tipo-cobro-btn" [class.active]="tipoCobro === 'articulos'"
+                  (click)="tipoCobro = 'articulos'">
                   <span>Por Artículos</span>
                   <small>Seleccionar items</small>
                 </button>
               </div>
 
-              <!-- Configuración dinámica -->
               <div *ngIf="tipoCobro === 'dividir'" class="config-dinamica">
                 <label>Comensales:</label>
                 <div class="input-comensales-derecha">
@@ -287,7 +272,7 @@
               <div *ngIf="tipoCobro === 'articulos'" class="config-dinamica">
                 <div class="articulos-derecha">
                   <div class="articulo-derecha" *ngFor="let item of currentOrder.items">
-                    <ion-checkbox [disabled]="esProductoPagado(item.productId)" 
+                    <ion-checkbox [disabled]="esProductoPagado(item.productId)"
                       [(ngModel)]="articulosSeleccionados[item.productId]"></ion-checkbox>
                     <div class="articulo-info-derecha">
                       <span class="articulo-nombre">{{ item.productName }}</span>
@@ -301,10 +286,9 @@
               </div>
             </div>
 
-            <!-- Botón Confirmar -->
-            <button class="btn-confirmar-derecha" 
-                    [disabled]="!metodoSeleccionado || (metodoSeleccionado === 'mixto' && Math.abs((montosMetodoPago.efectivo + montosMetodoPago.tarjeta) - getTotalPendiente()) > 0.01)"
-                    (click)="confirmarCobro()">
+            <button class="btn-confirmar-derecha"
+              [disabled]="!metodoSeleccionado || (metodoSeleccionado === 'mixto' && Math.abs((montosMetodoPago.efectivo + montosMetodoPago.tarjeta) - getTotalPendiente()) > 0.01)"
+              (click)="confirmarCobro()">
               ✓ Confirmar Pago
             </button>
           </div>
@@ -328,7 +312,8 @@
         <pre class="ticket-texto">{{ ticketParaImprimir }}</pre>
       </div>
       <div class="ticket-actions">
-        <button class="btn-primary" (click)="imprimirTicketDesdeModal()" *ngIf="numeroTicketActual && !ticketParaImprimir.includes('PROVISIONAL')">
+        <button class="btn-primary" (click)="imprimirTicketDesdeModal()"
+          *ngIf="numeroTicketActual && !ticketParaImprimir.includes('PROVISIONAL')">
           <ion-icon name="print-outline"></ion-icon> Imprimir
         </button>
         <button class="btn-secondary" (click)="cerrarModalTicket()">Cerrar</button>
