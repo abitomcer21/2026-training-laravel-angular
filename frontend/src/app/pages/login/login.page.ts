@@ -18,9 +18,7 @@ import { AuthService } from '../../services/auth/auth.service';
   imports: [
     CommonModule,
     FormsModule,
-    IonContent, IonGrid, IonRow, IonCol, IonCard,
-    IonCardHeader, IonCardTitle,
-    IonCardContent, IonItem, IonLabel, IonInput,
+    IonContent,  IonInput,
     IonButton, IonSpinner
   ]
 })
@@ -66,10 +64,8 @@ export class LoginPage implements OnInit {
         
         const role = response.user.role;
         if (role === 'admin') {
-          // Solo administradores van al dashboard
           this.router.navigate(['/dashboard']);
         } else {
-          // Otros roles (camarero, chef, supervisor) van al TPV
           this.router.navigate(['/point-of-sale']);
         }
       },

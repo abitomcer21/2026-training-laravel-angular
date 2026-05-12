@@ -39,7 +39,7 @@ class EloquentSalesRepository implements SalesRepositoryInterface
 
         foreach ($sales->salesLines() as $salesLine) {
             $orderLineId = $this->getOrderLineIdByUuid($salesLine->orderLineId()->value());
-            // $salesLine->userId() es un ID (string), no UUID, así que lo usamos directamente
+
             $userId = (int)$salesLine->userId();
 
             DB::table('sales_lines')->updateOrInsert(
@@ -142,7 +142,6 @@ class EloquentSalesRepository implements SalesRepositoryInterface
 
     public function saveSalesLine(SalesLine $line): void
     {
-        // Usado para guardar una línea de forma aislada si es necesario
         $orderLineId = $this->getOrderLineIdByUuid($line->orderLineId()->value());
         $userId = (int)$line->userId();
         $saleId = $this->model->where('uuid', $line->saleId()->value())->value('id');
@@ -236,5 +235,10 @@ class EloquentSalesRepository implements SalesRepositoryInterface
         throw new InvalidArgumentException(
             "OrderLine with id {$orderLineId} not found"
         );
+    }
+
+    public function nextTicketNumber(): int
+    {
+    return (int)($this->model->newQuery()->max('ticket_number') ?? 0) + 1;
     }
 }

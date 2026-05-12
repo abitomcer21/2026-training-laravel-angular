@@ -71,6 +71,7 @@ import {
 } from '../../../../services/order-state.service';
 import { AuthService } from '../../../../services/auth/auth.service';
 import { OrderService } from '../../../../services/api/order.service';
+import { SalesService } from '../../../../services/api/sales.service';
 
 export interface Product {
   id: string;
@@ -180,6 +181,7 @@ export class ProductosComponent implements OnInit {
     private toastController: ToastController,
     private changeDetector: ChangeDetectorRef,
     private orderService: OrderService,
+    private salesService: SalesService,
   ) {
     addIcons({
       restaurantOutline,
@@ -808,6 +810,29 @@ export class ProductosComponent implements OnInit {
       case 'mixto':
         mensajeMetodo = ` (Pago mixto: ${this.montosMetodoPago.efectivo.toFixed(2)}€ + ${this.montosMetodoPago.tarjeta.toFixed(2)}€)`;
         break;
+    }
+
+    // 5. Crear la venta (Sale) en la base de datos
+    const orderId = this.orderStateService.getOrderIdValue();
+    if (this.currentOrder.user && this.currentOrder.user.id && orderId) {
+      const salePayload = {
+        order_id: orderId,
+        user_id: this.currentOrder.user.id,
+      };
+
+      this.salesService.createSale(salePayload).subscribe({
+        next: (response) => {
+          console.log('Sale created successfully:', response);
+          this.mostrarToast('Venta registrada correctamente', 'success', 2000);
+        },
+        error: (error) => {
+          console.error('Error creating sale:', error);
+          this.mostrarToast('Error al registrar la venta', 'danger', 3000);
+        },
+      });
+    } else {
+      console.error('Current order user or user id is missing', { orderId, user: this.currentOrder.user });
+      this.mostrarToast('Error: falta información del usuario o pedido', 'danger', 3000);
     }
 
     this.mostrarModalCobro = false;

@@ -3,8 +3,10 @@
 namespace App\Order\Infrastructure\Persistence\Repositories;
 
 use App\Order\Domain\Entity\Order;
+use App\Order\Domain\Entity\OrderLine;
 use App\Order\Domain\Interfaces\OrderRepositoryInterface;
 use App\Order\Infrastructure\Persistence\Models\EloquentOrder;
+use App\Order\Infrastructure\Persistence\Models\EloquentOrderLine;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -12,6 +14,7 @@ class EloquentOrderRepository implements OrderRepositoryInterface
 {
     public function __construct(
         private EloquentOrder $model,
+        private EloquentOrderLine $orderLineModel,
     ) {}
 
     public function save(Order $order): void
@@ -73,6 +76,33 @@ class EloquentOrderRepository implements OrderRepositoryInterface
             $model->table_id
         );
 
+        $orderLineModels = EloquentOrderLine::where('order_id', $model->id)
+            ->get();
+
+        $orderLines = [];
+        foreach ($orderLineModels as $lineModel) {
+            $productUuid = DB::table('products')
+                ->where('id', $lineModel->product_id)
+                ->value('uuid');
+
+            $orderUuid = DB::table('orders')
+                ->where('id', $lineModel->order_id)
+                ->value('uuid');
+
+            $orderLines[] = OrderLine::fromPersistence(
+                $lineModel->uuid,
+                $lineModel->restaurant_id,
+                $orderUuid,
+                $productUuid,
+                (string)$lineModel->user_id,
+                $lineModel->quantity,
+                $lineModel->price,
+                $lineModel->tax_percentage,
+                $lineModel->created_at->toDateTimeImmutable(),
+                $lineModel->updated_at->toDateTimeImmutable(),
+            );
+        }
+
         return Order::fromPersistence(
             $model->uuid,
             $model->restaurant_id,
@@ -85,7 +115,7 @@ class EloquentOrderRepository implements OrderRepositoryInterface
             $model->closed_at?->toDateTimeImmutable(),
             $model->created_at->toDateTimeImmutable(),
             $model->updated_at->toDateTimeImmutable(),
-            $model->deleted_at?->toDateTimeImmutable()
+            $orderLines,
         );
     }
 

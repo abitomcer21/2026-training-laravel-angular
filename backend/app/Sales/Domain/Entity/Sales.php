@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Sales\Domain\Entity;
 
 use App\Sales\Domain\ValueObject\TicketNumber;
@@ -21,7 +20,6 @@ class Sales
         private ?Total          $total,
         private DomainDateTime  $createdAt,
         private DomainDateTime  $updatedAt,
-        private ?DomainDateTime $deletedAt,
         array $salesLines = [],
     ) {
         $this->salesLines = $salesLines;
@@ -36,34 +34,31 @@ class Sales
         array         $salesLines = [],
     ): self {
         $now = DomainDateTime::now();
-
         return new self(
             Uuid::generate(),
             $restaurantId,
             $orderId,
             $userId,
             $ticketNumber,
-            null,
+            $now,
             $total,
             $now,
             $now,
-            null,
             $salesLines,
         );
     }
 
     public static function fromPersistence(
-        string $id,
-        int $restaurantId,
-        string $orderId,
-        string $userId,
-        ?string $ticketNumber,
-        ?string $valueDate,
-        ?int $total,
+        string             $id,
+        int                $restaurantId,
+        string             $orderId,
+        string             $userId,
+        ?string            $ticketNumber,
+        ?string            $valueDate,
+        ?int               $total,
         \DateTimeImmutable $createdAt,
         \DateTimeImmutable $updatedAt,
-        ?\DateTimeImmutable $deletedAt,
-        array $salesLines = [],
+        array              $salesLines = [],
     ): self {
         return new self(
             Uuid::create($id),
@@ -75,53 +70,18 @@ class Sales
             $total !== null ? Total::create($total) : null,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
-            $deletedAt !== null ? DomainDateTime::create($deletedAt) : null,
             $salesLines,
         );
     }
 
-    public function id(): Uuid
-    {
-        return $this->id;
-    }
-    public function restaurantId(): int
-    {
-        return $this->restaurantId;
-    }
-    public function orderId(): Uuid
-    {
-        return $this->orderId;
-    }
-    public function userId(): string
-    {
-        return $this->userId;
-    }
-    public function ticketNumber(): ?TicketNumber
-    {
-        return $this->ticketNumber;
-    }
-    public function valueDate(): ?DomainDateTime
-    {
-        return $this->valueDate;
-    }
-    public function total(): ?Total
-    {
-        return $this->total;
-    }
-    public function createdAt(): DomainDateTime
-    {
-        return $this->createdAt;
-    }
-    public function updatedAt(): DomainDateTime
-    {
-        return $this->updatedAt;
-    }
-    public function deletedAt(): ?DomainDateTime
-    {
-        return $this->deletedAt;
-    }
-    public function salesLines(): array
-    {
-        return $this->salesLines;
-    }
+    public function id(): Uuid { return $this->id; }
+    public function restaurantId(): int { return $this->restaurantId; }
+    public function orderId(): Uuid { return $this->orderId; }
+    public function userId(): string { return $this->userId; }
+    public function ticketNumber(): ?TicketNumber { return $this->ticketNumber; }
+    public function valueDate(): ?DomainDateTime { return $this->valueDate; }
+    public function total(): ?Total { return $this->total; }
+    public function createdAt(): DomainDateTime { return $this->createdAt; }
+    public function updatedAt(): DomainDateTime { return $this->updatedAt; }
+    public function salesLines(): array { return $this->salesLines; }
 }

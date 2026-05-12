@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Sales\Application\CreateSale;
 
 use App\Order\Domain\Interfaces\OrderRepositoryInterface;
 use App\Sales\Domain\Entity\Sales;
 use App\Sales\Domain\Entity\SalesLine;
 use App\Sales\Domain\Interfaces\SalesRepositoryInterface;
+use App\Sales\Domain\ValueObject\TicketNumber;
 use App\Sales\Domain\ValueObject\Total;
 
 class CreateSale
@@ -45,11 +45,15 @@ class CreateSale
             );
         }
 
+        $ticketNumber = TicketNumber::create(
+            $this->salesRepository->nextTicketNumber()
+        );
+
         $sale = Sales::dddCreate(
             $order->restaurantId(),
             $order->id(),
             $userId,
-            null,
+            $ticketNumber,
             Total::create((int) round($totalCents)),
             $salesLines,
         );
