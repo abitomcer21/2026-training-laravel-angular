@@ -66,7 +66,6 @@ export class DashboardPage implements OnInit {
   }
 
   ngOnInit() {
-    // Cargar nombre del restaurante
     this.cargarRestaurantName();
   }
 

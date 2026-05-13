@@ -1,0 +1,172 @@
+<aside class="editor-panel">
+    <div class="editor-panel-header">
+        <div>
+            <h3>{{ productPanelMode === 'create' ? 'Formulario de registro' : 'Editar producto' }}</h3>
+        </div>
+        @if (productPanelMode === 'edit') {
+            <button class="btn-outline btn-small" (click)="salirEdicionProduct()">Volver al alta</button>
+        }
+    </div>
+
+    @if (productPanelMode === 'edit' && editingProduct) {
+        <div class="editor-form editor-form-edit">
+            <div class="editor-summary">
+                <div class="user-avatar editor-avatar"
+                    style="background: linear-gradient(135deg, #2c5f8a 0%, #1a3d5c 100%);">
+                    <span>{{ editingProduct.name.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div>
+                    <strong>{{ editingProduct.name }}</strong>
+                    <p>{{ obtenerNombreFamilia(editingProduct.family_id) }}</p>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="edit-product-name">Nombre</label>
+                <input id="edit-product-name" type="text" name="name" [(ngModel)]="editProductForm.name"
+                    class="editor-input">
+            </div>
+
+            <div class="form-field">
+                <label for="edit-product-family">Familia</label>
+                <select id="edit-product-family" name="family_id" [(ngModel)]="editProductForm.family_id"
+                    class="editor-input">
+                    @for (family of familiasParaProductos; track family.id) {
+                        <option [value]="family.id">{{ family.name }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label for="edit-product-tax">Impuesto</label>
+                <select id="edit-product-tax" name="tax_id" [(ngModel)]="editProductForm.tax_id" class="editor-input">
+                    @for (tax of taxes; track tax.id) {
+                        <option [value]="tax.id">{{ tax.name }} ({{ tax.percentage }}%)</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label for="edit-product-price">Precio unitario (€)</label>
+                <input id="edit-product-price" type="number" name="price" [(ngModel)]="editProductForm.price"
+                    class="editor-input" step="0.01" min="0">
+            </div>
+
+            <div class="form-field">
+                <label for="edit-product-stock">Stock</label>
+                <input id="edit-product-stock" type="number" name="stock" [(ngModel)]="editProductForm.stock"
+                    class="editor-input" min="0">
+            </div>
+
+            <div class="form-field">
+                <label for="edit-product-image">URL Imagen</label>
+                <input id="edit-product-image" type="text" name="image_src" [(ngModel)]="editProductForm.image_src"
+                    class="editor-input">
+            </div>
+
+            <div class="form-info">
+                <p><strong>Estado:</strong> {{ editingProduct.active ? 'Activo' : 'Inactivo' }}</p>
+                <small>Edita el estado desde el interruptor en el listado</small>
+            </div>
+
+            <div class="editor-actions">
+                <button class="btn-outline" type="button" (click)="salirEdicionProduct()"
+                    [disabled]="isSavingProduct">Cancelar</button>
+                <button class="btn-primary" type="button" (click)="guardarProductoPanel()" [disabled]="isSavingProduct">
+                    @if (!isSavingProduct) {
+                        <span>Guardar cambios</span>
+                    }
+                    @if (isSavingProduct) {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <span>Guardando...</span>
+                    }
+                </button>
+            </div>
+        </div>
+    }
+
+    @if (productPanelMode === 'create') {
+        <div class="editor-form editor-form-create">
+            <div class="editor-summary">
+                <div class="user-avatar editor-avatar editor-avatar-create">
+                    <span>+</span>
+                </div>
+                <div>
+                    <strong>Alta de producto</strong>
+                    <p>Añade un nuevo producto al catálogo.</p>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label for="create-product-name">Nombre *</label>
+                <input id="create-product-name" type="text" name="create_name" [(ngModel)]="createProductForm.name"
+                    class="editor-input" placeholder="Nombre del producto">
+            </div>
+
+            <div class="form-field">
+                <label for="create-product-family">Familia *</label>
+                <select id="create-product-family" name="create_family_id" [(ngModel)]="createProductForm.family_id"
+                    (change)="manejarCambioFamilia(createProductForm.family_id)" class="editor-input">
+                    <option value="">Selecciona una familia</option>
+                    @for (family of familiasParaProductos; track family.id) {
+                        <option [value]="family.id">{{ family.name }}</option>
+                    }
+                    <option value="__create__"
+                        style="border-top: 1px solid #d1d5db; padding-top: 8px; font-weight: 600; color: #2c5f8a;">+
+                        Crear nueva familia</option>
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label for="create-product-tax">Impuesto *</label>
+                <select id="create-product-tax" name="create_tax_id" [(ngModel)]="createProductForm.tax_id"
+                    (change)="manejarCambioImpuesto(createProductForm.tax_id)" class="editor-input">
+                    <option value="">Selecciona un impuesto</option>
+                    @for (tax of taxes; track tax.id) {
+                        <option [value]="tax.id">{{ tax.name }} ({{ tax.percentage }}%)</option>
+                    }
+                    <option value="__create__"
+                        style="border-top: 1px solid #d1d5db; padding-top: 8px; font-weight: 600; color: #2c5f8a;">+
+                        Crear nuevo impuesto</option>
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label for="create-product-price">Precio unitario (€) *</label>
+                <input id="create-product-price" type="number" name="create_price" [(ngModel)]="createProductForm.price"
+                    class="editor-input" step="0.01" min="0" placeholder="0.00">
+            </div>
+
+            <div class="form-field">
+                <label for="create-product-stock">Stock *</label>
+                <input id="create-product-stock" type="number" name="create_stock" [(ngModel)]="createProductForm.stock"
+                    class="editor-input" min="0" placeholder="0">
+            </div>
+
+            <div class="form-field">
+                <label for="create-product-image">URL Imagen *</label>
+                <input id="create-product-image" type="text" name="create_image_src"
+                    [(ngModel)]="createProductForm.image_src" class="editor-input"
+                    placeholder="https://ejemplo.com/imagen.jpg">
+            </div>
+
+            <div class="form-field-with-action">
+                <div class="form-field">
+                    <label for="create-product-active">Estado inicial</label>
+                    <div class="toggle-field">
+                        <input type="checkbox" id="create-product-active" class="toggle-checkbox"
+                            [(ngModel)]="createProductForm.active" name="create_active">
+                        <label for="create-product-active" class="toggle-label">
+                            <span class="toggle-text">{{ createProductForm.active ? 'Activo' : 'Inactivo' }}</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="editor-actions editor-actions-create editor-actions-inline">
+                    <button class="btn-primary" type="button" (click)="guardarProductoPanel()">Guardar
+                        producto</button>
+                </div>
+            </div>
+        </div>
+    }
+</aside>

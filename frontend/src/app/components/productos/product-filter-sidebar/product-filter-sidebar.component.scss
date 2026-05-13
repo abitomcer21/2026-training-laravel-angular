@@ -1,0 +1,178 @@
+.family-filter-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #2c5f8a 0%, #1a3d5c 100%);
+    color: white;
+}
+
+.sidebar-header .sidebar-icon {
+    font-size: 22px;
+}
+
+.sidebar-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+.family-filter-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: left;
+}
+
+.family-filter-item:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    transform: translateX(2px);
+}
+
+.family-filter-item.active {
+    background: linear-gradient(135deg, #2c5f8a 0%, #1a3d5c 100%);
+    border-color: #2c5f8a;
+    color: white;
+}
+
+.family-filter-item .filter-icon {
+    font-size: 18px;
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+.family-filter-item.active .filter-icon {
+    color: white;
+}
+
+.family-filter-item .filter-name {
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.family-filter-item.active .filter-name {
+    color: white;
+    font-weight: 600;
+}
+
+.family-filter-item .filter-count {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    background: #f3f4f6;
+    border-radius: 12px;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.family-filter-item.active .filter-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+}
+
+.family-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 10px 0;
+}
+
+.sidebar-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 16px;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.sidebar-empty ion-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.sidebar-empty p {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0 0 4px 0;
+    color: #6b7280;
+}
+
+.sidebar-empty small {
+    font-size: 0.7rem;
+    color: #9ca3af;
+}
+
+@media (max-width: 1024px) {
+    .family-filter-sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        border-radius: 0;
+        flex-direction: row;
+    }
+
+    .sidebar-content {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 8px;
+    }
+
+    .family-filter-item {
+        margin-bottom: 0;
+        flex-shrink: 0;
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .family-filter-sidebar {
+        max-height: 120px;
+    }
+
+    .sidebar-content {
+        overflow-x: auto;
+    }
+
+    .family-filter-item {
+        min-width: 160px;
+        padding: 8px 10px;
+        font-size: 0.75rem;
+    }
+}

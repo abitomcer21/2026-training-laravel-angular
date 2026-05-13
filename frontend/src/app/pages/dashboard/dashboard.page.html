@@ -16,29 +16,24 @@
   </ion-toolbar>
 
   <div class="nav-modern">
-    <div *ngFor="let item of menuItems" class="nav-item" [class.active]="opcionSeleccionada === item.valor"
-      (click)="seleccionarOpcion(item.valor)">
+    @for (item of menuItems; track item.valor) {
+    <div class="nav-item" [class.active]="opcionSeleccionada === item.valor" (click)="seleccionarOpcion(item.valor)">
       <ion-icon [name]="item.icono" class="nav-icon"></ion-icon>
       <span class="nav-label">{{ item.nombre }}</span>
     </div>
+    }
   </div>
 </ion-header>
 
 <ion-content class="ion-padding">
-
   <div class="content-container">
-    <!--usuarios-->
-    <app-usuarios *ngIf="opcionSeleccionada === 'usuarios'" />
-    <!-- familias-->
-    <app-familias *ngIf="opcionSeleccionada === 'familias'" />
-    <!-- productos-->
-    <app-productos *ngIf="opcionSeleccionada === 'productos'" />
-    <!-- impuestos-->
-    <app-impuestos *ngIf="opcionSeleccionada === 'impuestos'" />
-    <!-- zonas-->
-    <app-zonas *ngIf="opcionSeleccionada === 'zonas'" />
-    <!-- mesas-->
-    <app-mesas *ngIf="opcionSeleccionada === 'mesas'" />
+    @switch (opcionSeleccionada) {
+      @case ('usuarios') {<app-usuarios/>}
+      @case ('familias') {<app-familias/>}
+      @case ('productos') {<app-productos/>}
+      @case ('impuestos') {<app-impuestos/>}
+      @case ('zonas') {<app-zonas/>}
+      @case ('mesas') {<app-mesas/>}
+    }
   </div>
-
 </ion-content>
