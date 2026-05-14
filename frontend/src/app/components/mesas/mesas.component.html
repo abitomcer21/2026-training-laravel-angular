@@ -1,206 +1,221 @@
 <div>
-    <div class="tables-layout">
-      <aside class="zone-filter-sidebar">
-        <div class="sidebar-header">
-          <ion-icon name="map-outline" class="sidebar-icon"></ion-icon>
-          <h3>Filtrar por zona</h3>
+  <div class="tables-layout">
+    <aside class="zone-filter-sidebar">
+      <div class="sidebar-header">
+        <ion-icon name="map-outline" class="sidebar-icon"></ion-icon>
+        <h3>Filtrar por zona</h3>
+      </div>
+
+      <div class="sidebar-content">
+        <button class="family-filter-item" [class.active]="zonaSeleccionadaFiltro === null"
+          (click)="filtrarPorZona(null)">
+          <ion-icon name="grid-outline" class="filter-icon"></ion-icon>
+          <span class="filter-name">Todas las zonas</span>
+          <span class="filter-count">{{ tables.length }}</span>
+        </button>
+
+        <div class="family-divider"></div>
+
+        @for (zone of zones; track zone.database_id || zone.id) {
+        <button class="family-filter-item" [class.active]="zonaSeleccionadaFiltro === (zone.database_id || zone.id)"
+          (click)="filtrarPorZona(zone.database_id || zone.id)">
+          <ion-icon name="location-outline" class="filter-icon"></ion-icon>
+          <span class="filter-name">{{ zone.name }}</span>
+          <span class="filter-count">{{ contarMesasPorZona(zone.database_id || zone.id) }}</span>
+        </button>
+        }
+
+        @if (zones.length === 0) {
+        <div class="sidebar-empty">
+          <ion-icon name="map-outline"></ion-icon>
+          <p>No hay zonas</p>
+          <small>Crea zonas primero</small>
         </div>
+        }
+      </div>
+    </aside>
 
-        <div class="sidebar-content">
-          <button class="family-filter-item" [class.active]="zonaSeleccionadaFiltro === null"
-            (click)="filtrarPorZona(null)">
-            <ion-icon name="grid-outline" class="filter-icon"></ion-icon>
-            <span class="filter-name">Todas las zonas</span>
-            <span class="filter-count">{{ tables.length }}</span>
-          </button>
+    <div class="tables-main-content">
+      <div class="dashboard-grid">
+        <div class="users-panel users-panel-main">
 
-          <div class="family-divider"></div>
-
-          <button *ngFor="let zone of zones" class="family-filter-item"
-            [class.active]="zonaSeleccionadaFiltro === (zone.database_id || zone.id)"
-            (click)="filtrarPorZona(zone.database_id || zone.id)">
-            <ion-icon name="location-outline" class="filter-icon"></ion-icon>
-            <span class="filter-name">{{ zone.name }}</span>
-            <span class="filter-count">{{ contarMesasPorZona(zone.database_id || zone.id) }}</span>
-          </button>
-
-          <div *ngIf="zones.length === 0" class="sidebar-empty">
-            <ion-icon name="map-outline"></ion-icon>
-            <p>No hay zonas</p>
-            <small>Crea zonas primero</small>
-          </div>
-        </div>
-      </aside>
-
-      <div class="tables-main-content">
-        <div class="dashboard-grid">
-          <div class="users-panel users-panel-main">
-
-            <div class="search-bar">
-              <div class="search-input-wrapper">
-                <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                <input type="text" placeholder="Buscar por nombre, ID, zona..." [(ngModel)]="terminoBusquedaTable"
-                  (input)="buscarMesas()" class="search-input-field">
-                <button *ngIf="terminoBusquedaTable" class="clear-btn" (click)="limpiarBusquedaTable()">
-                  <ion-icon name="close-outline"></ion-icon>
-                </button>
-              </div>
-
-              <div class="filter-chips">
-                <button class="chip" [class.active]="filtroActualTable === 'nombre'"
-                  (click)="filtrarPorTipoTable('nombre')">
-                  Nombre
-                </button>
-                <button class="chip" [class.active]="filtroActualTable === 'zona'"
-                  (click)="filtrarPorTipoTable('zona')">
-                  Zona
-                </button>
-                <button class="chip" [class.active]="filtroActualTable === 'id'" (click)="filtrarPorTipoTable('id')">
-                  ID
-                </button>
-              </div>
+          <div class="search-bar">
+            <div class="search-input-wrapper">
+              <ion-icon name="search-outline" class="search-icon"></ion-icon>
+              <input type="text" placeholder="Buscar por nombre, ID, zona..." [(ngModel)]="terminoBusquedaTable"
+                (input)="buscarMesas()" class="search-input-field">
+              @if (terminoBusquedaTable) {
+              <button class="clear-btn" (click)="limpiarBusquedaTable()">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+              }
             </div>
 
-            <div *ngIf="mesasLoading" class="loading-state">
-              <div class="spinner"></div>
-              <p>Cargando mesas...</p>
-            </div>
-
-            <div *ngIf="!mesasLoading" class="table-wrapper">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th class="col-id">ID</th>
-                    <th class="col-user">Nombre</th>
-                    <th class="col-email">Zona</th>
-                    <th class="col-actions"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let table of mesasFiltradas; let i = index">
-                    <td class="col-id">
-                      <span class="id-badge">{{ i + 1 }}</span>
-                    </td>
-                    <td class="col-user">
-                      <div class="user-cell">
-                        <div class="user-avatar" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);">
-                          <span>{{ table.name.charAt(0).toUpperCase() }}</span>
-                        </div>
-                        <div class="user-info">
-                          <span class="user-name">{{ table.name }}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="col-email">
-                      {{ obtenerNombreZona(table.zone_id) }}
-                    </td>
-                    <td class="col-actions">
-                      <div class="action-buttons">
-                        <button class="action-btn edit" (click)="editarTable(table)" title="Editar">
-                          <ion-icon name="create-outline"></ion-icon>
-                        </button>
-                        <button class="action-btn delete" (click)="confirmarEliminarTable(table)" title="Eliminar">
-                          <ion-icon name="trash-outline"></ion-icon>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr *ngIf="mesasFiltradas.length === 0">
-                    <td colspan="4" class="empty-state-row">
-                      <div class="empty-state-content">
-                        <ion-icon name="grid-outline"></ion-icon>
-                        <h4>No hay mesas</h4>
-                        <p>No se encontraron mesas con los criterios de búsqueda</p>
-                        <button class="btn-outline" (click)="limpiarBusquedaTable()">Limpiar búsqueda</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="filter-chips">
+              <button class="chip" [class.active]="filtroActualTable === 'nombre'"
+                (click)="filtrarPorTipoTable('nombre')">
+                Nombre
+              </button>
+              <button class="chip" [class.active]="filtroActualTable === 'zona'" (click)="filtrarPorTipoTable('zona')">
+                Zona
+              </button>
+              <button class="chip" [class.active]="filtroActualTable === 'id'" (click)="filtrarPorTipoTable('id')">
+                ID
+              </button>
             </div>
           </div>
 
-          <aside class="editor-panel">
-            <div class="editor-panel-header">
+          @if (mesasLoading) {
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Cargando mesas...</p>
+          </div>
+          } @else {
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="col-id">ID</th>
+                  <th class="col-user">Nombre</th>
+                  <th class="col-email">Zona</th>
+                  <th class="col-actions"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (table of mesasFiltradas; track table.id; let i = $index) {
+                <tr>
+                  <td class="col-id">
+                    <span class="id-badge">{{ i + 1 }}</span>
+                  </td>
+                  <td class="col-user">
+                    <div class="user-cell">
+                      <div class="user-avatar" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);">
+                        <span>{{ table.name.charAt(0).toUpperCase() }}</span>
+                      </div>
+                      <div class="user-info">
+                        <span class="user-name">{{ table.name }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="col-email">
+                    {{ obtenerNombreZona(table.zone_id) }}
+                  </td>
+                  <td class="col-actions">
+                    <div class="action-buttons">
+                      <button class="action-btn edit" (click)="editarTable(table)" title="Editar">
+                        <ion-icon name="create-outline"></ion-icon>
+                      </button>
+                      <button class="action-btn delete" (click)="confirmarEliminarTable(table)" title="Eliminar">
+                        <ion-icon name="trash-outline"></ion-icon>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                } @empty {
+                <tr>
+                  <td colspan="4" class="empty-state-row">
+                    <div class="empty-state-content">
+                      <ion-icon name="grid-outline"></ion-icon>
+                      <h4>No hay mesas</h4>
+                      <p>No se encontraron mesas con los criterios de búsqueda</p>
+                      <button class="btn-outline" (click)="limpiarBusquedaTable()">Limpiar búsqueda</button>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          }
+        </div>
+
+        <aside class="editor-panel">
+          <div class="editor-panel-header">
+            <div>
+              <p class="eyebrow">{{ tablePanelMode === 'create' ? 'Alta permanente' : 'Edición rápida' }}</p>
+              <h3>{{ tablePanelMode === 'create' ? 'Nueva mesa' : 'Editar mesa' }}</h3>
+            </div>
+            @if (tablePanelMode === 'edit') {
+            <button class="btn-outline btn-small" (click)="salirEdicionTable()">Volver al alta</button>
+            }
+          </div>
+
+          @if (tablePanelMode === 'edit' && editingTable) {
+          <div class="editor-form editor-form-edit">
+            <div class="editor-summary">
+              <div class="user-avatar editor-avatar"
+                style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);">
+                <span>{{ editingTable.name.charAt(0).toUpperCase() }}</span>
+              </div>
               <div>
-                <p class="eyebrow">{{ tablePanelMode === 'create' ? 'Alta permanente' : 'Edición rápida' }}</p>
-                <h3>{{ tablePanelMode === 'create' ? 'Nueva mesa' : 'Editar mesa' }}</h3>
-              </div>
-              <button *ngIf="tablePanelMode === 'edit'" class="btn-outline btn-small"
-                (click)="salirEdicionTable()">Volver al alta</button>
-            </div>
-
-            <div *ngIf="tablePanelMode === 'edit' && editingTable; else createTableFormState"
-              class="editor-form editor-form-edit">
-              <div class="editor-summary">
-                <div class="user-avatar editor-avatar"
-                  style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);">
-                  <span>{{ editingTable.name.charAt(0).toUpperCase() }}</span>
-                </div>
-                <div>
-                  <strong>{{ editingTable.name }}</strong>
-                  <p>Zona: {{ obtenerNombreZona(editingTable.zone_id) }}</p>
-                </div>
-              </div>
-
-              <div class="form-field">
-                <label for="edit-table-name">Nombre</label>
-                <input id="edit-table-name" type="text" name="name" [(ngModel)]="editTableForm.name"
-                  class="editor-input">
-              </div>
-
-              <div class="form-info">
-                <p><strong>Zona asignada:</strong> {{ obtenerNombreZona(editingTable.zone_id) }}</p>
-                <small>La zona se asigna al crear la mesa y no puede modificarse</small>
-              </div>
-
-              <div class="editor-actions">
-                <button class="btn-outline" type="button" (click)="salirEdicionTable()">Cancelar</button>
-                <button class="btn-primary" type="button" (click)="guardarMesaPanel()">Guardar cambios</button>
+                <strong>{{ editingTable.name }}</strong>
+                <p>Zona: {{ obtenerNombreZona(editingTable.zone_id) }}</p>
               </div>
             </div>
 
-            <ng-template #createTableFormState>
-              <div class="editor-form editor-form-create">
-                <div class="editor-summary">
-                  <div class="user-avatar editor-avatar editor-avatar-create">
-                    <span>+</span>
-                  </div>
-                  <div>
-                    <strong>Nueva mesa</strong>
-                    <p>Añade una nueva mesa al sistema.</p>
-                  </div>
-                </div>
+            <div class="form-field">
+              <label for="edit-table-name">Nombre</label>
+              <input id="edit-table-name" type="text" name="name" [(ngModel)]="editTableForm.name" class="editor-input">
+            </div>
 
-                <div class="form-field">
-                  <label for="create-table-name">Nombre</label>
-                  <input id="create-table-name" type="text" name="create_name" [(ngModel)]="createTableForm.name"
-                    class="editor-input" placeholder="Ej: Mesa 1, Mesa VIP...">
-                </div>
+            <div class="form-info">
+              <p><strong>Zona asignada:</strong> {{ obtenerNombreZona(editingTable.zone_id) }}</p>
+              <small>La zona se asigna al crear la mesa y no puede modificarse</small>
+            </div>
 
-                <div class="form-field">
-                  <label for="create-table-zone">Zona</label>
-                  <select id="create-table-zone" name="create_zone_id" [(ngModel)]="createTableForm.zone_id"
-                    (change)="manejarCambioZona(createTableForm.zone_id)"
-                    class="editor-input">
-                    <option value="" disabled>Selecciona una zona</option>
-                    <option *ngFor="let zone of zones" [value]="zone.database_id || zone.id">{{ zone.name }}</option>
-                    <option value="__create__" style="border-top: 1px solid #d1d5db; padding-top: 8px; font-weight: 600; color: #2c5f8a;">+ Crear nueva zona</option>
-                  </select>
-                </div>
+            <div class="editor-actions">
+              <button class="btn-outline" type="button" (click)="salirEdicionTable()">Cancelar</button>
+              <button class="btn-primary" type="button" (click)="guardarMesaPanel()">Guardar cambios</button>
+            </div>
+          </div>
+          }
 
-                <div class="form-info" *ngIf="zones.length === 0">
-                  <p><strong>No hay zonas disponibles</strong></p>
-                  <small>Selecciona el campo Zona y elige "+ Crear nueva zona" para crear una rápidamente.</small>
-                </div>
-
-                <div class="editor-actions editor-actions-create">
-                  <button class="btn-primary" type="button" (click)="guardarMesaPanel()">Guardar mesa</button>
-                </div>
+          @if (tablePanelMode === 'create') {
+          <div class="editor-form editor-form-create">
+            <div class="editor-summary">
+              <div class="user-avatar editor-avatar editor-avatar-create">
+                <span>+</span>
               </div>
-            </ng-template>
-          </aside>
-        </div>
+              <div>
+                <strong>Nueva mesa</strong>
+                <p>Añade una nueva mesa al sistema.</p>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="create-table-name">Nombre</label>
+              <input id="create-table-name" type="text" name="create_name" [(ngModel)]="createTableForm.name"
+                class="editor-input" placeholder="Ej: Mesa 1, Mesa VIP...">
+            </div>
+
+            <div class="form-field">
+              <label for="create-table-zone">Zona</label>
+              <select id="create-table-zone" name="create_zone_id" [(ngModel)]="createTableForm.zone_id"
+                (change)="manejarCambioZona(createTableForm.zone_id)" class="editor-input">
+                <option value="" disabled>Selecciona una zona</option>
+                @for (zone of zones; track zone.database_id || zone.id) {
+                <option [value]="zone.database_id || zone.id">{{ zone.name }}</option>
+                }
+                <option value="__create__"
+                  style="border-top: 1px solid #d1d5db; padding-top: 8px; font-weight: 600; color: #2c5f8a;">+ Crear
+                  nueva zona</option>
+              </select>
+            </div>
+
+            @if (zones.length === 0) {
+            <div class="form-info">
+              <p><strong>No hay zonas disponibles</strong></p>
+              <small>Selecciona el campo Zona y elige "+ Crear nueva zona" para crear una rápidamente.</small>
+            </div>
+            }
+
+            <div class="editor-actions editor-actions-create">
+              <button class="btn-primary" type="button" (click)="guardarMesaPanel()">Guardar mesa</button>
+            </div>
+          </div>
+          }
+        </aside>
       </div>
     </div>
+  </div>
 </div>

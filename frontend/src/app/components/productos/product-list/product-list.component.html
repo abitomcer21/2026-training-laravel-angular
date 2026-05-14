@@ -58,8 +58,7 @@
                         <span class="price-badge">{{ formatearPrecio(product.price) }}</span>
                     </td>
                     <td class="col-role">
-                        <span class="stock-badge"
-                            [ngClass]="product.stock < 10 ? 'stock-low' : (product.stock < 25 ? 'stock-warning' : 'stock-available')">
+                        <span class="stock-badge" [ngClass]="getStockClass(product.stock)">
                             {{ product.stock }}
                         </span>
                     </td>

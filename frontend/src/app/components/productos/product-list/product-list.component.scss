@@ -157,3 +157,25 @@
         }
     }
 }
+
+.stock-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 250;
+}
+
+.stock-low {
+  background-color: #e05d6a;
+  color: white;
+}
+
+.stock-warning {
+  background-color: #f9cb40;  
+  color: #000;
+}
+
+.stock-available {
+  background-color: #54c26e;
+  color: white;
+}

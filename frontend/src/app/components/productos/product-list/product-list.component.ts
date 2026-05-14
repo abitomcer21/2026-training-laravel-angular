@@ -61,4 +61,15 @@ export class ProductListComponent {
     isProductDisabledByFamily(product: Product): boolean {
         return !this.isFamilyActive(product.family_id);
     }
+
+    getStockClass(stock: number): string {
+    if (stock < 10) {
+        return 'stock-low';
+        } else if (stock < 25) {
+        return 'stock-warning';
+        } else {
+        return 'stock-available';
+        }
+    }
+
 }
