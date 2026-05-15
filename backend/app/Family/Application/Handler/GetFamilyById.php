@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Family\Application\GetFamilyById;
+namespace App\Family\Application\Handler;
 
+use App\Family\Application\Response\GetFamilyByIdResponse;
 use App\Family\Domain\Exceptions\FamilyNotFoundException;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
 

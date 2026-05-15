@@ -2,49 +2,51 @@
 
 namespace App\Family\Infrastructure\Entrypoint\Http;
 
-use App\Family\Application\CreateFamily\CreateFamily;
-use App\Family\Domain\Exceptions\EmptyFamilyNameException;
-use App\Family\Domain\Exceptions\FamilyNameTooLongException;
+use App\Family\Application\Command\CreateFamilyCommand;
+use App\Family\Application\Handler\CreateFamilyHandler;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class PostController
 {
+    private const REGLAS_VALIDACION = [
+        'name'          => ['required', 'string'],
+        'active'        => ['required', 'boolean'],
+        'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
+    ];
+
     public function __construct(
-        private CreateFamily $createFamily,
+        private CreateFamilyHandler $createFamilyHandler,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string'],
-            'active' => ['required', 'boolean'],
-            'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
-        ]);
+        $validator = Validator::make($request->all(), self::REGLAS_VALIDACION);
 
         if ($validator->fails()) {
             return new JsonResponse([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()->toArray(),
+                'errors'  => $validator->errors()->toArray(),
             ], 422);
         }
 
         try {
             $validated = $validator->validated();
 
-            $response = ($this->createFamily)(
-                $validated['name'],
-                $validated['active'],
-                $validated['restaurant_id'],
+            $response = ($this->createFamilyHandler)(
+                new CreateFamilyCommand(
+                name:         $validated['name'],
+                active:       $validated['active'],
+                restaurantId: $validated['restaurant_id'],
+            ),
             );
 
             return new JsonResponse($response->toArray(), 201);
 
-        } catch (EmptyFamilyNameException | FamilyNameTooLongException $e) {
-            return new JsonResponse([
-                'message' => $e->getMessage(),
-            ], $e->getCode());
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Family\Application\GetAllFamily;
+namespace App\Family\Application\Response;
 
 use App\Family\Domain\Entity\Family;
 

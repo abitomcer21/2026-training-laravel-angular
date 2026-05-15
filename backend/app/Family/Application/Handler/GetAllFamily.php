@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Family\Application\GetAllFamily;
+namespace App\Family\Application\Handler;
 
+use App\Family\Application\Response\GetAllFamilyResponse;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
 
 class GetAllFamily

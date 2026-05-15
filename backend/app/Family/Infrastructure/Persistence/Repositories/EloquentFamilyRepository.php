@@ -4,6 +4,7 @@ namespace App\Family\Infrastructure\Persistence\Repositories;
 
 use App\Family\Domain\Entity\Family;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
+use App\Family\Domain\ValueObject\FamilyName;
 use App\Family\Infrastructure\Persistence\Models\EloquentFamily;
 
 class EloquentFamilyRepository implements FamilyRepositoryInterface
@@ -75,5 +76,13 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
                 $family->updated_at->toDateTimeImmutable(),
             ),
         )->toArray();
+    }
+
+    public function existsByNameAndRestaurant(FamilyName $name, int $restaurantId): bool
+    {
+        return $this->model->newQuery()
+            ->where('name', $name->value())
+            ->where('restaurant_id', $restaurantId)
+            ->exists();
     }
 }

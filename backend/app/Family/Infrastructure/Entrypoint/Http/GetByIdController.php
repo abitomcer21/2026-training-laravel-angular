@@ -2,7 +2,7 @@
 
 namespace App\Family\Infrastructure\Entrypoint\Http;
 
-use App\Family\Application\GetFamilyById\GetFamilyById;
+use App\Family\Application\Handler\GetFamilyById;
 use App\Family\Domain\Exceptions\FamilyNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;

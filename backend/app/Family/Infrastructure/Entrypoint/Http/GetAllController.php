@@ -2,7 +2,7 @@
 
 namespace App\Family\Infrastructure\Entrypoint\Http;
 
-use App\Family\Application\GetAllFamily\GetAllFamily;
+use App\Family\Application\Handler\GetAllFamily;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

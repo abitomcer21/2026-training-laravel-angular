@@ -2,7 +2,7 @@
 
 namespace App\Family\Infrastructure\Entrypoint\Http;
 
-use App\Family\Application\DeleteFamily\DeleteFamily;
+use App\Family\Application\Handler\DeleteFamilyHandler;
 use App\Family\Domain\Exceptions\FamilyNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class DeleteController
 {
     public function __construct(
-        private DeleteFamily $deleteFamily,
+        private DeleteFamilyHandler $deleteFamily,
     ) {}
 
     public function __invoke(string $id): JsonResponse

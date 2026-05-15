@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
+use App\Family\Domain\Services\UniqueFamilyName;
 use App\Family\Infrastructure\Persistence\Repositories\EloquentFamilyRepository;
 use App\Order\Domain\Interfaces\OrderRepositoryInterface;
 use App\Order\Infrastructure\Persistence\Repositories\EloquentOrderRepository;
@@ -41,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GetAllUsersReadRepositoryInterface::class, EloquentUserRepository::class);
         $this->app->bind(PasswordHasherInterface::class, LaravelPasswordHasher::class);
         $this->app->bind(FamilyRepositoryInterface::class, EloquentFamilyRepository::class);
+        $this->app->singleton(UniqueFamilyName::class);
         $this->app->bind(RestaurantRepositoryInterface::class, EloquentRestaurantRepository::class);
         $this->app->bind(RestaurantPasswordHasherInterface::class, LaravelRestaurantPasswordHasher::class);
         $this->app->bind(RestaurantAdminUserCreatorInterface::class, CreateRestaurantAdminUser::class);

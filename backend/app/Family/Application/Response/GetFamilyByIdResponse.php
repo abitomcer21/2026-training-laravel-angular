@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Family\Application\UpdateFamily;
+namespace App\Family\Application\Response;
 
 use App\Family\Domain\Entity\Family;
 
-final readonly class UpdateFamilyResponse
+final readonly class GetFamilyByIdResponse
 {
     public function __construct(
         public string $id,

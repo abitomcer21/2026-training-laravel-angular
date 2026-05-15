@@ -3,6 +3,7 @@
 namespace App\Family\Domain\Interfaces;
 
 use App\Family\Domain\Entity\Family;
+use App\Family\Domain\ValueObject\FamilyName;
 
 interface FamilyRepositoryInterface
 {
@@ -15,4 +16,6 @@ interface FamilyRepositoryInterface
     public function delete(string $id): void;
 
     public function allByRestaurantId(int $restaurantId): array;
+
+    public function existsByNameAndRestaurant(FamilyName $name, int $restaurantId): bool;
 }
