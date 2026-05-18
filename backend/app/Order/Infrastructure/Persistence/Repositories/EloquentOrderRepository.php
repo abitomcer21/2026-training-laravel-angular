@@ -54,7 +54,7 @@ class EloquentOrderRepository implements OrderRepositoryInterface
                     'product_id' => $this->getProductIdByUuid($orderLine->productId()),
                     'user_id' => $orderLine->userId(),
                     'quantity' => $orderLine->quantity(),
-                    'price' => $priceValue * 100,
+                    'price' => $priceValue,
                     'tax_percentage' => $taxPercentageValue,
                     'created_at' => $orderLine->createdAt()->value(),
                     'updated_at' => $orderLine->updatedAt()->value(),
@@ -119,11 +119,20 @@ class EloquentOrderRepository implements OrderRepositoryInterface
         );
     }
 
-    private function getTableIdByName(int $restaurantId, string $tableUuid): int
+    private function getTableIdByName(int $restaurantId, string $tableIdentifier): int
     {
         $tableId = DB::table('tables')
             ->where('restaurant_id', $restaurantId)
-            ->where('uuid', $tableUuid)
+            ->where('uuid', $tableIdentifier)
+            ->value('id');
+
+        if ($tableId) {
+            return (int) $tableId;
+        }
+
+        $tableId = DB::table('tables')
+            ->where('restaurant_id', $restaurantId)
+            ->where('name', $tableIdentifier)
             ->value('id');
 
         if ($tableId) {
@@ -131,7 +140,7 @@ class EloquentOrderRepository implements OrderRepositoryInterface
         }
 
         throw new InvalidArgumentException(
-            "Table with uuid '{$tableUuid}' not found for restaurant {$restaurantId}"
+            "Table with identifier '{$tableIdentifier}' not found for restaurant {$restaurantId}"
         );
     }
 

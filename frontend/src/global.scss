@@ -829,3 +829,9 @@ ion-content.tpv-content::part(scroll) {
     max-width: 320px !important;
   }
 }
+
+
+ion-content.ion-padding::part(scroll) {
+  box-sizing: border-box;
+  background-color: white;
+}

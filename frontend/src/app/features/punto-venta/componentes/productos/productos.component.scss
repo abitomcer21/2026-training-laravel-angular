@@ -228,7 +228,7 @@ $border-radius-lg: 16px;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px;
+  padding: 25px;
   background: $bg-white;
   border: 1px solid $border-light;
   border-radius: $border-radius;
@@ -683,12 +683,12 @@ $border-radius-lg: 16px;
 .nuevo-badge {
   display: inline-block;
   background: $bg-gray;
-  color: $text-gray;
+  color: orange;
   font-size: 0.6rem;
   padding: 2px 8px;
   border-radius: 12px;
   margin-left: 6px;
-  font-weight: 500;
+  font-weight: 800;
 }
 
 .pagado-badge {

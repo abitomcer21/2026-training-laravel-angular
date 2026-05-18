@@ -40,6 +40,7 @@ use App\Zones\Infrastructure\Entrypoint\Http\GetByIdController as ZonesGetByIdCo
 use App\Zones\Infrastructure\Entrypoint\Http\PostController as ZonesPostController;
 use App\Zones\Infrastructure\Entrypoint\Http\PutController as ZonesPutController;
 use Illuminate\Support\Facades\Route;
+use App\Order\Infrastructure\Entrypoint\Http\AddLinesController as OrderAddLinesController;
 use App\Order\Infrastructure\Entrypoint\Http\PostController as OrderPostController;
 use App\Sales\Infrastructure\Entrypoint\Http\PostController as SalesPostController;
 
@@ -100,4 +101,5 @@ Route::delete('/tables/{id}', TablesDeleteController::class);
 Route::post('/restaurants', RestaurantsPostController::class);
 
 Route::post('/orders', OrderPostController::class);
+Route::post('/orders/{orderId}/lines', OrderAddLinesController::class);
 Route::post('/sales', SalesPostController::class);

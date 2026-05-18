@@ -2,9 +2,9 @@
 
 namespace App\Order\Domain\Entity;
 
+use App\Order\Domain\Entity\OrderLine;
 use App\Order\Domain\ValueObject\OrderStatus;
 use App\Shared\Domain\ValueObject\DomainDateTime;
-use App\Shared\Domain\ValueObject\OrderLine;
 use App\Shared\Domain\ValueObject\Uuid;
 
 class Order
@@ -150,5 +150,10 @@ class Order
     public function orderLines(): array
     {
         return $this->orderLines;
+    }
+
+    public function touch(): void
+    {
+        $this->updatedAt = DomainDateTime::now();
     }
 }
