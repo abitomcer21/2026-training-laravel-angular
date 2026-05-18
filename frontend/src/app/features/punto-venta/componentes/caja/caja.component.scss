@@ -1,3 +1,5 @@
+@import '../../../../../../theme/variables.scss';
+
 $bg:          #f5f5f3;
 $surface:     #ffffff;
 $border:      #e8e6e1;
@@ -448,7 +450,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 }
 
-// ─── Botón confirmar ──────────────────────────────────────────────────────────
 .btn-cierre {
   width: 100%;
   background: $accent;
@@ -486,7 +487,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   ion-icon { font-size: 18px; }
 }
 
-// ─── Toast de éxito ───────────────────────────────────────────────────────────
 .success-toast {
   position: fixed;
   bottom: 24px;
@@ -530,9 +530,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   to   { transform: translateX(0);    opacity: 1; }
 }
 
-// ─── Responsive ───────────────────────────────────────────────────────────────
-
-// Tablet: una columna, el alto se gestiona con scroll
 @media (max-width: 860px) {
   .view-container {
     height: auto;
@@ -554,7 +551,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   .pagos-grid { overflow: visible; }
 }
 
-// Móvil pequeño
 @media (max-width: 480px) {
   .view-header h1 { font-size: 18px; }
 

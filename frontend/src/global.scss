@@ -9,6 +9,11 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+// ============================================
+// IMPORTAR VARIABLES CENTRALIZADAS
+// ============================================
+@import './theme/variables.scss';
+
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
@@ -37,25 +42,25 @@
 /* @import '@ionic/angular/css/palettes/dark.system.css'; */
 
 :root {
-    --primary-color: #2c5f8a;
-    --primary-dark: #1a3d5c;
-    --primary-light: #e8f0f8;
-    --text-dark: #2c3e50;
-    --text-light: #6b7280;
-    --border-light: #e5e7eb;
-    --bg-light: #f9fafb;
+    --primary-color: #{$primary-color};
+    --primary-dark: #{$primary-dark};
+    --primary-light: #{$primary-light};
+    --text-dark: #{$text-dark};
+    --text-light: #{$text-light};
+    --border-light: #{$border-light};
+    --bg-light: #{$bg-light};
 }
 
 /* HEADER - FORZADO */
 .main-toolbar {
-    --background: #1a3d5c !important;
+    --background: #{$primary-dark} !important;
     --color: white !important;
-    background: #1a3d5c !important;
+    background: #{$primary-dark} !important;
     --padding-top: 14px;
     --padding-bottom: 14px;
     --padding-start: 20px;
     --padding-end: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    box-shadow: $shadow-header;
 }
 
 ion-title {
@@ -66,7 +71,7 @@ ion-title {
 
 .logout-button {
     --color: white !important;
-    --color-hover: #e0e8f0;
+    --color-hover: #{$hover-light};
     --background: transparent !important;
     --background-activated: rgba(255, 255, 255, 0.1) !important;
     --border-radius: 20px;
@@ -99,7 +104,7 @@ ion-title {
     left: 0;
     width: 100%;
     height: 3px;
-    background: #2c5f8a !important;
+    background: #{$primary-color} !important;
     z-index: 1;
 }
 
@@ -121,29 +126,29 @@ ion-title {
 }
 
 .nav-item.active {
-    border-bottom: 3px solid #2c5f8a !important;
+    border-bottom: 3px solid #{$primary-color} !important;
     background: transparent;
 }
 
 .nav-icon {
     font-size: 22px;
-    color: #6b7280;
-    transition: all 0.2s ease;
+    color: #{$text-light};
+    transition: $transition;
 }
 
 .nav-item.active .nav-icon {
-    color: #2c5f8a !important;
+    color: #{$primary-color} !important;
 }
 
 .nav-label {
-    font-size: 0.75rem;
+    font-size: $font-size-sm;
     font-weight: 500;
-    color: #6b7280;
-    transition: all 0.2s ease;
+    color: #{$text-light};
+    transition: $transition;
 }
 
 .nav-item.active .nav-label {
-    color: #2c5f8a !important;
+    color: #{$primary-color} !important;
     font-weight: 600;
 }
 
@@ -158,13 +163,13 @@ ion-title {
  * ion-content internamente, no se debe sobreescribir con px fijos.
  */
 ion-content {
-    --background: #f5f5f5;
+    --background: #{$bg-light-gray};
     --overflow: hidden;
     --keyboard-offset: 0px;
 }
 
 ion-content::part(background) {
-    background: #f5f5f5;
+    background: #{$bg-light-gray};
 }
 
 /*
@@ -172,8 +177,8 @@ ion-content::part(background) {
  * no a un hijo inexistente.
  */
 ion-content.ion-padding::part(scroll) {
-  padding: 20px;
-  padding-bottom: 20px;
+  padding: $spacing-lg;
+  padding-bottom: $spacing-lg;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -222,24 +227,24 @@ app-mesas > div {
 
 /* Botones */
 .btn-primary {
-  background: linear-gradient(135deg, #2c5f8a 0%, #1a3d5c 100%);
+  background: $gradient-primary;
   border: none;
-  border-radius: 12px;
+  border-radius: $border-radius;
   padding: 10px 20px;
   color: white;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: $font-size-base;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: $spacing-sm;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(44, 95, 138, 0.3);
+  transition: $transition;
+  box-shadow: $shadow-button;
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(44, 95, 138, 0.4);
+  box-shadow: $shadow-button-hover;
 }
 
 .btn-primary ion-icon {
@@ -248,20 +253,20 @@ app-mesas > div {
 
 .btn-outline {
   background: transparent;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #{$border-light};
   border-radius: 10px;
   padding: 8px 20px;
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: $font-size-base;
+  color: #{$text-light};
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 8px;
+  transition: $transition;
+  margin-top: $spacing-md;
 }
 
 .btn-outline:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
-  background: #eff6ff;
+  border-color: #{$blue-500};
+  color: #{$blue-500};
+  background: #{$blue-50};
 }
 
 .btn-small {
@@ -272,11 +277,11 @@ app-mesas > div {
 /* Barra de búsqueda */
 .search-bar {
   background: white;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 20px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  border-radius: $border-radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-xl;
+  border: 1px solid #{$border-light};
+  box-shadow: $shadow-sm;
 }
 
 .search-input-wrapper {
@@ -288,23 +293,23 @@ app-mesas > div {
 .search-icon {
   position: absolute;
   left: 16px;
-  color: #9ca3af;
+  color: #{$text-lighter};
   font-size: 20px;
 }
 
 .search-input-field {
   width: 100%;
   padding: 12px 48px 12px 48px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  background: #f9fafb;
+  border: 1px solid #{$border-light};
+  border-radius: $border-radius;
+  font-size: $font-size-base;
+  transition: $transition;
+  background: #{$bg-light};
 }
 
 .search-input-field:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #{$blue-500};
   background: white;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
@@ -315,14 +320,14 @@ app-mesas > div {
   background: none;
   border: none;
   cursor: pointer;
-  color: #9ca3af;
+  color: #{$text-lighter};
   display: flex;
   align-items: center;
   padding: 0;
 }
 
 .clear-btn:hover {
-  color: #6b7280;
+  color: #{$text-light};
 }
 
 /* Chips de filtro */
@@ -334,23 +339,23 @@ app-mesas > div {
 }
 
 .chip {
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  padding: $spacing-xs $spacing-lg;
+  border-radius: $border-radius-xl;
+  font-size: $font-size-sm;
   font-weight: 500;
-  background: #f3f4f6;
-  color: #6b7280;
+  background: #{$bg-gray-100};
+  color: #{$text-light};
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: $transition;
 }
 
 .chip:hover {
-  background: #e5e7eb;
+  background: #{$border-light};
 }
 
 .chip.active {
-  background: linear-gradient(135deg, #2c5f8a 0%, #1a3d5c 100%);
+  background: $gradient-primary;
   color: white;
 }
 
@@ -362,15 +367,15 @@ app-mesas > div {
   justify-content: center;
   padding: 40px;
   background: white;
-  border-radius: 16px;
-  border: 1px solid #e5e7eb;
+  border-radius: $border-radius-lg;
+  border: 1px solid #{$border-light};
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #3b82f6;
+  border: 3px solid #{$border-light};
+  border-top-color: #{$blue-500};
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -380,19 +385,19 @@ app-mesas > div {
 }
 
 .loading-state p {
-  margin-top: 16px;
-  color: #6b7280;
-  font-size: 0.875rem;
+  margin-top: $spacing-lg;
+  color: #{$text-light};
+  font-size: $font-size-base;
 }
 
 /* Tabla */
 .table-wrapper {
   background: white;
-  border-radius: 16px;
-  border: 1px solid #e5e7eb;
+  border-radius: $border-radius-lg;
+  border: 1px solid #{$border-light};
   overflow-x: auto;
   overflow-y: auto;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  box-shadow: $shadow-sm;
   flex: 1;
   min-height: 0;
 }
@@ -404,28 +409,28 @@ app-mesas > div {
 }
 
 .data-table thead tr {
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-bottom: 1px solid #{$border-light};
+  background: #{$bg-light};
 }
 
 .data-table th {
   text-align: left;
-  padding: 14px 16px;
-  font-size: 0.75rem;
+  padding: 14px $spacing-lg;
+  font-size: $font-size-sm;
   font-weight: 600;
-  color: #6b7280;
+  color: #{$text-light};
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .data-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 0.875rem;
+  padding: 14px $spacing-lg;
+  border-bottom: 1px solid #{$bg-gray-100};
+  font-size: $font-size-base;
 }
 
 .data-table tbody tr:hover {
-  background: #f9fafb;
+  background: #{$bg-light};
 }
 
 /* Columnas específicas */
@@ -454,11 +459,11 @@ app-mesas > div {
 .id-badge {
   display: inline-block;
   padding: 4px 8px;
-  background: #f3f4f6;
+  background: #{$bg-gray-100};
   border-radius: 6px;
   font-weight: 600;
-  font-size: 0.75rem;
-  color: #374151;
+  font-size: $font-size-sm;
+  color: #{$text-gray};
   font-family: monospace;
 }
 
@@ -472,7 +477,7 @@ app-mesas > div {
 .user-avatar {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #{$blue-500} 0%, #{$blue-600} 100%);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -483,19 +488,19 @@ app-mesas > div {
 .user-avatar span {
   color: white;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: $font-size-base;
 }
 
 .user-name {
   font-weight: 500;
-  color: #111827;
+  color: #{$text-dark-900};
 }
 
 /* Email link */
 .email-link {
-  color: #3b82f6;
+  color: #{$blue-500};
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: $font-size-base;
 }
 
 .email-link:hover {
@@ -506,35 +511,35 @@ app-mesas > div {
 .role-tag {
   display: inline-block;
   padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  border-radius: $border-radius-xl;
+  font-size: $font-size-sm;
   font-weight: 600;
 }
 
 .role-admin {
-  background: #fee2e2;
-  color: #dc2626;
+  background: #{$role-admin-bg};
+  color: #{$role-admin-color};
 }
 
 .role-camarero,
 .role-waiter {
-  background: #dbeafe;
-  color: #2563eb;
+  background: #{$role-waiter-bg};
+  color: #{$role-waiter-color};
 }
 
 .role-chef {
-  background: #ffedd5;
-  color: #ea580c;
+  background: #{$role-chef-bg};
+  color: #{$role-chef-color};
 }
 
 .role-supervisor {
-  background: #dcfce7;
-  color: #16a34a;
+  background: #{$role-supervisor-bg};
+  color: #{$role-supervisor-color};
 }
 
 .role-operator {
-  background: #d1fae5;
-  color: #059669;
+  background: #{$role-operator-bg};
+  color: #{$role-operator-color};
 }
 
 /* Action buttons */
@@ -561,22 +566,22 @@ app-mesas > div {
 }
 
 .action-btn.edit {
-  background: #eff6ff;
-  color: #3b82f6;
+  background: #{$action-edit-bg};
+  color: #{$action-edit-color};
 }
 
 .action-btn.edit:hover {
-  background: #dbeafe;
+  background: #{$blue-100};
   transform: scale(1.05);
 }
 
 .action-btn.delete {
-  background: #fef2f2;
-  color: #dc2626;
+  background: #{$action-delete-bg};
+  color: #{$action-delete-color};
 }
 
 .action-btn.delete:hover {
-  background: #fee2e2;
+  background: #{$role-admin-bg};
   transform: scale(1.05);
 }
 
@@ -595,19 +600,19 @@ app-mesas > div {
 
 .empty-state-content ion-icon {
   font-size: 48px;
-  color: #d1d5db;
+  color: #{$text-muted};
 }
 
 .empty-state-content h4 {
-  font-size: 1rem;
+  font-size: $font-size-lg;
   font-weight: 600;
-  color: #374151;
+  color: #{$text-gray};
   margin: 0;
 }
 
 .empty-state-content p {
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: $font-size-base;
+  color: #{$text-light};
   margin: 0;
 }
 
@@ -619,28 +624,28 @@ app-mesas > div {
 }
 
 .form-field label {
-  font-size: 0.7rem;
+  font-size: $font-size-xs;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
-  color: #64748b;
+  color: #{$text-slate};
 }
 
 .editor-input {
   width: 100%;
-  border: 1px solid #dbe3ed;
-  border-radius: 12px;
+  border: 1px solid #{$border-slate};
+  border-radius: $border-radius;
   background: #f8fafc;
   color: #0f172a;
   padding: 10px 12px;
   font-size: 0.85rem;
-  transition: all 0.2s ease;
+  transition: $transition;
 }
 
 .editor-input:focus {
   outline: none;
   background: white;
-  border-color: #2563eb;
+  border-color: #{$blue-600};
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
@@ -648,7 +653,7 @@ select.editor-input {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
+  background-image: linear-gradient(45deg, transparent 50%, #{$text-slate} 50%), linear-gradient(135deg, #{$text-slate} 50%, transparent 50%);
   background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
@@ -668,12 +673,12 @@ select.editor-input {
   -moz-appearance: none;
   width: 44px;
   height: 24px;
-  background: #e5e7eb;
+  background: #{$border-light};
   border: none;
-  border-radius: 12px;
+  border-radius: $border-radius;
   cursor: pointer;
   position: relative;
-  transition: all 0.3s ease;
+  transition: $transition-slow;
   outline: none;
 }
 
@@ -686,12 +691,12 @@ select.editor-input {
   background: white;
   top: 2px;
   left: 2px;
-  transition: all 0.3s ease;
+  transition: $transition-slow;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .toggle-checkbox:checked {
-  background: #10b981;
+  background: #{$toggle-success};
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
@@ -735,9 +740,9 @@ select.editor-input {
 /* Form info section */
 .form-info {
   grid-column: 1 / -1;
-  padding: 12px;
+  padding: $spacing-md;
   background: #f0f9ff;
-  border-left: 4px solid #2563eb;
+  border-left: 4px solid #{$blue-600};
   border-radius: 8px;
   font-size: 0.8rem;
   color: #0c4a6e;
@@ -759,8 +764,8 @@ select.editor-input {
 .price-badge {
   display: inline-block;
   padding: 4px 10px;
-  background: #dbeafe;
-  border-radius: 20px;
+  background: #{$blue-100};
+  border-radius: $border-radius-xl;
   font-size: 0.8rem;
   font-weight: 600;
   color: #1e40af;
@@ -769,18 +774,18 @@ select.editor-input {
 .stock-badge {
   display: inline-block;
   padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.7rem;
+  border-radius: $border-radius-xl;
+  font-size: $font-size-xs;
   font-weight: 600;
 }
 
 .stock-badge.stock-available {
-  background: #dcfce7;
+  background: #{$bg-green-50};
   color: #15803d;
 }
 
 .stock-badge.stock-low {
-  background: #fee2e2;
+  background: #{$role-admin-bg};
   color: #991b1b;
 }
 
@@ -788,7 +793,7 @@ select.editor-input {
   display: inline-block;
   padding: 4px 10px;
   background: #cffafe;
-  border-radius: 20px;
+  border-radius: $border-radius-xl;
   font-size: 0.8rem;
   font-weight: 600;
   color: #0e7490;
@@ -801,7 +806,7 @@ select.editor-input {
   letter-spacing: 0.16em;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #2563eb;
+  color: #{$blue-600};
 }
 
 /* ========================================== */

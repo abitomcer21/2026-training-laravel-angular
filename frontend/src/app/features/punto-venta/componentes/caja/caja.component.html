@@ -1,7 +1,4 @@
-<!-- cierre-caja.component.html con Angular 20 - VERSIÓN CORREGIDA -->
-
 <div class="view-container">
-  <!-- Header -->
   <div class="view-header">
     <div class="header-content">
       <div>
@@ -15,10 +12,8 @@
     </div>
   </div>
 
-  <!-- Contenido principal -->
   <div class="main-content">
     
-    <!-- Resumen del turno -->
     <div class="info-cards">
       <div class="card info-card">
         <ion-icon name="person-circle-outline" class="card-icon"></ion-icon>
@@ -45,7 +40,6 @@
       </div>
     </div>
 
-    <!-- Desglose de métodos de pago -->
     <div class="detalle-pagos">
       <h3>
         <ion-icon name="stats-chart-outline"></ion-icon>
@@ -75,7 +69,6 @@
       </div>
     </div>
 
-    <!-- Formulario de cierre -->
     <div class="cierre-form">
       <form [formGroup]="cierreForm" (ngSubmit)="registrarCierre()">
         <h3>
@@ -102,7 +95,6 @@
           }
         </div>
 
-        <!-- Mostrar diferencia -->
         <div class="diferencia-box" 
           [class.diferencia-positiva]="resumenTurno.diferencia >= 0"
           [class.diferencia-negativa]="resumenTurno.diferencia < 0">
@@ -138,7 +130,6 @@
       </form>
     </div>
 
-    <!-- Mensaje de éxito -->
     @if (cierreExitoso) {
       <div class="success-toast">
         <ion-icon name="checkmark-circle"></ion-icon>
