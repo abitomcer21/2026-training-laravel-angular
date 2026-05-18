@@ -20,7 +20,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             [
                 'restaurant_id' => $family->restaurantId(),
                 'name' => $family->name()->value(),
-                'active' => $family->status()->value(),
+                'active' => $family->active(),
                 'created_at' => $family->createdAt()->value(),
                 'updated_at' => $family->updatedAt()->value(),
             ],

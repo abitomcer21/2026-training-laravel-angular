@@ -20,7 +20,7 @@ final readonly class UpdateFamilyResponse
         return new self(
             id: $family->id()->value(),
             name: $family->name()->value(),
-            active: $family->status()->isActive(),
+            active: $family->active(),
             restaurantId: $family->restaurantId(),
             createdAt: $family->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $family->updatedAt()->format(\DateTimeInterface::ATOM),
