@@ -39,9 +39,9 @@
 
         <div class="quick-search">
           <ion-icon name="search-outline"></ion-icon>
-          <input type="text" placeholder="Buscar producto..." [(ngModel)]="filtroNombre" (input)="aplicarFiltros()" />
+          <input type="text" placeholder="Buscar producto..." [(ngModel)]="filtroNombre" />
           @if (filtroNombre) {
-            <ion-icon name="close-circle-outline" (click)="filtroNombre = ''; aplicarFiltros()"></ion-icon>
+            <ion-icon name="close-circle-outline" (click)="filtroNombre = ''"></ion-icon>
           }
         </div>
       </div>

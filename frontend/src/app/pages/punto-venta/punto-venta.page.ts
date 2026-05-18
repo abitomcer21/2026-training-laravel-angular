@@ -11,7 +11,7 @@ import {
 } from 'ionicons/icons';
 
 import { MesasComponent } from '../../features/punto-venta/componentes/mesas/mesas.component';
-import { ProductosComponent } from '../../features/punto-venta/componentes/productos/productos.component';
+import { ProductosComponent } from '../../features/punto-venta/componentes/productos/panel-productos.component';
 import { PedidosComponent } from '../../features/punto-venta/componentes/pedidos/pedidos.component';
 import { CajaComponent } from '../../features/punto-venta/componentes/caja/caja.component';
 import { RestaurantService } from '../../services/api/restaurant.service';

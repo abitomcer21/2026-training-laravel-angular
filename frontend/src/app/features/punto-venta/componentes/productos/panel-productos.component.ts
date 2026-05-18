@@ -97,8 +97,8 @@ type EstadoPedido = 'editando' | 'confirmado' | 'cobrado';
 
 @Component({
   selector: 'app-productos',
-  templateUrl: './productos.component.html',
-  styleUrls: ['./productos.component.scss'],
+  templateUrl: './panel-productos.component.html',
+  styleUrls: ['./panel-productos.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -132,7 +132,7 @@ export class ProductosComponent implements OnInit {
   };
 
   cargando = false;
-  filtroNombre = '';
+  filtroNombre = ''; 
 
   familias: { id: string; name: string }[] = [];
   familiaSeleccionada: string | null = null;
@@ -159,6 +159,18 @@ export class ProductosComponent implements OnInit {
 
   mostrarModalTicket = false;
   ticketParaImprimir$ = new BehaviorSubject<string>('');
+
+  get productosFiltrados(): Product[] {
+  if (!this.filtroNombre || this.filtroNombre.trim() === '') {
+    return this.productos;
+  }
+  
+  const termino = this.filtroNombre.toLowerCase().trim();
+  
+  return this.productos.filter(producto => 
+    producto.name && producto.name.toLowerCase().includes(termino)
+  );
+}
 
   get ticketParaImprimir(): string {
     return this.ticketParaImprimir$.value;
@@ -365,7 +377,6 @@ export class ProductosComponent implements OnInit {
     this.familiaSeleccionada = familiaId;
     this.filtroNombre = '';
     this.productos = this.productosPorFamilia.get(familiaId) || [];
-    this.productosOriginales = [...this.productos];
   }
 
   getNombreFamilia(): string {
@@ -373,27 +384,6 @@ export class ProductosComponent implements OnInit {
       (f) => f.id === this.familiaSeleccionada,
     );
     return familia?.name || '';
-  }
-
-  aplicarFiltros() {
-    if (!this.familiaSeleccionada) return;
-
-    let resultado = [
-      ...(this.productosPorFamilia.get(this.familiaSeleccionada) || []),
-    ];
-
-    if (this.filtroNombre && this.filtroNombre.trim()) {
-      const termino = this.filtroNombre.toLowerCase().trim();
-      resultado = resultado.filter((producto) =>
-        producto.name.toLowerCase().includes(termino),
-      );
-    }
-
-    this.productos = resultado;
-  }
-
-  onFiltroNombreChange() {
-    this.aplicarFiltros();
   }
 
   suscribirseAorden() {
@@ -450,10 +440,6 @@ export class ProductosComponent implements OnInit {
     this.articulosSeleccionados = {};
     this.filtroNombre = '';
     this.familiaSeleccionada = null;
-  }
-
-  get productosFiltrados(): Product[] {
-    return this.productos;
   }
 
   esProductoNuevo(productId: string): boolean {
@@ -574,83 +560,83 @@ export class ProductosComponent implements OnInit {
     this.volverAMesas();
   }
 
- enviarACocina() {
-  if (this.currentOrder.items.length === 0) {
-    return;
-  }
+  enviarACocina() {
+    if (this.currentOrder.items.length === 0) {
+      return;
+    }
 
-  const userData = this.authService.getUserData();
+    const userData = this.authService.getUserData();
 
-  if (!this.pedidoInicialEnviado) {
-    const payload = {
-      restaurant_id: userData.restaurant_id,
-      table_id: this.currentOrder.table!.id,
-      opened_by_user_id: this.currentOrder.user!.id,
-      status: 'open',
-      diners: this.currentOrder.comensales || 1,
-      order_lines: this.currentOrder.items.map((item) => {
-        return {
+    if (!this.pedidoInicialEnviado) {
+      const payload = {
+        restaurant_id: userData.restaurant_id,
+        table_id: this.currentOrder.table!.id,
+        opened_by_user_id: this.currentOrder.user!.id,
+        status: 'open',
+        diners: this.currentOrder.comensales || 1,
+        order_lines: this.currentOrder.items.map((item) => {
+          return {
+            product_id: item.productId,
+            user_id: this.currentOrder.user!.id,
+            quantity: item.quantity,
+            price: Math.round(item.price * 100),
+            tax_percentage: item.iva || 0,
+          };
+        }),
+      };
+
+      this.orderService.createOrder(payload).subscribe({
+        next: (response) => {
+          this.orderStateService.setOrderId(response.id);
+          this.itemsEnviadosACocina = [...this.currentOrder.items];
+          this.pedidoInicialEnviado = true;
+          this.estadoPedido = 'confirmado';
+          this.orderStateService.setPedidoInicialEnviado(true, this.itemsEnviadosACocina);
+          this.mostrarToast(`Pedido enviado a cocina — Mesa: ${this.currentOrder.table?.name}`, 'success', 3000);
+        },
+        error: () => this.mostrarToast('Error al enviar pedido', 'danger', 3000),
+      });
+
+    } else {
+      const nuevosItems: OrderItem[] = [];
+
+      this.currentOrder.items.forEach((item) => {
+        const itemEnviado = this.itemsEnviadosACocina.find((e) => e.productId === item.productId);
+        if (!itemEnviado) {
+          nuevosItems.push({ ...item });
+        } else if (item.quantity > itemEnviado.quantity) {
+          const diferencia = item.quantity - itemEnviado.quantity;
+          nuevosItems.push({ ...item, quantity: diferencia, total: diferencia * item.price });
+        }
+      });
+
+      if (nuevosItems.length === 0) {
+        this.mostrarToast('No hay nuevos productos para enviar', 'warning', 2000);
+        return;
+      }
+
+      const orderId = this.orderStateService.getOrderIdValue();
+      const addLinesPayload = {
+        order_lines: nuevosItems.map((item) => ({
           product_id: item.productId,
           user_id: this.currentOrder.user!.id,
           quantity: item.quantity,
           price: Math.round(item.price * 100),
           tax_percentage: item.iva || 0,
-        };
-      }),
-    };
+        })),
+      };
 
-    this.orderService.createOrder(payload).subscribe({
-      next: (response) => {
-        this.orderStateService.setOrderId(response.id);
-        this.itemsEnviadosACocina = [...this.currentOrder.items];
-        this.pedidoInicialEnviado = true;
-        this.estadoPedido = 'confirmado';
-        this.orderStateService.setPedidoInicialEnviado(true, this.itemsEnviadosACocina);
-        this.mostrarToast(`Pedido enviado a cocina — Mesa: ${this.currentOrder.table?.name}`, 'success', 3000);
-      },
-      error: () => this.mostrarToast('Error al enviar pedido', 'danger', 3000),
-    });
-
-  } else {
-    const nuevosItems: OrderItem[] = [];
-
-    this.currentOrder.items.forEach((item) => {
-      const itemEnviado = this.itemsEnviadosACocina.find((e) => e.productId === item.productId);
-      if (!itemEnviado) {
-        nuevosItems.push({ ...item });
-      } else if (item.quantity > itemEnviado.quantity) {
-        const diferencia = item.quantity - itemEnviado.quantity;
-        nuevosItems.push({ ...item, quantity: diferencia, total: diferencia * item.price });
-      }
-    });
-
-    if (nuevosItems.length === 0) {
-      this.mostrarToast('No hay nuevos productos para enviar', 'warning', 2000);
-      return;
+      this.orderService.addOrderLines(orderId, addLinesPayload).subscribe({
+        next: () => {
+          this.itemsEnviadosACocina = [...this.currentOrder.items];
+          this.orderStateService.setPedidoInicialEnviado(true, this.itemsEnviadosACocina);
+          const totalNuevos = nuevosItems.reduce((sum, item) => sum + item.quantity, 0);
+          this.mostrarToast(`${totalNuevos} productos añadidos a cocina`, 'success', 3000);
+        },
+        error: () => this.mostrarToast('Error al añadir productos', 'danger', 3000),
+      });
     }
-
-    const orderId = this.orderStateService.getOrderIdValue();
-    const addLinesPayload = {
-      order_lines: nuevosItems.map((item) => ({
-        product_id: item.productId,
-        user_id: this.currentOrder.user!.id,
-        quantity: item.quantity,
-        price: Math.round(item.price * 100),
-        tax_percentage: item.iva || 0,
-      })),
-    };
-
-    this.orderService.addOrderLines(orderId, addLinesPayload).subscribe({
-      next: () => {
-        this.itemsEnviadosACocina = [...this.currentOrder.items];
-        this.orderStateService.setPedidoInicialEnviado(true, this.itemsEnviadosACocina);
-        const totalNuevos = nuevosItems.reduce((sum, item) => sum + item.quantity, 0);
-        this.mostrarToast(`${totalNuevos} productos añadidos a cocina`, 'success', 3000);
-      },
-      error: () => this.mostrarToast('Error al añadir productos', 'danger', 3000),
-    });
   }
-}
 
   volverAEditar() {
     this.estadoPedido = 'editando';
@@ -713,6 +699,7 @@ export class ProductosComponent implements OnInit {
       .filter((item) => !this.articulosPagados[item.productId])
       .reduce((sum, item) => sum + item.total, 0);
   }
+
   confirmarCobro() {
     if (!this.metodoSeleccionado) {
       this.mostrarToast('Selecciona un método de pago', 'warning', 2000);
@@ -879,7 +866,6 @@ export class ProductosComponent implements OnInit {
   cerrarModalTicket() {
     this.mostrarModalTicket = false;
 
-    // Sincronizar datos actuales para saber si hay pendiente
     this.articulosPagados = this.orderStateService.getArticulosPagadosValue();
     this.calcularTotalesPendientes();
 
