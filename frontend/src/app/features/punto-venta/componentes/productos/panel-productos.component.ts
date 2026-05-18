@@ -780,7 +780,6 @@ export class ProductosComponent implements OnInit {
           console.log('Sale created successfully:', response);
           this.mostrarToast('Venta registrada correctamente', 'success', 2000);
           
-          // NOTIFICAR QUE SE CREÓ UNA NUEVA VENTA
           this.salesUpdateService.notificarVentaCreada();
         },
         error: (error) => {
