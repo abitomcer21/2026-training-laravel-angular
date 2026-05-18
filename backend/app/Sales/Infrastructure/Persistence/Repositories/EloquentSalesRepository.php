@@ -2,7 +2,6 @@
 
 namespace App\Sales\Infrastructure\Persistence\Repositories;
 
-use App\Order\Infrastructure\Persistence\Models\EloquentOrderLine;
 use App\Sales\Domain\Entity\Sales;
 use App\Sales\Domain\Entity\SalesLine;
 use App\Sales\Domain\Interfaces\SalesRepositoryInterface;
@@ -241,4 +240,37 @@ class EloquentSalesRepository implements SalesRepositoryInterface
     {
     return (int)($this->model->newQuery()->max('ticket_number') ?? 0) + 1;
     }
+
+public function getTodaySales(string $date): array
+{
+    $sales = DB::table('sales')
+        ->join('orders', 'sales.order_id', '=', 'orders.id')
+        ->join('users', 'sales.user_id', '=', 'users.id')
+        ->whereDate('sales.created_at', $date)
+        ->select(
+            'sales.uuid as id',
+            'sales.ticket_number',
+            'sales.total',
+            'sales.user_id',
+            'users.name as user_name',
+            'sales.created_at'
+        )
+        ->orderBy('sales.created_at', 'desc')
+        ->get()
+        ->map(function ($sale) {
+            return [
+                'id' => $sale->id,
+                'ticket_number' => $sale->ticket_number,
+                'total' => $sale->total / 100,
+                'payment_method' => 'efectivo', // Valor fijo por ahora
+                'user_id' => $sale->user_id,
+                'user_name' => $sale->user_name,
+                'created_at' => $sale->created_at
+            ];
+        })
+        ->toArray();
+        
+    return $sales;
+}
+
 }

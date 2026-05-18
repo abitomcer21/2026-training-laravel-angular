@@ -2,11 +2,11 @@
 namespace App\Sales\Domain\Interfaces;
 
 use App\Sales\Domain\Entity\Sales;
-use App\Sales\Domain\Entity\SalesLine;
 
 interface SalesRepositoryInterface
 {
     public function save(Sales $sales): void;
     public function findById(string $id): ?Sales;
     public function nextTicketNumber(): int;
+    public function getTodaySales(string $date): array;
 }

@@ -14,120 +14,149 @@
 
   <div class="main-content">
     
-    <div class="info-cards">
-      <div class="card info-card">
-        <ion-icon name="person-circle-outline" class="card-icon"></ion-icon>
-        <div class="card-content">
-          <span class="card-label">Turno / Usuario</span>
-          <span class="card-value">{{ resumenTurno.turno }} - {{ resumenTurno.usuario }}</span>
+    <div class="columna-izquierda">
+      <div class="info-cards">
+        <div class="card info-card">
+          <ion-icon name="person-circle-outline" class="card-icon"></ion-icon>
+          <div class="card-content">
+            <span class="card-label">Turno / Usuario</span>
+            <span class="card-value">{{ resumenTurno.turno }} - {{ resumenTurno.usuario }}</span>
+          </div>
         </div>
       </div>
 
-      <div class="card info-card">
-        <ion-icon name="time-outline" class="card-icon"></ion-icon>
-        <div class="card-content">
-          <span class="card-label">Apertura</span>
-          <span class="card-value">{{ formatearFecha(resumenTurno.fechaApertura) }}</span>
+      <div class="detalle-ventas">
+        <h3>
+          <ion-icon name="receipt-outline"></ion-icon>
+          Ventas del Día
+        </h3>
+        <div class="ventas-table">
+          <div class="ventas-header">
+            <span class="col-ticket">Ticket</span>
+            <span class="col-vendedor">Vendedor</span>
+            <span class="col-total">Total</span>
+            <span class="col-pago">Pago</span>
+          </div>
+          <div class="ventas-body">
+            @for (venta of ventasRegistro; track venta.ticketNumber) {
+              <div class="venta-fila">
+                <span class="col-ticket">#{{ venta.ticketNumber }}</span>
+                <span class="col-vendedor">
+                  <ion-icon name="person-outline" class="vendedor-icon"></ion-icon>
+                  {{ venta.vendedor }}
+                </span>
+                <span class="col-total">{{ venta.total | number:'1.2-2' }} €</span>
+                <span class="col-pago">
+                  <ion-icon [name]="venta.paymentMethodIcon" class="pago-icon"></ion-icon>
+                  <span class="pago-texto">{{ venta.paymentMethodName }}</span>
+                </span>
+              </div>
+            }
+          </div>
+          <div class="ventas-footer">
+            <span class="col-ticket">Total General</span>
+            <span class="col-vendedor"></span>
+            <span class="col-total total-valor">{{ resumenTurno.ventasTotales | number:'1.2-2' }} €</span>
+            <span class="col-pago"></span>
+          </div>
         </div>
       </div>
 
-      <div class="card info-card highlight">
-        <ion-icon name="trending-up-outline" class="card-icon"></ion-icon>
-        <div class="card-content">
-          <span class="card-label">Ventas Totales</span>
-          <span class="card-value total">{{ resumenTurno.ventasTotales | number:'1.2-2' }}</span>
-        </div>
-      </div>
     </div>
 
-    <div class="detalle-pagos">
-      <h3>
-        <ion-icon name="stats-chart-outline"></ion-icon>
-        Desglose de Ventas
-      </h3>
-      <div class="pagos-grid">
-        @for (metodo of metodosPago; track $index) {
-          <div class="pago-item">
+    <div class="columna-derecha">
+      
+      <div class="detalle-pagos">
+        <h3>
+          <ion-icon name="stats-chart-outline"></ion-icon>
+          Desglose por Método
+        </h3>
+        <div class="pagos-grid">
+          @for (metodo of metodosPago; track $index) {
+            <div class="pago-item">
+              <div class="pago-icon">
+                <ion-icon [name]="metodo.icono"></ion-icon>
+              </div>
+              <div class="pago-info">
+                <span class="pago-nombre">{{ metodo.nombre }}</span>
+                <strong class="pago-monto">{{ metodo.monto | number:'1.2-2' }} €</strong>
+              </div>
+            </div>
+          }
+          <div class="pago-item total-item">
             <div class="pago-icon">
-              <ion-icon [name]="metodo.icono"></ion-icon>
+              <ion-icon name="cash-outline"></ion-icon>
+              
             </div>
             <div class="pago-info">
-              <span class="pago-nombre">{{ metodo.nombre }}</span>
-              <strong class="pago-monto">{{ metodo.monto | number:'1.2-2' }}</strong>
+              <span class="pago-nombre">Total</span>
+              <strong class="pago-monto total-monto">{{ resumenTurno.ventasTotales | number:'1.2-2' }} €</strong>
             </div>
-          </div>
-        }
-        <div class="pago-item total-item">
-          <div class="pago-icon">
-            <ion-icon name="cash-outline"></ion-icon>
-          </div>
-          <div class="pago-info">
-            <span class="pago-nombre">Total General</span>
-            <strong class="pago-monto total-monto">{{ resumenTurno.ventasTotales | number:'1.2-2' }}</strong>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="cierre-form">
-      <form [formGroup]="cierreForm" (ngSubmit)="registrarCierre()">
-        <h3>
-          <ion-icon name="clipboard-outline"></ion-icon>
-          Registrar Cierre
-        </h3>
+      <div class="cierre-form">
+        <form [formGroup]="cierreForm" (ngSubmit)="registrarCierre()">
+          <h3>
+            <ion-icon name="clipboard-outline"></ion-icon>
+            Registrar Cierre
+          </h3>
 
-        <div class="form-group">
-          <label for="efectivoRegistrado">
-            <ion-icon name="cash-outline"></ion-icon>
-            Efectivo contado en caja
-          </label>
-          <div class="input-group">
-            <span class="currency-symbol">€</span>
-            <input type="number" id="efectivoRegistrado" formControlName="efectivoRegistrado" placeholder="0.00"
-              step="0.01" class="form-control">
-          </div>
-          
-          @if (cierreForm.get('efectivoRegistrado')?.invalid && cierreForm.get('efectivoRegistrado')?.touched) {
-            <div class="error-message">
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              Ingrese el monto de efectivo contado
+          <div class="form-group">
+            <label for="efectivoRegistrado">
+              <ion-icon name="cash-outline"></ion-icon>
+              Efectivo contado en caja
+            </label>
+            <div class="input-group">
+              <span class="currency-symbol">€</span>
+              <input type="number" id="efectivoRegistrado" formControlName="efectivoRegistrado" placeholder="0.00"
+                step="0.01" class="form-control">
             </div>
-          }
-        </div>
-
-        <div class="diferencia-box" 
-          [class.diferencia-positiva]="resumenTurno.diferencia >= 0"
-          [class.diferencia-negativa]="resumenTurno.diferencia < 0">
-          <div class="diferencia-label">
-            <ion-icon [name]="resumenTurno.diferencia >= 0 ? 'checkmark-circle-outline' : 'warning-outline'"></ion-icon>
-            Diferencia en caja
+            
+            @if (cierreForm.get('efectivoRegistrado')?.invalid && cierreForm.get('efectivoRegistrado')?.touched) {
+              <div class="error-message">
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                Ingrese el total de efectivo contado
+              </div>
+            }
           </div>
-          <div class="diferencia-valor">
-            {{ resumenTurno.diferencia >= 0 ? '+' : '' }}{{ resumenTurno.diferencia | number:'1.2-2' }}
-          </div>
-          <div class="diferencia-detalle">
-            Efectivo esperado: {{ resumenTurno.efectivoEsperado | number:'1.2-2' }}
-          </div>
-        </div>
 
-        <div class="form-group">
-          <label for="observaciones">
-            <ion-icon name="document-text-outline"></ion-icon>
-            Observaciones (opcional)
-          </label>
-          <textarea id="observaciones" formControlName="observaciones" rows="3"
-            placeholder="Notas, incidencias o comentarios sobre el cierre..." class="form-control"></textarea>
-        </div>
+          <div class="diferencia-box" 
+            [class.diferencia-positiva]="resumenTurno.diferencia >= 0"
+            [class.diferencia-negativa]="resumenTurno.diferencia < 0">
+            <div class="diferencia-label">
+              <ion-icon [name]="resumenTurno.diferencia >= 0 ? 'checkmark-circle-outline' : 'warning-outline'"></ion-icon>
+              Diferencia en caja
+            </div>
+            <div class="diferencia-valor">
+              {{ resumenTurno.diferencia >= 0 ? '+' : '' }}{{ resumenTurno.diferencia | number:'1.2-2' }} €
+            </div>
+            <div class="diferencia-detalle">
+              Efectivo esperado: {{ resumenTurno.efectivoEsperado | number:'1.2-2' }} €
+            </div>
+          </div>
 
-        <button type="submit" class="btn-cierre" [disabled]="isLoading">
-          <ion-icon [name]="isLoading ? 'refresh-outline' : 'checkmark-circle-outline'"></ion-icon>
-          @if (!isLoading) {
-            <span>Confirmar Cierre de Caja</span>
-          } @else {
-            <span>Procesando...</span>
-          }
-        </button>
-      </form>
+          <div class="form-group">
+            <label for="observaciones">
+              <ion-icon name="document-text-outline"></ion-icon>
+              Observaciones (opcional)
+            </label>
+            <textarea id="observaciones" formControlName="observaciones" rows="3"
+              placeholder="Notas, incidencias o comentarios sobre el cierre..." class="form-control"></textarea>
+          </div>
+
+          <button type="submit" class="btn-cierre" [disabled]="isLoading">
+            <ion-icon [name]="isLoading ? 'refresh-outline' : 'checkmark-circle-outline'"></ion-icon>
+            @if (!isLoading) {
+              <span>Confirmar Cierre de Caja</span>
+            } @else {
+              <span>Procesando...</span>
+            }
+          </button>
+        </form>
+      </div>
+
     </div>
 
     @if (cierreExitoso) {

@@ -44,13 +44,16 @@ use App\Order\Infrastructure\Entrypoint\Http\AddLinesController as OrderAddLines
 use App\Order\Infrastructure\Entrypoint\Http\PostController as OrderPostController;
 use App\Sales\Infrastructure\Entrypoint\Http\PostController as SalesPostController;
 
+use App\Sales\Infrastructure\Entrypoint\Http\PostController;
+use App\Sales\Infrastructure\Entrypoint\Http\GetTodaySalesController;
+
+
 
 Route::post('/login', LoginController::class);
 Route::post('/users', UserPostController::class);
 Route::post('/family', FamilyPostController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Users management (protegido)
     Route::get('/users', UserGetAllController::class);
     Route::get('/users/email/{email}', UserGetUserByEmailController::class);
     Route::get('/users/{id}', UserGetByIdController::class);
@@ -58,16 +61,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/users/{id}', UserDeleteController::class);
     Route::post('/users/{userUuid}/validate-pin', ValidatePinController::class);
 
-    // Family management (protegido)
     Route::get('/family', FamilyGetAllController::class);
     Route::get('/family/{id}', FamilyGetByIdController::class);
     Route::put('/family/{id}', FamilyPutController::class);
     Route::delete('/family/{id}', FamilyDeleteController::class);
     
-    // Restaurant management (protegido)
     Route::get('/my-restaurant', GetMyRestaurantController::class);
     
-    // Logout
     Route::post('/logout', LogoutController::class);
     Route::get('/auth/me', MeController::class);
 });
@@ -103,3 +103,9 @@ Route::post('/restaurants', RestaurantsPostController::class);
 Route::post('/orders', OrderPostController::class);
 Route::post('/orders/{orderId}/lines', OrderAddLinesController::class);
 Route::post('/sales', SalesPostController::class);
+
+Route::prefix('sales')->group(function () {
+    Route::get('/today', GetTodaySalesController::class);
+    
+    Route::post('/', PostController::class);
+});

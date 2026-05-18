@@ -31,9 +31,12 @@ class CreateSale
         $salesLines = [];
 
         foreach ($order->orderLines() as $orderLine) {
-            $totalCents += $orderLine->price()->cents()
-                * $orderLine->quantity()
-                * (1 + $orderLine->taxPercentage()->value() / 100);
+            $priceCents = $orderLine->price()->cents();
+            $quantity = $orderLine->quantity();
+            
+            $subtotalCents = $priceCents * $quantity;
+            
+            $totalCents += $subtotalCents;
 
             $salesLines[] = SalesLine::create(
                 $order->restaurantId(),
@@ -54,7 +57,7 @@ class CreateSale
             $order->id(),
             $userId,
             $ticketNumber,
-            Total::create((int) round($totalCents)),
+            Total::create($totalCents),
             $salesLines,
         );
 

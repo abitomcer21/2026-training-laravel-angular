@@ -33,6 +33,7 @@ use App\User\Infrastructure\Services\SanctumTokenRevoker;
 use App\Zones\Domain\Interfaces\ZonesRepositoryInterface;
 use App\Zones\Infrastructure\Persistence\Repositories\EloquentZonesRepository;
 use Illuminate\Support\ServiceProvider;
+use App\Sales\Application\GetTodaySales\GetTodaySalesHandler;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -54,6 +55,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(OrderRepositoryInterface::class, EloquentOrderRepository::class);
         $this->app->bind(TokenIssuerInterface::class, SanctumTokenIssuer::class);
         $this->app->bind(TokenRevokerInterface::class, SanctumTokenRevoker::class);
+
+        $this->app->bind(GetTodaySalesHandler::class, function ($app) {
+            return new GetTodaySalesHandler(
+                $app->make(SalesRepositoryInterface::class)
+            );
+        });
     }
 
     public function boot(): void

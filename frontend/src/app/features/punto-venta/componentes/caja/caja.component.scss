@@ -1,4 +1,4 @@
-@import '../../../../../../theme/variables.scss';
+@import '../../../../../theme/variables.scss';
 
 $bg:          #f5f5f3;
 $surface:     #ffffff;
@@ -24,13 +24,21 @@ $radius-lg: 16px;
 
 $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 :host {
-  display: flex;
-  flex-direction: column;
+  display: block;
+  width: 100%;
   height: 100%;
+  background: $bg;
 }
 
 .view-container {
+  width: 100%;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -38,6 +46,7 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   box-sizing: border-box;
   overflow: hidden;
   color: $text-primary;
+  background-color: white;
 }
 
 .view-header {
@@ -62,7 +71,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     display: flex;
     align-items: center;
     gap: 10px;
-    
 
     .header-icon {
       font-size: 20px;
@@ -89,6 +97,9 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     gap: 6px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    background: $bg;
+    padding: 6px 12px;
+    border-radius: $radius-md;
 
     ion-icon { font-size: 14px; }
   }
@@ -97,41 +108,53 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
 .main-content {
   flex: 1;
   min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto 1fr;
-  gap: 16px;
+  display: flex;
+  gap: 24px;
+  overflow: hidden;
 }
 
-.info-cards {
-  grid-column: 1;
-  grid-row: 1;
+.columna-izquierda {
+  flex: 1.2;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  border: 1px solid $border;
-  border-radius: $radius-lg;
+  gap: 20px;
   overflow: hidden;
-  background: $border;
+}
+
+.columna-derecha {
+  flex: 0.8;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+}
+
+/* Card Turno/Usuario */
+.info-cards {
   flex-shrink: 0;
 }
 
 .card.info-card {
   background: $surface;
-  border-radius: 0;
-  padding: 14px 20px;
+  border-radius: $radius-lg;
+  padding: 20px 24px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  box-shadow: none;
-  border: none;
-  transition: background 0.15s;
+  gap: 16px;
+  box-shadow: $shadow-lift;
+  border: 1px solid $border;
+  transition: all 0.2s ease;
 
-  &:hover { background: #fafaf9; }
+  &:hover { 
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.1);
+  }
 
   .card-icon {
-    font-size: 22px;
-    color: $text-muted;
+    font-size: 32px;
+    color: $accent;
     flex-shrink: 0;
   }
 
@@ -140,26 +163,30 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     display: flex;
     align-items: baseline;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 8px;
   }
 
   .card-label {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.8px;
     color: $text-muted;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .card-value {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 600;
     color: $text-primary;
+    background: $bg;
+    padding: 4px 12px;
+    border-radius: $radius-sm;
 
     &.total {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
       color: $accent;
       letter-spacing: -0.5px;
@@ -168,71 +195,207 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
 
   &.highlight {
     background: $accent-light;
+    border-color: $accent;
 
     .card-icon { color: $accent; }
   }
 }
 
-.detalle-pagos {
-  grid-column: 1;
-  grid-row: 2;
+/* Ventas del Día */
+.detalle-ventas {
+  flex: 1;
+  min-height: 0;
   background: $surface;
   border: 1px solid $border;
   border-radius: $radius-lg;
-  padding: 20px 24px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  min-height: 0;
   overflow: hidden;
+  box-shadow: $shadow-lift;
 
   h3 {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: $text-muted;
     font-weight: 600;
-    margin: 0 0 16px;
+    margin: 0 0 20px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     gap: 8px;
 
-    ion-icon { font-size: 14px; }
+    ion-icon { 
+      font-size: 18px;
+      color: $accent;
+    }
   }
 }
 
-.pagos-grid {
+.ventas-list {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  
+  /* Scrollbar personalizada */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: $bg;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $text-muted;
+    border-radius: 3px;
+    
+    &:hover {
+      background: $text-secondary;
+    }
+  }
+}
+
+.venta-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 2px solid $border;
+  font-family: 'Helvetica Neue', Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: $text-muted;
+  flex-shrink: 0;
+}
+
+.venta-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid $border-soft;
+  transition: background 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: $bg;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin: 0 -8px;
+    border-radius: $radius-sm;
+  }
+
+  .venta-ticket {
+    font-family: 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-primary;
+  }
+
+  .venta-monto {
+    font-family: 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-secondary;
+  }
+}
+
+.venta-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0 10px;
+  margin-top: 8px;
+  border-top: 2px solid $border;
+  font-family: 'Helvetica Neue', Helvetica, sans-serif;
+  font-weight: 700;
+  flex-shrink: 0;
+
+  .venta-ticket {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: $text-primary;
+  }
+
+  .venta-monto {
+    font-size: 18px;
+    color: $accent;
+  }
+}
+
+/* Desglose de Pagos */
+.detalle-pagos {
+  flex-shrink: 0;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: $shadow-lift;
+
+  h3 {
+    font-family: 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $text-muted;
+    font-weight: 600;
+    margin: 0 0 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    ion-icon { 
+      font-size: 18px;
+      color: $accent;
+    }
+  }
+}
+
+.pagos-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .pago-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 11px 0;
+  gap: 14px;
+  padding: 12px 0;
   border-bottom: 1px solid $border-soft;
-  flex-shrink: 0;
+  transition: all 0.2s;
 
-  &:last-child { border-bottom: none; }
+  &:hover {
+    transform: translateX(4px);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   .pago-icon {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     background: $bg;
-    border-radius: $radius-sm;
+    border-radius: $radius-md;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 
     ion-icon {
-      font-size: 16px;
-      color: $text-secondary;
+      font-size: 20px;
+      color: $accent;
     }
   }
 
@@ -241,51 +404,87 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     display: flex;
     align-items: baseline;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .pago-nombre {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
     color: $text-secondary;
   }
 
   .pago-monto {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     color: $text-primary;
   }
 
   &.total-item {
-    margin-top: 4px;
-    padding-top: 14px;
-    border-top: 1px solid $border;
+    margin-top: 8px;
+    padding-top: 16px;
+    border-top: 2px solid $border;
     border-bottom: none;
 
-    .pago-icon { background: $accent-light; ion-icon { color: $accent; } }
-    .pago-nombre { color: $text-primary; font-weight: 600; }
+    .pago-icon { 
+      background: $accent-light;
+      
+      ion-icon { 
+        color: $accent;
+        font-size: 22px;
+      }
+    }
+    
+    .pago-nombre { 
+      color: $text-primary;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    
     .pago-monto.total-monto {
       color: $accent;
-      font-size: 16px;
+      font-size: 20px;
     }
   }
 }
 
+/* Formulario Cierre */
 .cierre-form {
-  grid-column: 2;
-  grid-row: 1 / 3;
+  flex: 1;
+  min-height: 0;
   background: $surface;
   border: 1px solid $border;
   border-radius: $radius-lg;
   padding: 28px;
   display: flex;
   flex-direction: column;
-  min-height: 0;
   overflow-y: auto;
+  box-shadow: $shadow-lift;
+  
+  /* Scrollbar personalizada */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: $bg;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $text-muted;
+    border-radius: 3px;
+    
+    &:hover {
+      background: $text-secondary;
+    }
+  }
 
   h3 {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: $text-muted;
@@ -296,42 +495,49 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     align-items: center;
     gap: 8px;
 
-    ion-icon { font-size: 14px; }
+    ion-icon { 
+      font-size: 18px;
+      color: $accent;
+    }
   }
 
   form {
     flex: 1;
     display: flex;
     flex-direction: column;
+    gap: 20px;
   }
 }
 
 .form-group {
-  margin-bottom: 20px;
-  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 
   label {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
     font-size: 12px;
     font-weight: 600;
     color: $text-secondary;
     text-transform: uppercase;
     letter-spacing: 0.6px;
-    margin-bottom: 8px;
 
-    ion-icon { font-size: 14px; color: $text-muted; }
+    ion-icon { 
+      font-size: 16px;
+      color: $accent;
+    }
   }
 
   .input-group {
     display: flex;
     align-items: center;
-    border: 1px solid $border;
+    border: 2px solid $border;
     border-radius: $radius-md;
     background: $surface;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: all 0.2s ease;
 
     &:focus-within {
       border-color: $accent;
@@ -339,40 +545,59 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     }
 
     .currency-symbol {
-      padding: 11px 0 11px 14px;
+      padding: 12px 0 12px 16px;
       font-family: 'Helvetica Neue', Helvetica, sans-serif;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 16px;
+      font-weight: 600;
       color: $text-muted;
     }
 
     input {
       flex: 1;
       border: none;
-      padding: 11px 14px;
+      padding: 12px 16px;
       font-family: 'Helvetica Neue', Helvetica, sans-serif;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 500;
       color: $text-primary;
       outline: none;
       background: transparent;
+      
+      &::placeholder {
+        color: $text-muted;
+        font-weight: 400;
+      }
+      
+      /* Eliminar spinners de input number */
+      &[type="number"]::-webkit-inner-spin-button,
+      &[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      
+      &[type="number"] {
+        -moz-appearance: textfield;
+      }
     }
   }
 
   textarea {
     width: 100%;
     box-sizing: border-box;
-    border: 1px solid $border;
+    border: 2px solid $border;
     border-radius: $radius-md;
-    padding: 11px 14px;
+    padding: 12px 16px;
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     color: $text-primary;
     resize: vertical;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: all 0.2s ease;
     background: $surface;
 
-    &::placeholder { color: $text-muted; }
+    &::placeholder { 
+      color: $text-muted;
+      font-weight: 400;
+    }
 
     &:focus {
       outline: none;
@@ -383,27 +608,27 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
 }
 
 .error-message {
-  margin-top: 6px;
   font-family: 'Helvetica Neue', Helvetica, sans-serif;
   font-size: 12px;
   color: $danger;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  margin-top: 4px;
 
-  ion-icon { font-size: 14px; }
+  ion-icon { 
+    font-size: 14px;
+  }
 }
 
 .diferencia-box {
-  border: 1px solid $border;
+  border: 2px solid $border;
   border-radius: $radius-md;
-  padding: 18px 20px;
-  margin-bottom: 20px;
-  flex-shrink: 0;
-  transition: border-color 0.2s, background 0.2s;
+  padding: 20px;
+  transition: all 0.2s ease;
 
   &.diferencia-positiva {
-    border-color: darken($success-light, 8%);
+    border-color: $success;
     background: $success-light;
 
     .diferencia-valor { color: $success; }
@@ -411,7 +636,7 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 
   &.diferencia-negativa {
-    border-color: darken($danger-light, 8%);
+    border-color: $danger;
     background: $danger-light;
 
     .diferencia-valor { color: $danger; }
@@ -420,33 +645,35 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
 
   .diferencia-label {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    font-weight: 600;
+    font-weight: 700;
     color: $text-secondary;
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 6px;
+    gap: 8px;
+    margin-bottom: 8px;
 
-    ion-icon { font-size: 15px; }
+    ion-icon { 
+      font-size: 18px;
+    }
   }
 
   .diferencia-valor {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 32px;
-    font-weight: 700;
+    font-size: 36px;
+    font-weight: 800;
     letter-spacing: -1px;
-    line-height: 1;
-    margin-bottom: 6px;
-    color: $text-muted;
+    line-height: 1.2;
+    margin-bottom: 8px;
   }
 
   .diferencia-detalle {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     color: $text-muted;
+    font-weight: 500;
   }
 }
 
@@ -455,36 +682,40 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   background: $accent;
   color: #fff;
   border: none;
-  padding: 14px 20px;
+  padding: 16px 24px;
   border-radius: $radius-md;
   font-family: 'Helvetica Neue', Helvetica, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  transition: all 0.2s ease;
   margin-top: auto;
-  flex-shrink: 0;
 
   &:hover:not(:disabled) {
     background: $accent-hover;
-    box-shadow: 0 4px 14px rgba(61,122,79,.25);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(61, 122, 79, 0.3);
   }
 
-  &:active:not(:disabled) { transform: translateY(0); }
+  &:active:not(:disabled) { 
+    transform: translateY(0);
+  }
 
   &:disabled {
-    opacity: 0.55;
+    opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
   }
 
-  ion-icon { font-size: 18px; }
+  ion-icon { 
+    font-size: 20px;
+  }
 }
 
 .success-toast {
@@ -492,71 +723,407 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   bottom: 24px;
   right: 24px;
   background: $surface;
-  border: 1px solid darken($success-light, 8%);
-  border-left: 3px solid $success;
+  border-left: 4px solid $success;
   color: $text-primary;
-  padding: 14px 20px;
+  padding: 16px 20px;
   border-radius: $radius-md;
   display: flex;
   align-items: center;
-  gap: 14px;
-  box-shadow: $shadow-lift;
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
   z-index: 1000;
-  animation: slideIn 0.25s ease;
+  animation: slideIn 0.3s ease;
+  max-width: 320px;
 
   ion-icon {
-    font-size: 22px;
+    font-size: 28px;
     color: $success;
     flex-shrink: 0;
   }
 
   strong {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     color: $text-primary;
   }
 
   p {
-    margin: 3px 0 0;
+    margin: 4px 0 0;
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     color: $text-secondary;
   }
 }
 
 @keyframes slideIn {
-  from { transform: translateX(110%); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
+  from { 
+    transform: translateX(100%); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(0);    
+    opacity: 1; 
+  }
 }
 
-@media (max-width: 860px) {
+/* Scrollbar global */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $bg;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $text-muted;
+  border-radius: 4px;
+  
+  &:hover {
+    background: $text-secondary;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
   .view-container {
+    padding: 20px;
+  }
+  
+  .main-content {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 968px) {
+  .view-container {
+    padding: 16px;
     height: auto;
     min-height: 100vh;
     overflow-y: auto;
-    padding: 16px;
   }
 
   .main-content {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    flex: none;
+    flex-direction: column;
+    gap: 20px;
+    overflow: visible;
   }
 
-  .info-cards    { grid-column: 1; grid-row: 1; }
-  .detalle-pagos { grid-column: 1; grid-row: 2; overflow: visible; }
-  .cierre-form   { grid-column: 1; grid-row: 3; overflow: visible; }
+  .columna-izquierda,
+  .columna-derecha {
+    flex: none;
+    overflow: visible;
+  }
 
-  .pagos-grid { overflow: visible; }
+  .detalle-ventas {
+    max-height: 400px;
+  }
+
+  .cierre-form {
+    max-height: none;
+    overflow: visible;
+  }
 }
 
-@media (max-width: 480px) {
-  .view-header h1 { font-size: 18px; }
+@media (max-width: 640px) {
+  .view-container {
+    padding: 12px;
+  }
+  
+  .view-header {
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    h1 {
+      font-size: 20px;
+    }
+  }
+
+  .card.info-card {
+    flex-direction: column;
+    text-align: center;
+    
+    .card-content {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  .detalle-ventas,
+  .detalle-pagos,
+  .cierre-form {
+    padding: 20px;
+  }
+
+  .pago-item {
+    .pago-info {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+  }
+
+  .diferencia-box .diferencia-valor {
+    font-size: 28px;
+  }
+
+  .btn-cierre {
+    padding: 14px 20px;
+    font-size: 13px;
+  }
 
   .success-toast {
     left: 16px;
     right: 16px;
     bottom: 16px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .view-container {
+    padding: 12px;
+  }
+
+  .detalle-ventas,
+  .detalle-pagos,
+  .cierre-form {
+    padding: 16px;
+  }
+
+  .card.info-card {
+    padding: 16px;
+    
+    .card-icon {
+      font-size: 28px;
+    }
+    
+    .card-value {
+      font-size: 14px;
+    }
+  }
+
+  .venta-total .venta-monto {
+    font-size: 16px;
+  }
+
+  .pago-item .pago-monto {
+    font-size: 14px;
+  }
+}
+
+/* Ajustes para altura en móviles */
+@media (max-height: 700px) and (max-width: 968px) {
+  .view-container {
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .detalle-ventas {
+    max-height: 300px;
+  }
+}
+
+// Estilos para la nueva tabla de ventas
+.detalle-ventas {
+  .ventas-table {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+  
+  .ventas-header {
+    display: grid;
+    grid-template-columns: 100px 1fr 120px 130px;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 2px solid $border;
+    font-family: 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: $text-muted;
+    flex-shrink: 0;
+  }
+  
+  .ventas-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  
+  .venta-fila {
+    display: grid;
+    grid-template-columns: 100px 1fr 120px 130px;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid $border-soft;
+    align-items: center;
+    transition: background 0.2s;
+    
+    &:hover {
+      background: $bg;
+      margin: 0 -8px;
+      padding: 12px 8px;
+      border-radius: $radius-sm;
+    }
+    
+    .col-ticket {
+      font-family: 'Helvetica Neue', Helvetica, sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+    
+    .col-vendedor {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Helvetica Neue', Helvetica, sans-serif;
+      font-size: 13px;
+      color: $text-secondary;
+      
+      .vendedor-icon {
+        font-size: 16px;
+        color: $accent;
+      }
+    }
+    
+    .col-total {
+      font-family: 'Helvetica Neue', Helvetica, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+    
+    .col-pago {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .pago-icon {
+        font-size: 18px;
+      }
+      
+      .pago-texto {
+        font-family: 'Helvetica Neue', Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        color: $text-secondary;
+      }
+    }
+  }
+  
+  .ventas-footer {
+    display: grid;
+    grid-template-columns: 100px 1fr 120px 130px;
+    gap: 12px;
+    padding: 16px 0 12px;
+    margin-top: 8px;
+    border-top: 2px solid $border;
+    font-family: 'Helvetica Neue', Helvetica, sans-serif;
+    font-weight: 700;
+    flex-shrink: 0;
+    
+    .col-ticket {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: $text-primary;
+    }
+    
+    .total-valor {
+      font-size: 18px;
+      color: $accent;
+    }
+  }
+}
+
+// Colores para los métodos de pago en la tabla
+.venta-fila {
+  .col-pago {
+    [name="cash-outline"] { color: #27ae60; }
+    [name="card-outline"] { color: #2980b9; }
+    [name="swap-horizontal-outline"] { color: #8e44ad; }
+  }
+}
+
+// Responsive para la tabla
+@media (max-width: 768px) {
+  .detalle-ventas {
+    .ventas-header,
+    .venta-fila,
+    .ventas-footer {
+      grid-template-columns: 80px 1fr 100px 110px;
+      gap: 8px;
+    }
+    
+    .venta-fila {
+      .col-vendedor {
+        font-size: 12px;
+      }
+      
+      .col-total {
+        font-size: 13px;
+      }
+      
+      .col-pago .pago-texto {
+        display: none; // Ocultar texto en móviles, solo mostrar icono
+      }
+    }
+  }
+}
+
+@media (max-width: 560px) {
+  .detalle-ventas {
+    .ventas-header,
+    .venta-fila,
+    .ventas-footer {
+      grid-template-columns: 70px 1fr 90px 50px;
+    }
+    
+    .venta-fila {
+      .col-vendedor {
+        .vendedor-icon {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+// Estilos para los iconos de métodos de pago
+.venta-fila {
+  .col-pago {
+    .pago-icon {
+      font-size: 18px;
+    }
+    
+    // Icono de efectivo (verde)
+    [name="cash-outline"] { 
+      color: #27ae60; 
+    }
+    
+    // Icono de tarjeta (azul)
+    [name="card-outline"] { 
+      color: #2980b9; 
+    }
+  }
+}
+
+// En el desglose de pagos
+.detalle-pagos {
+  .pago-item {
+    .pago-icon {
+      [name="cash-outline"] { color: #27ae60; }
+      [name="card-outline"] { color: #2980b9; }
+    }
   }
 }
