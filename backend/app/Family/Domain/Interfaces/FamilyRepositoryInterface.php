@@ -15,7 +15,7 @@ interface FamilyRepositoryInterface
 
     public function delete(string $id): void;
 
-    public function allByRestaurantId(int $restaurantId): array;
+    public function findAllByRestaurant(int $restaurantId): array;
 
     public function existsByNameAndRestaurant(FamilyName $name, int $restaurantId): bool;
 }

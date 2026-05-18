@@ -64,7 +64,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
         $this->model->newQuery()->where('uuid', $id)->delete();
     }
 
-    public function allByRestaurantId(int $restaurantId): array
+    public function findAllByRestaurant(int $restaurantId): array
     {
         return $this->model->newQuery()->where('restaurant_id', $restaurantId)->get()->map(
             fn (EloquentFamily $family): Family => Family::fromPersistence(

@@ -118,52 +118,45 @@ export class FamiliasComponent implements OnInit {
     }
 
     cargarFamilias() {
-        this.familiasLoading = true;
-        const userData = this.authService.getUserData();
-        const userRestaurantId = userData?.restaurant_id;
+    this.familiasLoading = true;
+    const userData = this.authService.getUserData();
+    const userRestaurantId = userData?.restaurant_id;
 
-        this.familyService.getFamilies().subscribe({
-            next: (response: any) => {
-                let families: any[] = [];
-                if (Array.isArray(response)) {
-                    families = response;
-                } else if (response?.family && Array.isArray(response.family)) {
-                    families = response.family;
-                } else if (response?.Family && Array.isArray(response.Family)) {
-                    families = response.Family;
-                } else if (response?.data && Array.isArray(response.data)) {
-                    families = response.data;
-                } else {
-                    families = [];
-                }
-                families = families.map(f => {
-                    if (!f.database_id && f.id && !isNaN(Number(f.id))) {
-                        return { ...f, database_id: Number(f.id) };
-                    }
-                    return f;
-                });
+    this.familyService.getFamilies().subscribe({
+        next: (response: any) => {
+            let families: any[] = [];
 
-                if (userRestaurantId) {
-                    this.families = families.filter(family => family.restaurant_id === userRestaurantId);
-                } else {
-                    this.families = families;
-                }
+            if (Array.isArray(response)) {
+                families = response;
+            } else if (response?.families && Array.isArray(response.families)) {
+                families = response.families;
+            } else if (response?.data && Array.isArray(response.data)) {
+                families = response.data;
+            } else {
+                families = [];
+            }
 
-                this.familiasFiltradas = [...this.families];
-                this.familiasCargadas = true;
-                this.familiasLoading = false;
-                this.dataCacheService.setFamiliesCache(this.families);
-                this.cd.detectChanges();
-            },
-            error: (error) => {
-                console.error('Error al cargar familias:', error);
-                this.families = [];
-                this.familiasFiltradas = [];
-                this.familiasCargadas = false;
-                this.familiasLoading = false;
-            },
-        });
-    }
+            if (userRestaurantId) {
+                this.families = families.filter(family => family.restaurant_id === userRestaurantId);
+            } else {
+                this.families = families;
+            }
+
+            this.familiasFiltradas = [...this.families];
+            this.familiasCargadas = true;
+            this.familiasLoading = false;
+            this.dataCacheService.setFamiliesCache(this.families);
+            this.cd.detectChanges();
+        },
+        error: (error) => {
+            console.error('Error al cargar familias:', error);
+            this.families = [];
+            this.familiasFiltradas = [];
+            this.familiasCargadas = false;
+            this.familiasLoading = false;
+        },
+    });
+}
 
     buscarFamilias() {
         if (!this.terminoBusquedaFamily) {

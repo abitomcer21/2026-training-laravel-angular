@@ -2,13 +2,12 @@
 
 namespace App\Family\Application\Handler;
 
+use App\Family\Domain\Entity\Family;
 use App\Family\Application\Command\CreateFamilyCommand;
 use App\Family\Application\Response\CreateFamilyResponse;
-use App\Family\Domain\Entity\Family;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
-use App\Family\Domain\ValueObject\FamilyName;
-use App\Family\Domain\ValueObject\FamilyStatus;
 use App\Family\Domain\Services\UniqueFamilyName;
+use App\Family\Domain\ValueObject\FamilyName;
 
 class CreateFamilyHandler
 {
@@ -19,12 +18,11 @@ class CreateFamilyHandler
 
     public function __invoke(CreateFamilyCommand $command): CreateFamilyResponse
     {
-        $name   = FamilyName::create($command->name);
-        $status = FamilyStatus::create($command->active);
+        $name = FamilyName::create($command->name);
 
         $this->uniqueFamilyName->check($name, $command->restaurantId);
 
-        $family = Family::dddCreate($name, $status, $command->restaurantId);
+        $family = Family::dddCreate($name, $command->active, $command->restaurantId);
 
         $this->familyRepository->save($family);
 

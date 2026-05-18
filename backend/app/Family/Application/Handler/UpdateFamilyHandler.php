@@ -7,59 +7,34 @@ use App\Family\Application\Response\UpdateFamilyResponse;
 use App\Family\Domain\Exceptions\FamilyNotFoundException;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
 use App\Family\Domain\ValueObject\FamilyName;
-use App\Family\Domain\ValueObject\FamilyStatus;
-use App\Products\Domain\Interfaces\ProductRepositoryInterface;
-use App\Products\Domain\ValueObject\ProductStatus;
+use App\Family\Domain\Services\SyncProductsStatus;
 
 class UpdateFamilyHandler
-
 {
     public function __construct(
         private FamilyRepositoryInterface $familyRepository,
-        private ProductRepositoryInterface $productRepository,
+        private SyncProductsStatus $syncProductsStatus,
     ) {}
 
     public function __invoke(UpdateFamilyCommand $command): UpdateFamilyResponse
     {
         $family = $this->familyRepository->findById($command->id);
 
-        if (! $family) {
-            throw new FamilyNotFoundException($command->id);
+        if ($family === null) {
+            throw new FamilyNotFoundException();
         }
 
-        $nameVO   = $command->name !== null
-            ? FamilyName::create($command->name)
-            : $family->name();
+        $name   = $command->name !== null ? FamilyName::create($command->name) : $family->name();
+        $active = $command->active !== null ? $command->active : $family->active();
 
-        $statusVO = $command->status !== null
-            ? FamilyStatus::create($command->status)
-            : $family->status();
+        $updatedFamily = $family->updateData($name, $active);
 
-        $updatedFamily = $family->updateData($nameVO, $statusVO);
         $this->familyRepository->save($updatedFamily);
 
-        if ($command->status !== null) {
-            $this->syncProductsStatus($command->id, $command->status);
+        if ($command->active !== null) {
+            ($this->syncProductsStatus)($command->id, $command->active);
         }
 
         return UpdateFamilyResponse::create($updatedFamily);
-    }
-
-    private function syncProductsStatus(string $familyId, bool $status): void
-    {
-        $products = $this->productRepository->findByFamilyId($familyId);
-
-        foreach ($products as $product) {
-            $updatedProduct = $product->updateData(
-                $product->familyId(),
-                $product->taxId(),
-                $product->name(),
-                $product->price(),
-                $product->stock(),
-                $product->imageSrc(),
-                ProductStatus::create($status),
-            );
-            $this->productRepository->save($updatedProduct);
-        }
     }
 }

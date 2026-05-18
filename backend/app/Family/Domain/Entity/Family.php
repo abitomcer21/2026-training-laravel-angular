@@ -3,7 +3,6 @@
 namespace App\Family\Domain\Entity;
 
 use App\Family\Domain\ValueObject\FamilyName;
-use App\Family\Domain\ValueObject\FamilyStatus;
 use App\Shared\Domain\ValueObject\DomainDateTime;
 use App\Shared\Domain\ValueObject\Uuid;
 
@@ -12,20 +11,20 @@ class Family
     private function __construct(
         private Uuid $id,
         private FamilyName $name,
-        private FamilyStatus $status,
+        private bool $active,
         private int $restaurantId,
         private DomainDateTime $createdAt,
         private DomainDateTime $updatedAt,
     ) {}
 
-    public static function dddCreate(FamilyName $name, FamilyStatus $status, int $restaurantId): self
+    public static function dddCreate(FamilyName $name, bool $active, int $restaurantId): self
     {
         $now = DomainDateTime::now();
 
         return new self(
             Uuid::generate(),
             $name,
-            $status,
+            $active,
             $restaurantId,
             $now,
             $now,
@@ -43,21 +42,19 @@ class Family
         return new self(
             Uuid::create($id),
             FamilyName::create($name),
-            FamilyStatus::create($active),
+            $active,
             $restaurantId,
             DomainDateTime::create($createdAt),
             DomainDateTime::create($updatedAt),
         );
     }
 
-    public function updateData(
-        FamilyName $name,
-        FamilyStatus $status
-    ): self {
+    public function updateData(FamilyName $name, bool $active): self
+    {
         return new self(
             $this->id,
             $name,
-            $status,
+            $active,
             $this->restaurantId,
             $this->createdAt,
             DomainDateTime::now(),
@@ -74,9 +71,9 @@ class Family
         return $this->name;
     }
 
-    public function status(): FamilyStatus
+    public function active(): bool
     {
-        return $this->status;
+        return $this->active;
     }
 
     public function restaurantId(): int

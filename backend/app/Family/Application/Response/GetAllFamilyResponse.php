@@ -6,36 +6,36 @@ use App\Family\Domain\Entity\Family;
 
 final readonly class GetAllFamilyResponse
 {
-    public function __construct(
-        public array $family,
-        public int $total,
+    private function __construct(
+        private array $families,
+        private int $total,
     ) {}
 
-    public static function create(array $family): self
+    public static function create(array $families): self
     {
-        $FamilyData = array_map(
+        $familyData = array_map(
             static fn (Family $family): array => [
-                'id' => $family->id()->value(),
-                'name' => $family->name()->value(),
-                'active' => $family->status()->isActive(),
+                'id'=> $family->id()->value(),
+                'name'=> $family->name()->value(),
+                'active' => $family->active(),
                 'restaurant_id' => $family->restaurantId(),
-                'created_at' => $family->createdAt()->format(\DateTimeInterface::ATOM),
-                'updated_at' => $family->updatedAt()->format(\DateTimeInterface::ATOM),
+                'created_at'=> $family->createdAt()->format(\DateTimeInterface::ATOM),
+                'updated_at'=> $family->updatedAt()->format(\DateTimeInterface::ATOM),
             ],
-            $family,
+            $families,
         );
 
         return new self(
-            family: $FamilyData,
-            total: count($FamilyData),
+            families: $familyData,
+            total: count($familyData),
         );
     }
 
     public function toArray(): array
     {
         return [
-            'Family' => $this->family,
-            'total' => $this->total,
+            'families' => $this->families,
+            'total'=> $this->total,
         ];
     }
 }
