@@ -31,10 +31,6 @@
   color: var(--text-light);
 }
 
-.refresh-button {
-  min-width: 130px;
-}
-
 .sections-container {
   display: grid;
   grid-template-columns: 1fr;
@@ -49,7 +45,7 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-  height: 200%;
+  height: 90vh;
 }
 
 .section-header {
@@ -456,4 +452,9 @@ ion-badge.paid {
   .order-card-row ion-badge {
     align-self: flex-start;
   }
+}
+
+
+h1{
+  padding-bottom: 20px;
 }

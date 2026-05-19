@@ -1,12 +1,17 @@
-# 2026 Training: Laravel + Angular Starter Kit
+# 2026 Training: TPV (Terminal Punto de Venta)
 
-Este repositorio sirve como proyecto base para prácticas de desarrollo backend y frontend, con **Laravel 12** en el backend y **Angular + Ionic** en el frontend.
+> **Proyecto:** Sistema TPV para hostelería con Laravel + Angular + Ionic  
+> **Autor:** Abigail Tomás  
+> **Período de prácticas:** Marzo - Junio 2026  
+> **Actualizado a fecha de :** 19 de Mayo 2026  
 
 
 ---
-
 ## Índice
 
+- [Estado del proyecto](#estado-del-proyecto)
+  - [Trabajo realizado por hito](#trabajo-realizado-por-hito)
+  - [Mejoras implementadas](#mejoras-implementadas-hito-6---en-proceso)
 - [Prerrequisitos](#prerrequisitos)
 - [Cómo empezar](#cómo-empezar)
 - [Estructura del proyecto](#estructura-del-proyecto)
@@ -16,6 +21,86 @@ Este repositorio sirve como proyecto base para prácticas de desarrollo backend 
 - [Objetivos de aprendizaje](#objetivos-de-aprendizaje)
 - [Buenas prácticas](#buenas-prácticas)
 - [Estilo de código](#estilo-de-código)
+
+---
+
+
+## Estado del proyecto - Hitos completados
+
+| Hito | Estado | Descripción |
+|------|--------|-------------|
+| Hito 1 | COMPLETADO | Modelo de datos (migraciones, seeders, relaciones) |
+| Hito 2 | COMPLETADO | API REST: Backoffice (CRUD, autenticación) |
+| Hito 3 | COMPLETADO | Interfaz Backoffice (gestión de entidades) |
+| Hito 4 | COMPLETADO | Front de venta TPV (mesas, productos, ventas) |
+| Hito 5 | PENDIENTE | Informes (opcional) |
+| Hito 6 | EN PROCESO | Mejoras funcionales (5 implementadas + CQRS en curso) |
+
+### Trabajo realizado por hito
+
+**Hito 1 - Modelo de datos** (COMPLETADO)
+- Migraciones para todas las entidades (familias, impuestos, productos, zonas, mesas, ventas, lineas)
+- Seeders con datos de prueba
+- Soft deletes implementados
+
+**Hito 2 - API REST: Backoffice** (COMPLETADO)
+- Autenticacion de usuarios (sesion/token)
+- CRUD completo para familias, impuestos, productos, zonas, mesas
+- Activacion/desactivacion de productos y familias
+- Validaciones y respuestas de error
+
+**Hito 3 - Interfaz Backoffice** (COMPLETADO)
+- Diseño previo de pantallas
+- Vistas para gestionar todas las entidades
+- Formularios con validacion
+
+**Hito 4 - Front de venta (TPV)** (COMPLETADO)
+- Vista principal con zonas y mesas (colores segun estado)
+- Apertura de venta: seleccion de usuario, numero de comensales
+- Gestion de venta: productos por familia, modificar cantidades, eliminar lineas
+- Cierre de venta: usuario, calculo total, numero de ticket, liberacion de mesa
+
+### Mejoras implementadas (Hito 6 - En proceso)
+
+#### Mejoras funcionales (5 implementadas)
+
+| Mejora | Estado | Descripcion |
+|--------|--------|-------------|
+| Roles de usuario | COMPLETADO | Administrador, Supervisor, Camarero y Chef con permisos diferenciados |
+| Autenticacion por PIN | COMPLETADO | Solicitud de PIN en lugar de selector de usuario (diseño tactil) |
+| Division de cuenta | COMPLETADO | Calculo automatico del importe por comensal y reflejo en ticket |
+| Metodos de pago | COMPLETADO | Efectivo, tarjeta, pago mixto (varios metodos por venta) |
+| Cierre de caja | COMPLETADO | Registro diario: total ventas y desglose por metodo de pago |
+
+#### Mejoras tecnicas en curso (CQRS)
+
+Se esta implementando **CQRS** (Command Query Responsibility Segregation) en los dominios del backend:
+
+| Componente | Estado | Descripcion |
+|------------|--------|-------------|
+| Commands | EN PROCESO | Separacion de operaciones de escritura |
+| Queries | EN PROCESO | Separacion de operaciones de lectura |
+| Command Handlers | EN PROCESO | Manejo especifico para cada comando |
+| Query Handlers | EN PROCESO | Manejo especifico para cada consulta |
+
+**Estado por dominio:**
+
+| Dominio | Commands | Queries | Estado |
+|---------|----------|---------|--------|
+| User | COMPLETADO | COMPLETADO | Completado |
+| Table/Mesa | COMPLETADO | COMPLETADO | Completado |
+| Product | COMPLETADO | EN PROCESO | En proceso |
+| Sale/Venta | EN PROCESO | PENDIENTE | Pendiente |
+
+### Tecnologias utilizadas
+
+| Capa | Tecnologia |
+|------|------------|
+| Backend | Laravel 12, PHP 8.x |
+| Frontend | Angular 20, Ionic |
+| Base de datos | MySQL |
+| Contenedores | Docker + Docker Compose |
+| Herramientas | Make, Git |
 
 ---
 

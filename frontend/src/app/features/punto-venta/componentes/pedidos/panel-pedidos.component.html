@@ -5,11 +5,6 @@
         <h1>Pedidos</h1>
       </div>
     </div>
-
-    <ion-button size="small" fill="outline" class="refresh-button" (click)="refreshOrders()">
-      <ion-icon slot="start" name="refresh-outline"></ion-icon>
-      Actualizar
-    </ion-button>
   </div>
 
   <div class="sections-container">
@@ -24,8 +19,7 @@
 
       <div class="section-body">
         <div *ngIf="kitchenOrders.length === 0" class="empty-state">
-          <ion-icon name="fast-food-outline"></ion-icon>
-          <p>No hay pedidos en cocina.</p>
+          <p>No hay pedidos en preparación.</p>
         </div>
 
         <div class="order-list" *ngIf="kitchenOrders.length > 0">
