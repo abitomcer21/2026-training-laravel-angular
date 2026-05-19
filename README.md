@@ -2,8 +2,8 @@
 
 > **Proyecto:** Sistema TPV para hostelería con Laravel + Angular + Ionic  
 > **Autor:** Abigail Tomás  
-> **Período de prácticas:** Marzo - Junio 2026  
-> **Actualizado a fecha de :** 19 de Mayo 2026
+> **Periodo de prácticas:** Marzo - Junio 2026  
+> **Actualizado a fecha de :** 19 de Mayo 2026  
 
 Este proyecto consiste en un **Terminal Punto de Venta (TPV)** diseñado específicamente para el sector de la hostelería. Permite gestionar la operativa diaria de un negocio: control de mesas y zonas, gestión de productos y familias, registro de ventas, y generación de tickets.
 

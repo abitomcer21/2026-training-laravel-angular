@@ -29,7 +29,7 @@ interface PedidoActivo {
   templateUrl: './panel-pedidos.component.html',
   styleUrls: ['./panel-pedidos.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonIcon, IonButton, IonBadge, IonModal, IonContent]
+  imports: [CommonModule, IonIcon, IonBadge, IonModal, IonContent]
 })
 export class PedidosComponent implements OnInit {
   @Output() openTable = new EventEmitter<string>();

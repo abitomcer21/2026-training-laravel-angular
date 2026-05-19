@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import {
   IonIcon,
-  IonLoading,
   IonButton,
   IonBadge,
   IonSpinner,
