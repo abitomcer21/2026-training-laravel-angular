@@ -30,7 +30,7 @@
       @switch (currentView) {
       @case ('mesas') {<app-mesas (vistaChange)="selectView($any($event))" />}
       @case ('productos') {<app-productos (cambiarVista)="selectView($any($event))" />}
-      @case ('pedidos') {<app-pedidos />}
+      @case ('pedidos') {<app-pedidos (openTable)="openTableFromOrder($any($event))" />}
       @case ('caja') {<app-caja />}
       }
     </div>

@@ -22,6 +22,7 @@ export interface CurrentOrder {
 
 export interface EstadoPedidoCompleto {
   order: CurrentOrder;
+  orderId?: string | null;
   pedidoInicialEnviado: boolean;
   itemsEnviadosACocina: OrderItem[];
   articulosPagados: { [key: string]: boolean };
@@ -488,6 +489,7 @@ export class OrderStateService {
 
     const estadoCompleto: EstadoPedidoCompleto = {
       order: this.currentOrder$.value,
+      orderId: this.orderId$.value,
       pedidoInicialEnviado: this.pedidoInicialEnviado,
       itemsEnviadosACocina: this.itemsEnviadosACocina,
       articulosPagados: this.articulosPagados,
@@ -506,6 +508,9 @@ export class OrderStateService {
         const state = JSON.parse(stored) as EstadoPedidoCompleto;
         if (!state.order?.items || state.order.items.length === 0) return null;
         if (state.order.items.length > 0 && state.totalPorPagar === 0) return null;
+        if (state.orderId) {
+          this.orderId$.next(state.orderId);
+        }
         return state;
       } catch (e) {
         return null;

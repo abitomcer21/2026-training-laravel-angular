@@ -115,8 +115,10 @@ export class OrderService {
     return this.http.post(`${this.apiUrl}/cierre-caja`, cierreData);
   }
 
-  addOrderLines(orderId: number, lines: any[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/orders/${orderId}/lines`, { lines });
+  addOrderLines(orderId: string, lines: any[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/orders/${orderId}/lines`, {
+      order_lines: lines,
+    });
   }
 
   etOrdersByDateRange(startDate: Date, endDate: Date): Observable<any> {

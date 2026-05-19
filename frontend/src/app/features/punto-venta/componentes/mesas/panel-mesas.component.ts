@@ -24,8 +24,8 @@ import { ZoneService, Zone } from '../../../../services/api/zone.service';
 
 @Component({
   selector: 'app-mesas',
-  templateUrl: './mesas.component.html',
-  styleUrls: ['./mesas.component.scss'],
+  templateUrl: './panel-mesas.component.html',
+  styleUrls: ['./panel-mesas.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -267,6 +267,31 @@ agregarDigito(digito: string) {
   getTableOccupiedInfo(mesa: Table): { comensales: number; total: number } | null {
     return this.orderStateService.getTableOccupiedInfo(String(mesa.id));
   }
+
+  openTable(tableId: string): void {
+    const mesa = this.mesas.find(
+      (m) => String(m.id) === tableId || String(m.uuid) === tableId,
+    );
+
+    if (mesa) {
+      this.seleccionarMesa(mesa);
+      return;
+    }
+
+    if (!this.cargando) {
+      this.cargarMesas();
+    }
+
+    setTimeout(() => {
+      const found = this.mesas.find(
+        (m) => String(m.id) === tableId || String(m.uuid) === tableId,
+      );
+      if (found) {
+        this.seleccionarMesa(found);
+      }
+    }, 300);
+  }
+
   refrescarMesas() {
     this.cargarMesas();
   }

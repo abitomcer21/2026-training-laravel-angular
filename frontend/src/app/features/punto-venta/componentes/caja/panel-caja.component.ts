@@ -30,8 +30,8 @@ import {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule], 
   schemas: [CUSTOM_ELEMENTS_SCHEMA],  
-  templateUrl: './caja.component.html',
-  styleUrls: ['./caja.component.scss']
+  templateUrl: './panel-caja.component.html',
+  styleUrls: ['./panel-caja.component.scss']
 })
 export class CajaComponent implements OnInit {
   

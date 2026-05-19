@@ -10,10 +10,10 @@ import {
   gridOutline, restaurantOutline, listOutline, cashOutline, logOutOutline, optionsOutline
 } from 'ionicons/icons';
 
-import { MesasComponent } from '../../features/punto-venta/componentes/mesas/mesas.component';
+import { MesasComponent } from '../../features/punto-venta/componentes/mesas/panel-mesas.component';
 import { ProductosComponent } from '../../features/punto-venta/componentes/productos/panel-productos.component';
-import { PedidosComponent } from '../../features/punto-venta/componentes/pedidos/pedidos.component';
-import { CajaComponent } from '../../features/punto-venta/componentes/caja/caja.component';
+import { PedidosComponent } from '../../features/punto-venta/componentes/pedidos/panel-pedidos.component';
+import { CajaComponent } from '../../features/punto-venta/componentes/caja/panel-caja.component';
 import { RestaurantService } from '../../services/api/restaurant.service';
 
 interface MenuItem {
@@ -96,6 +96,10 @@ export class PuntoVentaPage implements OnInit {
         this.mesasComponent?.refrescarMesas();
       }, 0);
     }
+  }
+
+  openTableFromOrder(tableId: string) {
+    this.currentView = 'productos';
   }
 
   logout() {

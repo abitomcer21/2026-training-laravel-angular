@@ -131,7 +131,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   overflow: hidden;
 }
 
-/* Card Turno/Usuario */
 .info-cards {
   flex-shrink: 0;
 }
@@ -201,7 +200,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 }
 
-/* Ventas del Día */
 .detalle-ventas {
   flex: 1;
   min-height: 0;
@@ -242,7 +240,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   flex-direction: column;
   gap: 8px;
   
-  /* Scrollbar personalizada */
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -330,7 +327,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 }
 
-/* Desglose de Pagos */
 .detalle-pagos {
   flex-shrink: 0;
   background: $surface;
@@ -450,7 +446,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 }
 
-/* Formulario Cierre */
 .cierre-form {
   flex: 1;
   min-height: 0;
@@ -463,7 +458,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   overflow-y: auto;
   box-shadow: $shadow-lift;
   
-  /* Scrollbar personalizada */
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -568,7 +562,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
         font-weight: 400;
       }
       
-      /* Eliminar spinners de input number */
       &[type="number"]::-webkit-inner-spin-button,
       &[type="number"]::-webkit-outer-spin-button {
         -webkit-appearance: none;
@@ -787,7 +780,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 }
 
-/* Responsive Design */
 @media (max-width: 1200px) {
   .view-container {
     padding: 20px;
@@ -917,7 +909,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 }
 
-/* Ajustes para altura en móviles */
 @media (max-height: 700px) and (max-width: 968px) {
   .view-container {
     height: auto;
@@ -929,7 +920,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 }
 
-// Estilos para la nueva tabla de ventas
 .detalle-ventas {
   .ventas-table {
     display: flex;
@@ -1046,7 +1036,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 }
 
-// Colores para los métodos de pago en la tabla
 .venta-fila {
   .col-pago {
     [name="cash-outline"] { color: #27ae60; }
@@ -1055,7 +1044,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 }
 
-// Responsive para la tabla
 @media (max-width: 768px) {
   .detalle-ventas {
     .ventas-header,
@@ -1075,7 +1063,7 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
       }
       
       .col-pago .pago-texto {
-        display: none; // Ocultar texto en móviles, solo mostrar icono
+        display: none;
       }
     }
   }
@@ -1099,26 +1087,22 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   }
 }
 
-// Estilos para los iconos de métodos de pago
 .venta-fila {
   .col-pago {
     .pago-icon {
       font-size: 18px;
     }
     
-    // Icono de efectivo (verde)
     [name="cash-outline"] { 
       color: #27ae60; 
     }
     
-    // Icono de tarjeta (azul)
     [name="card-outline"] { 
       color: #2980b9; 
     }
   }
 }
 
-// En el desglose de pagos
 .detalle-pagos {
   .pago-item {
     .pago-icon {

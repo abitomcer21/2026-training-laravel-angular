@@ -560,9 +560,10 @@ export class ProductosComponent implements OnInit {
       this.orderService.createOrder(payload).subscribe({
         next: (response: any) => {
           const orderId =
-            response.id ||
-            response.orderId ||
-            response.data?.id ||
+            response.id ??
+            response.order_id ??
+            response.orderId ??
+            response.data?.id ??
             response.order?.id;
 
           this.orderStateService.setOrderId(orderId);
@@ -611,6 +612,12 @@ export class ProductosComponent implements OnInit {
       }
 
       const orderId = this.orderStateService.getOrderIdValue();
+
+      if (!orderId) {
+        this.mostrarToast('ID de pedido no disponible', 'danger', 3000);
+        return;
+      }
+
       const addLinesPayload = nuevosItems.map((item) => ({
         product_id: item.productId,
         user_id: this.currentOrder.user!.id,
@@ -619,9 +626,7 @@ export class ProductosComponent implements OnInit {
         tax_percentage: item.iva || 0,
       }));
 
-      this.orderService
-        .addOrderLines(Number(orderId), addLinesPayload)
-        .subscribe({
+      this.orderService.addOrderLines(orderId, addLinesPayload).subscribe({
           next: () => {
             this.itemsEnviadosACocina = [...this.currentOrder.items];
             this.orderStateService.setPedidoInicialEnviado(
