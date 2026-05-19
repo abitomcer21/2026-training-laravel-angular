@@ -3,10 +3,17 @@
 > **Proyecto:** Sistema TPV para hostelería con Laravel + Angular + Ionic  
 > **Autor:** Abigail Tomás  
 > **Período de prácticas:** Marzo - Junio 2026  
-> **Actualizado a fecha de :** 19 de Mayo 2026  
+> **Actualizado a fecha de :** 19 de Mayo 2026
 
+Este proyecto consiste en un **Terminal Punto de Venta (TPV)** diseñado específicamente para el sector de la hostelería. Permite gestionar la operativa diaria de un negocio: control de mesas y zonas, gestión de productos y familias, registro de ventas, y generación de tickets.
 
----
+El sistema está compuesto por dos partes diferenciadas:
+- **Panel de gestión**: Área de administración para gestionar la configuración del negocio (productos, impuestos, zonas, mesas, usuarios)
+- **Front de venta (TPV)**: Interfaz táctil para el uso diario del personal, donde se gestionan aperturas de mesa, pedidos y cierres de venta
+El diseño está enfocado a que sea fácil de utilizar por cualquier usuario, priorizando la intuición y la rapidez en el día a día del local.
+
+Este proyecto es el trabajo desarrollado durante el periodo de prácticas, aplicando enfoques como DDD (Domain-Driven Design), arquitectura hexagonal y, actualmente, CQRS.
+
 ## Índice
 
 - [Estado del proyecto](#estado-del-proyecto)
@@ -83,15 +90,12 @@ Se esta implementando **CQRS** (Command Query Responsibility Segregation) en los
 | Command Handlers | EN PROCESO | Manejo especifico para cada comando |
 | Query Handlers | EN PROCESO | Manejo especifico para cada consulta |
 
+
 **Estado por dominio:**
 
-| Dominio | Commands | Queries | Estado |
-|---------|----------|---------|--------|
-| User | COMPLETADO | COMPLETADO | Completado |
-| Table/Mesa | COMPLETADO | COMPLETADO | Completado |
-| Product | COMPLETADO | EN PROCESO | En proceso |
-| Sale/Venta | EN PROCESO | PENDIENTE | Pendiente |
-
+- **Familia**: Commands COMPLETADO, Queries COMPLETADO (Completado)
+- **Producto**: Commands EN PROCESO, Queries PENDIENTE (En proceso)
+- **Resto de dominios** (Usuario, Restaurante, Zona, Mesa, Impuesto, Pedido, Venta): Commands PENDIENTE, Queries PENDIENTE (Pendiente)
 ### Tecnologias utilizadas
 
 | Capa | Tecnologia |
