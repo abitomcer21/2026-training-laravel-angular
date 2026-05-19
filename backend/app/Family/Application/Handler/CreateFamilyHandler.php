@@ -7,7 +7,6 @@ use App\Family\Application\Command\CreateFamilyCommand;
 use App\Family\Application\Response\CreateFamilyResponse;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
 use App\Family\Domain\Services\UniqueFamilyName;
-use App\Family\Domain\ValueObject\FamilyName;
 
 class CreateFamilyHandler
 {
@@ -18,14 +17,12 @@ class CreateFamilyHandler
 
     public function __invoke(CreateFamilyCommand $command): CreateFamilyResponse
     {
-        $name = FamilyName::create($command->name);
+    $this->uniqueFamilyName->check($command->name, $command->restaurantId);
 
-        $this->uniqueFamilyName->check($name, $command->restaurantId);
+    $family = Family::dddCreate($command->name, $command->active, $command->restaurantId);
 
-        $family = Family::dddCreate($name, $command->active, $command->restaurantId);
+    $this->familyRepository->save($family);
 
-        $this->familyRepository->save($family);
-
-        return CreateFamilyResponse::create($family);
+    return CreateFamilyResponse::create($family);
     }
 }

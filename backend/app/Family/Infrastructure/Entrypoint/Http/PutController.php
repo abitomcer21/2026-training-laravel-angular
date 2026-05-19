@@ -24,7 +24,7 @@ class PutController
         try {
             $validated = $request->validate(self::VALIDATION_RULES);
 
-            $command = new UpdateFamilyCommand(
+            $command = UpdateFamilyCommand::create(
                 id:     $id,
                 name:   $validated['name'] ?? null,
                 active: $validated['active'] ?? null,
@@ -35,7 +35,7 @@ class PutController
             return new JsonResponse($response->toArray(), 200);
 
         } catch (\Throwable $e) {
-            return new JsonResponse(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 500);
+            return ExceptionResponseResolver::resolve($e);
         }
     }
 }

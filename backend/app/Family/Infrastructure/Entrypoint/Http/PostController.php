@@ -36,12 +36,12 @@ class PostController
             $validated = $validator->validated();
 
             $response = ($this->createFamilyHandler)(
-                new CreateFamilyCommand(
-                name:         $validated['name'],
-                active:       $validated['active'],
-                restaurantId: $validated['restaurant_id'],
-            ),
-            );
+        CreateFamilyCommand::create(
+        name:         $validated['name'],
+        active:       $validated['active'],
+        restaurantId: $validated['restaurant_id'],
+        ),
+    );
 
             return new JsonResponse($response->toArray(), 201);
 

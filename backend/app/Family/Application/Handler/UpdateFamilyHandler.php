@@ -6,34 +6,28 @@ use App\Family\Application\Command\UpdateFamilyCommand;
 use App\Family\Application\Response\UpdateFamilyResponse;
 use App\Family\Domain\Exceptions\FamilyNotFoundException;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
-use App\Family\Domain\ValueObject\FamilyName;
-use App\Family\Domain\Services\SyncProductsStatus;
+use App\Family\Domain\Services\FamilyUpdater;
 
 class UpdateFamilyHandler
 {
     public function __construct(
         private FamilyRepositoryInterface $familyRepository,
-        private SyncProductsStatus $syncProductsStatus,
+        private FamilyUpdater $familyUpdater,
     ) {}
 
     public function __invoke(UpdateFamilyCommand $command): UpdateFamilyResponse
     {
-        $family = $this->familyRepository->findById($command->id);
+        $family = $this->familyRepository->findById($command->id->value());
 
         if ($family === null) {
-            throw new FamilyNotFoundException();
+            throw new FamilyNotFoundException($command->id->value());
         }
 
-        $name   = $command->name !== null ? FamilyName::create($command->name) : $family->name();
-        $active = $command->active !== null ? $command->active : $family->active();
-
-        $updatedFamily = $family->updateData($name, $active);
-
-        $this->familyRepository->save($updatedFamily);
-
-        if ($command->active !== null) {
-            ($this->syncProductsStatus)($command->id, $command->active);
-        }
+        $updatedFamily = $this->familyUpdater->update(
+            family: $family,
+            name:   $command->name,
+            active: $command->active,
+        );
 
         return UpdateFamilyResponse::create($updatedFamily);
     }

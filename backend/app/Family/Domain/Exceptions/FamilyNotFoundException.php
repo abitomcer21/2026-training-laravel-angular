@@ -2,7 +2,7 @@
 
 namespace App\Family\Domain\Exceptions;
 
-class FamilyNotFoundException extends \Exception
+class FamilyNotFoundException extends \DomainException
 {
     private string $familyId;
 
