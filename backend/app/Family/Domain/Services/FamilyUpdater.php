@@ -23,7 +23,7 @@ class FamilyUpdater
         $this->familyRepository->save($updatedFamily);
 
         if ($active !== null) {
-            ($this->syncProductsStatus)($family->id()->value(), $active);
+            $this->syncProductsStatus->sync($family->id()->value(), $active);
         }
 
         return $updatedFamily;
