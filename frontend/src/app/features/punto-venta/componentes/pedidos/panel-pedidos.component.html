@@ -18,33 +18,41 @@
       </div>
 
       <div class="section-body">
-        <div *ngIf="kitchenOrders.length === 0" class="empty-state">
-          <p>No hay pedidos en preparación.</p>
-        </div>
+        @if (kitchenOrders.length === 0) {
+          <div class="empty-state">
+            <p>No hay pedidos en preparación.</p>
+          </div>
+        }
 
-        <div class="order-list" *ngIf="kitchenOrders.length > 0">
-          <article class="order-card" *ngFor="let pedido of kitchenOrders" (click)="goToTable(pedido.tableId)">
-            <div class="order-card-row">
-              <div>
-                <h3>Mesa {{ pedido.tableName }}</h3>
-                <p>{{ pedido.itemsCount }} artículos · {{ pedido.comensales }} comensales</p>
-              </div>
-              <ion-badge class="kitchen">En cocina</ion-badge>
-            </div>
+        @if (kitchenOrders.length > 0) {
+          <div class="order-list">
+            @for (pedido of kitchenOrders; track pedido.tableId) {
+              <article class="order-card" (click)="goToTable(pedido.tableId)">
+                <div class="order-card-row">
+                  <div>
+                    <h3>Mesa {{ pedido.tableName }}</h3>
+                    <p>{{ pedido.itemsCount }} artículos · {{ pedido.comensales }} comensales</p>
+                  </div>
+                  <ion-badge class="kitchen">En cocina</ion-badge>
+                </div>
 
-            <div class="order-summary compact">
-              <span>Total pendiente</span>
-              <strong>{{ formatCurrency(pedido.total) }}</strong>
-            </div>
+                <div class="order-summary compact">
+                  <span>Total pendiente</span>
+                  <strong>{{ formatCurrency(pedido.total) }}</strong>
+                </div>
 
-            <ul class="order-items">
-              <li *ngFor="let item of pedido.items">
-                <span>{{ item.quantity }}x {{ item.productName }}</span>
-                <strong>{{ formatCurrency(item.total) }}</strong>
-              </li>
-            </ul>
-          </article>
-        </div>
+                <ul class="order-items">
+                  @for (item of pedido.items; track item.productId) {
+                    <li>
+                      <span>{{ item.quantity }}x {{ item.productName }}</span>
+                      <strong>{{ formatCurrency(item.total) }}</strong>
+                    </li>
+                  }
+                </ul>
+              </article>
+            }
+          </div>
+        }
       </div>
     </section>
 
@@ -58,32 +66,36 @@
       </div>
 
       <div class="section-body">
-        <div *ngIf="loadingPaidOrders" class="empty-state">
-          <ion-icon name="refresh-outline"></ion-icon>
-          <p>Cargando ventas cobradas...</p>
-        </div>
+        @if (loadingPaidOrders) {
+          <div class="empty-state">
+            <ion-icon name="refresh-outline"></ion-icon>
+            <p>Cargando ventas cobradas...</p>
+          </div>
+        } @else if (paidOrders.length === 0) {
+          <div class="empty-state">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <p>No se han registrado ventas cobradas hoy.</p>
+          </div>
+        } @else {
+          <div class="order-list">
+            @for (sale of paidOrders; track sale.id) {
+              <article class="order-card compact-card">
+                <div class="order-card-row">
+                  <div>
+                    <h3>Ticket #{{ sale.ticket_number }}</h3>
+                    <p>{{ formatTime(sale.created_at) }} · {{ sale.user_name || 'Cajero' }}</p>
+                  </div>
+                  <ion-badge class="paid">Pagado</ion-badge>
+                </div>
 
-        <div *ngIf="!loadingPaidOrders && paidOrders.length === 0" class="empty-state">
-          <ion-icon name="checkmark-circle-outline"></ion-icon>
-          <p>No se han registrado ventas cobradas hoy.</p>
-        </div>
-
-        <div class="order-list" *ngIf="paidOrders.length > 0">
-          <article class="order-card compact-card" *ngFor="let sale of paidOrders">
-            <div class="order-card-row">
-              <div>
-                <h3>Ticket #{{ sale.ticket_number }}</h3>
-                <p>{{ formatTime(sale.created_at) }} · {{ sale.user_name || 'Cajero' }}</p>
-              </div>
-              <ion-badge class="paid">Pagado</ion-badge>
-            </div>
-
-            <div class="order-summary compact">
-              <span>{{ getPaidLabel(sale) }}</span>
-              <strong>{{ formatCurrency(sale.total) }}</strong>
-            </div>
-          </article>
-        </div>
+                <div class="order-summary compact">
+                  <span>{{ getPaidLabel(sale) }}</span>
+                  <strong>{{ formatCurrency(sale.total) }}</strong>
+                </div>
+              </article>
+            }
+          </div>
+        }
       </div>
     </section>
   </div>
@@ -91,52 +103,58 @@
   <ion-modal [isOpen]="showPinModal" class="pin-modal">
     <ng-template>
       <ion-content class="ion-padding">
-        <div *ngIf="selectedOrderForPin" class="mesa-info-header">
-          <h2 class="mesa-title">Mesa {{ selectedOrderForPin.tableName }}</h2>
-          <button class="btn-close-modal" (click)="closePinModal()" title="Cerrar">
-            <ion-icon name="close-outline"></ion-icon>
-          </button>
-        </div>
-
-        <div *ngIf="selectedOrderForPin" class="pin-view">
-          <div class="usuario-seleccionado">
-            <div class="usuario-avatar-large">{{ selectedOrderForPin.order.user?.name?.charAt(0).toUpperCase() || '?' }}</div>
-            <h3>{{ selectedOrderForPin.order.user?.name || 'Usuario' }}</h3>
+        @if (selectedOrderForPin) {
+          <div class="mesa-info-header">
+            <h2 class="mesa-title">Mesa {{ selectedOrderForPin.tableName }}</h2>
+            <button class="btn-close-modal" (click)="closePinModal()" title="Cerrar">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
           </div>
 
-          <div class="pin-display">
-            <input type="password" [value]="pinIngresado" class="pin-input" readonly placeholder="• • • •" />
-          </div>
+          <div class="pin-view">
+            <div class="usuario-seleccionado">
+              <div class="usuario-avatar-large">
+                {{ selectedOrderForPin.order.user?.name?.charAt(0).toUpperCase() || '?' }}
+              </div>
+              <h3>{{ selectedOrderForPin.order.user?.name || 'Usuario' }}</h3>
+            </div>
 
-          <div class="numeric-keyboard">
-            <div class="keyboard-row">
-              <button class="key-button" (click)="addDigit('1')" [disabled]="pinIngresado.length >= 4">1</button>
-              <button class="key-button" (click)="addDigit('2')" [disabled]="pinIngresado.length >= 4">2</button>
-              <button class="key-button" (click)="addDigit('3')" [disabled]="pinIngresado.length >= 4">3</button>
+            <div class="pin-display">
+              <input type="password" [value]="pinIngresado" class="pin-input" readonly placeholder="• • • •" />
             </div>
-            <div class="keyboard-row">
-              <button class="key-button" (click)="addDigit('4')" [disabled]="pinIngresado.length >= 4">4</button>
-              <button class="key-button" (click)="addDigit('5')" [disabled]="pinIngresado.length >= 4">5</button>
-              <button class="key-button" (click)="addDigit('6')" [disabled]="pinIngresado.length >= 4">6</button>
-            </div>
-            <div class="keyboard-row">
-              <button class="key-button" (click)="addDigit('7')" [disabled]="pinIngresado.length >= 4">7</button>
-              <button class="key-button" (click)="addDigit('8')" [disabled]="pinIngresado.length >= 4">8</button>
-              <button class="key-button" (click)="addDigit('9')" [disabled]="pinIngresado.length >= 4">9</button>
-            </div>
-            <div class="keyboard-row keyboard-actions">
-              <button class="key-button back-arrow-btn" (click)="removeDigit()">
-                <ion-icon name="backspace-outline"></ion-icon>
-              </button>
-              <button class="key-button" (click)="addDigit('0')" [disabled]="pinIngresado.length >= 4">0</button>
-              <button class="key-button forward-arrow-btn" (click)="confirmPin()" [disabled]="pinIngresado.length !== 4">
-                <ion-icon name="arrow-forward-outline"></ion-icon>
-              </button>
-            </div>
-          </div>
 
-          <div *ngIf="pinError" class="error-message">{{ pinError }}</div>
-        </div>
+            <div class="numeric-keyboard">
+              <div class="keyboard-row">
+                <button class="key-button" (click)="addDigit('1')" [disabled]="pinIngresado.length >= 4">1</button>
+                <button class="key-button" (click)="addDigit('2')" [disabled]="pinIngresado.length >= 4">2</button>
+                <button class="key-button" (click)="addDigit('3')" [disabled]="pinIngresado.length >= 4">3</button>
+              </div>
+              <div class="keyboard-row">
+                <button class="key-button" (click)="addDigit('4')" [disabled]="pinIngresado.length >= 4">4</button>
+                <button class="key-button" (click)="addDigit('5')" [disabled]="pinIngresado.length >= 4">5</button>
+                <button class="key-button" (click)="addDigit('6')" [disabled]="pinIngresado.length >= 4">6</button>
+              </div>
+              <div class="keyboard-row">
+                <button class="key-button" (click)="addDigit('7')" [disabled]="pinIngresado.length >= 4">7</button>
+                <button class="key-button" (click)="addDigit('8')" [disabled]="pinIngresado.length >= 4">8</button>
+                <button class="key-button" (click)="addDigit('9')" [disabled]="pinIngresado.length >= 4">9</button>
+              </div>
+              <div class="keyboard-row keyboard-actions">
+                <button class="key-button back-arrow-btn" (click)="removeDigit()">
+                  <ion-icon name="backspace-outline"></ion-icon>
+                </button>
+                <button class="key-button" (click)="addDigit('0')" [disabled]="pinIngresado.length >= 4">0</button>
+                <button class="key-button forward-arrow-btn" (click)="confirmPin()" [disabled]="pinIngresado.length !== 4">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
+
+            @if (pinError) {
+              <div class="error-message">{{ pinError }}</div>
+            }
+          </div>
+        }
       </ion-content>
     </ng-template>
   </ion-modal>

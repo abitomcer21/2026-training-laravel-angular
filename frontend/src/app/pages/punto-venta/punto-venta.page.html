@@ -19,20 +19,31 @@
         <ion-icon name="options-outline"></ion-icon>
       </button>
       }
-      <button class="nav-button logout-btn" (click)="closeSession()" title="Cerrar sesión">
-        <ion-icon name="log-out-outline"></ion-icon>
-      </button>
     </div>
   </aside>
 
-  <ion-content class="tpv-content ion-padding">
-    <div class="content-wrapper">
-      @switch (currentView) {
-      @case ('mesas') {<app-mesas (vistaChange)="selectView($any($event))" />}
-      @case ('productos') {<app-panel-productos (cambiarVista)="selectView($any($event))" />}
-      @case ('pedidos') {<app-pedidos (openTable)="openTableFromOrder($any($event))" />}
-      @case ('caja') {<app-caja />}
-      }
-    </div>
-  </ion-content>
+  <div class="tpv-main">
+    
+    <header class="tpv-header">
+      <div class="header-spacer"></div>
+      <div class="user-info">
+        <ion-icon name="person-circle-outline" class="user-icon"></ion-icon>
+        <span class="waiter-name">{{ waiterName }}</span>
+        <button class="logout-button" (click)="cerrarSesion()" title="Cerrar sesión">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </button>
+      </div>
+    </header>
+
+    <ion-content class="tpv-content ion-padding">
+      <div class="content-wrapper">
+        @switch (currentView) {
+        @case ('mesas') {<app-mesas (vistaChange)="selectView($any($event))" />}
+        @case ('productos') {<app-panel-productos (cambiarVista)="selectView($any($event))" />}
+        @case ('pedidos') {<app-pedidos (openTable)="openTableFromOrder($any($event))" />}
+        @case ('caja') {<app-caja />}
+        }
+      </div>
+    </ion-content>
+  </div>
 </div>

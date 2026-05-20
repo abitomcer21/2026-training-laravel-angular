@@ -6,88 +6,118 @@
 
   <ion-loading [isOpen]="cargando" message="Cargando mesas..."></ion-loading>
 
-  <div class="zones-filter" *ngIf="zonas.length > 0">
-    <div class="zones-header">
-      <h3>Filtrar por zona:</h3>
-      <button *ngIf="zonaSeleccionada" class="btn-clear-filter" (click)="limpiarFiltroZona()" title="Limpiar filtro">
-        ✕ Limpiar
-      </button>
+  @if (zonas.length > 0) {
+    <div class="zones-filter">
+      <div class="zones-header">
+        <h3>Filtrar por zona:</h3>
+        @if (zonaSeleccionada) {
+          <button class="btn-clear-filter" (click)="limpiarFiltroZona()" title="Limpiar filtro">
+            ✕ Limpiar
+          </button>
+        }
+      </div>
+      <div class="zones-buttons">
+        @for (zona of zonas; track zona.id) {
+          <button 
+            class="zone-button" 
+            [class.active]="zonaSeleccionada?.id === zona.id"
+            (click)="filtrarMesasPorZona(zona)">
+            {{ zona.name }}
+          </button>
+        }
+      </div>
     </div>
-    <div class="zones-buttons">
-      <button *ngFor="let zona of zonas" class="zone-button" [class.active]="zonaSeleccionada?.id === zona.id"
-        (click)="filtrarMesasPorZona(zona)">
-        {{ zona.name }}
-      </button>
-    </div>
-  </div>
+  }
 
   <div class="mesas-grid">
-    <div *ngFor="let mesa of mesasFiltradas; trackBy: trackByMesa" class="mesa-card"
-      [class.occupied]="isTableOccupied(mesa)" [class.available]="!isTableOccupied(mesa)"
-      (click)="seleccionarMesa(mesa)">
-      <div class="mesa-status-indicator" [class.occupied]="isTableOccupied(mesa)"
-        [title]="isTableOccupied(mesa) ? 'Ocupada' : 'Disponible'">
-      </div>
+    @for (mesa of mesasFiltradas; track mesa.id) {
+      <div 
+        class="mesa-card"
+        [class.occupied]="isTableOccupied(mesa)" 
+        [class.available]="!isTableOccupied(mesa)"
+        (click)="seleccionarMesa(mesa)">
+        
+        <div class="mesa-status-indicator" 
+          [class.occupied]="isTableOccupied(mesa)"
+          [title]="isTableOccupied(mesa) ? 'Ocupada' : 'Disponible'">
+        </div>
 
-      <div *ngIf="!isTableOccupied(mesa)" class="mesa-disponible">
-        <ion-icon name="grid-outline"></ion-icon>
-        <h3>{{ mesa.name }}</h3>
+        @if (!isTableOccupied(mesa)) {
+          <div class="mesa-disponible">
+            <ion-icon name="grid-outline"></ion-icon>
+            <h3>{{ mesa.name }}</h3>
+          </div>
+        } @else {
+          <div class="mesa-ocupada">
+            <div class="mesa-nombre">{{ mesa.name }}</div>
+            <div class="comensales-numero">{{ getTableOccupiedInfo(mesa)?.comensales }}</div>
+            <div class="total-display">{{ getTableOccupiedInfo(mesa)?.total | number:'1.2-2' }} €</div>
+          </div>
+        }
       </div>
-
-      <div *ngIf="isTableOccupied(mesa)" class="mesa-ocupada">
-        <div class="mesa-nombre">{{ mesa.name }}</div>
-        <div class="comensales-numero">{{ getTableOccupiedInfo(mesa)?.comensales }}</div>
-        <div class="total-display">{{ getTableOccupiedInfo(mesa)?.total | number:'1.2-2' }} €</div>
-      </div>
-    </div>
+    }
   </div>
 
   <ion-modal [isOpen]="mostrarModalPin" class="pin-modal">
     <ng-template>
       <ion-content class="ion-padding">
-        <div *ngIf="selectedTable" class="mesa-info-header">
-          <h2 class="mesa-title">{{ selectedTable.name }}</h2>
-          <button class="btn-close-modal" (click)="cerrarModal()" title="Cerrar">
-            <ion-icon name="close-outline"></ion-icon>
-          </button>
-        </div>
-
-        <div *ngIf="!selectedUser" class="usuarios-view">
-          <p class="view-label">Selecciona un usuario:</p>
-          <div class="usuarios-grid">
-            <div *ngFor="let usuario of usuarios" class="usuario-card" (click)="seleccionarUsuario(usuario)">
-              <div class="usuario-avatar">{{ usuario.name.charAt(0).toUpperCase() }}</div>
-              <p class="usuario-name">{{ usuario.name }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="selectedUser" class="pin-view">
-          <div class="usuario-seleccionado">
-            <div class="usuario-avatar-large">{{ selectedUser.name.charAt(0).toUpperCase() }}</div>
-            <h3>{{ selectedUser.name }}</h3>
-            <button class="btn-back-user" (click)="volverAUsuarios()" title="Cambiar usuario">
-              ← Cambiar
+        @if (selectedTable) {
+          <div class="mesa-info-header">
+            <h2 class="mesa-title">{{ selectedTable.name }}</h2>
+            <button class="btn-close-modal" (click)="cerrarModal()" title="Cerrar">
+              <ion-icon name="close-outline"></ion-icon>
             </button>
           </div>
+        }
 
-          <div class="pin-display">
-            <input type="password" [value]="pinIngresado" class="pin-input" readonly placeholder="• • • •" />
-          </div>
-
-          <div class="numeric-keyboard">
-            <div class="keyboard-row" *ngFor="let row of [0, 1, 2]">
-              <button *ngFor="let num of getKeyboardNumbers(row)" class="key-button"
-                (click)="agregarDigito(num.toString())" [disabled]="pinIngresado.length >= 4">
-                {{ num }}
-              </button>
+        @if (!selectedUser) {
+          <div class="usuarios-view">
+            <p class="view-label">Selecciona un usuario:</p>
+            <div class="usuarios-grid">
+              @for (usuario of usuarios; track usuario.id) {
+                <div class="usuario-card" (click)="seleccionarUsuario(usuario)">
+                  <div class="usuario-avatar">{{ usuario.name.charAt(0).toUpperCase() }}</div>
+                  <p class="usuario-name">{{ usuario.name }}</p>
+                </div>
+              }
             </div>
           </div>
+        } @else {
+          <div class="pin-view">
+            <div class="usuario-seleccionado">
+              <div class="usuario-avatar-large">{{ selectedUser.name.charAt(0).toUpperCase() }}</div>
+              <h3>{{ selectedUser.name }}</h3>
+              <button class="btn-back-user" (click)="volverAUsuarios()" title="Cambiar usuario">
+                ← Cambiar
+              </button>
+            </div>
 
-          <div *ngIf="mensajeError" class="error-message">
-            {{ mensajeError }}
+            <div class="pin-display">
+              <input type="password" [value]="pinIngresado" class="pin-input" readonly placeholder="• • • •" />
+            </div>
+
+            <div class="numeric-keyboard">
+              @for (row of [0, 1, 2]; track row) {
+                <div class="keyboard-row">
+                  @for (num of getKeyboardNumbers(row); track num) {
+                    <button 
+                      class="key-button"
+                      (click)="agregarDigito(num.toString())" 
+                      [disabled]="pinIngresado.length >= 4">
+                      {{ num }}
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (mensajeError) {
+              <div class="error-message">
+                {{ mensajeError }}
+              </div>
+            }
           </div>
-        </div>
+        }
       </ion-content>
     </ng-template>
   </ion-modal>
@@ -104,12 +134,18 @@
         </div>
 
         <div class="numeric-keyboard">
-          <div class="keyboard-row" *ngFor="let row of [0, 1, 2]">
-            <button *ngFor="let num of getKeyboardNumbers(row)" class="key-button"
-              (click)="agregarDigitoComensales(num.toString())" [disabled]="cantidadComensalesIngresada.length >= 2">
-              {{ num }}
-            </button>
-          </div>
+          @for (row of [0, 1, 2]; track row) {
+            <div class="keyboard-row">
+              @for (num of getKeyboardNumbers(row); track num) {
+                <button 
+                  class="key-button"
+                  (click)="agregarDigitoComensales(num.toString())" 
+                  [disabled]="cantidadComensalesIngresada.length >= 2">
+                  {{ num }}
+                </button>
+              }
+            </div>
+          }
           <div class="keyboard-row keyboard-actions">
             <button class="key-button back-arrow-btn" (click)="borrarDigitoComensales()">
               <ion-icon name="backspace-outline"></ion-icon>

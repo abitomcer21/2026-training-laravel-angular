@@ -45,6 +45,7 @@ export class PuntoVentaPage implements OnInit {
   restaurantName: string = 'Restaurante';
 
   userRole: string = '';
+  waiterName: string = 'Camarero';
 
   menuItems: MenuItem[] = [
     { nombre: 'Mesas', valor: 'mesas', icono: 'grid-outline' },
@@ -62,6 +63,12 @@ export class PuntoVentaPage implements OnInit {
       optionsOutline
     });
   }
+
+  cerrarSesion() {
+  // Aquí implementa tu lógica de cierre de sesión
+  // Por ejemplo: this.authService.logout();
+  // this.router.navigate(['/login']);
+}
 
   ngOnInit() {
     this.cargarRestaurantName();
