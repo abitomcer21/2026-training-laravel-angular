@@ -10,7 +10,7 @@ import { ProductosComponent } from '../../features/punto-venta/componentes/produ
 import { PedidosComponent } from '../../features/punto-venta/componentes/pedidos/panel-pedidos.component';
 import { CajaComponent } from '../../features/punto-venta/componentes/caja/panel-caja.component';
 import { RestaurantService } from '../../services/api/restaurant.service';
-import { WaiterSessionService } from '../../services/waiter-session.service';
+import { SesiónCamareroService } from '../../services/sesion-camarero.service';
 
 interface MenuItem {
   nombre: string;
@@ -32,7 +32,7 @@ export class PuntoVentaPage implements OnInit {
   restaurantName: string = 'Restaurante';
   userRole: string = '';
 
-  readonly activeWaiter = this.waiterSession.camarero;
+  readonly activeWaiter = this.sesionCamarero.camarero;
 
   menuItems: MenuItem[] = [
     { nombre: 'Mesas', valor: 'mesas', icono: 'grid-outline' },
@@ -43,7 +43,7 @@ export class PuntoVentaPage implements OnInit {
   constructor(
     private restaurantService: RestaurantService,
     private router: Router,
-    private waiterSession: WaiterSessionService,
+    private sesionCamarero: SesiónCamareroService,
   ) {
     addIcons({ gridOutline, restaurantOutline, listOutline, cashOutline, logOutOutline, optionsOutline });
   }
@@ -84,11 +84,11 @@ export class PuntoVentaPage implements OnInit {
   }
 
   clearWaiter() {
-    this.waiterSession.limpiar();
+    this.sesionCamarero.limpiar();
   }
 
   logout() {
-    this.waiterSession.limpiar();
+    this.sesionCamarero.limpiar();
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('token');
     localStorage.removeItem('userData');

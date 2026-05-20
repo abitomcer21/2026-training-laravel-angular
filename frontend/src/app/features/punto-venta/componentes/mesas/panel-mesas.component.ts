@@ -20,9 +20,9 @@ import { OrderStateService } from '../../../../services/order-state.service';
 import { AuthService } from '../../../../services/auth/auth.service';
 import { ZoneService, Zone } from '../../../../services/api/zone.service';
 import {
-  WaiterSessionService,
+  SesiónCamareroService,
   ActiveWaiter,
-} from '../../../../services/waiter-session.service';
+} from '../../../../services/sesion-camarero.service';
 
 @Component({
   selector: 'app-mesas',
@@ -56,7 +56,7 @@ export class MesasComponent implements OnInit {
     private orderStateService: OrderStateService,
     private authService: AuthService,
     private zoneService: ZoneService,
-    private waiterSessionService: WaiterSessionService,
+    private SesiónCamareroService: SesiónCamareroService,
   ) {
     addIcons({ gridOutline, closeOutline, arrowForwardOutline, backspaceOutline });
   }
@@ -133,10 +133,10 @@ export class MesasComponent implements OnInit {
   seleccionarMesa(mesa: Table) {
     this.selectedTable = mesa;
 
-    const camareroActual = this.waiterSessionService.obtenerCamareroActual();
+    const camareroActual = this.SesiónCamareroService.obtenerCamareroActual();
 
     if (camareroActual) {
-      this.waiterSessionService.renovarSesion();
+      this.SesiónCamareroService.renovarSesion();
 
       const waiterUser = this.usuarios.find(
         (u) => String(u.id) === camareroActual.uuid || u.name === camareroActual.name,
@@ -183,7 +183,7 @@ export class MesasComponent implements OnInit {
       pin: this.selectedUser.pin,
     };
 
-    this.waiterSessionService.iniciarSesion(camarero);
+    this.SesiónCamareroService.iniciarSesion(camarero);
     this.waiterSessionChange.emit(camarero);
 
     if (this.selectedTable && this.selectedUser) {
@@ -259,7 +259,7 @@ export class MesasComponent implements OnInit {
     const cantidad = parseInt(this.cantidadComensalesIngresada, 10);
     if (isNaN(cantidad) || cantidad <= 0) return;
 
-    this.waiterSessionService.renovarSesion();
+    this.SesiónCamareroService.renovarSesion();
     this.orderStateService.setComensales(cantidad);
 
     this.mostrarModalComensales = false;
@@ -310,7 +310,7 @@ export class MesasComponent implements OnInit {
   }
 
   cerrarSesionCamarero() {
-    this.waiterSessionService.cerrarSesion();
+    this.SesiónCamareroService.cerrarSesion();
     this.waiterSessionChange.emit(null);
     this.selectedUser = null;
   }

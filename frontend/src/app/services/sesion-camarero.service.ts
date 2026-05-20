@@ -7,7 +7,8 @@ export interface ActiveWaiter {
 }
 
 @Injectable({ providedIn: 'root' })
-export class WaiterSessionService {
+
+export class SesiónCamareroService {
   private _camarero = signal<ActiveWaiter | null>(null);
   private _timer: ReturnType<typeof setTimeout> | null = null;
   private readonly TIMEOUT_MS = 15_000;
