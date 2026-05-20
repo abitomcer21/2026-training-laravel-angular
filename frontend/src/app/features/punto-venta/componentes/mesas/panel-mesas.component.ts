@@ -5,40 +5,35 @@ import {
   IonIcon,
   IonLoading,
   IonModal,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
-  IonButton,
-  IonInput,
-  IonLabel,
-  IonItem,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { gridOutline, closeOutline, arrowBackOutline, arrowForwardOutline, backspaceOutline } from 'ionicons/icons';
+import {
+  gridOutline,
+  closeOutline,
+  arrowForwardOutline,
+  backspaceOutline,
+} from 'ionicons/icons';
 import { TableService, Table } from '../../../../services/api/table.service';
 import { UserService, User } from '../../../../services/api/user.service';
 import { OrderStateService } from '../../../../services/order-state.service';
 import { AuthService } from '../../../../services/auth/auth.service';
 import { ZoneService, Zone } from '../../../../services/api/zone.service';
+import {
+  WaiterSessionService,
+  ActiveWaiter,
+} from '../../../../services/waiter-session.service';
 
 @Component({
   selector: 'app-mesas',
   templateUrl: './panel-mesas.component.html',
   styleUrls: ['./panel-mesas.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonIcon,
-    IonLoading,
-    IonModal,
-    IonContent,
-  ],
+  imports: [CommonModule, FormsModule, IonIcon, IonLoading, IonModal, IonContent],
 })
-
 export class MesasComponent implements OnInit {
   @Output() vistaChange = new EventEmitter<string>();
+  @Output() waiterSessionChange = new EventEmitter<ActiveWaiter | null>();
 
   mesas: Table[] = [];
   mesasFiltradas: Table[] = [];
@@ -60,9 +55,10 @@ export class MesasComponent implements OnInit {
     private userService: UserService,
     private orderStateService: OrderStateService,
     private authService: AuthService,
-    private zoneService: ZoneService
+    private zoneService: ZoneService,
+    private waiterSessionService: WaiterSessionService,
   ) {
-    addIcons({ gridOutline, closeOutline, arrowBackOutline, arrowForwardOutline, backspaceOutline });
+    addIcons({ gridOutline, closeOutline, arrowForwardOutline, backspaceOutline });
   }
 
   ngOnInit() {
@@ -75,17 +71,14 @@ export class MesasComponent implements OnInit {
     const userData = this.authService.getUserData();
     const restaurantId = userData?.restaurant_id;
 
-    if (!restaurantId) {
-      return;
-    }
+    if (!restaurantId) return;
 
     this.zoneService.getZones().subscribe({
       next: (response: any) => {
         const todasLasZonas = response.zones || [];
         this.zonas = todasLasZonas.filter((zona: Zone) => zona.restaurant_id === restaurantId);
       },
-      error: (error) => {
-      },
+      error: (error) => console.error('Error cargando zonas:', error),
     });
   }
 
@@ -107,6 +100,7 @@ export class MesasComponent implements OnInit {
         this.cargando = false;
       },
       error: (error) => {
+        console.error('Error cargando mesas:', error);
         this.cargando = false;
       },
     });
@@ -117,7 +111,9 @@ export class MesasComponent implements OnInit {
     if (!zona) {
       this.mesasFiltradas = this.mesas;
     } else {
-      this.mesasFiltradas = this.mesas.filter((mesa: Table) => mesa.zone_id === zona.id || mesa.zone_id === zona.database_id);
+      this.mesasFiltradas = this.mesas.filter(
+        (mesa: Table) => mesa.zone_id === zona.id || mesa.zone_id === zona.database_id,
+      );
     }
   }
 
@@ -130,13 +126,38 @@ export class MesasComponent implements OnInit {
       next: (response: any) => {
         this.usuarios = response.users || [];
       },
-      error: (error) => {
-      },
+      error: (error) => console.error('Error cargando usuarios:', error),
     });
   }
 
   seleccionarMesa(mesa: Table) {
     this.selectedTable = mesa;
+
+    const camareroActual = this.waiterSessionService.obtenerCamareroActual();
+
+    if (camareroActual) {
+      this.waiterSessionService.renovarSesion();
+
+      const waiterUser = this.usuarios.find(
+        (u) => String(u.id) === camareroActual.uuid || u.name === camareroActual.name,
+      );
+
+      if (waiterUser) {
+        this.selectedUser = waiterUser;
+        this.mesaEsNueva = !this.isTableOccupied(mesa);
+        this.orderStateService.setTableAndUser(mesa, this.selectedUser);
+
+        if (this.mesaEsNueva) {
+          this.mostrarModalComensales = true;
+          this.cantidadComensalesIngresada = '';
+        } else {
+          this.vistaChange.emit('productos');
+        }
+
+        return;
+      }
+    }
+
     this.mesaEsNueva = !this.isTableOccupied(mesa);
     this.mostrarModalPin = true;
     this.pinIngresado = '';
@@ -152,16 +173,25 @@ export class MesasComponent implements OnInit {
 
     if (this.pinIngresado !== this.selectedUser.pin) {
       this.mensajeError = 'PIN inválido';
-      this.pinIngresado = ''; 
+      this.pinIngresado = '';
       return;
     }
+
+    const camarero: ActiveWaiter = {
+      uuid: String(this.selectedUser.id),
+      name: this.selectedUser.name,
+      pin: this.selectedUser.pin,
+    };
+
+    this.waiterSessionService.iniciarSesion(camarero);
+    this.waiterSessionChange.emit(camarero);
 
     if (this.selectedTable && this.selectedUser) {
       this.orderStateService.setTableAndUser(this.selectedTable, this.selectedUser);
     }
 
     this.mostrarModalPin = false;
-    
+
     if (this.mesaEsNueva) {
       this.mostrarModalComensales = true;
       this.cantidadComensalesIngresada = '';
@@ -170,17 +200,16 @@ export class MesasComponent implements OnInit {
     }
   }
 
-agregarDigito(digito: string) {
-  if (this.pinIngresado.length < 4) {
-    this.pinIngresado += digito;
-    this.mensajeError = '';
+  agregarDigito(digito: string) {
+    if (this.pinIngresado.length < 4) {
+      this.pinIngresado += digito;
+      this.mensajeError = '';
 
-    if (this.pinIngresado.length === 4) {
-      setTimeout(() => this.validarPin(), 150);
+      if (this.pinIngresado.length === 4) {
+        setTimeout(() => this.validarPin(), 150);
+      }
     }
   }
-}
-
 
   borrarDigito() {
     this.pinIngresado = this.pinIngresado.slice(0, -1);
@@ -199,11 +228,7 @@ agregarDigito(digito: string) {
   }
 
   getKeyboardNumbers(row: number): number[] {
-    const rows = [
-      [1, 2, 3],
-      [4, 5, 6],
-      [7, 8, 9],
-    ];
+    const rows = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
     return rows[row] || [];
   }
 
@@ -217,8 +242,6 @@ agregarDigito(digito: string) {
     this.cantidadComensalesIngresada = this.cantidadComensalesIngresada.slice(0, -1);
   }
 
-
-
   cerrarModal() {
     this.mostrarModalPin = false;
     this.mostrarModalComensales = false;
@@ -231,29 +254,23 @@ agregarDigito(digito: string) {
   }
 
   confirmarComensales() {
-    if (!this.cantidadComensalesIngresada) {
-      return;
-    }
+    if (!this.cantidadComensalesIngresada) return;
 
     const cantidad = parseInt(this.cantidadComensalesIngresada, 10);
-    if (isNaN(cantidad) || cantidad <= 0) {
-      return;
-    }
+    if (isNaN(cantidad) || cantidad <= 0) return;
 
+    this.waiterSessionService.renovarSesion();
     this.orderStateService.setComensales(cantidad);
-    
+
     this.mostrarModalComensales = false;
-    
     this.cantidadComensalesIngresada = '';
     this.selectedTable = null;
     this.selectedUser = null;
     this.pinIngresado = '';
     this.mensajeError = '';
     this.mesaEsNueva = false;
-    
-    setTimeout(() => {
-      this.vistaChange.emit('productos');
-    }, 50);
+
+    setTimeout(() => this.vistaChange.emit('productos'), 50);
   }
 
   trackByMesa(index: number, mesa: Table): string {
@@ -278,22 +295,23 @@ agregarDigito(digito: string) {
       return;
     }
 
-    if (!this.cargando) {
-      this.cargarMesas();
-    }
+    if (!this.cargando) this.cargarMesas();
 
     setTimeout(() => {
       const found = this.mesas.find(
         (m) => String(m.id) === tableId || String(m.uuid) === tableId,
       );
-      if (found) {
-        this.seleccionarMesa(found);
-      }
+      if (found) this.seleccionarMesa(found);
     }, 300);
   }
 
   refrescarMesas() {
     this.cargarMesas();
   }
-}
 
+  cerrarSesionCamarero() {
+    this.waiterSessionService.cerrarSesion();
+    this.waiterSessionChange.emit(null);
+    this.selectedUser = null;
+  }
+}
