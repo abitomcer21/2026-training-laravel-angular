@@ -29,7 +29,7 @@
     <div class="content-wrapper">
       @switch (currentView) {
       @case ('mesas') {<app-mesas (vistaChange)="selectView($any($event))" />}
-      @case ('productos') {<app-productos (cambiarVista)="selectView($any($event))" />}
+      @case ('productos') {<app-panel-productos (cambiarVista)="selectView($any($event))" />}
       @case ('pedidos') {<app-pedidos (openTable)="openTableFromOrder($any($event))" />}
       @case ('caja') {<app-caja />}
       }

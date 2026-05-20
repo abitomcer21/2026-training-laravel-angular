@@ -14,12 +14,12 @@ import {
 
 import { RestaurantService } from '../../services/api/restaurant.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { UsuariosComponent } from '../../components/usuarios/usuarios.component';
-import { FamiliasComponent } from '../../components/familias/familias.component';
-import { ProductosComponent } from '../../components/productos/productos.component';
-import { ImpuestosComponent } from '../../components/impuestos/impuestos.component';
-import { ZonasComponent } from '../../components/zonas/zonas.component';
-import { MesasComponent } from '../../components/mesas/mesas.component';
+import { UsuariosComponent } from '../../features/dashboard/usuarios/usuarios.component';
+import { FamiliasComponent } from '../../features/dashboard/familias/familias.component';
+import { ProductosComponent } from '../../features/dashboard/productos/productos.component';
+import { ImpuestosComponent } from '../../features/dashboard/impuestos/impuestos.component';
+import { ZonasComponent } from '../../features/dashboard/zonas/zonas.component';
+import { MesasComponent } from '../../features/dashboard/mesas/mesas.component';
 
 interface MenuItem {
   nombre: string;
@@ -41,6 +41,7 @@ interface MenuItem {
     ImpuestosComponent, ZonasComponent, MesasComponent
   ]
 })
+
 export class DashboardPage implements OnInit {
   opcionSeleccionada: string = 'usuarios';
   restaurantName: string = 'Yurest TPV';

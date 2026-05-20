@@ -1,3 +1,11 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
 $primary: #000000;
 $primary-light: #3b3b3b;
 $success: #2e7d32;
