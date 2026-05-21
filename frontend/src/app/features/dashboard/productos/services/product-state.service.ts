@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Product } from '../../../../../services/api/product.service';
-import { FamilyService, Family } from '../../../../../services/api/family.service';
-import { TaxService, Tax } from '../../../../../services/api/tax.service';
-import { FamilyStateService } from '../../../../../services/shared/family-state.service';
-import { DataCacheService } from '../../../../../services/shared/data-cache.service';
-import { AuthService } from '../../../../../services/auth/auth.service';
+import { Product } from '../../../../services/api/product.service';
+import { FamilyService, Family } from '../../../../services/api/family.service';
+import { TaxService, Tax } from '../../../../services/api/tax.service';
+import { FamilyStateService } from '../../../../services/shared/family-state.service';
+import { DataCacheService } from '../../../../services/shared/data-cache.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 
 export interface ProductStateCallbacks {
     onFamilyStatusChange: (familyId: string, active: boolean) => void;

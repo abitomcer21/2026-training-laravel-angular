@@ -482,3 +482,68 @@
     grid-template-columns: 1fr;
   }
 }
+
+.image-upload-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f9fafb;
+
+  &:hover {
+    border-color: #2c5f8a;
+    background: #f0f7ff;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .upload-btn {
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #2c5f8a 0%, #1a3d5c 100%);
+    color: white;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    border: none;
+  }
+
+  .upload-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.image-preview {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  margin-top: 8px;
+}
+
+.upload-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.image-upload-area {
+  flex-direction: row-reverse;
+  justify-content: space-between;
+}

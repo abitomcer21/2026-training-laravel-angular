@@ -10,10 +10,10 @@ import {
   createOutline, trashOutline
 } from 'ionicons/icons';
 
-import { ZoneService, Zone } from '../../../../services/api/zone.service';
-import { TableService } from '../../../../services/api/table.service';
-import { ZoneStateService } from '../../../../services/shared/zone-state.service';
-import { AuthService } from '../../../../services/auth/auth.service';
+import { ZoneService, Zone } from '../../../services/api/zone.service';
+import { TableService } from '../../../services/api/table.service';
+import { ZoneStateService } from '../../../services/shared/zone-state.service';
+import { AuthService } from '../../../services/auth/auth.service';
 
 interface ZoneEditForm {
   name: string;

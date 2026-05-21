@@ -75,17 +75,33 @@
             <p class="view-label">Selecciona un usuario:</p>
             <div class="usuarios-grid">
               @for (usuario of usuarios; track usuario.id) {
-                <div class="usuario-card" (click)="seleccionarUsuario(usuario)">
-                  <div class="usuario-avatar">{{ usuario.name.charAt(0).toUpperCase() }}</div>
-                  <p class="usuario-name">{{ usuario.name }}</p>
-                </div>
-              }
+            <div class="usuario-card" (click)="seleccionarUsuario(usuario)">
+              <div class="usuario-avatar">
+                @if (usuario.image_src) {
+                  <img [src]="'http://localhost:8000/storage/' + usuario.image_src"
+                    alt="{{ usuario.name }}"
+                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+                } @else {
+                  {{ usuario.name.charAt(0).toUpperCase() }}
+                }
+              </div>
+              <p class="usuario-name">{{ usuario.name }}</p>
+            </div>
+          }
             </div>
           </div>
-        } @else {
+          } @else {
           <div class="pin-view">
             <div class="usuario-seleccionado">
-              <div class="usuario-avatar-large">{{ selectedUser.name.charAt(0).toUpperCase() }}</div>
+              <div class="usuario-avatar-large">
+                @if (selectedUser.image_src) {
+                  <img [src]="'http://localhost:8000/storage/' + selectedUser.image_src"
+                    alt="{{ selectedUser.name }}"
+                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+                } @else {
+                  {{ selectedUser.name.charAt(0).toUpperCase() }}
+                }
+              </div>
               <h3>{{ selectedUser.name }}</h3>
               <button class="btn-back-user" (click)="volverAUsuarios()" title="Cambiar usuario">
                 ← Cambiar
@@ -100,9 +116,9 @@
               @for (row of [0, 1, 2]; track row) {
                 <div class="keyboard-row">
                   @for (num of getKeyboardNumbers(row); track num) {
-                    <button 
+                    <button
                       class="key-button"
-                      (click)="agregarDigito(num.toString())" 
+                      (click)="agregarDigito(num.toString())"
                       [disabled]="pinIngresado.length >= 4">
                       {{ num }}
                     </button>

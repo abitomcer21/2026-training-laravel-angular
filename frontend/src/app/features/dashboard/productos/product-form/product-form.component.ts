@@ -2,9 +2,9 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { Product } from '../../../../../services/api/product.service';
-import { Family } from '../../../../../services/api/family.service';
-import { Tax } from '../../../../../services/api/tax.service';
+import { Product } from '../../../../services/api/product.service';
+import { Family } from '../../../../services/api/family.service';
+import { Tax } from '../../../../services/api/tax.service';
 import { ProductCreateForm, createEmptyProductForm } from '../forms/product-create.form';
 import { ProductEditForm } from '../forms/product-edit.form';
 import { obtenerNombreFamilia as obtenerNombreFamiliaUtil } from '../utils/product.utils';
@@ -31,13 +31,14 @@ export class ProductFormComponent {
     @Input() familias: Family[] = [];
     @Input() taxes: Tax[] = [];
     @Input() isSaving = false;
+    @Input() uploadingImage = false;
 
     @Output() save = new EventEmitter<void>();
     @Output() cancel = new EventEmitter<void>();
     @Output() createFamily = new EventEmitter<string>();
     @Output() createTax = new EventEmitter<string>();
+    @Output() fileSelected = new EventEmitter<{ file: File; mode: 'create' | 'edit' }>();
 
-    // Properties that match the template
     get productPanelMode(): 'create' | 'edit' {
         return this.mode;
     }
@@ -85,4 +86,9 @@ export class ProductFormComponent {
             this.createTax.emit(value);
         }
     }
+    onFileSelected(event: Event, mode: 'create' | 'edit') {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+  this.fileSelected.emit({ file, mode });
+}
 }

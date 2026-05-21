@@ -7,9 +7,9 @@ import {
     searchOutline, closeOutline, createOutline, trashOutline, restaurantOutline
 } from 'ionicons/icons';
 
-import { Product } from '../../../../../services/api/product.service';
-import { Family } from '../../../../../services/api/family.service';
-import { Tax } from '../../../../../services/api/tax.service';
+import { Product } from '../../../../services/api/product.service';
+import { Family } from '../../../../services/api/family.service';
+import { Tax } from '../../../../services/api/tax.service';
 
 @Component({
     selector: 'app-product-list',

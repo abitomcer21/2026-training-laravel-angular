@@ -1,4 +1,4 @@
-import { Family } from '../../../../../services/api/family.service';
+import { Family } from '../../../../services/api/family.service';
 
 export function parseActiveValue(value: boolean | string): boolean {
     if (typeof value === 'string') return value === 'true' || value === '1';

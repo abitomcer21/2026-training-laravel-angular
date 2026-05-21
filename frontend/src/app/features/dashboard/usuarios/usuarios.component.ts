@@ -10,8 +10,8 @@ import {
     personOutline, restaurantOutline, flameOutline,
 } from 'ionicons/icons';
 
-import { UserService, User } from '../../../../services/api/user.service';
-import { AuthService } from '../../../../services/auth/auth.service';
+import { UserService, User } from '../../../services/api/user.service';
+import { AuthService } from '../../../services/auth/auth.service';
 
 interface UserEditForm {
     name: string;

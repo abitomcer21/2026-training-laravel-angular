@@ -3,7 +3,6 @@
     <app-product-filter-sidebar [familias]="familiasParaProductos" [productos]="products"
       [familiaSeleccionada]="familiaSeleccionadaFiltro" (familiaSeleccionadaChange)="filtrarPorFamilia($event)">
     </app-product-filter-sidebar>
-
     <div class="products-main-content">
       <div class="dashboard-grid">
         <app-product-list [productos]="productosFiltrados" [familias]="familiasParaProductos" [taxes]="taxes"
@@ -12,13 +11,13 @@
           (cambiarFiltro)="filtrarPorTipoProduct($event)" (editarProduct)="editarProduct($event)"
           (eliminarProduct)="confirmarEliminarProduct($event)" (cambiarEstado)="cambiarEstadoProduct($event)">
         </app-product-list>
-
         <app-product-form [mode]="productPanelMode" [editProduct]="editingProduct" [editFormData]="editProductForm"
           [createFormData]="createProductForm" [familias]="familiasParaProductos" [taxes]="taxes"
           [isSaving]="isSavingProduct" (save)="guardarProductoPanel()" (cancel)="salirEdicionProduct()"
-          (createFamily)="manejarCambioFamilia($event)" (createTax)="manejarCambioImpuesto($event)">
+          (createFamily)="manejarCambioFamilia($event)" (createTax)="manejarCambioImpuesto($event)"
+          [uploadingImage]="uploadingImage"
+          (fileSelected)="onProductFileSelected($event)">
         </app-product-form>
-
       </div>
     </div>
   </div>

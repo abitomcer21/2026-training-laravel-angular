@@ -14,12 +14,12 @@ import {
 
 import { RestaurantService } from '../../services/api/restaurant.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { UsuariosComponent } from '../../features/dashboard/componentes/usuarios/usuarios.component';
+import { UsuariosComponent } from '../../features/dashboard/usuarios/usuarios.component';
 import { FamiliasComponent } from '../../features/dashboard/componentes/familias/familias.component';
-import { ProductosComponent } from '../../features/dashboard/componentes/productos/productos.component';
+import { ProductosComponent } from '../../features/dashboard/productos/productos.component';
 import { ImpuestosComponent } from '../../features/dashboard/componentes/impuestos/impuestos.component';
-import { ZonasComponent } from '../../features/dashboard/componentes/zonas/zonas.component';
-import { MesasComponent } from '../../features/dashboard/componentes/mesas/mesas.component';
+import { ZonasComponent } from '../../features/dashboard/zonas/zonas.component';
+import { MesasComponent } from '../../features/dashboard/mesas/mesas.component';
 
 interface MenuItem {
   nombre: string;

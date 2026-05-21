@@ -30,11 +30,11 @@
     import { ProductAlertService } from './services/product-alert.service';
     import { ProductFilterSidebarComponent } from './product-filter-sidebar/product-filter-sidebar.component';
     import { ProductFormComponent } from './product-form/product-form.component';
-    import { ProductService, Product } from '../../../../services/api/product.service';
-    import { Family } from '../../../../services/api/family.service';
-    import { Tax } from '../../../../services/api/tax.service';
-    import { DataCacheService } from '../../../../services/shared/data-cache.service';
-    import { AuthService } from '../../../../services/auth/auth.service';
+    import { ProductService, Product } from '../../../services/api/product.service';
+    import { Family } from '../../../services/api/family.service';
+    import { Tax } from '../../../services/api/tax.service';
+    import { DataCacheService } from '../../../services/shared/data-cache.service';
+    import { AuthService } from '../../../services/auth/auth.service';
 
     import { ProductListComponent } from './product-list/product-list.component';
 
@@ -69,6 +69,7 @@
     productosLoading = false;
     productosCargados = false;
     isSavingProduct = false;
+    uploadingImage = false;
 
     productPanelMode: 'edit' | 'create' = 'create';
     editingProduct: Product | null = null;
@@ -533,4 +534,16 @@
         );
         }
     }
+
+    onProductFileSelected(event: { file: File; mode: 'create' | 'edit' }) {
+    this.uploadingImage = true;
+    this.productService.uploadImage(event.file).subscribe({
+        next: (res: any) => {
+        if (event.mode === 'create') this.createProductForm.image_src = res.path;
+        else this.editProductForm.image_src = res.path;
+        this.uploadingImage = false;
+        },
+        error: () => this.uploadingImage = false,
+    });
+        }
 }

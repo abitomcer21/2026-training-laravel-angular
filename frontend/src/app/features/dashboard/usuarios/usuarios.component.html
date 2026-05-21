@@ -222,19 +222,19 @@
                                 </select>
                             </div>
 
-                            <div class="form-field">
-                                <label for="edit-image">Imagen</label>
-                                <input id="edit-image" type="file" accept="image/*"
-                                    (change)="onFileSelected($event, 'edit')"
-                                    [disabled]="uploadingImage"
-                                    class="editor-input" />
-                                @if (uploadingImage) {
-                                    <span class="upload-hint">Subiendo imagen...</span>
-                                }
+                            <div class="form-field full-width">
+                                <label>Imagen</label>
+                                <div class="image-upload-area" (click)="fileInputEdit.click()">
+                                    <input #fileInputEdit type="file" accept="image/*"
+                                        (change)="onFileSelected($event, 'edit')" [disabled]="uploadingImage" />
+                                    <span class="upload-label">
+                                        {{ editForm.image_src ? 'Imagen seleccionada' : 'Ningún archivo seleccionado' }}
+                                    </span>
+                                    <span class="upload-btn">Elegir imagen</span>
+                                </div>
+                                @if (uploadingImage) { <span class="upload-hint">Subiendo...</span> }
                                 @if (editForm.image_src) {
-                                    <img [src]="'http://localhost:8000/storage/' + editForm.image_src"
-                                        alt="preview"
-                                        class="image-preview" />
+                                    <img [src]="'http://localhost:8000/storage/' + editForm.image_src" class="image-preview" />
                                 }
                             </div>
 
@@ -305,19 +305,19 @@
                                     maxlength="4" class="editor-input">
                             </div>
 
-                            <div class="form-field">
-                                <label for="create-image">Imagen</label>
-                                <input id="create-image" type="file" accept="image/*"
-                                    (change)="onFileSelected($event, 'create')"
-                                    [disabled]="uploadingImage"
-                                    class="editor-input" />
-                                @if (uploadingImage) {
-                                    <span class="upload-hint">Subiendo imagen...</span>
-                                }
+                            <div class="form-field full-width">
+                                <label>Imagen</label>
+                                <div class="image-upload-area" (click)="fileInputCreate.click()">
+                                    <input #fileInputCreate type="file" accept="image/*"
+                                        (change)="onFileSelected($event, 'create')" [disabled]="uploadingImage" />
+                                    <span class="upload-label">
+                                        {{ createForm.image_src ? 'Imagen seleccionada' : 'Ningún archivo seleccionado' }}
+                                    </span>
+                                    <span class="upload-btn">Elegir imagen</span>
+                                </div>
+                                @if (uploadingImage) { <span class="upload-hint">Subiendo...</span> }
                                 @if (createForm.image_src) {
-                                    <img [src]="'http://localhost:8000/storage/' + createForm.image_src"
-                                        alt="preview"
-                                        class="image-preview" />
+                                    <img [src]="'http://localhost:8000/storage/' + createForm.image_src" class="image-preview" />
                                 }
                             </div>
 

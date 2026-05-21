@@ -63,5 +63,13 @@ export class ProductService extends BaseApiService {
   deleteProduct(uuid: string): Observable<ApiResponse> {
     return this.httpCall(`${this.endpoint}/${uuid}`, null, 'delete');
   }
+
+  uploadImage(file: File): Observable<ApiResponse> {
+  const form = new FormData();
+  form.append('image', file);
+  return this.httpCall('/uploads/images', form, 'post');
+  }
+
+  
 }
   
