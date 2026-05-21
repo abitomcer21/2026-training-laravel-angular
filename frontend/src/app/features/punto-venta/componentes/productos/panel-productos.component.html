@@ -55,6 +55,11 @@
           @for (producto of productosFiltrados; track producto.id) {
             <button class="producto-btn" [class.disabled]="!currentOrder.table"
               (click)="agregarProducto(producto)">
+              @if (producto.image_src) {
+                <div class="producto-imagen">
+                  <img [src]="getImageUrl(producto.image_src)" [alt]="producto.name" />
+                </div>
+              }
               <div class="producto-info">
                 <span class="producto-nombre">{{ producto.name }}</span>
                 <span class="producto-precio">{{ producto.price | number:'1.2-2' }} €</span>

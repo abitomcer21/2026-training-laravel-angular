@@ -44,6 +44,7 @@ import {
   arrowBackOutline,
   documentTextOutline,
 } from 'ionicons/icons';
+import { environment } from '../../../../../environments/environment';
 
 import { ProductService } from '../../../../services/api/product.service';
 import { FamilyService } from '../../../../services/api/family.service';
@@ -207,6 +208,12 @@ export class ProductosComponent implements OnInit {
       buttons: [{ text: 'Cerrar', role: 'cancel' }],
     });
     await toast.present();
+  }
+
+  getImageUrl(imageSrc: string | undefined): string {
+    if (!imageSrc) return '';
+    const apiUrl = environment.apiUrl.replace('/api', '');
+    return `${apiUrl}/storage/${imageSrc}`;
   }
 
   cargarProductos() {
@@ -683,4 +690,5 @@ export class ProductosComponent implements OnInit {
     this.resetearEstadoPedido();
     this.volverAMesas();
   }
+
 }
