@@ -1,21 +1,18 @@
-@import '../../../../theme/variables.scss';
-
 .tables-layout {
   display: flex;
   flex-direction: row;
-  gap: 20px;
   height: 100%;
   flex: 1;
-  align-items: stretch;
+  gap: 20px;
 }
 
 .zone-filter-sidebar {
   width: 260px;
   flex-shrink: 0;
   background: white;
-  border-radius: $border-radius-lg;
-  border: 1px solid #{$border-light};
-  box-shadow: $shadow-sm;
+  border-radius: 12px;
+  border: 1px solid #{#e5e7eb};
+  box-shadow: #e5e7eb;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -29,6 +26,7 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
+  min-width: 0;
 }
 
 .tables-main-content .dashboard-grid {
@@ -52,8 +50,8 @@
   align-items: center;
   gap: 12px;
   padding: 16px;
-  border-bottom: 1px solid #{$border-light};
-  background: $gradient-primary;
+  border-bottom: 1px solid #{#e5e7eb};
+  background: linear-gradient(135deg, #{#2c5f8a} 0%, #{#1a3d5c} 100%);
   color: white;
 }
 
@@ -80,29 +78,29 @@
   padding: 10px 12px;
   margin-bottom: 6px;
   background: white;
-  border: 1px solid #{$border-light};
+  border: 1px solid #{#e5e7eb};
   border-radius: 10px;
   cursor: pointer;
-  transition: $transition;
+  transition:  all 0.2s ease;
   width: 100%;
   text-align: left;
 }
 
 .family-filter-item:hover {
-  background: #{$bg-light};
-  border-color: #d1d5db;
+  background: #f9fafb;
+  border-color: #{#d1d5db};
   transform: translateX(2px);
 }
 
 .family-filter-item.active {
-  background: $gradient-primary;
-  border-color: #{$primary-color};
+  background: linear-gradient(135deg, #{#2c5f8a} 0%, #{#1a3d5c} 100%);
+  border-color: #{#2c5f8a};
   color: white;
 }
 
 .family-filter-item .filter-icon {
   font-size: 18px;
-  color: #{$text-lighter};
+  color: #9ca3af;
   flex-shrink: 0;
 }
 
@@ -114,7 +112,7 @@
   flex: 1;
   font-size: 0.85rem;
   font-weight: 500;
-  color: #{$text-gray};
+  color: #374151;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -129,9 +127,9 @@
   font-size: 0.7rem;
   font-weight: 600;
   padding: 2px 6px;
-  background: #{$bg-gray-100};
+  background: #f3f4f6;
   border-radius: 12px;
-  color: #{$text-light};
+  color: #6b7280;
   flex-shrink: 0;
 }
 
@@ -142,7 +140,7 @@
 
 .family-divider {
   height: 1px;
-  background: #{$border-light};
+  background: #e5e7eb;
   margin: 10px 0;
 }
 
@@ -153,7 +151,7 @@
   justify-content: center;
   padding: 30px 16px;
   text-align: center;
-  color: #{$text-lighter};
+  color: #9ca3af;
 }
 
 .sidebar-empty ion-icon {
@@ -166,12 +164,12 @@
   font-size: 0.85rem;
   font-weight: 500;
   margin: 0 0 4px 0;
-  color: #{$text-light};
+  color: #6b7280;
 }
 
 .sidebar-empty small {
   font-size: 0.7rem;
-  color: #{$text-lighter};
+  color: #9ca3af;
 }
 
 .dashboard-grid {
