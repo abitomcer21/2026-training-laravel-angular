@@ -47,6 +47,9 @@ use App\Sales\Infrastructure\Entrypoint\Http\PostController as SalesPostControll
 use App\Sales\Infrastructure\Entrypoint\Http\PostController;
 use App\Sales\Infrastructure\Entrypoint\Http\GetTodaySalesController;
 
+use App\Shared\Infrastructure\Entrypoint\Http\UploadImageController;
+
+
 
 
 Route::post('/login', LoginController::class);
@@ -109,3 +112,5 @@ Route::prefix('sales')->group(function () {
     
     Route::post('/', PostController::class);
 });
+
+Route::post('/uploads/images', UploadImageController::class)->middleware('auth:sanctum');

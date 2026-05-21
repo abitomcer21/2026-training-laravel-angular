@@ -59,4 +59,11 @@ export class UserService extends BaseApiService {
   invalidateUsersCache(): void {
     this.usersCache$ = null;
   }
+
+  uploadImage(file: File): Observable<ApiResponse> {
+  const form = new FormData();
+  form.append('image', file);
+  return this.httpCall('/uploads/images', form, 'post');
+  }
+  
 }

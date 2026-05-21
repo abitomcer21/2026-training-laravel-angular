@@ -43,6 +43,8 @@ export class UsuariosComponent implements OnInit, OnChanges {
 
     usuariosLoading = false;
     usuariosCargados = false;
+    uploadingImage = false;
+
     panelMode: 'edit' | 'create' = 'create';
     editingUser: User | null = null;
 
@@ -305,5 +307,23 @@ export class UsuariosComponent implements OnInit, OnChanges {
             buttons: ['Aceptar'],
         });
         await alert.present();
+    }
+
+    onFileSelected(event: Event, mode: 'create' | 'edit') {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+
+  this.uploadingImage = true;
+  this.userService.uploadImage(file).subscribe({
+    next: (res: any) => {
+      if (mode === 'create') this.createForm.image_src = res.path;
+      else this.editForm.image_src = res.path;
+      this.uploadingImage = false;
+    },
+    error: () => {
+      this.mostrarAlerta('Error', 'No se pudo subir la imagen.');
+      this.uploadingImage = false;
+    },
+  });
     }
 }
