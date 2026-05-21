@@ -10,11 +10,11 @@ import {
     albumsOutline, gridOutline,
 } from 'ionicons/icons';
 
-import { FamilyService, Family } from '../../../services/api/family.service';
-import { ProductService } from '../../../services/api/product.service';
-import { FamilyStateService } from '../../../services/shared/family-state.service';
-import { DataCacheService } from '../../../services/shared/data-cache.service';
-import { AuthService } from '../../../services/auth/auth.service';
+import { FamilyService, Family } from '../../../../services/api/family.service';
+import { ProductService } from '../../../../services/api/product.service';
+import { FamilyStateService } from '../../../../services/shared/family-state.service';
+import { DataCacheService } from '../../../../services/shared/data-cache.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 
 interface FamilyEditForm {
     name: string;

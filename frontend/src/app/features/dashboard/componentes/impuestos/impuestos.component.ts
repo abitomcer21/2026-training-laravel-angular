@@ -9,9 +9,9 @@ import {
   createOutline, trashOutline
 } from 'ionicons/icons';
 
-import { TaxService, Tax } from '../../../services/api/tax.service';
-import { DataCacheService } from '../../../services/shared/data-cache.service';
-import { AuthService } from '../../../services/auth/auth.service';
+import { TaxService, Tax } from '../../../../services/api/tax.service';
+import { DataCacheService } from '../../../../services/shared/data-cache.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 
 interface TaxEditForm {
   name: string;

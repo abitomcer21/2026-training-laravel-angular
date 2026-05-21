@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Product } from '../../../../services/api/product.service';
+import { Product } from '../../../../../services/api/product.service';
 import { ProductCreateForm } from '../forms/product-create.form';
 import { parseActiveValue } from '../utils/product.utils';
 
