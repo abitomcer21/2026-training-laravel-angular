@@ -2,6 +2,8 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonBadge, IonButton, IonContent, IonIcon, IonModal } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
+
+import { printOutline, closeCircleOutline, closeOutline, returnDownBackOutline } from 'ionicons/icons';
 import {
   listOutline,
   refreshOutline,
@@ -44,11 +46,23 @@ export class PedidosComponent implements OnInit {
   pinIngresado = '';
   pinError = '';
 
+  showSaleModal = false;
+  selectedSale: Sale | null = null;
+  saleActionMessage = '';
+  saleActionIsError = false;
+
+  cancelledLines = new Set<string>();
+
+
   constructor(
     private orderStateService: OrderStateService,
     private salesService: SalesService,
   ) {
-    addIcons({ listOutline, refreshOutline, checkmarkCircleOutline, fastFoodOutline });
+    addIcons({ listOutline, refreshOutline, checkmarkCircleOutline, fastFoodOutline, printOutline, 
+  closeCircleOutline, 
+  closeOutline,
+  returnDownBackOutline 
+ });
   }
 
   ngOnInit() {
@@ -191,4 +205,40 @@ export class PedidosComponent implements OnInit {
     }
     return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
   }
+
+openSaleDetail(sale: Sale): void {
+  this.selectedSale = sale;
+  this.cancelledLines.clear();
+  this.saleActionMessage = '';
+  this.saleActionIsError = false;
+  this.showSaleModal = true;
+}
+reprintTicket(): void {
+  this.saleActionMessage = `Ticket #${this.selectedSale?.ticket_number} enviado a impresora.`;
+  this.saleActionIsError = false;
+}
+
+refundSale(): void {
+  this.saleActionMessage = `Devolución de ${this.formatCurrency(this.selectedSale?.total ?? 0)} iniciada.`;
+  this.saleActionIsError = false;
+}
+
+cancelSale(): void {
+  if (!this.selectedSale) return;
+  this.paidOrders = this.paidOrders.filter(s => s.id !== this.selectedSale!.id);
+  this.closeSaleModal();
+}
+
+cancelLine(lineId: string): void {
+  this.cancelledLines.add(lineId);
+  this.saleActionMessage = 'Línea anulada.';
+  this.saleActionIsError = false;
+}
+
+closeSaleModal(): void {
+  this.showSaleModal = false;
+  this.selectedSale = null;
+  this.saleActionMessage = '';
+  this.cancelledLines.clear();
+}
 }

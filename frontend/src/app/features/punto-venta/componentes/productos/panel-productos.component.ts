@@ -690,5 +690,4 @@ export class ProductosComponent implements OnInit {
     this.resetearEstadoPedido();
     this.volverAMesas();
   }
-
 }

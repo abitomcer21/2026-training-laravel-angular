@@ -2,9 +2,9 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { Product } from '../../../../services/api/product.service';
-import { Family } from '../../../../services/api/family.service';
-import { Tax } from '../../../../services/api/tax.service';
+import { Product } from '../../../../../services/api/product.service';
+import { Family } from '../../../../../services/api/family.service';
+import { Tax } from '../../../../../services/api/tax.service';
 import { ProductCreateForm, createEmptyProductForm } from '../forms/product-create.form';
 import { ProductEditForm } from '../forms/product-edit.form';
 import { obtenerNombreFamilia as obtenerNombreFamiliaUtil } from '../utils/product.utils';

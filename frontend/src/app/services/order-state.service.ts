@@ -130,8 +130,8 @@ export class OrderStateService {
     const savedState = this.loadStateFromStorage(key);
 
     if (savedState) {
-      const updatedOrder: CurrentOrder = { ...savedState.order, table, user };
-      this.currentOrder$.next(updatedOrder);
+      const actualizarPedido: CurrentOrder = { ...savedState.order, table, user };
+      this.currentOrder$.next(actualizarPedido);
       this.pedidoInicialEnviado = savedState.pedidoInicialEnviado;
       this.itemsEnviadosACocina = savedState.itemsEnviadosACocina;
       this.articulosPagados = savedState.articulosPagados;

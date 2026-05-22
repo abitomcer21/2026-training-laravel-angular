@@ -11,6 +11,14 @@ export interface Sale {
   user_id: number;
   user_name: string;
   created_at: string;
+  lines?: SaleLine[];
+}
+
+export interface SaleLine {
+  id: string;
+  product_name: string;
+  quantity: number;
+  price: number;
 }
 
 @Injectable({

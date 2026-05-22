@@ -17,5 +17,15 @@ export const routes: Routes = [
   {
     path: 'point-of-sale',
     loadComponent: () => import('./pages/punto-venta/punto-venta.page').then(m => m.PuntoVentaPage)
-  }
+  },
+  {
+  path: 'point-of-sale',
+  loadComponent: () => import('./pages/punto-venta/punto-venta.page').then(m => m.PuntoVentaPage),
+  children: [
+    {
+      path: 'panel-mesas',
+      loadComponent: () => import('./features/punto-venta/componentes/mesas/panel-mesas.component').then(m => m.MesasComponent)
+    }
+  ]
+}
 ];

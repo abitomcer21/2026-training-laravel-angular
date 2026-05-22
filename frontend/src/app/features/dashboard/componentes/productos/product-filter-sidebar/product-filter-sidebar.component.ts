@@ -4,8 +4,8 @@ import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { albumsOutline, gridOutline, pricetagOutline } from 'ionicons/icons';
 
-import { Product } from '../../../../services/api/product.service';
-import { Family } from '../../../../services/api/family.service';
+import { Product } from '../../../../../services/api/product.service';
+import { Family } from '../../../../../services/api/family.service';
 
 
 @Component({

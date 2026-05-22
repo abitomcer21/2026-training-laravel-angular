@@ -138,12 +138,12 @@ export class MesasComponent implements OnInit {
     if (camareroActual) {
       this.SesiónCamareroService.renovarSesion();
 
-      const waiterUser = this.usuarios.find(
+      const camarero = this.usuarios.find(
         (u) => String(u.id) === camareroActual.uuid || u.name === camareroActual.name,
       );
 
-      if (waiterUser) {
-        this.selectedUser = waiterUser;
+      if (camarero) {
+        this.selectedUser = camarero;
         this.mesaEsNueva = !this.isTableOccupied(mesa);
         this.orderStateService.setTableAndUser(mesa, this.selectedUser);
 

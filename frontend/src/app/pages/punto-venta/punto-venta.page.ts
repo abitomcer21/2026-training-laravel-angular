@@ -49,6 +49,7 @@ export class PuntoVentaPage implements OnInit {
   }
 
   ngOnInit() {
+    this.sesionCamarero.onSessionExpire(() => this.selectView('mesas'));
     this.cargarRestaurantName();
     const userData = localStorage.getItem('userData');
     if (userData) {
@@ -85,6 +86,7 @@ export class PuntoVentaPage implements OnInit {
 
   clearWaiter() {
     this.sesionCamarero.limpiar();
+      this.currentView = 'mesas';
   }
 
   logout() {

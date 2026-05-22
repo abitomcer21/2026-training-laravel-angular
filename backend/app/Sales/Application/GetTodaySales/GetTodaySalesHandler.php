@@ -34,7 +34,7 @@ class GetTodaySalesHandler
                 return [
                     'id' => $sale->id,
                     'ticket_number' => $sale->ticket_number,
-                    'total' => $sale->total / 100, // Convertir de céntimos a euros
+                    'total' => $sale->total / 100,
                     'payment_method' => $sale->payment_method ?? 'efectivo',
                     'user_id' => $sale->user_id,
                     'user_name' => $sale->user_name,

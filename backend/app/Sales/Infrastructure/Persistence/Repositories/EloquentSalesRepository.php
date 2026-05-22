@@ -247,7 +247,9 @@ public function getTodaySales(string $date): array
         ->join('orders', 'sales.order_id', '=', 'orders.id')
         ->join('users', 'sales.user_id', '=', 'users.id')
         ->whereDate('sales.created_at', $date)
+        ->whereNull('sales.deleted_at')
         ->select(
+            'sales.id as internal_id',
             'sales.uuid as id',
             'sales.ticket_number',
             'sales.total',
@@ -258,19 +260,41 @@ public function getTodaySales(string $date): array
         ->orderBy('sales.created_at', 'desc')
         ->get()
         ->map(function ($sale) {
+            $lines = DB::table('sales_lines')
+                ->join('order_lines', 'sales_lines.order_line_id', '=', 'order_lines.id')
+                ->join('products', 'order_lines.product_id', '=', 'products.id')
+                ->where('sales_lines.sale_id', $sale->internal_id)
+                ->whereNull('sales_lines.deleted_at')
+                ->select(
+                    'sales_lines.uuid as id',
+                    'products.name as product_name',
+                    'sales_lines.quantity',
+                    'sales_lines.price',
+                    'sales_lines.tax_percentage',
+                )
+                ->get()
+                ->map(fn($line) => [
+                    'id' => $line->id,
+                    'product_name' => $line->product_name,
+                    'quantity' => $line->quantity,
+                    'price' => $line->price / 100,
+                    'tax_percentage' => $line->tax_percentage,
+                ])
+                ->toArray();
+
             return [
                 'id' => $sale->id,
                 'ticket_number' => $sale->ticket_number,
                 'total' => $sale->total / 100,
-                'payment_method' => 'efectivo', // Valor fijo por ahora
+                'payment_method' => 'efectivo',
                 'user_id' => $sale->user_id,
                 'user_name' => $sale->user_name,
-                'created_at' => $sale->created_at
+                'created_at' => $sale->created_at,
+                'lines' => $lines,
             ];
         })
         ->toArray();
-        
+
     return $sales;
 }
-
 }

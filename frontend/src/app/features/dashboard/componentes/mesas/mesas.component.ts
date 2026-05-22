@@ -10,10 +10,10 @@ import {
 } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
-import { TableService, Table } from '../../../services/api/table.service';
-import { ZoneService, Zone } from '../../../services/api/zone.service';
-import { ZoneStateService } from '../../../services/shared/zone-state.service';
-import { AuthService } from '../../../services/auth/auth.service';
+import { TableService, Table } from '../../../../services/api/table.service';
+import { ZoneService, Zone } from '../../../../services/api/zone.service';
+import { ZoneStateService } from '../../../../services/shared/zone-state.service';
+import { AuthService } from '../../../../services/auth/auth.service';
 
 interface TableEditForm {
   name: string;
