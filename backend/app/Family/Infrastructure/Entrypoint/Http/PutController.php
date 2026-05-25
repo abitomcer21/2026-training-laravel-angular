@@ -35,7 +35,7 @@ class PutController
             return new JsonResponse($response->toArray(), 200);
 
         } catch (\Throwable $e) {
-            return ExceptionResponseResolver::resolve($e);
-        }
+    return new JsonResponse(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 500);
+}
     }
 }

@@ -5,16 +5,12 @@ namespace App\Family\Domain\Services;
 use App\Family\Domain\Entity\Family;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
 use App\Family\Domain\ValueObject\FamilyName;
-use App\Shared\Domain\Interfaces\TransactionManagerInterface;
-
 
 class FamilyUpdater
 {
     public function __construct(
         private FamilyRepositoryInterface $familyRepository,
         private SyncProductsStatus $syncProductsStatus,
-        private TransactionManagerInterface $transactionManager,
-
     ) {}
 
     public function update(Family $family, ?FamilyName $name, ?bool $active): Family
@@ -24,14 +20,32 @@ class FamilyUpdater
 
         $updatedFamily = $family->updateData($newName, $newActive);
 
-        $this->transactionManager->run(function () use ($updatedFamily, $family, $active) {
-        $this->familyRepository->save($updatedFamily);
+        $this->familyRepository->beginTransaction();
 
-        if ($active !== null) {
-            $this->syncProductsStatus->sync($family->id()->value(), $active);
+        try {
+            $this->saveFamily($updatedFamily);
+
+            if ($active !== null) {
+                $this->syncProducts($family->id()->value(), $active);
+            }
+
+            $this->familyRepository->commit();
+
+        } catch (\Throwable $e) {
+            $this->familyRepository->rollBack();
+            throw $e;
         }
-    });
 
-    return $updatedFamily;
+        return $updatedFamily;
+    }
+
+    private function saveFamily(Family $family): void
+    {
+        $this->familyRepository->save($family);
+    }
+
+    private function syncProducts(string $familyId, bool $active): void
+    {
+        $this->syncProductsStatus->sync($familyId, $active);
     }
 }

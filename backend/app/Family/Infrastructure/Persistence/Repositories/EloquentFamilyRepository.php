@@ -6,8 +6,9 @@ use App\Family\Domain\Entity\Family;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
 use App\Family\Domain\ValueObject\FamilyName;
 use App\Family\Infrastructure\Persistence\Models\EloquentFamily;
+use App\Shared\Infrastructure\Persistence\Repositories\AbstractEloquentRepository;
 
-class EloquentFamilyRepository implements FamilyRepositoryInterface
+class EloquentFamilyRepository extends AbstractEloquentRepository implements FamilyRepositoryInterface
 {
     public function __construct(
         private EloquentFamily $model,
