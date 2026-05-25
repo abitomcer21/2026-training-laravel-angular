@@ -11,6 +11,7 @@ import { PedidosComponent } from '../../features/punto-venta/componentes/pedidos
 import { CajaComponent } from '../../features/punto-venta/componentes/caja/panel-caja.component';
 import { RestaurantService } from '../../services/api/restaurant.service';
 import { SesiónCamareroService } from '../../services/sesion-camarero.service';
+import { UserService } from '../../services/api/user.service';
 
 interface MenuItem {
   nombre: string;
@@ -32,7 +33,14 @@ export class PuntoVentaPage implements OnInit {
   restaurantName: string = 'Restaurante';
   userRole: string = '';
 
+  pendingView: string | null = null;
+
   readonly activeWaiter = this.sesionCamarero.camarero;
+
+  showPinGuard = false;
+  adminUsers: any[] = [];
+  pinGuardDigits = '';
+  pinGuardError = '';
 
   menuItems: MenuItem[] = [
     { nombre: 'Mesas', valor: 'mesas', icono: 'grid-outline' },
@@ -40,10 +48,13 @@ export class PuntoVentaPage implements OnInit {
     { nombre: 'Caja', valor: 'caja', icono: 'cash-outline' },
   ];
 
+  
+
   constructor(
     private restaurantService: RestaurantService,
     private router: Router,
     private sesionCamarero: SesiónCamareroService,
+    private userService: UserService,
   ) {
     addIcons({ gridOutline, restaurantOutline, listOutline, cashOutline, logOutOutline, optionsOutline });
   }
@@ -73,12 +84,14 @@ export class PuntoVentaPage implements OnInit {
     });
   }
 
-  selectView(valor: string) {
-    this.currentView = valor;
-    if (valor === 'mesas' && this.mesasComponent) {
-      setTimeout(() => this.mesasComponent?.refrescarMesas(), 0);
-    }
+selectView(valor: string) {
+  const restricted = ['pedidos', 'caja'];
+  if (restricted.includes(valor) && this.needsPinGuard()) {
+    this.abrirPinGuard(valor);
+    return;
   }
+  this._doSelectView(valor);
+}
 
   openTableFromOrder(tableId: string) {
     this.currentView = 'productos';
@@ -103,7 +116,77 @@ export class PuntoVentaPage implements OnInit {
     }
   }
 
-  volverAlDashboard() {
-    this.router.navigate(['/dashboard']);
+volverAlDashboard() {
+  if (this.needsPinGuard()) {
+    this.abrirPinGuard(null);
+    return;
   }
+  this.router.navigate(['/dashboard']);
+}
+
+  addPinGuardDigit(d: string) {
+    if (this.pinGuardDigits.length >= 4) return;
+    this.pinGuardDigits += d;
+    this.pinGuardError = '';
+    if (this.pinGuardDigits.length === 4) setTimeout(() => this.confirmPinGuard(), 150);
+  }
+
+  removePinGuardDigit() {
+    this.pinGuardDigits = this.pinGuardDigits.slice(0, -1);
+    this.pinGuardError = '';
+  }
+
+  closePinGuard() {
+    this.showPinGuard = false;
+    this.pinGuardDigits = '';
+    this.pinGuardError = '';
+  }
+
+  getPinGuardKeyboardRow(row: number): number[] {
+    return [[1,2,3],[4,5,6],[7,8,9]][row] || [];
+  }
+
+  confirmPinGuard() {
+    const match = this.adminUsers.find(u => u.pin === this.pinGuardDigits);
+    if (!match) {
+      this.pinGuardError = 'PIN inválido';
+      this.pinGuardDigits = '';
+      return;
+    }
+    this.showPinGuard = false;
+    if (this.pendingView) {
+      this._doSelectView(this.pendingView);
+      this.pendingView = null;
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
+
+  private _doSelectView(valor: string) {
+    this.currentView = valor;
+    if (valor === 'mesas' && this.mesasComponent) {
+      setTimeout(() => this.mesasComponent?.refrescarMesas(), 0);
+    }
+  }
+
+  private needsPinGuard(): boolean {
+  const waiter = this.sesionCamarero.obtenerCamareroActual();
+  console.log('waiter:', waiter);
+  return !waiter || !['admin', 'supervisor'].includes(waiter.role ?? '');
+}
+
+private abrirPinGuard(destino: string | null) {
+  this.pinGuardDigits = '';
+  this.pinGuardError = '';
+  this.pendingView = destino;
+  this.userService.getUsers().subscribe({
+    next: (res: any) => {
+      this.adminUsers = (res.users ?? []).filter((u: any) =>
+        ['admin', 'supervisor'].includes(u.role)
+      );
+      this.showPinGuard = true;
+    },
+  });
+}
+
 }

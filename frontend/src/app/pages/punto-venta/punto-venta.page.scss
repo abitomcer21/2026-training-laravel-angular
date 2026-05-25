@@ -228,3 +228,100 @@
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
+
+.pin-guard-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+.pin-guard-popup {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  width: 300px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+
+.pin-guard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+
+  .btn-close-guard {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #888;
+  }
+}
+
+.pin-guard-subtitle {
+  margin: 0;
+  font-size: .85rem;
+  color: #666;
+  text-align: center;
+}
+
+.pin-guard-display {
+  display: flex;
+  justify-content: center;
+  gap: .75rem;
+  padding: .5rem 0;
+}
+
+.pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--ion-color-primary);
+  transition: background .15s;
+
+  &.filled { background: var(--ion-color-primary); }
+}
+
+.pin-guard-error {
+  text-align: center;
+  font-size: .82rem;
+  color: var(--ion-color-danger);
+  background: var(--ion-color-danger-tint);
+  padding: .4rem .75rem;
+  border-radius: 6px;
+}
+
+.pin-guard-keyboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .5rem;
+}
+
+.pin-key {
+  height: 52px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .1s, border-color .1s;
+
+  &:hover { background: #f5f5f5; border-color: var(--ion-color-primary); }
+  ion-icon { font-size: 1.2rem; }
+}
+
+.pin-key-back { color: #666; }
+.pin-key-empty { border: none; background: none; pointer-events: none; }

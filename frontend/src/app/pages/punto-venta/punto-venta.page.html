@@ -49,4 +49,39 @@
       </div>
     </ion-content>
   </div>
+
+  @if (showPinGuard) {
+  <div class="pin-guard-overlay" (click)="closePinGuard()">
+    <div class="pin-guard-popup" (click)="$event.stopPropagation()">
+      <div class="pin-guard-header">
+        <h3>Acceso restringido</h3>
+        <button class="btn-close-guard" (click)="closePinGuard()">✕</button>
+      </div>
+      <p class="pin-guard-subtitle">PIN de administrador o supervisor</p>
+
+      <div class="pin-guard-display">
+        @for (i of [0,1,2,3]; track i) {
+          <div class="pin-dot" [class.filled]="pinGuardDigits.length > i"></div>
+        }
+      </div>
+
+      @if (pinGuardError) {
+        <div class="pin-guard-error">{{ pinGuardError }}</div>
+      }
+
+      <div class="pin-guard-keyboard">
+        @for (row of [0,1,2]; track row) {
+          @for (d of getPinGuardKeyboardRow(row); track d) {
+            <button class="pin-key" (click)="addPinGuardDigit(d.toString())">{{ d }}</button>
+          }
+        }
+        <button class="pin-key pin-key-back" (click)="removePinGuardDigit()">
+          <ion-icon name="backspace-outline"></ion-icon>
+        </button>
+        <button class="pin-key" (click)="addPinGuardDigit('0')">0</button>
+        <div class="pin-key-empty"></div>
+      </div>
+    </div>
+  </div>
+}
 </div>

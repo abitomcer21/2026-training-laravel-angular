@@ -1,7 +1,9 @@
 import { Injectable, signal, inject } from '@angular/core';
 
-export interface ActiveWaiter { uuid: string; name: string; pin: string; }
+export interface ActiveWaiter { uuid: string; name: string; pin: string; role?: string; }
 export type TpvView = 'mesas' | 'productos' | 'pedidos' | 'caja';
+
+
 
 @Injectable({ providedIn: 'root' })
 export class SesiónCamareroService {

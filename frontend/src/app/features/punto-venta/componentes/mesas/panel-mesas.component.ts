@@ -181,6 +181,7 @@ export class MesasComponent implements OnInit {
       uuid: String(this.selectedUser.id),
       name: this.selectedUser.name,
       pin: this.selectedUser.pin,
+      role: this.selectedUser.role,
     };
 
     this.SesiónCamareroService.iniciarSesion(camarero);
