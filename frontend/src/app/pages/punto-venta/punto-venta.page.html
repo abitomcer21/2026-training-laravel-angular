@@ -1,8 +1,6 @@
 <div class="tpv-container">
   <aside class="tpv-sidebar">
-    <div class="sidebar-header">
-      <span class="restaurant-name">{{ restaurantName }}</span>
-    </div>
+
 
     <nav class="sidebar-nav">
       @for (item of menuItems; track item.valor) {
@@ -25,18 +23,25 @@
   <div class="tpv-main">
 
     <header class="tpv-header">
-      @if (activeWaiter()) {
-      <div class="user-info">
-        <ion-icon name="person-circle-outline" class="user-icon"></ion-icon>
-        <span class="waiter-name">{{ activeWaiter()!.name }}</span>
-        <button class="logout-button" (click)="clearWaiter()" title="Cerrar sesión de camarero">
-          <ion-icon name="log-out-outline"></ion-icon>
-        </button>
-      </div>
-      } @else {
-      <span class="waiter-name no-waiter">Sin camarero activo</span>
-      }
-    </header>
+  <div class="restaurant-info">
+    <span class="restaurant-name">{{ restaurantName }}</span>
+  </div>
+
+  @if (activeWaiter()) {
+    <div class="user-info">
+      <ion-icon name="person-circle-outline" class="user-icon"></ion-icon>
+      <span class="waiter-name">{{ activeWaiter()!.name }}</span>
+      <span class="session-timer" [class.urgente]="tiempoRestante() <= 5">
+        {{ tiempoRestante() }}s
+      </span>
+      <button class="logout-button" (click)="clearWaiter()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </button>
+    </div>
+  } @else {
+    <span class="waiter-name no-waiter">Sin camarero activo</span>
+  }
+</header>
 
     <ion-content class="tpv-content ion-padding">
       <div class="content-wrapper">

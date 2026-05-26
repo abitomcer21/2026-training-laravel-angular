@@ -10,9 +10,13 @@ import {
 import { addIcons } from 'ionicons';
 import {
   gridOutline,
+  listOutline,
+  searchOutline,
   closeOutline,
   arrowForwardOutline,
   backspaceOutline,
+  peopleOutline,
+  timeOutline,
 } from 'ionicons/icons';
 import { TableService, Table } from '../../../../services/api/table.service';
 import { UserService, User } from '../../../../services/api/user.service';
@@ -23,13 +27,22 @@ import {
   SesiónCamareroService,
   ActiveWaiter,
 } from '../../../../services/sesion-camarero.service';
+import { MesaSearchPipe } from '../../../../pipes/mesa-search.pipe';
 
 @Component({
   selector: 'app-mesas',
   templateUrl: './panel-mesas.component.html',
   styleUrls: ['./panel-mesas.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonIcon, IonLoading, IonModal, IonContent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonIcon,
+    IonLoading,
+    IonModal,
+    IonContent,
+    MesaSearchPipe,
+  ],
 })
 export class MesasComponent implements OnInit {
   @Output() vistaChange = new EventEmitter<string>();
@@ -50,6 +63,13 @@ export class MesasComponent implements OnInit {
   zonaSeleccionada: Zone | null = null;
   mesaEsNueva = false;
 
+  viewMode: 'grid' | 'list' = 'grid';
+  searchQuery = '';
+
+  private tableOpenTimes: Map<string, Date> = new Map();
+
+  private readonly ZONA_OCUPADAS_ID = -1;
+
   constructor(
     private tableService: TableService,
     private userService: UserService,
@@ -58,7 +78,16 @@ export class MesasComponent implements OnInit {
     private zoneService: ZoneService,
     private SesiónCamareroService: SesiónCamareroService,
   ) {
-    addIcons({ gridOutline, closeOutline, arrowForwardOutline, backspaceOutline });
+    addIcons({
+      gridOutline,
+      listOutline,
+      searchOutline,
+      closeOutline,
+      arrowForwardOutline,
+      backspaceOutline,
+      peopleOutline,
+      timeOutline,
+    });
   }
 
   ngOnInit() {
@@ -76,7 +105,18 @@ export class MesasComponent implements OnInit {
     this.zoneService.getZones().subscribe({
       next: (response: any) => {
         const todasLasZonas = response.zones || [];
-        this.zonas = todasLasZonas.filter((zona: Zone) => zona.restaurant_id === restaurantId);
+        const zonasFiltradas = todasLasZonas.filter(
+          (zona: Zone) => zona.restaurant_id === restaurantId,
+        );
+
+        this.zonas = [
+          ...zonasFiltradas,
+          { id: '-1', name: 'OCUPADAS', restaurant_id: restaurantId } as Zone,
+        ];
+
+        if (this.zonas.length > 0 && !this.zonaSeleccionada) {
+          this.filtrarMesasPorZona(this.zonas[0]);
+        }
       },
       error: (error) => console.error('Error cargando zonas:', error),
     });
@@ -95,7 +135,9 @@ export class MesasComponent implements OnInit {
     this.tableService.getTables().subscribe({
       next: (response: any) => {
         const todasLasMesas = response.tables || [];
-        this.mesas = todasLasMesas.filter((mesa: Table) => mesa.restaurant_id === restaurantId);
+        this.mesas = todasLasMesas.filter(
+          (mesa: Table) => mesa.restaurant_id === restaurantId,
+        );
         this.filtrarMesasPorZona(this.zonaSeleccionada);
         this.cargando = false;
       },
@@ -110,9 +152,13 @@ export class MesasComponent implements OnInit {
     this.zonaSeleccionada = zona;
     if (!zona) {
       this.mesasFiltradas = this.mesas;
+    } else if (zona.id === '-1') {
+      this.mesasFiltradas = this.mesas.filter((mesa) =>
+        this.isTableOccupied(mesa),
+      );
     } else {
       this.mesasFiltradas = this.mesas.filter(
-        (mesa: Table) => mesa.zone_id === zona.id || mesa.zone_id === zona.database_id,
+        (mesa) => mesa.zone_id === zona.id || mesa.zone_id === zona.database_id,
       );
     }
   }
@@ -132,14 +178,14 @@ export class MesasComponent implements OnInit {
 
   seleccionarMesa(mesa: Table) {
     this.selectedTable = mesa;
-
     const camareroActual = this.SesiónCamareroService.obtenerCamareroActual();
 
     if (camareroActual) {
       this.SesiónCamareroService.renovarSesion();
-
       const camarero = this.usuarios.find(
-        (u) => String(u.id) === camareroActual.uuid || u.name === camareroActual.name,
+        (u) =>
+          String(u.id) === camareroActual.uuid ||
+          u.name === camareroActual.name,
       );
 
       if (camarero) {
@@ -188,7 +234,10 @@ export class MesasComponent implements OnInit {
     this.waiterSessionChange.emit(camarero);
 
     if (this.selectedTable && this.selectedUser) {
-      this.orderStateService.setTableAndUser(this.selectedTable, this.selectedUser);
+      this.orderStateService.setTableAndUser(
+        this.selectedTable,
+        this.selectedUser,
+      );
     }
 
     this.mostrarModalPin = false;
@@ -205,7 +254,6 @@ export class MesasComponent implements OnInit {
     if (this.pinIngresado.length < 4) {
       this.pinIngresado += digito;
       this.mensajeError = '';
-
       if (this.pinIngresado.length === 4) {
         setTimeout(() => this.validarPin(), 150);
       }
@@ -229,7 +277,11 @@ export class MesasComponent implements OnInit {
   }
 
   getKeyboardNumbers(row: number): number[] {
-    const rows = [[1, 2, 3], [4, 5, 6], [7, 8, 9]];
+    const rows = [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+    ];
     return rows[row] || [];
   }
 
@@ -240,7 +292,10 @@ export class MesasComponent implements OnInit {
   }
 
   borrarDigitoComensales() {
-    this.cantidadComensalesIngresada = this.cantidadComensalesIngresada.slice(0, -1);
+    this.cantidadComensalesIngresada = this.cantidadComensalesIngresada.slice(
+      0,
+      -1,
+    );
   }
 
   cerrarModal() {
@@ -256,13 +311,15 @@ export class MesasComponent implements OnInit {
 
   confirmarComensales() {
     if (!this.cantidadComensalesIngresada) return;
-
     const cantidad = parseInt(this.cantidadComensalesIngresada, 10);
     if (isNaN(cantidad) || cantidad <= 0) return;
 
+    if (this.selectedTable) {
+      this.tableOpenTimes.set(String(this.selectedTable.id), new Date());
+    }
+
     this.SesiónCamareroService.renovarSesion();
     this.orderStateService.setComensales(cantidad);
-
     this.mostrarModalComensales = false;
     this.cantidadComensalesIngresada = '';
     this.selectedTable = null;
@@ -274,30 +331,40 @@ export class MesasComponent implements OnInit {
     setTimeout(() => this.vistaChange.emit('productos'), 50);
   }
 
-  trackByMesa(index: number, mesa: Table): string {
-    return mesa.uuid;
-  }
-
   isTableOccupied(mesa: Table): boolean {
     return this.orderStateService.hasActiveOrderForTable(String(mesa.id));
   }
 
-  getTableOccupiedInfo(mesa: Table): { comensales: number; total: number } | null {
+  isTablePendingBill(mesa: Table): boolean {
+    return false;
+  }
+
+  getTableOccupiedInfo(
+    mesa: Table,
+  ): { comensales: number; total: number } | null {
     return this.orderStateService.getTableOccupiedInfo(String(mesa.id));
+  }
+
+  getTableTime(mesa: Table): string {
+    const openTime = this.tableOpenTimes.get(String(mesa.id));
+    if (!openTime) return '00:00';
+    const diff = Math.floor((Date.now() - openTime.getTime()) / 1000);
+    const h = Math.floor(diff / 3600);
+    const m = Math.floor((diff % 3600) / 60);
+    return h > 0
+      ? `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+      : `${String(m).padStart(2, '0')}:${String(diff % 60).padStart(2, '0')}`;
   }
 
   openTable(tableId: string): void {
     const mesa = this.mesas.find(
       (m) => String(m.id) === tableId || String(m.uuid) === tableId,
     );
-
     if (mesa) {
       this.seleccionarMesa(mesa);
       return;
     }
-
     if (!this.cargando) this.cargarMesas();
-
     setTimeout(() => {
       const found = this.mesas.find(
         (m) => String(m.id) === tableId || String(m.uuid) === tableId,
@@ -314,5 +381,9 @@ export class MesasComponent implements OnInit {
     this.SesiónCamareroService.cerrarSesion();
     this.waiterSessionChange.emit(null);
     this.selectedUser = null;
+  }
+
+  trackByMesa(index: number, mesa: Table): string {
+    return mesa.uuid;
   }
 }

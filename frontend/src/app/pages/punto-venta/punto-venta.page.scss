@@ -30,7 +30,7 @@
 .restaurant-name {
   font-size: 0.65rem;
   font-weight: 700;
-  color: white;
+  color: black;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.2;
@@ -94,6 +94,84 @@
   align-items: center;
 }
 
+.tpv-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tpv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(180deg, #e8b84a 0%, white 100%);
+  flex-shrink: 0;
+  min-height: 80px;
+
+  .restaurant-name {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a3d5c;
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #1a3d5c;
+    border-radius: 50px;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+      .logout-icon {
+        opacity: 1;
+        transform: translateX(2px);
+      }
+    }
+
+    .user-icon {
+      font-size: 1.4rem;
+      color: #1a3d5c;
+    }
+
+    .waiter-name {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a3d5c;
+      white-space: nowrap;
+    }
+
+    .logout-icon {
+      font-size: 1.1rem;
+      color: #e74c3c;
+      opacity: 0.7;
+      transition: all 0.2s ease;
+    }
+  }
+
+  .no-waiter {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 0.9rem;
+    color: #1a3d5c;
+    opacity: 0.7;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #1a3d5c;
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+  }
+}
+
 .tpv-content {
   flex: 1;
   --background: var(--bg-light);
@@ -109,6 +187,124 @@
   height: 100%;
   gap: 24px;
   min-height: 0;
+}
+
+.pin-guard-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+.pin-guard-popup {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  width: 300px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.pin-guard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .btn-close-guard {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #888;
+  }
+}
+
+.pin-guard-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+  text-align: center;
+}
+
+.pin-guard-display {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--ion-color-primary);
+  transition: background 0.15s;
+
+  &.filled {
+    background: var(--ion-color-primary);
+  }
+}
+
+.pin-guard-error {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--ion-color-danger);
+  background: var(--ion-color-danger-tint);
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+}
+
+.pin-guard-keyboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.pin-key {
+  height: 52px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.1s,
+    border-color 0.1s;
+
+  &:hover {
+    background: #f5f5f5;
+    border-color: var(--ion-color-primary);
+  }
+
+  ion-icon {
+    font-size: 1.2rem;
+  }
+}
+
+.pin-key-back {
+  color: #666;
+}
+
+.pin-key-empty {
+  border: none;
+  background: none;
+  pointer-events: none;
 }
 
 @media (max-width: 768px) {
@@ -127,201 +323,53 @@
     height: 45px;
     font-size: 24px;
   }
-}
-.tpv-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
 
-.tpv-header {
-  background: white;
-  border-bottom: 1px solid var(--border-color, #e0e0e0);
-  padding: 12px 24px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  flex-shrink: 0;
-}
-
-.header-spacer {
-  flex: 1;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--bg-light, #f5f5f5);
-  padding: 8px 16px;
-  border-radius: 40px;
-  border: 1px solid var(--border-color, #e0e0e0);
-}
-
-.user-icon {
-  font-size: 24px;
-  color: var(--primary-dark, #2c3e50);
-}
-
-.waiter-name {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-dark, #333);
-  letter-spacing: 0.3px;
-}
-
-.logout-button {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  color: #e74c3c;
-  font-size: 20px;
-  margin-left: 4px;
-
-  &:hover {
-    background: rgba(231, 76, 60, 0.1);
-    transform: scale(1.1);
-  }
-
-  ion-icon {
-    font-size: 20px;
-  }
-}
-
-@media (max-width: 768px) {
   .tpv-header {
-    padding: 8px 16px;
-  }
+    padding: 0.75rem 1rem;
+    min-height: 70px;
 
-  .user-info {
-    gap: 8px;
-    padding: 6px 12px;
-  }
+    .restaurant-name {
+      font-size: 0.95rem;
+    }
 
-  .waiter-name {
-    font-size: 0.85rem;
-  }
+    .user-info {
+      padding: 0.35rem 0.75rem;
+      gap: 0.5rem;
 
-  .user-icon {
-    font-size: 20px;
-  }
+      .user-icon {
+        font-size: 1.2rem;
+      }
 
-  .logout-button ion-icon {
-    font-size: 18px;
-  }
-}
+      .waiter-name {
+        font-size: 0.85rem;
+      }
 
-.tpv-header {
-  background: white;
-  border-bottom: 1px solid var(--border-color, #e0e0e0);
-  padding: 30px 24px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.pin-guard-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 99999;
-}
-
-.pin-guard-popup {
-  background: #fff;
-  border-radius: 16px;
-  padding: 1.75rem 1.5rem;
-  width: 300px;
-  max-width: 95vw;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  box-shadow: 0 12px 40px rgba(0,0,0,.25);
-}
-
-.pin-guard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  h3 { margin: 0; font-size: 1.1rem; font-weight: 700; }
-
-  .btn-close-guard {
-    background: none;
-    border: none;
-    font-size: 1rem;
-    cursor: pointer;
-    color: #888;
+      .logout-icon {
+        font-size: 1rem;
+      }
+    }
   }
 }
 
-.pin-guard-subtitle {
-  margin: 0;
-  font-size: .85rem;
-  color: #666;
+.session-timer {
+  font-size: 0.8rem;
+  color: var(--text-muted, #999);
+  font-weight: 600;
+  min-width: 28px;
   text-align: center;
+
+  &.urgente {
+    color: #e74c3c;
+    animation: parpadeo 0.5s infinite;
+  }
 }
 
-.pin-guard-display {
-  display: flex;
-  justify-content: center;
-  gap: .75rem;
-  padding: .5rem 0;
+@keyframes parpadeo {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
-
-.pin-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid var(--ion-color-primary);
-  transition: background .15s;
-
-  &.filled { background: var(--ion-color-primary); }
-}
-
-.pin-guard-error {
-  text-align: center;
-  font-size: .82rem;
-  color: var(--ion-color-danger);
-  background: var(--ion-color-danger-tint);
-  padding: .4rem .75rem;
-  border-radius: 6px;
-}
-
-.pin-guard-keyboard {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: .5rem;
-}
-
-.pin-key {
-  height: 52px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  background: #fff;
-  font-size: 1.2rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background .1s, border-color .1s;
-
-  &:hover { background: #f5f5f5; border-color: var(--ion-color-primary); }
-  ion-icon { font-size: 1.2rem; }
-}
-
-.pin-key-back { color: #666; }
-.pin-key-empty { border: none; background: none; pointer-events: none; }

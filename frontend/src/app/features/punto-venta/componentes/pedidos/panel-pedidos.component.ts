@@ -1,17 +1,32 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonBadge, IonButton, IonContent, IonIcon, IonModal } from '@ionic/angular/standalone';
+import {
+  IonBadge,
+  IonButton,
+  IonContent,
+  IonIcon,
+  IonModal,
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 
-import { printOutline, closeCircleOutline, closeOutline, returnDownBackOutline } from 'ionicons/icons';
+import {
+  printOutline,
+  closeCircleOutline,
+  closeOutline,
+  returnDownBackOutline,
+} from 'ionicons/icons';
 import {
   listOutline,
   refreshOutline,
   checkmarkCircleOutline,
   fastFoodOutline,
 } from 'ionicons/icons';
-import { OrderStateService, OrderItem } from '../../../../services/order-state.service';
+import {
+  OrderStateService,
+  OrderItem,
+} from '../../../../services/order-state.service';
 import { SalesService, Sale } from '../../../../services/api/sales.service';
+import { UserService, User } from '../../../../services/api/user.service';
 
 interface PedidoActivo {
   key: string;
@@ -31,7 +46,7 @@ interface PedidoActivo {
   templateUrl: './panel-pedidos.component.html',
   styleUrls: ['./panel-pedidos.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonIcon, IonBadge, IonModal, IonContent]
+  imports: [CommonModule, IonIcon, IonBadge, IonModal, IonContent],
 })
 export class PedidosComponent implements OnInit {
   @Output() openTable = new EventEmitter<string>();
@@ -50,25 +65,38 @@ export class PedidosComponent implements OnInit {
   selectedSale: Sale | null = null;
   saleActionMessage = '';
   saleActionIsError = false;
+  adminUsers: User[] = [];
 
   cancelledLines = new Set<string>();
-
 
   constructor(
     private orderStateService: OrderStateService,
     private salesService: SalesService,
+    private userService: UserService,
   ) {
-    addIcons({ listOutline, refreshOutline, checkmarkCircleOutline, fastFoodOutline, printOutline, 
-  closeCircleOutline, 
-  closeOutline,
-  returnDownBackOutline 
- });
+    addIcons({
+      listOutline,
+      refreshOutline,
+      checkmarkCircleOutline,
+      fastFoodOutline,
+      printOutline,
+      closeCircleOutline,
+      closeOutline,
+      returnDownBackOutline,
+    });
   }
 
   ngOnInit() {
     this.refreshOrders();
     this.orderStateService.getActiveOrdersChanged().subscribe(() => {
       this.loadKitchenOrders();
+    });
+    this.userService.getUsers().subscribe({
+      next: (res: any) => {
+        this.adminUsers = (res.users ?? []).filter((u: User) =>
+          ['admin', 'supervisor'].includes(u.role ?? ''),
+        );
+      },
     });
   }
 
@@ -93,11 +121,16 @@ export class PedidosComponent implements OnInit {
         return;
       }
 
-      const tableName = order.table?.name || String(order.table?.id || key.replace('pedido_', ''));
+      const tableName =
+        order.table?.name ||
+        String(order.table?.id || key.replace('pedido_', ''));
       const tableId = String(order.table?.id || key.replace('pedido_', ''));
       const comensales = order.comensales || 1;
       const total = Number(estadoPedido.totalPorPagar || order.total || 0);
-      const itemsCount = order.items.reduce((sum: number, item: OrderItem) => sum + Number(item.quantity || 0), 0);
+      const itemsCount = order.items.reduce(
+        (sum: number, item: OrderItem) => sum + Number(item.quantity || 0),
+        0,
+      );
       const estado = total === 0 ? 'Pagado' : 'En cocina';
 
       pedidos.push({
@@ -114,7 +147,9 @@ export class PedidosComponent implements OnInit {
       });
     });
 
-    this.kitchenOrders = pedidos.sort((a, b) => a.tableId.localeCompare(b.tableId));
+    this.kitchenOrders = pedidos.sort((a, b) =>
+      a.tableId.localeCompare(b.tableId),
+    );
     this.loadingKitchenOrders = false;
   }
 
@@ -128,7 +163,7 @@ export class PedidosComponent implements OnInit {
       error: () => {
         this.paidOrders = [];
         this.loadingPaidOrders = false;
-      }
+      },
     });
   }
 
@@ -149,23 +184,24 @@ export class PedidosComponent implements OnInit {
   }
 
   confirmPin(): void {
-    if (!this.selectedOrderForPin?.order?.user) {
-      this.pinError = 'No se encontró el usuario del pedido.';
-      return;
-    }
+    const match = this.adminUsers.find((u) => u.pin === this.pinIngresado);
 
-    const user = this.selectedOrderForPin.order.user;
-    if (user.pin !== this.pinIngresado) {
+    if (!match) {
       this.pinError = 'PIN inválido';
+      this.pinIngresado = '';
       return;
     }
 
-    if (!this.selectedOrderForPin.order.table) {
+    if (!this.selectedOrderForPin?.order?.table) {
       this.pinError = 'No se encontró la mesa del pedido.';
       return;
     }
 
-    this.orderStateService.setTableAndUser(this.selectedOrderForPin.order.table, user);
+    this.orderStateService.setTableAndUser(
+      this.selectedOrderForPin.order.table,
+      this.selectedOrderForPin.order.user,
+    );
+
     this.showPinModal = false;
     const tableId = this.selectedOrderForPin.tableId;
     this.selectedOrderForPin = null;
@@ -194,7 +230,7 @@ export class PedidosComponent implements OnInit {
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'EUR',
     }).format(amount);
   }
 
@@ -203,42 +239,47 @@ export class PedidosComponent implements OnInit {
     if (Number.isNaN(date.getTime())) {
       return dateString;
     }
-    return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
-openSaleDetail(sale: Sale): void {
-  this.selectedSale = sale;
-  this.cancelledLines.clear();
-  this.saleActionMessage = '';
-  this.saleActionIsError = false;
-  this.showSaleModal = true;
-}
-reprintTicket(): void {
-  this.saleActionMessage = `Ticket #${this.selectedSale?.ticket_number} enviado a impresora.`;
-  this.saleActionIsError = false;
-}
+  openSaleDetail(sale: Sale): void {
+    this.selectedSale = sale;
+    this.cancelledLines.clear();
+    this.saleActionMessage = '';
+    this.saleActionIsError = false;
+    this.showSaleModal = true;
+  }
+  reprintTicket(): void {
+    this.saleActionMessage = `Ticket #${this.selectedSale?.ticket_number} enviado a impresora.`;
+    this.saleActionIsError = false;
+  }
 
-refundSale(): void {
-  this.saleActionMessage = `Devolución de ${this.formatCurrency(this.selectedSale?.total ?? 0)} iniciada.`;
-  this.saleActionIsError = false;
-}
+  refundSale(): void {
+    this.saleActionMessage = `Devolución de ${this.formatCurrency(this.selectedSale?.total ?? 0)} iniciada.`;
+    this.saleActionIsError = false;
+  }
 
-cancelSale(): void {
-  if (!this.selectedSale) return;
-  this.paidOrders = this.paidOrders.filter(s => s.id !== this.selectedSale!.id);
-  this.closeSaleModal();
-}
+  cancelSale(): void {
+    if (!this.selectedSale) return;
+    this.paidOrders = this.paidOrders.filter(
+      (s) => s.id !== this.selectedSale!.id,
+    );
+    this.closeSaleModal();
+  }
 
-cancelLine(lineId: string): void {
-  this.cancelledLines.add(lineId);
-  this.saleActionMessage = 'Línea anulada.';
-  this.saleActionIsError = false;
-}
+  cancelLine(lineId: string): void {
+    this.cancelledLines.add(lineId);
+    this.saleActionMessage = 'Línea anulada.';
+    this.saleActionIsError = false;
+  }
 
-closeSaleModal(): void {
-  this.showSaleModal = false;
-  this.selectedSale = null;
-  this.saleActionMessage = '';
-  this.cancelledLines.clear();
-}
+  closeSaleModal(): void {
+    this.showSaleModal = false;
+    this.selectedSale = null;
+    this.saleActionMessage = '';
+    this.cancelledLines.clear();
+  }
 }

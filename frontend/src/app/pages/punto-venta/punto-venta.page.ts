@@ -189,4 +189,6 @@ private abrirPinGuard(destino: string | null) {
   });
 }
 
+readonly tiempoRestante = this.sesionCamarero.tiempoRestante;
+
 }

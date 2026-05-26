@@ -1,61 +1,125 @@
 <div class="view-container">
   <div class="view-header">
-    <h1>Mesas</h1>
-    <p>Selecciona una mesa para comenzar</p>
+    <div class="header-left">
+      <h1>Mesas</h1>
+      <p>Selecciona una mesa para comenzar</p>
+    </div>
   </div>
 
   <ion-loading [isOpen]="cargando" message="Cargando mesas..."></ion-loading>
 
-  @if (zonas.length > 0) {
-    <div class="zones-filter">
-      <div class="zones-header">
-        <h3>Filtrar por zona:</h3>
-        @if (zonaSeleccionada) {
-          <button class="btn-clear-filter" (click)="limpiarFiltroZona()" title="Limpiar filtro">
-            ✕ Limpiar
-          </button>
-        }
-      </div>
+  <div class="toolbar">
+    @if (zonas.length > 0) {
       <div class="zones-buttons">
         @for (zona of zonas; track zona.id) {
-          <button 
-            class="zone-button" 
+          <button
+            class="zone-button"
             [class.active]="zonaSeleccionada?.id === zona.id"
-            (click)="filtrarMesasPorZona(zona)">
+            (click)="filtrarMesasPorZona(zona)"
+          >
             {{ zona.name }}
           </button>
         }
+        @if (zonaSeleccionada) {
+          <button
+            class="zone-button zone-button--clear"
+            (click)="limpiarFiltroZona()"
+          >
+            ✕
+          </button>
+        }
+      </div>
+    }
+
+    <div class="toolbar-right">
+      <div class="view-toggle">
+        <button
+          class="toggle-btn"
+          [class.active]="viewMode === 'grid'"
+          (click)="viewMode = 'grid'"
+          title="Vista cuadrícula"
+        >
+          <ion-icon name="grid-outline"></ion-icon>
+        </button>
+        <button
+          class="toggle-btn"
+          [class.active]="viewMode === 'list'"
+          (click)="viewMode = 'list'"
+          title="Vista lista"
+        >
+          <ion-icon name="list-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="search-box">
+        <ion-icon name="search-outline"></ion-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          placeholder="Buscar mesa..."
+        />
       </div>
     </div>
-  }
+  </div>
 
-  <div class="mesas-grid">
-    @for (mesa of mesasFiltradas; track mesa.id) {
-      <div 
+  <div class="mesas-grid" [class.list-view]="viewMode === 'list'">
+    @for (
+      mesa of (searchQuery ? mesas : mesasFiltradas) | mesaSearch: searchQuery;
+      track mesa.id
+    ) {
+      <div
         class="mesa-card"
-        [class.occupied]="isTableOccupied(mesa)" 
-        [class.available]="!isTableOccupied(mesa)"
-        (click)="seleccionarMesa(mesa)">
-        
-        <div class="mesa-status-indicator" 
-          [class.occupied]="isTableOccupied(mesa)"
-          [title]="isTableOccupied(mesa) ? 'Ocupada' : 'Disponible'">
-        </div>
+        [class.mesa-card--libre]="!isTableOccupied(mesa)"
+        [class.mesa-card--ocupada]="
+          isTableOccupied(mesa) && !isTablePendingBill(mesa)
+        "
+        [class.mesa-card--cuenta]="isTablePendingBill(mesa)"
+        (click)="seleccionarMesa(mesa)"
+      >
+        <span
+          class="status-dot"
+          [class.dot--libre]="!isTableOccupied(mesa)"
+          [class.dot--ocupada]="
+            isTableOccupied(mesa) && !isTablePendingBill(mesa)
+          "
+          [class.dot--cuenta]="isTablePendingBill(mesa)"
+        >
+        </span>
 
         @if (!isTableOccupied(mesa)) {
-          <div class="mesa-disponible">
-            <ion-icon name="grid-outline"></ion-icon>
-            <h3>{{ mesa.name }}</h3>
+          <div class="mesa-inner mesa-inner--libre">
+            <div class="mesa-icon">
+              <ion-icon name="grid-outline"></ion-icon>
+            </div>
+            <span class="mesa-name">{{ mesa.name }}</span>
           </div>
         } @else {
-          <div class="mesa-ocupada">
-            <div class="mesa-nombre">{{ mesa.name }}</div>
-            <div class="comensales-numero">{{ getTableOccupiedInfo(mesa)?.comensales }}</div>
-            <div class="total-display">{{ getTableOccupiedInfo(mesa)?.total | number:'1.2-2' }} €</div>
+          <div class="mesa-inner mesa-inner--ocupada">
+            <div class="mesa-icon">
+              <ion-icon name="grid-outline"></ion-icon>
+            </div>
+            <span class="mesa-name">{{ mesa.name }}</span>
+            <div class="mesa-meta">
+              <span class="meta-item">
+                <ion-icon name="people-outline"></ion-icon>
+                {{ getTableOccupiedInfo(mesa)?.comensales }}
+              </span>
+            </div>
+            <span class="mesa-total"
+              >{{ getTableOccupiedInfo(mesa)?.total | number: "1.2-2" }} €</span
+            >
           </div>
         }
       </div>
     }
+  </div>
+
+  <div class="legend">
+    <span class="legend-item"
+      ><span class="dot--libre legend-dot"></span> Libre</span
+    >
+    <span class="legend-item"
+      ><span class="dot--ocupada legend-dot"></span> Ocupada</span
+    >
   </div>
 
   <ion-modal [isOpen]="mostrarModalPin" class="pin-modal">
@@ -64,7 +128,11 @@
         @if (selectedTable) {
           <div class="mesa-info-header">
             <h2 class="mesa-title">{{ selectedTable.name }}</h2>
-            <button class="btn-close-modal" (click)="cerrarModal()" title="Cerrar">
+            <button
+              class="btn-close-modal"
+              (click)="cerrarModal()"
+              title="Cerrar"
+            >
               <ion-icon name="close-outline"></ion-icon>
             </button>
           </div>
@@ -75,41 +143,65 @@
             <p class="view-label">Selecciona un usuario:</p>
             <div class="usuarios-grid">
               @for (usuario of usuarios; track usuario.id) {
-            <div class="usuario-card" (click)="seleccionarUsuario(usuario)">
-              <div class="usuario-avatar">
-                @if (usuario.image_src) {
-                  <img [src]="'http://localhost:8000/storage/' + usuario.image_src"
-                    alt="{{ usuario.name }}"
-                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
-                } @else {
-                  {{ usuario.name.charAt(0).toUpperCase() }}
-                }
-              </div>
-              <p class="usuario-name">{{ usuario.name }}</p>
-            </div>
-          }
+                <div class="usuario-card" (click)="seleccionarUsuario(usuario)">
+                  <div class="usuario-avatar">
+                    @if (usuario.image_src) {
+                      <img
+                        [src]="
+                          'http://localhost:8000/storage/' + usuario.image_src
+                        "
+                        alt="{{ usuario.name }}"
+                        style="
+                          width: 100%;
+                          height: 100%;
+                          object-fit: cover;
+                          border-radius: 50%;
+                        "
+                      />
+                    } @else {
+                      {{ usuario.name.charAt(0).toUpperCase() }}
+                    }
+                  </div>
+                  <p class="usuario-name">{{ usuario.name }}</p>
+                </div>
+              }
             </div>
           </div>
-          } @else {
+        } @else {
           <div class="pin-view">
             <div class="usuario-seleccionado">
               <div class="usuario-avatar-large">
                 @if (selectedUser.image_src) {
-                  <img [src]="'http://localhost:8000/storage/' + selectedUser.image_src"
+                  <img
+                    [src]="
+                      'http://localhost:8000/storage/' + selectedUser.image_src
+                    "
                     alt="{{ selectedUser.name }}"
-                    style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+                    style="
+                      width: 100%;
+                      height: 100%;
+                      object-fit: cover;
+                      border-radius: 50%;
+                    "
+                  />
                 } @else {
                   {{ selectedUser.name.charAt(0).toUpperCase() }}
                 }
               </div>
               <h3>{{ selectedUser.name }}</h3>
-              <button class="btn-back-user" (click)="volverAUsuarios()" title="Cambiar usuario">
+              <button class="btn-back-user" (click)="volverAUsuarios()">
                 ← Cambiar
               </button>
             </div>
 
             <div class="pin-display">
-              <input type="password" [value]="pinIngresado" class="pin-input" readonly placeholder="• • • •" />
+              <input
+                type="password"
+                [value]="pinIngresado"
+                class="pin-input"
+                readonly
+                placeholder="• • • •"
+              />
             </div>
 
             <div class="numeric-keyboard">
@@ -119,7 +211,8 @@
                     <button
                       class="key-button"
                       (click)="agregarDigito(num.toString())"
-                      [disabled]="pinIngresado.length >= 4">
+                      [disabled]="pinIngresado.length >= 4"
+                    >
                       {{ num }}
                     </button>
                   }
@@ -128,9 +221,7 @@
             </div>
 
             @if (mensajeError) {
-              <div class="error-message">
-                {{ mensajeError }}
-              </div>
+              <div class="error-message">{{ mensajeError }}</div>
             }
           </div>
         }
@@ -146,30 +237,48 @@
         </div>
 
         <div class="comensales-display">
-          <input type="text" [value]="cantidadComensalesIngresada" class="comensales-input" readonly placeholder="0" />
+          <input
+            type="text"
+            [value]="cantidadComensalesIngresada"
+            class="comensales-input"
+            readonly
+            placeholder="0"
+          />
         </div>
 
         <div class="numeric-keyboard">
           @for (row of [0, 1, 2]; track row) {
             <div class="keyboard-row">
               @for (num of getKeyboardNumbers(row); track num) {
-                <button 
+                <button
                   class="key-button"
-                  (click)="agregarDigitoComensales(num.toString())" 
-                  [disabled]="cantidadComensalesIngresada.length >= 2">
+                  (click)="agregarDigitoComensales(num.toString())"
+                  [disabled]="cantidadComensalesIngresada.length >= 2"
+                >
                   {{ num }}
                 </button>
               }
             </div>
           }
           <div class="keyboard-row keyboard-actions">
-            <button class="key-button back-arrow-btn" (click)="borrarDigitoComensales()">
+            <button
+              class="key-button back-arrow-btn"
+              (click)="borrarDigitoComensales()"
+            >
               <ion-icon name="backspace-outline"></ion-icon>
             </button>
-            <button class="key-button" (click)="agregarDigitoComensales('0')"
-              [disabled]="cantidadComensalesIngresada.length >= 2">0</button>
-            <button class="key-button forward-arrow-btn" (click)="confirmarComensales()"
-              [disabled]="!cantidadComensalesIngresada">
+            <button
+              class="key-button"
+              (click)="agregarDigitoComensales('0')"
+              [disabled]="cantidadComensalesIngresada.length >= 2"
+            >
+              0
+            </button>
+            <button
+              class="key-button forward-arrow-btn"
+              (click)="confirmarComensales()"
+              [disabled]="!cantidadComensalesIngresada"
+            >
               <ion-icon name="arrow-forward-outline"></ion-icon>
             </button>
           </div>

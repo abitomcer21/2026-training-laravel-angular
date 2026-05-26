@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import {
   IonIcon,
@@ -50,6 +51,7 @@ import { ProductService } from '../../../../services/api/product.service';
 import { FamilyService } from '../../../../services/api/family.service';
 import { TableService } from '../../../../services/api/table.service';
 import { TaxService } from '../../../../services/api/tax.service';
+import { SesiónCamareroService } from '../../../../services/sesion-camarero.service';
 import {
   OrderStateService,
   CurrentOrder,
@@ -141,8 +143,8 @@ export class ProductosComponent implements OnInit {
   ticketParaImprimir$ = new BehaviorSubject<string>('');
 
   get ticketParaImprimir(): string {
-  return this.ticketParaImprimir$.value;
-}
+    return this.ticketParaImprimir$.value;
+  }
   Math = Math;
 
   get productosFiltrados(): Product[] {
@@ -198,6 +200,8 @@ export class ProductosComponent implements OnInit {
     this.cargarProductos();
     this.suscribirseAOrden();
   }
+
+  readonly sesionCamarero = inject(SesiónCamareroService);
 
   async mostrarToast(mensaje: string, color = 'success', duracion = 3000) {
     const toast = await this.toastController.create({
@@ -356,7 +360,12 @@ export class ProductosComponent implements OnInit {
     this.montoPorPersona = 0;
     this.articulosSeleccionados = {};
     this.filtroNombre = '';
-    this.familiaSeleccionada = null;
+
+    if (this.familiaSeleccionada) {
+      this.seleccionarFamilia(this.familiaSeleccionada);
+    } else if (this.familias.length > 0) {
+      this.seleccionarFamilia(this.familias[0].id);
+    }
   }
 
   calcularTotalesPendientes() {

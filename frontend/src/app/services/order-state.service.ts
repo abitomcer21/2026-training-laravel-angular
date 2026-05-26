@@ -49,7 +49,9 @@ export class OrderStateService {
 
   private pedidoInicialEnviado$ = new BehaviorSubject<boolean>(false);
   private itemsEnviadosACocina$ = new BehaviorSubject<OrderItem[]>([]);
-  private articulosPagados$ = new BehaviorSubject<{ [key: string]: boolean }>({});
+  private articulosPagados$ = new BehaviorSubject<{ [key: string]: boolean }>(
+    {},
+  );
   private activeOrdersChanged$ = new BehaviorSubject<void>(undefined);
   private orderId$ = new BehaviorSubject<string | null>(null);
 
@@ -114,7 +116,13 @@ export class OrderStateService {
     const ahora = Date.now();
 
     if (this.blockReloadUntil > ahora) {
-      const order: CurrentOrder = { table, user, items: [], total: 0, comensales: 1 };
+      const order: CurrentOrder = {
+        table,
+        user,
+        items: [],
+        total: 0,
+        comensales: 1,
+      };
       this.currentOrder$.next(order);
       this.pedidoInicialEnviado = false;
       this.itemsEnviadosACocina = [];
@@ -130,7 +138,11 @@ export class OrderStateService {
     const savedState = this.loadStateFromStorage(key);
 
     if (savedState) {
-      const actualizarPedido: CurrentOrder = { ...savedState.order, table, user };
+      const actualizarPedido: CurrentOrder = {
+        ...savedState.order,
+        table,
+        user,
+      };
       this.currentOrder$.next(actualizarPedido);
       this.pedidoInicialEnviado = savedState.pedidoInicialEnviado;
       this.itemsEnviadosACocina = savedState.itemsEnviadosACocina;
@@ -138,7 +150,13 @@ export class OrderStateService {
       this.totalPagado = savedState.totalPagado;
       this.totalPorPagar = savedState.totalPorPagar;
     } else {
-      const order: CurrentOrder = { table, user, items: [], total: 0, comensales: 1 };
+      const order: CurrentOrder = {
+        table,
+        user,
+        items: [],
+        total: 0,
+        comensales: 1,
+      };
       this.currentOrder$.next(order);
       this.pedidoInicialEnviado = false;
       this.itemsEnviadosACocina = [];
@@ -157,7 +175,13 @@ export class OrderStateService {
     const key = `${tableId}`;
     const comensalesActual = this.currentOrder$.value?.comensales || 1;
 
-    const order: CurrentOrder = { table, user, items: [], total: 0, comensales: comensalesActual };
+    const order: CurrentOrder = {
+      table,
+      user,
+      items: [],
+      total: 0,
+      comensales: comensalesActual,
+    };
     this.currentOrder$.next(order);
     this.pedidoInicialEnviado = false;
     this.itemsEnviadosACocina = [];
@@ -175,7 +199,9 @@ export class OrderStateService {
 
   addItem(item: OrderItem): void {
     const order = this.currentOrder$.value;
-    const existingItem = order.items.find((i) => i.productId === item.productId);
+    const existingItem = order.items.find(
+      (i) => i.productId === item.productId,
+    );
 
     if (existingItem) {
       existingItem.quantity += item.quantity;
@@ -263,7 +289,12 @@ export class OrderStateService {
       localStorage.removeItem(`pedido_${key}`);
     }
 
-    const cleanState: CurrentOrder = { table: null, user: null, items: [], total: 0 };
+    const cleanState: CurrentOrder = {
+      table: null,
+      user: null,
+      items: [],
+      total: 0,
+    };
     this.currentOrder$.next(cleanState);
     this.pedidoInicialEnviado = false;
     this.itemsEnviadosACocina = [];
@@ -279,7 +310,10 @@ export class OrderStateService {
 
     setTimeout(() => this.activeOrdersChanged$.next(), 50);
     setTimeout(() => this.activeOrdersChanged$.next(), 150);
-    setTimeout(() => { this.limpiarPedidosResiduales(); this.activeOrdersChanged$.next(); }, 300);
+    setTimeout(() => {
+      this.limpiarPedidosResiduales();
+      this.activeOrdersChanged$.next();
+    }, 300);
   }
 
   clearTableOrder(tableId: string): void {
@@ -287,7 +321,6 @@ export class OrderStateService {
     const key = `${normalizedTableId}`;
 
     this.blockStorageUntil = Date.now() + 3000;
-    this.blockReloadUntil = Date.now() + 10000;
 
     localStorage.removeItem(`pedido_${key}`);
 
@@ -295,7 +328,12 @@ export class OrderStateService {
     const currentTableIdStr = currentTableId ? String(currentTableId) : null;
 
     if (currentTableIdStr === normalizedTableId) {
-      const cleanState: CurrentOrder = { table: null, user: null, items: [], total: 0 };
+      const cleanState: CurrentOrder = {
+        table: null,
+        user: null,
+        items: [],
+        total: 0,
+      };
       this.currentOrder$.next(cleanState);
       this.pedidoInicialEnviado = false;
       this.itemsEnviadosACocina = [];
@@ -312,7 +350,10 @@ export class OrderStateService {
     this.activeOrdersChanged$.next();
     setTimeout(() => this.activeOrdersChanged$.next(), 50);
     setTimeout(() => this.activeOrdersChanged$.next(), 150);
-    setTimeout(() => { this.limpiarPedidosResiduales(); this.activeOrdersChanged$.next(); }, 300);
+    setTimeout(() => {
+      this.limpiarPedidosResiduales();
+      this.activeOrdersChanged$.next();
+    }, 300);
   }
 
   hasOrderForTableAndUser(tableId: string): boolean {
@@ -344,33 +385,45 @@ export class OrderStateService {
     return false;
   }
 
-  getTableOccupiedInfo(tableId: string): { comensales: number; total: number } | null {
+  getTableOccupiedInfo(
+    tableId: string,
+  ): { comensales: number; total: number } | null {
     const key = `pedido_${String(tableId)}`;
     try {
       const stored = localStorage.getItem(key);
       if (stored) {
         const state = JSON.parse(stored) as EstadoPedidoCompleto;
         if (state.order?.items && state.order.items.length > 0) {
-          return { comensales: state.order.comensales || 1, total: state.order.total || 0 };
+          return {
+            comensales: state.order.comensales || 1,
+            total: state.order.total || 0,
+          };
         }
       }
     } catch (e) {}
     return null;
   }
 
-  public getActiveOrderForTable(tableId: string): { key: string; data: EstadoPedidoCompleto } | null {
+  public getActiveOrderForTable(
+    tableId: string,
+  ): { key: string; data: EstadoPedidoCompleto } | null {
     const key = `pedido_${String(tableId)}`;
     try {
       const stored = localStorage.getItem(key);
       if (stored) {
         const state = JSON.parse(stored) as EstadoPedidoCompleto;
-        if (state.order?.items && state.order.items.length > 0) return { key, data: state };
+        if (state.order?.items && state.order.items.length > 0)
+          return { key, data: state };
       }
     } catch (e) {}
     return null;
   }
 
-  public loadExistingOrderForCurrentUser(table: Table, user: User, existingOrderData: EstadoPedidoCompleto): void {
+  public loadExistingOrderForCurrentUser(
+    table: Table,
+    user: User,
+    existingOrderData: EstadoPedidoCompleto,
+  ): void {
     const key = String(table.id);
     const newOrderData: EstadoPedidoCompleto = {
       ...existingOrderData,
@@ -398,7 +451,11 @@ export class OrderStateService {
         if (key && key.startsWith('pedido_')) {
           const stored = localStorage.getItem(key);
           if (stored) {
-            try { activos[key] = JSON.parse(stored); } catch (e) { activos[key] = { error: 'JSON corrupto' }; }
+            try {
+              activos[key] = JSON.parse(stored);
+            } catch (e) {
+              activos[key] = { error: 'JSON corrupto' };
+            }
           }
         }
       }
@@ -418,21 +475,34 @@ export class OrderStateService {
           if (stored) {
             try {
               const state = JSON.parse(stored) as EstadoPedidoCompleto;
-              if (!state.order?.items || state.order.items.length === 0) keysAEliminar.push(key);
-              else if (state.order.items.length > 0 && state.totalPorPagar === 0) keysAEliminar.push(key);
+              if (!state.order?.items || state.order.items.length === 0)
+                keysAEliminar.push(key);
+              else if (
+                state.order.items.length > 0 &&
+                state.totalPorPagar === 0
+              )
+                keysAEliminar.push(key);
             } catch (e) {}
           }
         }
       }
 
-      keysAEliminar.forEach(k => {
+      keysAEliminar.forEach((k) => {
         localStorage.removeItem(k);
         const tableIdFromKey = k.substring('pedido_'.length);
-        const currentTableIdStr = currentTableId ? String(currentTableId) : null;
+        const currentTableIdStr = currentTableId
+          ? String(currentTableId)
+          : null;
 
         if (currentTableIdStr === tableIdFromKey) {
           const currentOrder = this.currentOrder$.value;
-          this.currentOrder$.next({ table: currentOrder.table, user: currentOrder.user, items: [], total: 0, comensales: currentOrder.comensales });
+          this.currentOrder$.next({
+            table: currentOrder.table,
+            user: currentOrder.user,
+            items: [],
+            total: 0,
+            comensales: currentOrder.comensales,
+          });
           this.pedidoInicialEnviado = false;
           this.itemsEnviadosACocina = [];
           this.articulosPagados = {};
@@ -444,7 +514,8 @@ export class OrderStateService {
         }
       });
 
-      if (keysAEliminar.length > 0) setTimeout(() => this.activeOrdersChanged$.next(), 10);
+      if (keysAEliminar.length > 0)
+        setTimeout(() => this.activeOrdersChanged$.next(), 10);
     } catch (e) {}
   }
 
@@ -462,7 +533,7 @@ export class OrderStateService {
   private calcularTotalesPendientes(): void {
     let pagado = 0;
     let porPagar = 0;
-    this.currentOrder$.value.items.forEach(item => {
+    this.currentOrder$.value.items.forEach((item) => {
       if (this.articulosPagados[item.productId]) pagado += item.total;
       else porPagar += item.total;
     });
@@ -507,7 +578,8 @@ export class OrderStateService {
       try {
         const state = JSON.parse(stored) as EstadoPedidoCompleto;
         if (!state.order?.items || state.order.items.length === 0) return null;
-        if (state.order.items.length > 0 && state.totalPorPagar === 0) return null;
+        if (state.order.items.length > 0 && state.totalPorPagar === 0)
+          return null;
         if (state.orderId) {
           this.orderId$.next(state.orderId);
         }

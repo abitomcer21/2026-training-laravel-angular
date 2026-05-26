@@ -49,9 +49,6 @@ use App\Sales\Infrastructure\Entrypoint\Http\GetTodaySalesController;
 
 use App\Shared\Infrastructure\Entrypoint\Http\UploadImageController;
 
-
-
-
 Route::post('/login', LoginController::class);
 Route::post('/users', UserPostController::class);
 Route::post('/family', FamilyPostController::class);
