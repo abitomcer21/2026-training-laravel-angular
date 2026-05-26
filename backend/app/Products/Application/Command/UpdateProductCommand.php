@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Products\Application\UpdateProduct;
+namespace App\Products\Application\Command;
 
 use App\Products\Domain\Interfaces\ProductRepositoryInterface;
 use App\Products\Domain\ValueObject\ProductImageSrc;
@@ -10,7 +10,7 @@ use App\Products\Domain\ValueObject\ProductStatus;
 use App\Products\Domain\ValueObject\ProductStock;
 use App\Shared\Domain\ValueObject\Uuid;
 
-class UpdateProduct
+class UpdateProductCommand
 {
     public function __construct(
         private ProductRepositoryInterface $productRepository,

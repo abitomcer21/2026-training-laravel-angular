@@ -2,39 +2,44 @@
 
 namespace App\Products\Infrastructure\Entrypoint\Http;
 
-use App\Products\Application\GetProductByName\GetProductByName;
+use App\Products\Application\Handler\GetProductByNameHandler;
+use App\Products\Application\Query\GetProductByNameQuery;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class GetByNameController
 {
     public function __construct(
-        private GetProductByName $getProductByName,
+        private GetProductByNameHandler $getProductByNameHandler,
     ) {}
 
-    public function __invoke(string $name): JsonResponse
+    public function __invoke(Request $request, string $name): JsonResponse
     {
-        $validator = Validator::make([
-            'name' => $name,
-        ], [
+        $validator = Validator::make(['name' => $name], [
             'name' => ['required', 'string', 'max:255'],
         ]);
 
         if ($validator->fails()) {
             return new JsonResponse([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()->toArray(),
+                'errors'  => $validator->errors()->toArray(),
             ], 422);
         }
 
-        $response = ($this->getProductByName)($name);
+        try {
+            $response = ($this->getProductByNameHandler)(
+                new GetProductByNameQuery(
+                    name:         $name,
+                    restaurantId: $request->user()->restaurant_id,
+                ),
+            );
 
-        if ($response === null) {
-            return new JsonResponse([
-                'message' => 'Product not found',
-            ], 404);
+            return new JsonResponse($response->toArray(), 200);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
         }
-
-        return new JsonResponse($response->toArray(), 200);
     }
 }

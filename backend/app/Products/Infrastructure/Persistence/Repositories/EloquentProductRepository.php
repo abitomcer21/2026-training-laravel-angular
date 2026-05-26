@@ -118,4 +118,24 @@ class EloquentProductRepository implements ProductRepositoryInterface
     {
         $this->model->newQuery()->where('uuid', $id)->delete();
     }
+
+    public function findAllByRestaurant(int $restaurantId): array
+{
+    return $this->model->newQuery()
+        ->where('restaurant_id', $restaurantId)
+        ->get()
+        ->map(fn (EloquentProduct $eloquentProduct): Product => Product::fromPersistence(
+            $eloquentProduct->uuid,
+            $eloquentProduct->family_id,
+            $eloquentProduct->tax_id,
+            $eloquentProduct->name,
+            $eloquentProduct->price,
+            $eloquentProduct->stock,
+            $eloquentProduct->image_src,
+            (bool) $eloquentProduct->active,
+            $eloquentProduct->restaurant_id,
+            $eloquentProduct->created_at->toDateTimeImmutable(),
+            $eloquentProduct->updated_at->toDateTimeImmutable(),
+        ))->toArray();
+}
 }

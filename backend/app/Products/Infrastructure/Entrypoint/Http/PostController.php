@@ -2,44 +2,61 @@
 
 namespace App\Products\Infrastructure\Entrypoint\Http;
 
-use App\Family\Infrastructure\Persistence\Models\EloquentFamily;
-use App\Products\Application\CreateProduct\CreateProduct;
-use App\Tax\Infrastructure\Persistence\Models\EloquentTax;
+use App\Products\Application\Command\CreateProductCommand;
+use App\Products\Application\Handler\CreateProductHandler;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PostController
 {
+    private const VALIDATION_RULES = [
+        'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
+        'family_id'     => ['required', 'string', 'uuid'],
+        'tax_id'        => ['required', 'string', 'uuid'],
+        'name'          => ['required', 'string', 'max:255'],
+        'price'         => ['required', 'integer', 'min:0'],
+        'stock'         => ['required', 'integer', 'min:0'],
+        'image_src'     => ['nullable', 'string', 'max:255'],
+        'active'        => ['required', 'boolean'],
+    ];
+
     public function __construct(
-        private CreateProduct $createProduct,
+        private CreateProductHandler $createProductHandler,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
-            'family_id' => ['required', 'string', 'uuid'],
-            'tax_id' => ['required', 'string', 'uuid'],
-            'name' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'integer', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
-            'image_src' => ['nullable', 'string', 'max:255'],
-            'active' => ['required', 'boolean'],
-        ]);
+        $validator = Validator::make($request->all(), self::VALIDATION_RULES);
 
-        $imageSrc = $validated['image_src'] ?? null;
+        if ($validator->fails()) {
+            return new JsonResponse([
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()->toArray(),
+            ], 422);
+        }
 
-        $response = ($this->createProduct)(
-            $validated['family_id'],
-            $validated['tax_id'],
-            $validated['restaurant_id'],
-            $validated['name'],
-            $validated['price'],
-            $validated['stock'],
-            $imageSrc,
-            $validated['active'],
-        );
+        try {
+            $validated = $validator->validated();
 
-        return new JsonResponse($response->toArray(), 201);
+            $response = ($this->createProductHandler)(
+                CreateProductCommand::create(
+                    familyId:     $validated['family_id'],
+                    taxId:        $validated['tax_id'],
+                    restaurantId: $validated['restaurant_id'],
+                    name:         $validated['name'],
+                    price:        $validated['price'],
+                    stock:        $validated['stock'],
+                    imageSrc:     $validated['image_src'] ?? null,
+                    active:       $validated['active'],
+                ),
+            );
+
+            return new JsonResponse($response->toArray(), 201);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
+        }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Products\Application\GetProductByName;
+namespace App\Products\Application\Response;
 
 use App\Products\Domain\Entity\Product;
 

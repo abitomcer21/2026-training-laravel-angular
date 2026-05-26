@@ -2,39 +2,44 @@
 
 namespace App\Products\Infrastructure\Entrypoint\Http;
 
-use App\Products\Application\DeleteProduct\DeleteProduct;
+use App\Products\Application\Command\DeleteProductCommand;
+use App\Products\Application\Handler\DeleteProductHandler;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 final class DeleteController
 {
     public function __construct(
-        private DeleteProduct $deleteProduct,
+        private DeleteProductHandler $deleteProductHandler,
     ) {}
 
-    public function __invoke(string $id): JsonResponse
+    public function __invoke(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make([
-            'id' => $id,
-        ], [
+        $validator = Validator::make(['id' => $id], [
             'id' => ['required', 'uuid'],
         ]);
 
         if ($validator->fails()) {
             return new JsonResponse([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()->toArray(),
+                'errors'  => $validator->errors()->toArray(),
             ], 422);
         }
 
-        $deleted = ($this->deleteProduct)($id);
+        try {
+            ($this->deleteProductHandler)(
+                DeleteProductCommand::create(
+                    id:           $id,
+                    restaurantId: $request->user()->restaurant_id,
+                ),
+            );
 
-        if (! $deleted) {
-            return new JsonResponse([
-                'message' => 'Product not found',
-            ], 404);
+            return new JsonResponse(null, 204);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
         }
-
-        return new JsonResponse(null, 204);
     }
 }

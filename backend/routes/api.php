@@ -68,20 +68,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/family/{id}', FamilyGetByIdController::class);
     Route::put('/family/{id}', FamilyPutController::class);
     Route::delete('/family/{id}', FamilyDeleteController::class);
+
+    Route::get('/products/family/{familyId}', GetByFamilyController::class);
+
+    Route::post('/products', ProductsPostController::class);
+    Route::get('/products', ProductsGetAllController::class);
+    Route::get('/products/{id}', ProductsGetByIdController::class);
+    Route::put('/products/{id}', ProductsPutController::class);
+    Route::delete('/products/{id}', ProductsDeleteController::class);
+    Route::get('/products/name/{name}', ProductsGetByNameController::class);
     
     Route::get('/my-restaurant', GetMyRestaurantController::class);
     
     Route::post('/logout', LogoutController::class);
     Route::get('/auth/me', MeController::class);
 });
-Route::get('/products/family/{familyId}', GetByFamilyController::class);
 
-Route::post('/products', ProductsPostController::class);
-Route::get('/products', ProductsGetAllController::class);
-Route::get('/products/{id}', ProductsGetByIdController::class);
-Route::put('/products/{id}', ProductsPutController::class);
-Route::delete('/products/{id}', ProductsDeleteController::class);
-Route::get('/products/name/{name}', ProductsGetByNameController::class);
 
 Route::post('/tax', TaxPostController::class);
 Route::get('/tax', TaxGetAllController::class);

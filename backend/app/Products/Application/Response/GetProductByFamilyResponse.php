@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Products\Application\GetProductByFamily;
+namespace App\Products\Application\Response;
 
 class GetProductByFamilyResponse
 {

@@ -2,19 +2,32 @@
 
 namespace App\Products\Infrastructure\Entrypoint\Http;
 
-use App\Products\Application\GetProductByFamily\GetProductByFamily;
+use App\Products\Application\Handler\GetProductByFamilyHandler;
+use App\Products\Application\Query\GetProductByFamilyQuery;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class GetByFamilyController
 {
     public function __construct(
-        private GetProductByFamily $getProductByFamily,
+        private GetProductByFamilyHandler $getProductByFamilyHandler,
     ) {}
 
-    public function __invoke(string $familyId): JsonResponse
+    public function __invoke(Request $request, string $familyId): JsonResponse
     {
-        $response = ($this->getProductByFamily)($familyId);
+        try {
+            $query = new GetProductByFamilyQuery(
+                familyId:     $familyId,
+                restaurantId: $request->user()->restaurant_id,
+            );
 
-        return new JsonResponse($response->toArray(), 200);
+            $response = ($this->getProductByFamilyHandler)($query);
+
+            return new JsonResponse($response->toArray(), 200);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
+        }
     }
 }
