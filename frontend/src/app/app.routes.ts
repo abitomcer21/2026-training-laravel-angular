@@ -1,9 +1,12 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { noAuthGuard } from './guards/no-auth.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () => import('./pages/login/login.page').then(m => m.LoginPage)
+    canActivate: [noAuthGuard],
+    loadComponent: () => import('./pages/login/login.page').then(m => m.LoginPage),
   },
   {
     path: '',
@@ -12,20 +15,12 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    loadComponent: () => import('./pages/dashboard/dashboard.page').then( m => m.DashboardPage)
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/dashboard/dashboard.page').then(m => m.DashboardPage),
   },
   {
     path: 'point-of-sale',
-    loadComponent: () => import('./pages/punto-venta/punto-venta.page').then(m => m.PuntoVentaPage)
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/punto-venta/punto-venta.page').then(m => m.PuntoVentaPage),
   },
-  {
-  path: 'point-of-sale',
-  loadComponent: () => import('./pages/punto-venta/punto-venta.page').then(m => m.PuntoVentaPage),
-  children: [
-    {
-      path: 'panel-mesas',
-      loadComponent: () => import('./features/punto-venta/componentes/mesas/panel-mesas.component').then(m => m.MesasComponent)
-    }
-  ]
-}
 ];

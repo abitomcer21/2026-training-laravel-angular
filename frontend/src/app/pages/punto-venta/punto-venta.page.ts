@@ -1,10 +1,19 @@
-import { Component, OnInit, ViewChild, computed } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy,computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
+
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { gridOutline, restaurantOutline, listOutline, cashOutline, logOutOutline, optionsOutline } from 'ionicons/icons';
+import {
+  gridOutline,
+  restaurantOutline,
+  listOutline,
+  cashOutline,
+  logOutOutline,
+  optionsOutline,
+} from 'ionicons/icons';
 import { MesasComponent } from '../../features/punto-venta/componentes/mesas/panel-mesas.component';
 import { ProductosComponent } from '../../features/punto-venta/componentes/productos/panel-productos.component';
 import { PedidosComponent } from '../../features/punto-venta/componentes/pedidos/panel-pedidos.component';
@@ -24,9 +33,18 @@ interface MenuItem {
   templateUrl: './punto-venta.page.html',
   styleUrls: ['./punto-venta.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonIcon, MesasComponent, ProductosComponent, PedidosComponent, CajaComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonContent,
+    IonIcon,
+    MesasComponent,
+    ProductosComponent,
+    PedidosComponent,
+    CajaComponent,
+  ],
 })
-export class PuntoVentaPage implements OnInit {
+export class PuntoVentaPage implements OnInit, OnDestroy {
   @ViewChild(MesasComponent) mesasComponent?: MesasComponent;
 
   currentView: string = 'mesas';
@@ -48,18 +66,31 @@ export class PuntoVentaPage implements OnInit {
     { nombre: 'Caja', valor: 'caja', icono: 'cash-outline' },
   ];
 
-  
+  private preventBack = () => {
+    history.pushState(null, '', window.location.href);
+  };
 
   constructor(
     private restaurantService: RestaurantService,
     private router: Router,
     private sesionCamarero: SesiónCamareroService,
     private userService: UserService,
+    private location: Location,
   ) {
-    addIcons({ gridOutline, restaurantOutline, listOutline, cashOutline, logOutOutline, optionsOutline });
+    addIcons({
+      gridOutline,
+      restaurantOutline,
+      listOutline,
+      cashOutline,
+      logOutOutline,
+      optionsOutline,
+    });
   }
 
   ngOnInit() {
+    history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', this.preventBack);
+
     this.sesionCamarero.onSessionExpire(() => this.selectView('mesas'));
     this.cargarRestaurantName();
     const userData = localStorage.getItem('userData');
@@ -73,6 +104,11 @@ export class PuntoVentaPage implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+  window.removeEventListener('popstate', this.preventBack);
+}
+
+
   cargarRestaurantName() {
     this.restaurantService.getMyRestaurant().subscribe({
       next: (response: any) => {
@@ -84,14 +120,14 @@ export class PuntoVentaPage implements OnInit {
     });
   }
 
-selectView(valor: string) {
-  const restricted = ['pedidos', 'caja'];
-  if (restricted.includes(valor) && this.needsPinGuard()) {
-    this.abrirPinGuard(valor);
-    return;
+  selectView(valor: string) {
+    const restricted = ['pedidos', 'caja'];
+    if (restricted.includes(valor) && this.needsPinGuard()) {
+      this.abrirPinGuard(valor);
+      return;
+    }
+    this._doSelectView(valor);
   }
-  this._doSelectView(valor);
-}
 
   openTableFromOrder(tableId: string) {
     this.currentView = 'productos';
@@ -99,7 +135,7 @@ selectView(valor: string) {
 
   clearWaiter() {
     this.sesionCamarero.limpiar();
-      this.currentView = 'mesas';
+    this.currentView = 'mesas';
   }
 
   logout() {
@@ -116,19 +152,20 @@ selectView(valor: string) {
     }
   }
 
-volverAlDashboard() {
-  if (this.needsPinGuard()) {
-    this.abrirPinGuard(null);
-    return;
+  volverAlDashboard() {
+    if (this.needsPinGuard()) {
+      this.abrirPinGuard(null);
+      return;
+    }
+    this.router.navigate(['/dashboard']);
   }
-  this.router.navigate(['/dashboard']);
-}
 
   addPinGuardDigit(d: string) {
     if (this.pinGuardDigits.length >= 4) return;
     this.pinGuardDigits += d;
     this.pinGuardError = '';
-    if (this.pinGuardDigits.length === 4) setTimeout(() => this.confirmPinGuard(), 150);
+    if (this.pinGuardDigits.length === 4)
+      setTimeout(() => this.confirmPinGuard(), 150);
   }
 
   removePinGuardDigit() {
@@ -143,11 +180,17 @@ volverAlDashboard() {
   }
 
   getPinGuardKeyboardRow(row: number): number[] {
-    return [[1,2,3],[4,5,6],[7,8,9]][row] || [];
+    return (
+      [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+      ][row] || []
+    );
   }
 
   confirmPinGuard() {
-    const match = this.adminUsers.find(u => u.pin === this.pinGuardDigits);
+    const match = this.adminUsers.find((u) => u.pin === this.pinGuardDigits);
     if (!match) {
       this.pinGuardError = 'PIN inválido';
       this.pinGuardDigits = '';
@@ -170,25 +213,24 @@ volverAlDashboard() {
   }
 
   private needsPinGuard(): boolean {
-  const waiter = this.sesionCamarero.obtenerCamareroActual();
-  console.log('waiter:', waiter);
-  return !waiter || !['admin', 'supervisor'].includes(waiter.role ?? '');
-}
+    const waiter = this.sesionCamarero.obtenerCamareroActual();
+    console.log('waiter:', waiter);
+    return !waiter || !['admin', 'supervisor'].includes(waiter.role ?? '');
+  }
 
-private abrirPinGuard(destino: string | null) {
-  this.pinGuardDigits = '';
-  this.pinGuardError = '';
-  this.pendingView = destino;
-  this.userService.getUsers().subscribe({
-    next: (res: any) => {
-      this.adminUsers = (res.users ?? []).filter((u: any) =>
-        ['admin', 'supervisor'].includes(u.role)
-      );
-      this.showPinGuard = true;
-    },
-  });
-}
+  private abrirPinGuard(destino: string | null) {
+    this.pinGuardDigits = '';
+    this.pinGuardError = '';
+    this.pendingView = destino;
+    this.userService.getUsers().subscribe({
+      next: (res: any) => {
+        this.adminUsers = (res.users ?? []).filter((u: any) =>
+          ['admin', 'supervisor'].includes(u.role),
+        );
+        this.showPinGuard = true;
+      },
+    });
+  }
 
-readonly tiempoRestante = this.sesionCamarero.tiempoRestante;
-
+  readonly tiempoRestante = this.sesionCamarero.tiempoRestante;
 }
