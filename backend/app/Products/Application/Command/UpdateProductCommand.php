@@ -2,21 +2,26 @@
 
 namespace App\Products\Application\Command;
 
-use App\Products\Domain\Interfaces\ProductRepositoryInterface;
 use App\Products\Domain\ValueObject\ProductImageSrc;
 use App\Products\Domain\ValueObject\ProductName;
 use App\Products\Domain\ValueObject\ProductPrice;
-use App\Products\Domain\ValueObject\ProductStatus;
 use App\Products\Domain\ValueObject\ProductStock;
 use App\Shared\Domain\ValueObject\Uuid;
 
-class UpdateProductCommand
+final readonly class UpdateProductCommand
 {
-    public function __construct(
-        private ProductRepositoryInterface $productRepository,
+    private function __construct(
+        public Uuid $id,
+        public ?Uuid $familyId,
+        public ?Uuid $taxId,
+        public ?ProductName $name,
+        public ?ProductPrice $price,
+        public ?ProductStock $stock,
+        public ?ProductImageSrc $imageSrc,
+        public ?bool $active,
     ) {}
 
-    public function __invoke(
+    public static function create(
         string $id,
         ?string $familyId,
         ?string $taxId,
@@ -24,60 +29,17 @@ class UpdateProductCommand
         ?int $price,
         ?int $stock,
         ?string $imageSrc,
-        ?bool $status,
-    ): ?UpdateProductResponse {
-
-        $product = $this->productRepository->findById($id);
-
-        if (! $product) {
-            return null;
-        }
-
-        if ($familyId === null) {
-            $familyIdVO = $product->FamilyId();
-        } else {
-            $familyIdVO = Uuid::create($familyId);
-        }
-
-        if ($taxId === null) {
-            $taxIdVO = $product->taxId();
-        } else {
-            $taxIdVO = Uuid::create($taxId);
-        }
-
-        if ($name === null) {
-            $nameVO = $product->name();
-        } else {
-            $nameVO = ProductName::create($name);
-        }
-
-        if ($price === null) {
-            $priceVO = $product->price();
-        } else {
-            $priceVO = ProductPrice::create($price);
-        }
-
-        if ($stock === null) {
-            $stockVO = $product->stock();
-        } else {
-            $stockVO = ProductStock::create($stock);
-        }
-
-        if ($imageSrc === null) {
-            $imageSrcVO = $product->imageSrc();
-        } else {
-            $imageSrcVO = ProductImageSrc::create($imageSrc);
-        }
-
-        if ($status === null) {
-            $activeVO = $product->status();
-        } else {
-            $activeVO = ProductStatus::create($status);
-        }
-
-        $product = $product->updateData($familyIdVO, $taxIdVO, $nameVO, $priceVO, $stockVO, $imageSrcVO, $activeVO);
-        $this->productRepository->save($product);
-
-        return UpdateProductResponse::create($product);
+        ?bool $active,
+    ): self {
+        return new self(
+            id:       Uuid::create($id),
+            familyId: $familyId !== null ? Uuid::create($familyId) : null,
+            taxId:    $taxId !== null ? Uuid::create($taxId) : null,
+            name:     $name !== null ? ProductName::create($name) : null,
+            price:    $price !== null ? ProductPrice::create($price) : null,
+            stock:    $stock !== null ? ProductStock::create($stock) : null,
+            imageSrc: $imageSrc !== null ? ProductImageSrc::create($imageSrc) : null,
+            active:   $active,
+        );
     }
 }

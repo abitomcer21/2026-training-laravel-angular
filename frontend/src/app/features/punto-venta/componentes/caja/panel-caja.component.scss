@@ -114,7 +114,7 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
 }
 
 .columna-izquierda {
-  flex: 1.2;
+  flex: 0.7;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -128,7 +128,7 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   display: flex;
   flex-direction: column;
   gap: 20px;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .info-cards {
@@ -202,7 +202,6 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
 
 .detalle-ventas {
   flex: 1;
-  min-height: 0;
   background: $surface;
   border: 1px solid $border;
   border-radius: $radius-lg;
@@ -296,7 +295,7 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     color: $text-primary;
   }
 
-  .venta-monto {
+  .venta-total {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
     font-size: 13px;
     font-weight: 600;
@@ -321,7 +320,7 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     color: $text-primary;
   }
 
-  .venta-monto {
+  .venta-total {
     font-size: 18px;
     color: $accent;
   }
@@ -361,6 +360,25 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
   display: flex;
   flex-direction: column;
   gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $text-muted;
+    border-radius: 2px;
+
+    &:hover {
+      background: $text-secondary;
+    }
+  }
 }
 
 .pago-item {
@@ -411,7 +429,7 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     color: $text-secondary;
   }
 
-  .pago-monto {
+  .pago-total {
     font-family: 'Helvetica Neue', Helvetica, sans-serif;
     font-size: 16px;
     font-weight: 700;
@@ -439,7 +457,7 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
       font-weight: 700;
     }
     
-    .pago-monto.total-monto {
+    .pago-total.total-total {
       color: $accent;
       font-size: 20px;
     }
@@ -570,6 +588,7 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
       
       &[type="number"] {
         -moz-appearance: textfield;
+        appearance: textfield;
       }
     }
   }
@@ -804,19 +823,39 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     overflow: visible;
   }
 
-  .columna-izquierda,
+  .columna-izquierda {
+    flex: none;
+    overflow-y: auto;
+    max-height: 60vh;
+    min-height: 0;
+  }
+
   .columna-derecha {
     flex: none;
-    overflow: visible;
+    overflow-y: auto;
+    max-height: 65vh;
+    min-height: 0;
   }
 
   .detalle-ventas {
-    max-height: 400px;
+    max-height: none;
+    flex-shrink: 0;
+  }
+
+  .detalle-pagos {
+    max-height: none;
+    flex-shrink: 0;
+  }
+
+  .pagos-grid {
+    max-height: none;
+    overflow-y: visible;
   }
 
   .cierre-form {
     max-height: none;
     overflow: visible;
+    flex-shrink: 0;
   }
 }
 
@@ -900,11 +939,11 @@ $shadow-lift: 0 4px 16px rgba(0,0,0,.08);
     }
   }
 
-  .venta-total .venta-monto {
+  .venta-total .venta-total {
     font-size: 16px;
   }
 
-  .pago-item .pago-monto {
+  .pago-item .pago-total {
     font-size: 14px;
   }
 }

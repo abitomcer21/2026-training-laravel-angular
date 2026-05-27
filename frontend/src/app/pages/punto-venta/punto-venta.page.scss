@@ -373,3 +373,71 @@
     opacity: 0.3;
   }
 }
+
+// ============================================================
+// MODO OSCURO
+// ============================================================
+:root.ion-palette-dark {
+  .tpv-container {
+    background: #0f172a;
+  }
+
+  .tpv-content {
+    --background: #0f172a;
+  }
+
+  .tpv-header {
+    background: linear-gradient(180deg, #1a3d5c 0%, #1e293b 100%);
+
+    .restaurant-name {
+      color: #e2e8f0;
+    }
+
+    .user-info {
+      background: rgba(30, 41, 59, 0.9);
+      border-color: #475569;
+
+      .user-icon,
+      .waiter-name {
+        color: #e2e8f0;
+      }
+    }
+
+    .no-waiter {
+      color: #94a3b8;
+      background: rgba(30, 41, 59, 0.8);
+      border-color: #475569;
+    }
+  }
+
+  .pin-guard-popup {
+    background: #1e293b;
+    color: #e2e8f0;
+
+    .pin-guard-header h3 {
+      color: #e2e8f0;
+    }
+
+    .pin-guard-subtitle {
+      color: #94a3b8;
+    }
+
+    .btn-close-guard {
+      color: #94a3b8;
+    }
+  }
+
+  .pin-key {
+    background: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+
+    &:hover {
+      background: #334155;
+    }
+  }
+
+  .pin-key-back {
+    color: #94a3b8;
+  }
+}

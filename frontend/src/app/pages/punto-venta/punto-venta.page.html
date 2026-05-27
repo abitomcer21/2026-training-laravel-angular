@@ -1,11 +1,23 @@
 <div class="tpv-container">
   <aside class="tpv-sidebar">
-
+    <button
+      class="nav-button"
+      (click)="toggleTheme()"
+      [title]="(themeService.darkMode$ | async) ? 'Modo claro' : 'Modo oscuro'"
+    >
+      <ion-icon
+        [name]="(themeService.darkMode$ | async) ? 'sunny-outline' : 'moon-outline'"
+      ></ion-icon>
+    </button>
 
     <nav class="sidebar-nav">
       @for (item of menuItems; track item.valor) {
-      <button class="nav-button" [class.active]="currentView === item.valor" (click)="selectView(item.valor)"
-        [title]="item.nombre">
+      <button
+        class="nav-button"
+        [class.active]="currentView === item.valor"
+        (click)="selectView(item.valor)"
+        [title]="item.nombre"
+      >
         <ion-icon [name]="item.icono"></ion-icon>
       </button>
       }
@@ -13,7 +25,11 @@
 
     <div class="sidebar-footer">
       @if (userRole === 'admin' || userRole === 'supervisor') {
-      <button class="nav-button settings-btn" (click)="volverAlDashboard()" title="Volver al dashboard">
+      <button
+        class="nav-button settings-btn"
+        (click)="volverAlDashboard()"
+        title="Volver al dashboard"
+      >
         <ion-icon name="options-outline"></ion-icon>
       </button>
       }
@@ -21,36 +37,36 @@
   </aside>
 
   <div class="tpv-main">
-
     <header class="tpv-header">
-  <div class="restaurant-info">
-    <span class="restaurant-name">{{ restaurantName }}</span>
-  </div>
+      <div class="restaurant-info">
+        <span class="restaurant-name">{{ restaurantName }}</span>
+      </div>
 
-  @if (activeWaiter()) {
-    <div class="user-info">
-      <ion-icon name="person-circle-outline" class="user-icon"></ion-icon>
-      <span class="waiter-name">{{ activeWaiter()!.name }}</span>
-      <span class="session-timer" [class.urgente]="tiempoRestante() <= 5">
-        {{ tiempoRestante() }}s
-      </span>
-      <button class="logout-button" (click)="clearWaiter()">
-        <ion-icon name="log-out-outline"></ion-icon>
-      </button>
-    </div>
-  } @else {
-    <span class="waiter-name no-waiter">Sin camarero activo</span>
-  }
-</header>
+      @if (activeWaiter()) {
+      <div class="user-info">
+        <ion-icon name="person-circle-outline" class="user-icon"></ion-icon>
+        <span class="waiter-name">{{ activeWaiter()!.name }}</span>
+        <span class="session-timer" [class.urgente]="tiempoRestante() <= 5">
+          {{ tiempoRestante() }}s
+        </span>
+        <button class="logout-button" (click)="clearWaiter()">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </button>
+      </div>
+      } @else {
+      <span class="waiter-name no-waiter">Sin camarero activo</span>
+      }
+    </header>
 
     <ion-content class="tpv-content ion-padding">
       <div class="content-wrapper">
-        @switch (currentView) {
-        @case ('mesas') {<app-mesas (vistaChange)="selectView($any($event))" />}
-        @case ('productos') {<app-panel-productos (cambiarVista)="selectView($any($event))" />}
-        @case ('pedidos') {<app-pedidos (openTable)="openTableFromOrder($any($event))" />}
-        @case ('caja') {<app-caja />}
-        }
+        @switch (currentView) { @case ('mesas') {<app-mesas
+          (vistaChange)="selectView($any($event))"
+        />} @case ('productos') {<app-panel-productos
+          (cambiarVista)="selectView($any($event))"
+        />} @case ('pedidos') {<app-pedidos
+          (openTable)="openTableFromOrder($any($event))"
+        />} @case ('caja') {<app-caja />} }
       </div>
     </ion-content>
   </div>
@@ -66,20 +82,21 @@
 
       <div class="pin-guard-display">
         @for (i of [0,1,2,3]; track i) {
-          <div class="pin-dot" [class.filled]="pinGuardDigits.length > i"></div>
+        <div class="pin-dot" [class.filled]="pinGuardDigits.length > i"></div>
         }
       </div>
 
       @if (pinGuardError) {
-        <div class="pin-guard-error">{{ pinGuardError }}</div>
+      <div class="pin-guard-error">{{ pinGuardError }}</div>
       }
 
       <div class="pin-guard-keyboard">
-        @for (row of [0,1,2]; track row) {
-          @for (d of getPinGuardKeyboardRow(row); track d) {
-            <button class="pin-key" (click)="addPinGuardDigit(d.toString())">{{ d }}</button>
-          }
-        }
+        @for (row of [0,1,2]; track row) { @for (d of
+        getPinGuardKeyboardRow(row); track d) {
+        <button class="pin-key" (click)="addPinGuardDigit(d.toString())">
+          {{ d }}
+        </button>
+        } }
         <button class="pin-key pin-key-back" (click)="removePinGuardDigit()">
           <ion-icon name="backspace-outline"></ion-icon>
         </button>
@@ -88,5 +105,5 @@
       </div>
     </div>
   </div>
-}
+  }
 </div>

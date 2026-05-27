@@ -54,8 +54,8 @@ export class CajaComponent implements OnInit {
   };
   
   metodosPago = [
-    { nombre: 'Efectivo', monto: 0, icono: 'cash-outline' },
-    { nombre: 'Tarjeta', monto: 0, icono: 'card-outline' }
+    { nombre: 'Efectivo', total: 0, icono: 'cash-outline' },
+    { nombre: 'Tarjeta', total: 0, icono: 'card-outline' }
   ];
 
   ventasRegistro: Array<{ 
@@ -228,8 +228,8 @@ export class CajaComponent implements OnInit {
     this.resumenTurno.efectivoEsperado = totales.totalEfectivo;
     this.resumenTurno.tarjeta = totales.totalTarjeta;
     
-    this.metodosPago[0].monto = totales.totalEfectivo;
-    this.metodosPago[1].monto = totales.totalTarjeta;
+    this.metodosPago[0].total = totales.totalEfectivo;
+    this.metodosPago[1].total = totales.totalTarjeta;
 
     this.actualizarDiferencia();
   }

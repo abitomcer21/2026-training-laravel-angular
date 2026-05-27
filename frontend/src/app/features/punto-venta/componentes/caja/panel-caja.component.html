@@ -65,36 +65,7 @@
     </div>
 
     <div class="columna-derecha">
-      
-      <div class="detalle-pagos">
-        <h3>
-          <ion-icon name="stats-chart-outline"></ion-icon>
-          Desglose por Método
-        </h3>
-        <div class="pagos-grid">
-          @for (metodo of metodosPago; track $index) {
-            <div class="pago-item">
-              <div class="pago-icon">
-                <ion-icon [name]="metodo.icono"></ion-icon>
-              </div>
-              <div class="pago-info">
-                <span class="pago-nombre">{{ metodo.nombre }}</span>
-                <strong class="pago-monto">{{ metodo.monto | number:'1.2-2' }} €</strong>
-              </div>
-            </div>
-          }
-          <div class="pago-item total-item">
-            <div class="pago-icon">
-              <ion-icon name="cash-outline"></ion-icon>
-              
-            </div>
-            <div class="pago-info">
-              <span class="pago-nombre">Total</span>
-              <strong class="pago-monto total-monto">{{ resumenTurno.ventasTotales | number:'1.2-2' }} €</strong>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <div class="cierre-form">
         <form [formGroup]="cierreForm" (ngSubmit)="registrarCierre()">

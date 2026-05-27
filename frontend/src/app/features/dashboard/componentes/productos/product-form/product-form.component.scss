@@ -43,11 +43,10 @@
 
 .editor-form {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px 12px;
     align-content: start;
-
-    grid-column: 1 / -1;
-
+    min-height: 0;
 }
 
 .editor-form>.editor-summary,
@@ -80,14 +79,13 @@
     border-radius: 18px;
     background: linear-gradient(135deg, #f8fbff 0%, #f3f8ff 100%);
     border: 1px solid #dbe7f8;
-    margin-bottom: 6px;
 }
 
 .editor-avatar {
     width: 48px;
     height: 48px;
     min-width: 48px;
-    border-radius: 50%;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -324,8 +322,9 @@
 
 @media (max-width: 1024px) {
     .editor-panel {
-        flex: 0;
-        max-height: 250px;
+        flex: 1;
+        height: auto;
+        max-height: none;
     }
 
     .editor-form {
@@ -336,7 +335,8 @@
 @media (max-width: 768px) {
     .editor-panel {
         flex: 0 0 100%;
-        max-height: 300px;
+        height: auto;
+        max-height: none;
         padding: 16px;
     }
 
@@ -410,7 +410,7 @@
   margin-top: 4px;
 }
 
-.form-field.full-width {
+.editor-form > .form-field.full-width {
   grid-column: 1 / -1;
 }
 

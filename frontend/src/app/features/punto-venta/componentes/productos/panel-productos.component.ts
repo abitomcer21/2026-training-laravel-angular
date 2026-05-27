@@ -131,10 +131,10 @@ export class ProductosComponent implements OnInit {
   mostrarModalCobro = false;
   tipoCobro: TipoCobro = 'completo';
   numeroComensales = 2;
-  montoPorPersona = 0;
+  totalPorPersona = 0;
   articulosSeleccionados: Record<string, boolean> = {};
   metodoSeleccionado: 'efectivo' | 'tarjeta' | 'mixto' | null = 'tarjeta';
-  montosMetodoPago = { efectivo: 0, tarjeta: 0 };
+  totalsMetodoPago = { efectivo: 0, tarjeta: 0 };
   articulosPagados: Record<string, boolean> = {};
   totalPagado = 0;
   totalPorPagar = 0;
@@ -357,7 +357,7 @@ export class ProductosComponent implements OnInit {
     this.mostrarModalTicket = false;
     this.tipoCobro = 'completo';
     this.numeroComensales = 2;
-    this.montoPorPersona = 0;
+    this.totalPorPersona = 0;
     this.articulosSeleccionados = {};
     this.filtroNombre = '';
 
@@ -546,12 +546,12 @@ export class ProductosComponent implements OnInit {
     });
     this.numeroComensales = 2;
     this.tipoCobro = 'completo';
-    this.calcularMontoPorPersona();
+    this.calculartotalPorPersona();
     this.mostrarModalCobro = true;
   }
 
-  calcularMontoPorPersona() {
-    this.montoPorPersona = this.cobroService.calcularMontoPorPersona(
+  calculartotalPorPersona() {
+    this.totalPorPersona = this.cobroService.calculartotalPorPersona(
       this.currentOrder,
       this.articulosPagados,
       this.numeroComensales,
@@ -592,7 +592,7 @@ export class ProductosComponent implements OnInit {
 
     if (this.metodoSeleccionado === 'mixto') {
       const totalMixto =
-        this.montosMetodoPago.efectivo + this.montosMetodoPago.tarjeta;
+        this.totalsMetodoPago.efectivo + this.totalsMetodoPago.tarjeta;
       const pendiente = this.getTotalPendiente();
       if (Math.abs(totalMixto - pendiente) > 0.01) {
         this.mostrarToast(
@@ -609,7 +609,7 @@ export class ProductosComponent implements OnInit {
       this.currentOrder,
       this.articulosPagados,
       this.articulosSeleccionados,
-      this.montoPorPersona,
+      this.totalPorPersona,
       this.numeroComensales,
     );
     this.articulosPagados = articulosPagados;

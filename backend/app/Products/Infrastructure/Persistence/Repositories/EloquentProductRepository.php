@@ -5,8 +5,9 @@ namespace App\Products\Infrastructure\Persistence\Repositories;
 use App\Products\Domain\Entity\Product;
 use App\Products\Domain\Interfaces\ProductRepositoryInterface;
 use App\Products\Infrastructure\Persistence\Models\EloquentProduct;
+use App\Shared\Infrastructure\Persistence\Repositories\AbstractEloquentRepository;
 
-class EloquentProductRepository implements ProductRepositoryInterface
+class EloquentProductRepository extends AbstractEloquentRepository implements ProductRepositoryInterface
 {
     public function __construct(
         private EloquentProduct $model,

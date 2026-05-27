@@ -2,46 +2,50 @@
 
 namespace App\Products\Infrastructure\Entrypoint\Http;
 
-use App\Family\Infrastructure\Persistence\Models\EloquentFamily;
-use App\Products\Application\UpdateProduct\UpdateProduct;
-use App\Tax\Infrastructure\Persistence\Models\EloquentTax;
+use App\Products\Application\Command\UpdateProductCommand;
+use App\Products\Application\Handler\UpdateProductHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PutController
 {
+    private const VALIDATION_RULES = [
+        'name'      => ['nullable', 'string', 'max:255'],
+        'family_id' => ['nullable', 'string', 'max:255'],
+        'tax_id'    => ['nullable', 'string', 'max:255'],
+        'price'     => ['nullable', 'integer', 'min:0'],
+        'stock'     => ['nullable', 'integer', 'min:0'],
+        'image_src' => ['nullable', 'string', 'max:255'],
+        'active'    => ['nullable', 'boolean'],
+    ];
+
     public function __construct(
-        private UpdateProduct $updateProduct,
+        private UpdateProductHandler $updateProduct,
     ) {}
 
     public function __invoke(Request $request, string $id): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
-            'family_id' => ['nullable', 'string', 'max:255'],
-            'tax_id' => ['nullable', 'string', 'max:255'],
-            'price' => ['nullable', 'integer', 'min:0'],
-            'stock' => ['nullable', 'integer', 'min:0'],
-            'image_src' => ['nullable', 'string', 'max:255'],
-            'active' => ['nullable', 'boolean'],
-        ]);
+        try {
+            $validated = $request->validate(self::VALIDATION_RULES);
 
-        $response = ($this->updateProduct)(
-            $id,
-            $validated['family_id'] ?? null,
-            $validated['tax_id'] ?? null,
-            $validated['name'] ?? null,
-            $validated['price'] ?? null,
-            $validated['stock'] ?? null,
-            $validated['image_src'] ?? null,
-            $validated['active'] ?? null,
-        );
+            $command = UpdateProductCommand::create(
+                id:       $id,
+                familyId: $validated['family_id'] ?? null,
+                taxId:    $validated['tax_id'] ?? null,
+                name:     $validated['name'] ?? null,
+                price:    $validated['price'] ?? null,
+                stock:    $validated['stock'] ?? null,
+                imageSrc: $validated['image_src'] ?? null,
+                active:   $validated['active'] ?? null,
+            );
 
-        if ($response === null) {
-            return new JsonResponse(['message' => 'Product not found'], 404);
+            $response = ($this->updateProduct)($command);
+
+            return new JsonResponse($response->toArray(), 200);
+
+        } catch (\Throwable $e) {
+            return new JsonResponse(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 500);
         }
-
-        return new JsonResponse($response->toArray(), 200);
     }
 }
 

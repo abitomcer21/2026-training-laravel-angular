@@ -275,15 +275,15 @@
                 <div class="mixto-config-derecha">
                   <div class="input-row-derecha">
                     <label>Efectivo:</label>
-                    <input type="number" [(ngModel)]="montosMetodoPago.efectivo" step="0.01" placeholder="0.00">
+                    <input type="number" [(ngModel)]="totalsMetodoPago.efectivo" step="0.01" placeholder="0.00">
                   </div>
                   <div class="input-row-derecha">
                     <label>Tarjeta:</label>
-                    <input type="number" [(ngModel)]="montosMetodoPago.tarjeta" step="0.01" placeholder="0.00">
+                    <input type="number" [(ngModel)]="totalsMetodoPago.tarjeta" step="0.01" placeholder="0.00">
                   </div>
                   <div class="mixto-total-derecha"
-                    [class.error]="Math.abs((montosMetodoPago.efectivo + montosMetodoPago.tarjeta) - getTotalPendiente()) > 0.01">
-                    {{ (montosMetodoPago.efectivo + montosMetodoPago.tarjeta) | number:'1.2-2' }} € / {{ getTotalPendiente()
+                    [class.error]="Math.abs((totalsMetodoPago.efectivo + totalsMetodoPago.tarjeta) - getTotalPendiente()) > 0.01">
+                    {{ (totalsMetodoPago.efectivo + totalsMetodoPago.tarjeta) | number:'1.2-2' }} € / {{ getTotalPendiente()
                     | number:'1.2-2' }} €
                   </div>
                 </div>
@@ -315,10 +315,10 @@
                       <label>Comensales:</label>
                       <div class="input-comensales-derecha">
                         <button (click)="numeroComensales = Math.max(1, numeroComensales - 1)">−</button>
-                        <input type="number" [(ngModel)]="numeroComensales" (ionChange)="calcularMontoPorPersona()">
+                        <input type="number" [(ngModel)]="numeroComensales" (ionChange)="calculartotalPorPersona()">
                         <button (click)="numeroComensales = numeroComensales + 1">+</button>
                       </div>
-                      <div class="monto-comensal">{{ montoPorPersona | number:'1.2-2' }} € c/u</div>
+                      <div class="total-comensal">{{ totalPorPersona | number:'1.2-2' }} € c/u</div>
                     </div>
                   }
 
@@ -347,7 +347,7 @@
               }
 
               <button class="btn-confirmar-derecha"
-                [disabled]="!metodoSeleccionado || (metodoSeleccionado === 'mixto' && Math.abs((montosMetodoPago.efectivo + montosMetodoPago.tarjeta) - getTotalPendiente()) > 0.01)"
+                [disabled]="!metodoSeleccionado || (metodoSeleccionado === 'mixto' && Math.abs((totalsMetodoPago.efectivo + totalsMetodoPago.tarjeta) - getTotalPendiente()) > 0.01)"
                 (click)="confirmarCobro()">
                 ✓ Confirmar Pago
               </button>

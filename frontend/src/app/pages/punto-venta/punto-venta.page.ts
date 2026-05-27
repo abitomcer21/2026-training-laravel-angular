@@ -13,6 +13,8 @@ import {
   cashOutline,
   logOutOutline,
   optionsOutline,
+  sunnyOutline,
+  moonOutline,
 } from 'ionicons/icons';
 import { MesasComponent } from '../../features/punto-venta/componentes/mesas/panel-mesas.component';
 import { ProductosComponent } from '../../features/punto-venta/componentes/productos/panel-productos.component';
@@ -21,6 +23,8 @@ import { CajaComponent } from '../../features/punto-venta/componentes/caja/panel
 import { RestaurantService } from '../../services/api/restaurant.service';
 import { SesiónCamareroService } from '../../services/sesion-camarero.service';
 import { UserService } from '../../services/api/user.service';
+import { ThemeService } from '../../services/theme.service';
+import { AsyncPipe } from '@angular/common';
 
 interface MenuItem {
   nombre: string;
@@ -36,6 +40,7 @@ interface MenuItem {
   imports: [
     CommonModule,
     FormsModule,
+    AsyncPipe,
     IonContent,
     IonIcon,
     MesasComponent,
@@ -76,6 +81,7 @@ export class PuntoVentaPage implements OnInit, OnDestroy {
     private sesionCamarero: SesiónCamareroService,
     private userService: UserService,
     private location: Location,
+    readonly themeService: ThemeService,
   ) {
     addIcons({
       gridOutline,
@@ -84,6 +90,8 @@ export class PuntoVentaPage implements OnInit, OnDestroy {
       cashOutline,
       logOutOutline,
       optionsOutline,
+      sunnyOutline,
+      moonOutline,
     });
   }
 
@@ -91,6 +99,7 @@ export class PuntoVentaPage implements OnInit, OnDestroy {
     history.pushState(null, '', window.location.href);
     window.addEventListener('popstate', this.preventBack);
 
+    this.themeService.setTheme(this.themeService.isDarkMode());
     this.sesionCamarero.onSessionExpire(() => this.selectView('mesas'));
     this.cargarRestaurantName();
     const userData = localStorage.getItem('userData');
@@ -131,6 +140,10 @@ export class PuntoVentaPage implements OnInit, OnDestroy {
 
   openTableFromOrder(tableId: string) {
     this.currentView = 'productos';
+  }
+
+  toggleTheme() {
+    this.themeService.toggleTheme();
   }
 
   clearWaiter() {

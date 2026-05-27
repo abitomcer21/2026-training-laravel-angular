@@ -39,7 +39,7 @@ export class CobroService {
       .reduce((sum, i) => sum + i.total, 0);
   }
 
-  calcularMontoPorPersona(
+  calculartotalPorPersona(
     order: CurrentOrder,
     articulosPagados: Record<string, boolean>,
     numeroComensales: number,
@@ -54,7 +54,7 @@ export class CobroService {
     order: CurrentOrder,
     articulosPagados: Record<string, boolean>,
     articulosSeleccionados: Record<string, boolean>,
-    montoPorPersona: number,
+    totalPorPersona: number,
     numeroComensales: number,
   ): { articulosPagados: Record<string, boolean>; totalCobrado: number } {
     const pagados = { ...articulosPagados };
@@ -64,7 +64,7 @@ export class CobroService {
       totalCobrado =
         tipoCobro === 'completo'
           ? this.getTotalPendiente(order, articulosPagados)
-          : montoPorPersona * numeroComensales;
+          : totalPorPersona * numeroComensales;
       order.items.forEach((item) => {
         if (!pagados[item.productId]) pagados[item.productId] = true;
       });

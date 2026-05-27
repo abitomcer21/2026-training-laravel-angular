@@ -5,6 +5,8 @@ namespace App\Family\Domain\Services;
 use App\Family\Domain\Entity\Family;
 use App\Family\Domain\Interfaces\FamilyRepositoryInterface;
 use App\Family\Domain\ValueObject\FamilyName;
+use App\Family\Domain\Services\SyncProductsStatus;
+
 
 class FamilyUpdater
 {
@@ -20,13 +22,13 @@ class FamilyUpdater
 
         $updatedFamily = $family->updateData($newName, $newActive);
 
-        $this->familyRepository->beginTransaction();
-
         try {
-            $this->saveFamily($updatedFamily);
+
+            $this->familyRepository->beginTransaction();
+            $this->familyRepository->save($updatedFamily);
 
             if ($active !== null) {
-                $this->syncProducts($family->id()->value(), $active);
+                $this->syncProductsStatus->sync($family->id()->value(), $active);
             }
 
             $this->familyRepository->commit();
@@ -37,15 +39,5 @@ class FamilyUpdater
         }
 
         return $updatedFamily;
-    }
-
-    private function saveFamily(Family $family): void
-    {
-        $this->familyRepository->save($family);
-    }
-
-    private function syncProducts(string $familyId, bool $active): void
-    {
-        $this->syncProductsStatus->sync($familyId, $active);
     }
 }
