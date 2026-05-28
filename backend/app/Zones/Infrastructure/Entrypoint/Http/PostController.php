@@ -2,28 +2,49 @@
 
 namespace App\Zones\Infrastructure\Entrypoint\Http;
 
-use App\Zones\Application\CreateZones\CreateZones;
+use App\Zones\Application\Command\CreateZonesCommand;
+use App\Zones\Application\Handler\CreateZonesHandler;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PostController
 {
+    private const VALIDATION_RULES = [
+        'name'          => ['required', 'string', 'max:255'],
+        'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
+    ];
+
     public function __construct(
-        private CreateZones $createZones,
+        private CreateZonesHandler $createZonesHandler,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
-        ]);
+        $validator = Validator::make($request->all(), self::VALIDATION_RULES);
 
-        $response = ($this->createZones)(
-            $validated['name'],
-            $validated['restaurant_id'],
-        );
+        if ($validator->fails()) {
+            return new JsonResponse([
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()->toArray(),
+            ], 422);
+        }
 
-        return new JsonResponse($response->toArray(), 201);
+        try {
+            $validated = $validator->validated();
+
+            $response = ($this->createZonesHandler)(
+                CreateZonesCommand::create(
+                    name:         $validated['name'],
+                    restaurantId: $validated['restaurant_id'],
+                ),
+            );
+
+            return new JsonResponse($response->toArray(), 201);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
+        }
     }
 }

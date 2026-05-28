@@ -2,31 +2,49 @@
 
 namespace App\Zones\Infrastructure\Entrypoint\Http;
 
-use App\Zones\Application\UpdateZones\UpdateZones;
+use App\Zones\Application\Command\UpdateZonesCommand;
+use App\Zones\Application\Handler\UpdateZonesHandler;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PutController
 {
-    public function __construct(private UpdateZones $updateZones) {}
+    private const VALIDATION_RULES = [
+        'name' => ['nullable', 'string', 'max:255'],
+    ];
+
+    public function __construct(
+        private UpdateZonesHandler $updateZonesHandler,
+    ) {}
 
     public function __invoke(Request $request, string $id): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
-        ]);
+        $validator = Validator::make($request->all(), self::VALIDATION_RULES);
 
-        $response = ($this->updateZones)(
-            $id,
-            $validated['name'] ?? null,
-        );
-
-        if ($response === null) {
+        if ($validator->fails()) {
             return new JsonResponse([
-                'message' => 'Zone not found',
-            ], 404);
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()->toArray(),
+            ], 422);
         }
 
-        return new JsonResponse($response->toArray(), 200);
+        try {
+            $validated = $validator->validated();
+
+            $response = ($this->updateZonesHandler)(
+                UpdateZonesCommand::create(
+                    id:           $id,
+                    name:         $validated['name'] ?? null,
+                    restaurantId: $request->user()->restaurant_id,
+                ),
+            );
+
+            return new JsonResponse($response->toArray(), 200);
+
+} catch (\Throwable $e) {
+    return new JsonResponse(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 500);
+}
     }
 }

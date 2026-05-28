@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Zones\Application\CreateZones;
+namespace App\Zones\Application\Response;
 
 use App\Zones\Domain\Entity\Zones;
 
 final readonly class CreateZonesResponse
 {
-    public function __construct(
-        public string $id,
-        public ?int $databaseId,
-        public string $name,
-        public int $restaurantId,
-        public string $createdAt,
-        public string $updatedAt,
+    private function __construct(
+        private string $id,
+        private ?int $databaseId,
+        private string $name,
+        private int $restaurantId,
+        private string $createdAt,
+        private string $updatedAt,
     ) {}
 
     public static function create(Zones $zone, ?int $databaseId = null): self

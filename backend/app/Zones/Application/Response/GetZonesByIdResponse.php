@@ -1,17 +1,18 @@
 <?php
 
-namespace App\Zones\Application\UpdateZones;
+namespace App\Zones\Application\Response;
 
 use App\Zones\Domain\Entity\Zones;
 
-final readonly class UpdateZonesResponse
+final readonly class GetZonesByIdResponse
 {
-    public function __construct(
-        public string $id,
-        public string $name,
-        public int $restaurantId,
-        public string $createdAt,
-        public string $updatedAt,
+    private function __construct(
+        private string $id,
+        private string $name,
+        private int $restaurantId,
+        private string $createdAt,
+        private string $updatedAt,
+
     ) {}
 
     public static function create(Zones $zones): self

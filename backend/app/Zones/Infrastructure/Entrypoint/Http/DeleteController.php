@@ -2,37 +2,44 @@
 
 namespace App\Zones\Infrastructure\Entrypoint\Http;
 
-use App\Zones\Application\DeleteZone\DeleteZones;
+use App\Zones\Application\Command\DeleteZonesCommand;
+use App\Zones\Application\Handler\DeleteZonesHandler;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class DeleteController
 {
-    public function __construct(private DeleteZones $deleteZone) {}
+    public function __construct(
+        private DeleteZonesHandler $deleteZonesHandler,
+    ) {}
 
-    public function __invoke(string $id): JsonResponse
+    public function __invoke(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make([
-            'id' => $id,
-        ], [
+        $validator = Validator::make(['id' => $id], [
             'id' => ['required', 'uuid'],
         ]);
 
         if ($validator->fails()) {
             return new JsonResponse([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()->toArray(),
+                'errors'  => $validator->errors()->toArray(),
             ], 422);
         }
 
-        $deleteZone = ($this->deleteZone)($id);
+        try {
+            ($this->deleteZonesHandler)(
+                DeleteZonesCommand::create(
+                    id:           $id,
+                    restaurantId: $request->user()->restaurant_id,
+                ),
+            );
 
-        if (! $deleteZone) {
-            return new JsonResponse([
-                'message' => 'Zone not found',
-            ], 404);
+            return new JsonResponse(null, 204);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
         }
-
-        return new JsonResponse(null, 204);
     }
 }

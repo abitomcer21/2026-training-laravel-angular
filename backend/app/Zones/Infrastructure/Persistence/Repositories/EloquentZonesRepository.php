@@ -87,4 +87,20 @@ class EloquentZonesRepository implements ZonesRepositoryInterface
     {
         $this->model->newQuery()->where('uuid', $id)->delete();
     }
+
+    public function findAllByRestaurant(int $restaurantId): array
+{
+    return $this->model->newQuery()
+        ->where('restaurant_id', $restaurantId)
+        ->get()
+        ->map(
+            fn (EloquentZones $zone): Zones => Zones::fromPersistence(
+                $zone->uuid,
+                $zone->name,
+                $zone->restaurant_id,
+                $zone->created_at->toDateTimeImmutable(),
+                $zone->updated_at->toDateTimeImmutable(),
+            ),
+        )->toArray();
+}
 }
