@@ -67,4 +67,21 @@ class EloquentTablesRepository implements TablesRepositoryInterface
     {
         $this->model->newQuery()->where('uuid', $id)->delete();
     }
+
+    public function findAllByRestaurant(int $restaurantId): array
+{
+    return $this->model->newQuery()
+        ->where('restaurant_id', $restaurantId)
+        ->get()
+        ->map(
+            fn (EloquentTables $table): Table => Table::fromPersistence(
+                $table->uuid,
+                $table->zone_id,
+                $table->name,
+                $table->restaurant_id,
+                $table->created_at->toDateTimeImmutable(),
+                $table->updated_at->toDateTimeImmutable(),
+            ),
+        )->toArray();
+}
 }

@@ -1,28 +1,24 @@
 <?php
 
-namespace App\Tables\Application\CreateTable;
+namespace App\Tables\Application\Handler;
 
+use App\Tables\Application\Command\CreateTableCommand;
+use App\Tables\Application\Response\CreateTableResponse;
 use App\Tables\Domain\Entity\Table;
 use App\Tables\Domain\Interfaces\TablesRepositoryInterface;
-use App\Tables\Domain\ValueObject\TableName;
 
-class CreateTable
+class CreateTableHandler
 {
     public function __construct(
         private TablesRepositoryInterface $tablesRepository,
     ) {}
 
-    public function __invoke(
-        int $zoneId,
-        string $name,
-        int $restaurantId,
-    ): CreateTableResponse {
-        $nameVO = TableName::create($name);
-
+    public function __invoke(CreateTableCommand $command): CreateTableResponse
+    {
         $table = Table::dddCreate(
-            $nameVO,
-            $zoneId,
-            $restaurantId,
+            $command->name,
+            $command->zoneId,
+            $command->restaurantId,
         );
 
         $this->tablesRepository->save($table);

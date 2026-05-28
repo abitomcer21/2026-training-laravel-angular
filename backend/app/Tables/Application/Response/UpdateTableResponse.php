@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Tables\Application\UpdateTable;
+namespace App\Tables\Application\Response;
 
 use App\Tables\Domain\Entity\Table;
 
 final readonly class UpdateTableResponse
 {
-    public function __construct(
-        public string $id,
-        public int $zoneId,
-        public string $name,
-        public int $restaurantId,
-        public string $createdAt,
-        public string $updatedAt,
+    private function __construct(
+        private string $id,
+        private int $zoneId,
+        private string $name,
+        private int $restaurantId,
+        private string $createdAt,
+        private string $updatedAt,
     ) {}
 
     public static function create(Table $table): self

@@ -2,35 +2,49 @@
 
 namespace App\Tables\Infrastructure\Entrypoint\Http;
 
-use App\Tables\Application\UpdateTable\UpdateTable;
+use App\Tables\Application\Command\UpdateTableCommand;
+use App\Tables\Application\Handler\UpdateTableHandler;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PutController
 {
+    private const VALIDATION_RULES = [
+        'name' => ['nullable', 'string', 'max:255'],
+    ];
+
     public function __construct(
-        private UpdateTable $updateTable,
+        private UpdateTableHandler $updateTableHandler,
     ) {}
 
     public function __invoke(Request $request, string $id): JsonResponse
     {
+        $validator = Validator::make($request->all(), self::VALIDATION_RULES);
 
-        $validated = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        $response = ($this->updateTable)(
-            $id,
-            $validated['name'],
-        );
-
-        if ($response === null) {
+        if ($validator->fails()) {
             return new JsonResponse([
-                'message' => 'Table not found',
-            ], 404);
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()->toArray(),
+            ], 422);
         }
 
-        return new JsonResponse($response->toArray(), 200);
+        try {
+            $validated = $validator->validated();
+
+            $response = ($this->updateTableHandler)(
+                UpdateTableCommand::create(
+                    id:           $id,
+                    name:         $validated['name'] ?? null,
+                    restaurantId: $request->user()->restaurant_id,
+                ),
+            );
+
+            return new JsonResponse($response->toArray(), 200);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
+        }
     }
 }
-

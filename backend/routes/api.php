@@ -74,31 +74,35 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/products/{id}', ProductsPutController::class);
     Route::delete('/products/{id}', ProductsDeleteController::class);
     Route::get('/products/name/{name}', ProductsGetByNameController::class);
+
+    Route::post('/tax', TaxPostController::class);
+    Route::get('/tax', TaxGetAllController::class);
+    Route::get('/tax/{id}', TaxGetByIdController::class);
+    Route::put('/tax/{id}', TaxPutController::class);
+    Route::delete('/tax/{id}', TaxDeleteController::class);
+
+    Route::post('/zones', ZonesPostController::class);
+    Route::get('/zones', ZonesGetAllController::class);
+    Route::get('/zones/{id}', ZonesGetByIdController::class);
+    Route::put('/zones/{id}', ZonesPutController::class);
+    Route::delete('/zones/{id}', ZonesDeleteController::class);
+
+    Route::post('/tables', TablesPostController::class);
+    Route::get('/tables', TablesGetAllController::class);
+    Route::get('/tables/{id}', TablesGetByIdController::class);
+    Route::put('/tables/{id}', TablesPutController::class);
+    Route::delete('/tables/{id}', TablesDeleteController::class);
     
     Route::get('/my-restaurant', GetMyRestaurantController::class);
     
     Route::post('/logout', LogoutController::class);
     Route::get('/auth/me', MeController::class);
+
+
 });
 
 
-Route::post('/tax', TaxPostController::class);
-Route::get('/tax', TaxGetAllController::class);
-Route::get('/tax/{id}', TaxGetByIdController::class);
-Route::put('/tax/{id}', TaxPutController::class);
-Route::delete('/tax/{id}', TaxDeleteController::class);
 
-Route::post('/zones', ZonesPostController::class);
-Route::get('/zones', ZonesGetAllController::class);
-Route::get('/zones/{id}', ZonesGetByIdController::class);
-Route::put('/zones/{id}', ZonesPutController::class);
-Route::delete('/zones/{id}', ZonesDeleteController::class);
-
-Route::post('/tables', TablesPostController::class);
-Route::get('/tables', TablesGetAllController::class);
-Route::get('/tables/{id}', TablesGetByIdController::class);
-Route::put('/tables/{id}', TablesPutController::class);
-Route::delete('/tables/{id}', TablesDeleteController::class);
 
 Route::post('/restaurants', RestaurantsPostController::class);
 
