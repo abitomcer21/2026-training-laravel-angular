@@ -294,17 +294,8 @@ export class MesasComponent implements OnInit, OnDestroy {
     }).length;
   }
 
-  obtenerNombreZona(zone_id: any): string {
-    const zone = this.zones.find(z => {
-      const zId = z.id?.toString() || '';
-      const zUuid = z.uuid?.toString() || '';
-      const zDbId = z.database_id;
-      const zoneIdStr = zone_id?.toString() || '';
-      const zoneIdNum = Number(zone_id);
-      return (zDbId && zDbId === zoneIdNum) ||
-        zId === zoneIdStr ||
-        zUuid === zoneIdStr;
-    });
+  obtenerNombreZona(zoneUuid: string): string {
+    const zone = this.zones.find(z => z.id === zoneUuid);
     return zone?.name || 'Desconocida';
   }
 
@@ -426,6 +417,7 @@ export class MesasComponent implements OnInit, OnDestroy {
           uuid: response?.id ?? response?.uuid,
           name: response?.name ?? this.createTableForm.name.trim(),
           zone_id: response?.zone_id ?? this.createTableForm.zone_id,
+          zone_uuid: response?.zone_uuid ?? '',
           restaurant_id: response?.restaurant_id ?? restaurantId,
         };
 

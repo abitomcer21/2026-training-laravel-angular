@@ -98,7 +98,7 @@
                     </div>
                   </td>
                   <td class="col-email">
-                    {{ obtenerNombreZona(table.zone_id) }}
+                    {{ obtenerNombreZona(table.zone_uuid) }}
                   </td>
                   <td class="col-actions">
                     <div class="action-buttons">
@@ -149,7 +149,7 @@
               </div>
               <div>
                 <strong>{{ editingTable.name }}</strong>
-                <p>Zona: {{ obtenerNombreZona(editingTable.zone_id) }}</p>
+                <p>Zona: {{ obtenerNombreZona(editingTable.zone_uuid) }}</p>
               </div>
             </div>
 
@@ -159,7 +159,7 @@
             </div>
 
             <div class="form-info">
-              <p><strong>Zona asignada:</strong> {{ obtenerNombreZona(editingTable.zone_id) }}</p>
+              <p><strong>Zona asignada:</strong> {{ obtenerNombreZona(editingTable.zone_uuid) }}</p>
               <small>La zona se asigna al crear la mesa y no puede modificarse</small>
             </div>
 

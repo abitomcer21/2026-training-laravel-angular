@@ -13,4 +13,6 @@ interface TaxRepositoryInterface
     public function all(): array;
 
     public function delete(string $id): void;
+    
+    public function findAllByRestaurant(int $restaurantId): array;
 }

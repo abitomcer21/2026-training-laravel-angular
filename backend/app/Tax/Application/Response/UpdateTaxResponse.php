@@ -1,18 +1,16 @@
 <?php
 
-namespace App\Tax\Application\CreateTax;
+namespace App\Tax\Application\Response;
 
 use App\Tax\Domain\Entity\Tax;
 
-final readonly class CreateTaxResponse
+final readonly class UpdateTaxResponse
 {
-    public function __construct(
-        public string $id,
-        public string $name,
-        public int $percentage,
-        public int $restaurantId,
-        public string $createdAt,
-        public string $updatedAt,
+    private function __construct(
+        private string $id,
+        private string $name,
+        private int $percentage,
+        private int $restaurantId,
     ) {}
 
     public static function create(Tax $tax): self
@@ -22,8 +20,6 @@ final readonly class CreateTaxResponse
             name: $tax->name(),
             percentage: $tax->percentage()->value(),
             restaurantId: $tax->restaurantId(),
-            createdAt: $tax->createdAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $tax->updatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
 
@@ -34,8 +30,6 @@ final readonly class CreateTaxResponse
             'name' => $this->name,
             'percentage' => $this->percentage,
             'restaurant_id' => $this->restaurantId,
-            'created_at' => $this->createdAt,
-            'updated_at' => $this->updatedAt,
         ];
     }
 }

@@ -69,19 +69,25 @@ class EloquentTablesRepository implements TablesRepositoryInterface
     }
 
     public function findAllByRestaurant(int $restaurantId): array
-{
-    return $this->model->newQuery()
-        ->where('restaurant_id', $restaurantId)
-        ->get()
-        ->map(
-            fn (EloquentTables $table): Table => Table::fromPersistence(
-                $table->uuid,
-                $table->zone_id,
-                $table->name,
-                $table->restaurant_id,
-                $table->created_at->toDateTimeImmutable(),
-                $table->updated_at->toDateTimeImmutable(),
-            ),
-        )->toArray();
-}
+    {
+        return $this->model->newQuery()
+            ->join('zones', 'tables.zone_id', '=', 'zones.id')
+            ->select('tables.*', 'zones.uuid as zone_uuid')
+            ->whereNull('zones.deleted_at')
+            ->where('tables.restaurant_id', $restaurantId)
+            ->get()
+            ->map(
+                fn (EloquentTables $table): array => [
+                    'zone_uuid' => $table->zone_uuid,
+                    'table'     => Table::fromPersistence(
+                        $table->uuid,
+                        $table->zone_id,
+                        $table->name,
+                        $table->restaurant_id,
+                        $table->created_at->toDateTimeImmutable(),
+                        $table->updated_at->toDateTimeImmutable(),
+                    ),
+                ],
+            )->toArray();
+    }
 }

@@ -2,39 +2,44 @@
 
 namespace App\Tax\Infrastructure\Entrypoint\Http;
 
-use App\Tax\Application\GetTaxById\GetTaxById;
+use App\Tax\Application\Handler\GetTaxByIdHandler;
+use App\Tax\Application\Query\GetTaxByIdQuery;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class GetByIdController
 {
     public function __construct(
-        private GetTaxById $getTaxById,
+        private GetTaxByIdHandler $getTaxByIdHandler,
     ) {}
 
-    public function __invoke(string $id): JsonResponse
+    public function __invoke(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make([
-            'id' => $id,
-        ], [
+        $validator = Validator::make(['id' => $id], [
             'id' => ['required', 'uuid'],
         ]);
 
         if ($validator->fails()) {
             return new JsonResponse([
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()->toArray(),
+                'errors'  => $validator->errors()->toArray(),
             ], 422);
         }
 
-        $response = ($this->getTaxById)($id);
+        try {
+            $response = ($this->getTaxByIdHandler)(
+                new GetTaxByIdQuery(
+                    id:           $id,
+                    restaurantId: $request->user()->restaurant_id,
+                ),
+            );
 
-        if ($response === null) {
-            return new JsonResponse([
-                'message' => 'Tax not found',
-            ], 404);
+            return new JsonResponse($response->toArray(), 200);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
         }
-
-        return new JsonResponse($response->toArray(), 200);
     }
 }

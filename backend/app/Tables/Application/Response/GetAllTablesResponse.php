@@ -2,8 +2,6 @@
 
 namespace App\Tables\Application\Response;
 
-use App\Tables\Domain\Entity\Table;
-
 final readonly class GetAllTablesResponse
 {
     private function __construct(
@@ -14,13 +12,14 @@ final readonly class GetAllTablesResponse
     public static function create(array $tables): self
     {
         $tablesData = array_map(
-            static fn (Table $table): array => [
-                'id'            => $table->id()->value(),
-                'zone_id'       => $table->zoneId(),
-                'name'          => $table->name(),
-                'restaurant_id' => $table->restaurantId(),
-                'created_at'    => $table->createdAt()->format(\DateTimeInterface::ATOM),
-                'updated_at'    => $table->updatedAt()->format(\DateTimeInterface::ATOM),
+            static fn (array $item): array => [
+                'id'            => $item['table']->id()->value(),
+                'zone_id'       => $item['table']->zoneId(),
+                'zone_uuid'     => $item['zone_uuid'],
+                'name'          => $item['table']->name(),
+                'restaurant_id' => $item['table']->restaurantId(),
+                'created_at'    => $item['table']->createdAt()->format(\DateTimeInterface::ATOM),
+                'updated_at'    => $item['table']->updatedAt()->format(\DateTimeInterface::ATOM),
             ],
             $tables,
         );

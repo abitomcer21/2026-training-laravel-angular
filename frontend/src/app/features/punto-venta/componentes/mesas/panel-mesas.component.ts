@@ -158,7 +158,7 @@ export class MesasComponent implements OnInit {
       );
     } else {
       this.mesasFiltradas = this.mesas.filter(
-        (mesa) => mesa.zone_id === zona.id || mesa.zone_id === zona.database_id,
+        (mesa) => mesa.zone_uuid === zona.id,
       );
     }
   }

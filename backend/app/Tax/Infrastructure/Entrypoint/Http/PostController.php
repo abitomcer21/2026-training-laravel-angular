@@ -2,30 +2,51 @@
 
 namespace App\Tax\Infrastructure\Entrypoint\Http;
 
-use App\Tax\Application\CreateTax\CreateTax;
+use App\Tax\Application\Command\CreateTaxCommand;
+use App\Tax\Application\Handler\CreateTaxHandler;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PostController
 {
+    private const VALIDATION_RULES = [
+        'name'          => ['required', 'string', 'max:255'],
+        'percentage'    => ['required', 'integer', 'min:0', 'max:100'],
+        'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
+    ];
+
     public function __construct(
-        private CreateTax $createTax,
+        private CreateTaxHandler $createTaxHandler,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'percentage' => ['required', 'integer', 'min:0', 'max:100'],
-            'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
-        ]);
+        $validator = Validator::make($request->all(), self::VALIDATION_RULES);
 
-        $response = ($this->createTax)(
-            $validated['name'],
-            $validated['percentage'],
-            $validated['restaurant_id'],
-        );
+        if ($validator->fails()) {
+            return new JsonResponse([
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()->toArray(),
+            ], 422);
+        }
 
-        return new JsonResponse($response->toArray(), 201);
+        try {
+            $validated = $validator->validated();
+
+            $response = ($this->createTaxHandler)(
+                CreateTaxCommand::create(
+                    name:         $validated['name'],
+                    percentage:   $validated['percentage'],
+                    restaurantId: $validated['restaurant_id'],
+                ),
+            );
+
+            return new JsonResponse($response->toArray(), 201);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
+        }
     }
 }

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Tax\Application\GetAllTax;
+namespace App\Tax\Application\Response;
 
 use App\Tax\Domain\Entity\Tax;
 
 final readonly class GetAllTaxResponse
 {
-    public function __construct(
-        public array $tax,
-        public int $total,
+    private function __construct(
+        private array $tax,
+        private int $total,
     ) {}
 
     public static function create(array $tax): self

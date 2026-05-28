@@ -9,6 +9,7 @@ export interface Table {
   uuid: string;
   name: string;
   zone_id: number | string;
+  zone_uuid: string;
   restaurant_id: number;
   status?: 'available' | 'occupied';
   created_at?: string;

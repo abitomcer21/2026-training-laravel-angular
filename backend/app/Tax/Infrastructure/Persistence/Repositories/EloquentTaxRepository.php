@@ -62,4 +62,21 @@ class EloquentTaxRepository implements TaxRepositoryInterface
     {
         $this->model->newQuery()->where('uuid', $id)->delete();
     }
+
+    public function findAllByRestaurant(int $restaurantId): array
+    {
+    return $this->model->newQuery()
+        ->where('restaurant_id', $restaurantId)
+        ->get()
+        ->map(
+            fn (EloquentTax $eloquentTax): Tax => Tax::fromPersistence(
+                $eloquentTax->uuid,
+                $eloquentTax->name,
+                $eloquentTax->percentage,
+                $eloquentTax->restaurant_id,
+                $eloquentTax->created_at->toDateTimeImmutable(),
+                $eloquentTax->updated_at->toDateTimeImmutable(),
+            ),
+        )->toArray();
+    }
 }
