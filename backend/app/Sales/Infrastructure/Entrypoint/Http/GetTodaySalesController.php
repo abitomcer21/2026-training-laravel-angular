@@ -2,24 +2,31 @@
 
 namespace App\Sales\Infrastructure\Entrypoint\Http;
 
-use App\Sales\Domain\Interfaces\SalesRepositoryInterface;
+use App\Sales\Application\Handler\GetTodaySalesHandler;
+use App\Sales\Application\Query\GetTodaySalesQuery;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class GetTodaySalesController
 {
     public function __construct(
-        private SalesRepositoryInterface $salesRepository
+        private GetTodaySalesHandler $getTodaySalesHandler,
     ) {}
 
-    public function __invoke(): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
-        $today = date('Y-m-d');
-        
-        $sales = $this->salesRepository->getTodaySales($today);
-        
-        return response()->json([
-            'data' => $sales,
-            'message' => 'Ventas del día obtenidas correctamente'
-        ]);
+        try {
+            $result = ($this->getTodaySalesHandler)(
+                new GetTodaySalesQuery(
+                    restaurantId: $request->user()?->restaurant_id,
+                ),
+            );
+
+            return new JsonResponse($result->toArray(), 200);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
+        }
     }
 }

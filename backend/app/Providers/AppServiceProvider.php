@@ -33,7 +33,7 @@ use App\User\Infrastructure\Services\SanctumTokenRevoker;
 use App\Zones\Domain\Interfaces\ZonesRepositoryInterface;
 use App\Zones\Infrastructure\Persistence\Repositories\EloquentZonesRepository;
 use Illuminate\Support\ServiceProvider;
-use App\Sales\Application\GetTodaySales\GetTodaySalesHandler;
+use App\Sales\Application\Handler\GetTodaySalesHandler;
 
 class AppServiceProvider extends ServiceProvider
 {
