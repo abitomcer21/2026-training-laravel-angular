@@ -1,33 +1,33 @@
 <?php
 
-namespace App\Order\Application\AddOrderLines;
+namespace App\Order\Application\Handler;
 
-use App\Order\Domain\Entity\Order;
-use App\Order\Application\AddOrderLines\AddOrderLinesResponse;
+use App\Order\Application\Command\AddOrderLinesCommand;
+use App\Order\Application\Response\AddOrderLinesResponse;
 use App\Order\Domain\Entity\OrderLine;
+use App\Order\Domain\Exceptions\OrderNotFoundException;
 use App\Order\Domain\Interfaces\OrderRepositoryInterface;
 use App\Shared\Domain\ValueObject\Price;
 use App\Shared\Domain\ValueObject\TaxPercentage;
 use App\Shared\Domain\ValueObject\Uuid;
-use InvalidArgumentException;
 
-final class AddOrderLines
+class AddOrderLinesHandler
 {
     public function __construct(
         private OrderRepositoryInterface $orderRepository,
     ) {}
 
-    public function __invoke(string $orderId, array $orderLinesData): AddOrderLinesResponse
+    public function __invoke(AddOrderLinesCommand $command): AddOrderLinesResponse
     {
-        $order = $this->orderRepository->findById($orderId);
+        $order = $this->orderRepository->findById($command->orderId);
 
         if ($order === null) {
-            throw new InvalidArgumentException("Order with uuid '{$orderId}' not found.");
+            throw new OrderNotFoundException($command->orderId);
         }
 
-        $orderUuid = Uuid::create($orderId);
+        $orderUuid = Uuid::create($command->orderId);
 
-        foreach ($orderLinesData as $lineData) {
+        foreach ($command->orderLinesData as $lineData) {
             $orderLine = OrderLine::dddCreate(
                 $order->restaurantId(),
                 $orderUuid,
