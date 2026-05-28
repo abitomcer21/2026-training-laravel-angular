@@ -2,13 +2,13 @@
 
 namespace App\User\Infrastructure\Persistence\Repositories;
 
-use App\User\Application\GetAllUsers\GetAllUsersItem;
-use App\User\Application\GetAllUsers\GetAllUsersReadRepositoryInterface;
+use App\User\Application\Response\GetAllUsersItem;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Interfaces\UserReadRepositoryInterface;
 use App\User\Domain\Interfaces\UserRepositoryInterface;
 use App\User\Infrastructure\Persistence\Models\EloquentUser;
 
-class EloquentUserRepository implements UserRepositoryInterface, GetAllUsersReadRepositoryInterface
+class EloquentUserRepository implements UserRepositoryInterface, UserReadRepositoryInterface
 {
     public function __construct(
         private EloquentUser $model,

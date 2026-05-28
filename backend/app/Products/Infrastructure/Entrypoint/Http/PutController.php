@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class PutController
 {
-    private const VALIDATION_RULES = [
+    private const REGLAS_VALIDACION = [
         'name'      => ['nullable', 'string', 'max:255'],
         'family_id' => ['nullable', 'string', 'max:255'],
         'tax_id'    => ['nullable', 'string', 'max:255'],
@@ -26,7 +26,7 @@ class PutController
     public function __invoke(Request $request, string $id): JsonResponse
     {
         try {
-            $validated = $request->validate(self::VALIDATION_RULES);
+            $validated = $request->validate(self::REGLAS_VALIDACION);
 
             $command = UpdateProductCommand::create(
                 id:       $id,

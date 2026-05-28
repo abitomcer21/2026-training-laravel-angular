@@ -2,34 +2,48 @@
 
 namespace App\User\Infrastructure\Entrypoint\Http;
 
-use App\User\Application\Auth\LoginUser;
+use App\User\Application\Command\LoginUserCommand;
+use App\User\Application\Handler\LoginUserHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController
 {
+    private const REGLAS_VALIDACION = [
+        'email'    => ['required', 'string', 'email'],
+        'password' => ['required', 'string'],
+    ];
+
     public function __construct(
-        private LoginUser $loginUser,
+        private LoginUserHandler $loginUserHandler,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        $validator = Validator::make($request->all(), self::REGLAS_VALIDACION);
 
-        try {
-            $response = ($this->loginUser)(
-                $validated['email'],
-                $validated['password'],
-            );
-        } catch (\InvalidArgumentException) {
+        if ($validator->fails()) {
             return new JsonResponse([
-                'message' => 'Credenciales inválidas.',
-            ], 401);
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors()->toArray(),
+            ], 422);
         }
 
-        return new JsonResponse($response->toArray(), 200);
+        try {
+            $validated = $validator->validated();
+
+            $response = ($this->loginUserHandler)(
+                LoginUserCommand::create(
+                    email:         $validated['email'],
+                    plainPassword: $validated['password'],
+                ),
+            );
+
+            return new JsonResponse($response->toArray(), 200);
+
+        } catch (\InvalidArgumentException $e) {
+            return new JsonResponse(['message' => $e->getMessage()], 401);
+        }
     }
 }

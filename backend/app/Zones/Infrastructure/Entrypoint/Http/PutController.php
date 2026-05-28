@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class PutController
 {
-    private const VALIDATION_RULES = [
+    private const REGLAS_VALIDACION = [
         'name' => ['nullable', 'string', 'max:255'],
     ];
 
@@ -21,7 +21,7 @@ class PutController
 
     public function __invoke(Request $request, string $id): JsonResponse
     {
-        $validator = Validator::make($request->all(), self::VALIDATION_RULES);
+        $validator = Validator::make($request->all(), self::REGLAS_VALIDACION);
 
         if ($validator->fails()) {
             return new JsonResponse([

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class PostController
 {
-    private const VALIDATION_RULES = [
+    private const REGLAS_VALIDACION = [
         'zone_id'       => ['required', 'integer', 'exists:zones,id'],
         'name'          => ['required', 'string', 'max:255'],
         'restaurant_id' => ['required', 'integer', 'exists:restaurants,id'],
@@ -23,7 +23,7 @@ class PostController
 
     public function __invoke(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), self::VALIDATION_RULES);
+        $validator = Validator::make($request->all(), self::REGLAS_VALIDACION);
 
         if ($validator->fails()) {
             return new JsonResponse([

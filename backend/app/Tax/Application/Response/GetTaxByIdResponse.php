@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tax\Application\GetTaxById;
+namespace App\Tax\Application\Response;
 
 use App\Tax\Domain\Entity\Tax;
 

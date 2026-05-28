@@ -2,14 +2,16 @@
 
 namespace App\User\Infrastructure\Entrypoint\Http;
 
-use App\User\Application\Auth\Me\GetMe;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
+use App\User\Application\Handler\GetMeHandler;
+use App\User\Application\Query\GetMeQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MeController
 {
     public function __construct(
-        private GetMe $getMe,
+        private GetMeHandler $getMeHandler,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
@@ -22,14 +24,15 @@ class MeController
             ], 401);
         }
 
-        $response = ($this->getMe)($authUser->uuid);
+        try {
+            $response = ($this->getMeHandler)(
+                new GetMeQuery(uuid: $authUser->uuid),
+            );
 
-        if ($response === null) {
-            return new JsonResponse([
-                'message' => 'User not found',
-            ], 404);
+            return new JsonResponse($response->toArray(), 200);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
         }
-
-        return new JsonResponse($response->toArray(), 200);
     }
 }

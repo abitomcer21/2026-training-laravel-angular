@@ -2,20 +2,31 @@
 
 namespace App\User\Infrastructure\Entrypoint\Http;
 
-use App\User\Application\GetAllUsers\GetAllUsers;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
+use App\User\Application\Handler\GetAllUsersHandler;
+use App\User\Application\Query\GetAllUsersQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 final class GetAllController
 {
-    public function __invoke(GetAllUsers $getAllUsers, Request $request): JsonResponse
+    public function __construct(
+        private GetAllUsersHandler $getAllUsersHandler,
+    ) {}
+
+    public function __invoke(Request $request): JsonResponse
     {
-        // Obtener el usuario autenticado y su restaurant_id
-        $user = $request->user();
-        $restaurantId = $user?->restaurant_id;
+        try {
+            $query = new GetAllUsersQuery(
+                restaurantId: $request->user()?->restaurant_id,
+            );
 
-        $response = $getAllUsers($restaurantId);
+            $response = ($this->getAllUsersHandler)($query);
 
-        return new JsonResponse($response->toArray(), 200);
+            return new JsonResponse($response->toArray(), 200);
+
+        } catch (\Throwable $e) {
+            return ExceptionResponseResolver::resolve($e);
+        }
     }
 }
