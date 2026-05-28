@@ -3,12 +3,13 @@
 namespace App\Restaurants\Infrastructure\Services;
 
 use App\Restaurants\Domain\Interfaces\RestaurantAdminUserCreatorInterface;
-use App\User\Application\CreateUser\CreateUser;
+use App\User\Application\Command\CreateUserCommand;
+use App\User\Application\Handler\CreateUserHandler;
 
 final readonly class CreateRestaurantAdminUser implements RestaurantAdminUserCreatorInterface
 {
     public function __construct(
-        private CreateUser $createUser,
+        private CreateUserHandler $createUserHandler,
     ) {}
 
     public function create(
@@ -17,14 +18,16 @@ final readonly class CreateRestaurantAdminUser implements RestaurantAdminUserCre
         string $plainPassword,
         int $restaurantId,
     ): void {
-        ($this->createUser)(
-            $email,
-            $name,
-            $plainPassword,
-            'admin',
-            '1234',
-            $restaurantId,
-            null,
+        ($this->createUserHandler)(
+            CreateUserCommand::create(
+                email:        $email,
+                name:         $name,
+                plainPassword: $plainPassword,
+                role:         'admin',
+                pin:          '1234',
+                restaurantId: $restaurantId,
+                imageSrc:     null,
+            ),
         );
     }
 }
