@@ -24,7 +24,6 @@ class GetTodaySalesController
             );
 
             return new JsonResponse($result->toArray(), 200);
-
         } catch (\Throwable $e) {
             return ExceptionResponseResolver::resolve($e);
         }

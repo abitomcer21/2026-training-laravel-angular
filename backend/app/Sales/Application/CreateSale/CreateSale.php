@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Sales\Application\CreateSale;
 
 use App\Order\Domain\Interfaces\OrderRepositoryInterface;
@@ -33,9 +34,9 @@ class CreateSale
         foreach ($order->orderLines() as $orderLine) {
             $priceCents = $orderLine->price()->cents();
             $quantity = $orderLine->quantity();
-            
+
             $subtotalCents = $priceCents * $quantity;
-            
+
             $totalCents += $subtotalCents;
 
             $salesLines[] = SalesLine::create(

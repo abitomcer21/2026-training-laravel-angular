@@ -287,8 +287,21 @@ export class PedidosComponent implements OnInit {
         this.cancelledLines.add(lineId);
 
         if (this.selectedSale?.lines) {
+          const cancelledLine = this.selectedSale.lines.find(
+            (l) => l.id === lineId,
+          );
+          const lineAmount = cancelledLine
+            ? cancelledLine.price * cancelledLine.quantity
+            : 0;
+
+          const newTotal = Math.max(
+            0,
+            (this.selectedSale.total ?? 0) - lineAmount,
+          );
+
           this.selectedSale = {
             ...this.selectedSale,
+            total: newTotal,
             lines: this.selectedSale.lines.filter((l) => l.id !== lineId),
           };
 
@@ -297,6 +310,7 @@ export class PedidosComponent implements OnInit {
           );
           if (saleInList) {
             saleInList.lines = this.selectedSale.lines;
+            saleInList.total = newTotal;
           }
         }
 

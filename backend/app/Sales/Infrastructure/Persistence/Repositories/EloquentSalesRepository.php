@@ -237,7 +237,7 @@ class EloquentSalesRepository implements SalesRepositoryInterface
 
     public function nextTicketNumber(): int
     {
-    return (int)($this->model->newQuery()->max('ticket_number') ?? 0) + 1;
+        return (int)($this->model->newQuery()->max('ticket_number') ?? 0) + 1;
     }
 
     public function cancelSale(string $id): void
@@ -249,61 +249,67 @@ class EloquentSalesRepository implements SalesRepositoryInterface
     {
         $this->salesLineModel->newQuery()->where('uuid', $id)->delete();
     }
+    public function updateSaleTotal(string $saleId, int $totalCents): void
+    {
+        $this->model->newQuery()->where('uuid', $saleId)->update([
+            'total'      => $totalCents,
+            'updated_at' => now(),
+        ]);
+    }
+    public function getTodaySales(string $date): array
+    {
+        $sales = DB::table('sales')
+            ->join('orders', 'sales.order_id', '=', 'orders.id')
+            ->join('users', 'sales.user_id', '=', 'users.id')
+            ->whereDate('sales.created_at', $date)
+            ->whereNull('sales.deleted_at')
+            ->select(
+                'sales.id as internal_id',
+                'sales.uuid as id',
+                'sales.ticket_number',
+                'sales.total',
+                'sales.user_id',
+                'users.name as user_name',
+                'sales.created_at'
+            )
+            ->orderBy('sales.created_at', 'desc')
+            ->get()
+            ->map(function ($sale) {
+                $lines = DB::table('sales_lines')
+                    ->join('order_lines', 'sales_lines.order_line_id', '=', 'order_lines.id')
+                    ->join('products', 'order_lines.product_id', '=', 'products.id')
+                    ->where('sales_lines.sale_id', $sale->internal_id)
+                    ->whereNull('sales_lines.deleted_at')
+                    ->select(
+                        'sales_lines.uuid as id',
+                        'products.name as product_name',
+                        'sales_lines.quantity',
+                        'sales_lines.price',
+                        'sales_lines.tax_percentage',
+                    )
+                    ->get()
+                    ->map(fn($line) => [
+                        'id' => $line->id,
+                        'product_name' => $line->product_name,
+                        'quantity' => $line->quantity,
+                        'price' => $line->price / 100,
+                        'tax_percentage' => $line->tax_percentage,
+                    ])
+                    ->toArray();
 
-public function getTodaySales(string $date): array
-{
-    $sales = DB::table('sales')
-        ->join('orders', 'sales.order_id', '=', 'orders.id')
-        ->join('users', 'sales.user_id', '=', 'users.id')
-        ->whereDate('sales.created_at', $date)
-        ->whereNull('sales.deleted_at')
-        ->select(
-            'sales.id as internal_id',
-            'sales.uuid as id',
-            'sales.ticket_number',
-            'sales.total',
-            'sales.user_id',
-            'users.name as user_name',
-            'sales.created_at'
-        )
-        ->orderBy('sales.created_at', 'desc')
-        ->get()
-        ->map(function ($sale) {
-            $lines = DB::table('sales_lines')
-                ->join('order_lines', 'sales_lines.order_line_id', '=', 'order_lines.id')
-                ->join('products', 'order_lines.product_id', '=', 'products.id')
-                ->where('sales_lines.sale_id', $sale->internal_id)
-                ->whereNull('sales_lines.deleted_at')
-                ->select(
-                    'sales_lines.uuid as id',
-                    'products.name as product_name',
-                    'sales_lines.quantity',
-                    'sales_lines.price',
-                    'sales_lines.tax_percentage',
-                )
-                ->get()
-                ->map(fn($line) => [
-                    'id' => $line->id,
-                    'product_name' => $line->product_name,
-                    'quantity' => $line->quantity,
-                    'price' => $line->price / 100,
-                    'tax_percentage' => $line->tax_percentage,
-                ])
-                ->toArray();
+                return [
+                    'id' => $sale->id,
+                    'ticket_number' => $sale->ticket_number,
+                    'total' => $sale->total / 100,
+                    'payment_method' => 'efectivo',
+                    'user_id' => $sale->user_id,
+                    'user_name' => $sale->user_name,
+                    'created_at' => $sale->created_at,
+                    'lines' => $lines,
+                ];
+            })
+            ->toArray();
 
-            return [
-                'id' => $sale->id,
-                'ticket_number' => $sale->ticket_number,
-                'total' => $sale->total / 100,
-                'payment_method' => 'efectivo',
-                'user_id' => $sale->user_id,
-                'user_name' => $sale->user_name,
-                'created_at' => $sale->created_at,
-                'lines' => $lines,
-            ];
-        })
-        ->toArray();
-
-    return $sales;
-}
+        return $sales;
+    }
 }
