@@ -263,17 +263,51 @@ export class PedidosComponent implements OnInit {
   }
 
   cancelSale(): void {
-    if (!this.selectedSale) return;
-    this.paidOrders = this.paidOrders.filter(
-      (s) => s.id !== this.selectedSale!.id,
-    );
-    this.closeSaleModal();
+    if (!this.selectedSale) {
+      return;
+    }
+
+    const saleId = this.selectedSale.id;
+
+    this.salesService.cancelSale(saleId).subscribe({
+      next: () => {
+        this.paidOrders = this.paidOrders.filter((s) => s.id !== saleId);
+        this.closeSaleModal();
+      },
+      error: () => {
+        this.saleActionMessage = 'Error al anular la venta.';
+        this.saleActionIsError = true;
+      },
+    });
   }
 
   cancelLine(lineId: string): void {
-    this.cancelledLines.add(lineId);
-    this.saleActionMessage = 'Línea anulada.';
-    this.saleActionIsError = false;
+    this.salesService.cancelSalesLine(lineId).subscribe({
+      next: () => {
+        this.cancelledLines.add(lineId);
+
+        if (this.selectedSale?.lines) {
+          this.selectedSale = {
+            ...this.selectedSale,
+            lines: this.selectedSale.lines.filter((l) => l.id !== lineId),
+          };
+
+          const saleInList = this.paidOrders.find(
+            (s) => s.id === this.selectedSale!.id,
+          );
+          if (saleInList) {
+            saleInList.lines = this.selectedSale.lines;
+          }
+        }
+
+        this.saleActionMessage = 'Línea anulada.';
+        this.saleActionIsError = false;
+      },
+      error: () => {
+        this.saleActionMessage = 'Error al anular la línea.';
+        this.saleActionIsError = true;
+      },
+    });
   }
 
   closeSaleModal(): void {

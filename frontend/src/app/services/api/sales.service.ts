@@ -19,6 +19,7 @@ export interface SaleLine {
   product_name: string;
   quantity: number;
   price: number;
+  tax_percentage?: number;
 }
 
 @Injectable({
@@ -37,5 +38,13 @@ export class SalesService {
 
   createSale(saleData: { order_id: string; user_id: number }): Observable<any> {
     return this.http.post(`${this.apiUrl}/sales`, saleData);
+  }
+
+  cancelSale(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/sales/${id}`);
+  }
+
+  cancelSalesLine(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/sales/lines/${id}`);
   }
 }

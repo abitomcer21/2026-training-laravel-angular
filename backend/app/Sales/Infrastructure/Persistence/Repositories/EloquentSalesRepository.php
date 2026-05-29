@@ -77,7 +77,6 @@ class EloquentSalesRepository implements SalesRepositoryInterface
             $model->total,
             $model->created_at->toDateTimeImmutable(),
             $model->updated_at->toDateTimeImmutable(),
-            $model->deleted_at?->toDateTimeImmutable(),
         );
     }
 
@@ -215,9 +214,9 @@ class EloquentSalesRepository implements SalesRepositoryInterface
             $line->quantity,
             $line->price,
             $line->tax_percentage,
-            $line->created_at->toDateTimeImmutable(),
-            $line->updated_at->toDateTimeImmutable(),
-            $line->deleted_at?->toDateTimeImmutable(),
+            new \DateTimeImmutable($line->created_at),
+            new \DateTimeImmutable($line->updated_at),
+            $line->deleted_at !== null ? new \DateTimeImmutable($line->deleted_at) : null,
         );
     }
 
@@ -239,6 +238,16 @@ class EloquentSalesRepository implements SalesRepositoryInterface
     public function nextTicketNumber(): int
     {
     return (int)($this->model->newQuery()->max('ticket_number') ?? 0) + 1;
+    }
+
+    public function cancelSale(string $id): void
+    {
+        $this->model->newQuery()->where('uuid', $id)->delete();
+    }
+
+    public function cancelSalesLine(string $id): void
+    {
+        $this->salesLineModel->newQuery()->where('uuid', $id)->delete();
     }
 
 public function getTodaySales(string $date): array

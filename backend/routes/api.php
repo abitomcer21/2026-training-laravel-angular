@@ -46,6 +46,8 @@ use App\Sales\Infrastructure\Entrypoint\Http\PostController as SalesPostControll
 
 use App\Sales\Infrastructure\Entrypoint\Http\PostController;
 use App\Sales\Infrastructure\Entrypoint\Http\GetTodaySalesController;
+use App\Sales\Infrastructure\Entrypoint\Http\DeleteSaleController;
+use App\Sales\Infrastructure\Entrypoint\Http\DeleteSalesLineController;
 
 use App\Shared\Infrastructure\Entrypoint\Http\UploadImageController;
 
@@ -112,8 +114,9 @@ Route::post('/sales', SalesPostController::class);
 
 Route::prefix('sales')->group(function () {
     Route::get('/today', GetTodaySalesController::class);
-    
     Route::post('/', PostController::class);
+    Route::delete('/{id}', DeleteSaleController::class);
+    Route::delete('/lines/{id}', DeleteSalesLineController::class);
 });
 
 Route::post('/uploads/images', UploadImageController::class)->middleware('auth:sanctum');
