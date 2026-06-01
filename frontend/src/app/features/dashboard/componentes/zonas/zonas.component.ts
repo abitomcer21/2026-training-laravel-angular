@@ -55,6 +55,7 @@ export class ZonasComponent implements OnInit {
   // Datos
   zones: Zone[] = [];
   zonasFiltradas: Zone[] = [];
+  tablasCountMap: Map<string, number> = new Map();
 
   // Estado del panel
   zonePanelMode: 'edit' | 'create' = 'create';
@@ -94,29 +95,41 @@ export class ZonasComponent implements OnInit {
     const userData = this.authService.getUserData();
     const userRestaurantId = userData?.restaurant_id;
 
-    this.zoneService.getZones().subscribe({
-      next: (response: any) => {
-        let zones: any[] = [];
+    forkJoin({
+      zones: this.zoneService.getZones() as any,
+      tables: this.tableService.getTables() as any,
+    }).subscribe({
+      next: ({ zones: zonesRes, tables: tablesRes }: { zones: any; tables: any }) => {
+        let zonesRaw: any[] = [];
 
-        if (Array.isArray(response)) {
-          zones = response;
-        } else if (response?.zones && Array.isArray(response.zones)) {
-          zones = response.zones;
-        } else if (response?.Zones && Array.isArray(response.Zones)) {
-          zones = response.Zones;
-        } else if (response?.data?.zones && Array.isArray(response.data.zones)) {
-          zones = response.data.zones;
-        } else if (response?.data && Array.isArray(response.data)) {
-          zones = response.data;
-        } else {
-          zones = [];
+        if (Array.isArray(zonesRes)) {
+          zonesRaw = zonesRes;
+        } else if (zonesRes?.zones && Array.isArray(zonesRes.zones)) {
+          zonesRaw = zonesRes.zones;
+        } else if (zonesRes?.Zones && Array.isArray(zonesRes.Zones)) {
+          zonesRaw = zonesRes.Zones;
+        } else if (zonesRes?.data?.zones && Array.isArray(zonesRes.data.zones)) {
+          zonesRaw = zonesRes.data.zones;
+        } else if (zonesRes?.data && Array.isArray(zonesRes.data)) {
+          zonesRaw = zonesRes.data;
         }
 
         if (userRestaurantId) {
-          this.zones = zones.filter(zone => zone.restaurant_id === userRestaurantId);
+          this.zones = zonesRaw.filter(zone => zone.restaurant_id === userRestaurantId);
         } else {
-          this.zones = zones;
+          this.zones = zonesRaw;
         }
+
+        const tablesRaw: any[] =
+          tablesRes?.tables ?? tablesRes?.Tables ?? tablesRes?.data ?? (Array.isArray(tablesRes) ? tablesRes : []);
+
+        this.tablasCountMap.clear();
+        tablesRaw.forEach((t: any) => {
+          const zoneKey = String(t.zone_uuid ?? t.zone_id ?? '');
+          if (zoneKey) {
+            this.tablasCountMap.set(zoneKey, (this.tablasCountMap.get(zoneKey) ?? 0) + 1);
+          }
+        });
 
         this.zonasFiltradas = [...this.zones];
         this.zonasCargadas = true;
@@ -128,8 +141,12 @@ export class ZonasComponent implements OnInit {
         this.zonasFiltradas = [];
         this.zonasCargadas = false;
         this.zonasLoading = false;
-      }
+      },
     });
+  }
+
+  getTableCount(zone: Zone): number {
+    return this.tablasCountMap.get(String(zone.uuid ?? zone.id)) ?? 0;
   }
 
   buscarZonas() {

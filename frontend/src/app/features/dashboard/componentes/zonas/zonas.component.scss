@@ -55,7 +55,7 @@
 .users-panel-main {
   display: flex;
   flex-direction: column;
-  flex: 1.9;
+  flex: 3;
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -306,5 +306,28 @@
 
   .editor-panel-header .btn-small {
     align-self: flex-start;
+  }
+}
+
+// ── Tabla de zonas ────────────────────────────────────────────────────────────
+.data-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+
+  .col-id,
+  .col-user,
+  .col-mesas,
+  .col-actions {
+    width: 25%;
+  }
+
+  .col-id,
+  .col-mesas {
+    text-align: center;
+  }
+
+  .col-actions {
+    text-align: right;
   }
 }
