@@ -34,7 +34,7 @@ class ManageRestaurantTest extends TestCase
             'name'       => 'Mi Restaurante',
             'legal_name' => 'Mi Restaurante S.L.',
             'email'      => 'contacto@mirestaurante.com',
-            'password'   => 'secret123',          // ← campo requerido
+            'password'   => 'secret123',
             'tax_id'     => 'B12345678',
         ];
 
@@ -60,7 +60,7 @@ class ManageRestaurantTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'id'   => $this->restaurante->uuid, // ← es UUID, no el id numérico
+                'id'   => $this->restaurante->uuid,
                 'name' => $this->restaurante->name,
             ]);
     }

@@ -9,7 +9,7 @@ class ProductStock
     private function __construct(int $quantity)
     {
         if ($quantity < 0) {
-            throw new \InvalidArgumentException('Stock cannot be negative.');
+            throw new \InvalidArgumentException('El stock no puede ser negativo.');
         }
         $this->quantity = $quantity;
     }

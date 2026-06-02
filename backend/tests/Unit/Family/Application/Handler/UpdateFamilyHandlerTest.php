@@ -98,8 +98,7 @@ class UpdateFamilyHandlerTest extends TestCase
         $command = UpdateFamilyCommand::create($familyId, null, null);
 
         $existingFamily = $this->createRealFamily($familyId, 'Original', true, $restaurantId);
-        $updatedFamily = $this->createRealFamily($familyId, 'Original', true, $restaurantId); // sin cambios
-
+        $updatedFamily = $this->createRealFamily($familyId, 'Original', true, $restaurantId);
         $this->familyRepository->expects($this->once())
             ->method('findById')
             ->with($familyId)

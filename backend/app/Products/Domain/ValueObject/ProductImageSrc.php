@@ -10,7 +10,6 @@ class ProductImageSrc
 
     private function __construct(?string $path)
     {
-        // Permitir null
         if ($path === null) {
             $this->path = null;
             return;
@@ -18,7 +17,6 @@ class ProductImageSrc
 
         $trimmedPath = trim($path);
 
-        // Permitir string vacío (será null)
         if ($trimmedPath === '') {
             $this->path = null;
             return;
@@ -26,7 +24,7 @@ class ProductImageSrc
 
         if (mb_strlen($trimmedPath) > self::MAX_LENGTH) {
             throw new \InvalidArgumentException(
-                sprintf('Image path cannot exceed %d characters.', self::MAX_LENGTH)
+                sprintf('La ruta de la imagen no puede exceder %d caracteres.', self::MAX_LENGTH)
             );
         }
 
