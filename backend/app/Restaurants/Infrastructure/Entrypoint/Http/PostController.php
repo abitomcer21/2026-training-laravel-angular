@@ -14,8 +14,8 @@ class PostController
     private const REGLAS_VALIDACION = [
         'name'       => ['required', 'string', 'max:255'],
         'legal_name' => ['required', 'string', 'max:255'],
-        'tax_id'     => ['required', 'string', 'max:255'],
-        'email'      => ['required', 'email', 'max:255'],
+        'tax_id'     => ['required', 'string', 'max:255', 'unique:restaurants,tax_id'],
+        'email'      => ['required', 'email', 'max:255', 'unique:restaurants,email'],
         'password'   => ['required', 'string', 'min:8', 'max:255'],
     ];
 
@@ -39,16 +39,15 @@ class PostController
 
             $response = ($this->createRestaurantHandler)(
                 CreateRestaurantCommand::create(
-                    name:          $validated['name'],
-                    legalName:     $validated['legal_name'],
-                    taxId:         $validated['tax_id'],
-                    email:         $validated['email'],
+                    name: $validated['name'],
+                    legalName: $validated['legal_name'],
+                    taxId: $validated['tax_id'],
+                    email: $validated['email'],
                     plainPassword: $validated['password'],
                 ),
             );
 
             return new JsonResponse($response->toArray(), 201);
-
         } catch (\Throwable $e) {
             return ExceptionResponseResolver::resolve($e);
         }

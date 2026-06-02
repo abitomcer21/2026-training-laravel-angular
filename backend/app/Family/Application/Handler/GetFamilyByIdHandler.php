@@ -18,7 +18,11 @@ class GetFamilyByIdHandler
         $family = $this->familyRepository->findById($query->id);
 
         if ($family === null) {
-            throw new FamilyNotFoundException();
+            throw new FamilyNotFoundException($query->id);
+        }
+
+        if ($family->restaurantId() !== $query->restaurantId) {
+            throw new FamilyNotFoundException($query->id);
         }
 
         return GetFamilyByIdResponse::create($family);

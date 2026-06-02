@@ -2,13 +2,10 @@
 
 namespace App\Family\Domain\Exceptions;
 
-class FamilyAlreadyExistsException extends \Exception
+class FamilyAlreadyExistsException extends \DomainException
 {
     public function __construct(string $name, int $restaurantId)
     {
-        parent::__construct(
-            sprintf('Family with name "%s" already exists in restaurant %d', $name, $restaurantId),
-            409
-        );
+        parent::__construct(sprintf('Family "%s" already exists in restaurant %d', $name, $restaurantId));
     }
 }

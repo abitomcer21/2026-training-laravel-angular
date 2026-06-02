@@ -5,7 +5,9 @@ namespace App\User\Infrastructure\Entrypoint\Http;
 use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use App\User\Application\Command\DeleteUserCommand;
 use App\User\Application\Handler\DeleteUserHandler;
+use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class DeleteController
@@ -14,7 +16,7 @@ class DeleteController
         private DeleteUserHandler $deleteUserHandler,
     ) {}
 
-    public function __invoke(string $id): JsonResponse
+    public function __invoke(string $id, Request $request): JsonResponse
     {
         $validator = Validator::make(['id' => $id], [
             'id' => ['required', 'uuid'],
@@ -27,10 +29,13 @@ class DeleteController
             ], 422);
         }
 
+        $userToDelete = EloquentUser::where('uuid', $id)->first();
+        if (!$userToDelete || $userToDelete->restaurant_id !== $request->user()->restaurant_id) {
+            return new JsonResponse(['message' => 'User not found'], 404);
+        }
+
         try {
-            ($this->deleteUserHandler)(
-                DeleteUserCommand::create(id: $id),
-            );
+            ($this->deleteUserHandler)(DeleteUserCommand::create($id));
 
             return new JsonResponse(null, 204);
 

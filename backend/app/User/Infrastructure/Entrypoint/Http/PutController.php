@@ -5,6 +5,7 @@ namespace App\User\Infrastructure\Entrypoint\Http;
 use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use App\User\Application\Command\UpdateUserCommand;
 use App\User\Application\Handler\UpdateUserHandler;
+use App\User\Infrastructure\Persistence\Models\EloquentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -26,6 +27,11 @@ class PutController
     public function __invoke(string $id, Request $request): JsonResponse
     {
         try {
+            $userToUpdate = EloquentUser::where('uuid', $id)->first();
+            if (!$userToUpdate || $userToUpdate->restaurant_id !== $request->user()->restaurant_id) {
+                return new JsonResponse(['message' => 'User not found'], 404);
+            }
+
             $validated = $request->validate(self::REGLAS_VALIDACION);
 
             $response = ($this->updateUserHandler)(

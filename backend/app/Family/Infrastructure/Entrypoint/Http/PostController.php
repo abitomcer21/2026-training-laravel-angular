@@ -4,6 +4,7 @@ namespace App\Family\Infrastructure\Entrypoint\Http;
 
 use App\Family\Application\Command\CreateFamilyCommand;
 use App\Family\Application\Handler\CreateFamilyHandler;
+use App\Family\Domain\Exceptions\FamilyAlreadyExistsException;
 use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -36,15 +37,20 @@ class PostController
             $validated = $validator->validated();
 
             $response = ($this->createFamilyHandler)(
-        CreateFamilyCommand::create(
-        name:         $validated['name'],
-        active:       $validated['active'],
-        restaurantId: $validated['restaurant_id'],
-        ),
-    );
+                CreateFamilyCommand::create(
+                    name:         $validated['name'],
+                    active:       $validated['active'],
+                    restaurantId: $validated['restaurant_id'],
+                ),
+            );
 
             return new JsonResponse($response->toArray(), 201);
 
+        } catch (FamilyAlreadyExistsException $e) {
+            return new JsonResponse([
+                'message' => 'Validation failed',
+                'errors'  => ['name' => ['The family name already exists in this restaurant.']],
+            ], 422);
         } catch (\Throwable $e) {
             return ExceptionResponseResolver::resolve($e);
         }

@@ -20,7 +20,7 @@ final readonly class GetFamilyByIdResponse
         return new self(
             id: $family->id()->value(),
             name: $family->name()->value(),
-            active: $family->status()->isActive(),
+            active: $family->active(),
             restaurantId: $family->restaurantId(),
             createdAt: $family->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $family->updatedAt()->format(\DateTimeInterface::ATOM),
@@ -33,9 +33,9 @@ final readonly class GetFamilyByIdResponse
             'id' => $this->id,
             'name' => $this->name,
             'active' => $this->active,
-            'restaurant_id' => $this->restaurantId,
-            'created_at' => $this->createdAt,
-            'updated_at' => $this->updatedAt,
+            'restaurantId' => $this->restaurantId,
+            'createdAt' => $this->createdAt,
+            'updatedAt' => $this->updatedAt,
         ];
     }
 }

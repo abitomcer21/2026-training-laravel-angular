@@ -4,6 +4,7 @@ namespace App\Family\Infrastructure\Entrypoint\Http;
 
 use App\Family\Application\Handler\GetFamilyByIdHandler;
 use App\Family\Application\Query\GetFamilyByIdQuery;
+use App\Family\Domain\Exceptions\FamilyNotFoundException;
 use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -38,6 +39,8 @@ class GetByIdController
 
             return new JsonResponse($response->toArray(), 200);
 
+        } catch (FamilyNotFoundException $e) {
+            return new JsonResponse(['message' => $e->getMessage()], 404);
         } catch (\Throwable $e) {
             return ExceptionResponseResolver::resolve($e);
         }

@@ -104,8 +104,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-
-
 Route::post('/restaurants', RestaurantsPostController::class);
 
 Route::post('/orders', OrderPostController::class);

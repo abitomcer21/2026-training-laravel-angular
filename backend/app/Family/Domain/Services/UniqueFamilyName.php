@@ -15,7 +15,7 @@ class UniqueFamilyName
     public function check(FamilyName $name, int $restaurantId): void
     {
         if ($this->familyRepository->existsByNameAndRestaurant($name, $restaurantId)) {
-            throw new FamilyAlreadyExistsException();
+            throw new FamilyAlreadyExistsException($name->value(), $restaurantId);
         }
     }
 }
