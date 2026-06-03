@@ -30,9 +30,12 @@ class EloquentProductRepository extends AbstractEloquentRepository implements Pr
         );
     }
 
-    public function findById(string $id): ?Product
+    public function findById(string $id, int $restaurantId): ?Product
     {
-        $eloquentProduct = $this->model->newQuery()->where('uuid', $id)->first();
+        $eloquentProduct = $this->model->newQuery()
+            ->where('uuid', $id)
+            ->where('restaurant_id', $restaurantId)
+            ->first();
 
         if (! $eloquentProduct) {
             return null;
@@ -53,9 +56,12 @@ class EloquentProductRepository extends AbstractEloquentRepository implements Pr
         );
     }
 
-    public function findByName(string $name): ?Product
+    public function findByName(string $name, int $restaurantId): ?Product
     {
-        $eloquentProduct = $this->model->newQuery()->where('name', $name)->first();
+        $eloquentProduct = $this->model->newQuery()
+            ->where('name', $name)
+            ->where('restaurant_id', $restaurantId)
+            ->first();
 
         if (! $eloquentProduct) {
             return null;
@@ -76,10 +82,11 @@ class EloquentProductRepository extends AbstractEloquentRepository implements Pr
         );
     }
 
-    public function findByFamilyId(string $familyId): array
+    public function findByFamilyId(string $familyId, int $restaurantId): array
     {
         return $this->model->newQuery()
             ->where('family_id', $familyId)
+            ->where('restaurant_id', $restaurantId)
             ->get()
             ->map(fn ($eloquentProduct) => Product::fromPersistence(
                 $eloquentProduct->uuid,

@@ -120,36 +120,41 @@ class ManageFamilyTest extends TestCase
         $response->assertStatus(404);
     }
 
-    #[Test]
-    public function user_can_update_their_own_family(): void
-    {
-        $family = EloquentFamily::factory()->create([
-            'restaurant_id' => $this->restaurant->id,
-            'name'          => 'AntiguoNombre',
-            'active'        => false,
-        ]);
+   #[Test]
+public function user_can_update_their_own_family(): void
+{
+    $family = EloquentFamily::factory()->create([
+        'restaurant_id' => $this->restaurant->id,
+        'name'          => 'AntiguoNombre',
+        'active'        => false,
+    ]);
 
-        $data = [
-            'name'   => 'NuevoNombre',
-            'active' => true,
-        ];
+    $data = [
+        'name'   => 'NuevoNombre',
+        'active' => true,
+    ];
 
-        $response = $this->putJson("/api/family/{$family->uuid}", $data);
-
-        $response->assertStatus(200);
-        $json = $response->json();
-        $this->assertEquals($family->uuid, $json['id']);
-        $this->assertEquals('NuevoNombre', $json['name']);
-        $this->assertTrue($json['active']);
-        $restaurantIdKey = isset($json['restaurantId']) ? 'restaurantId' : 'restaurant_id';
-        $this->assertEquals($this->restaurant->id, $json[$restaurantIdKey]);
-
-        $this->assertDatabaseHas('families', [
-            'uuid'   => $family->uuid,
-            'name'   => 'NuevoNombre',
-            'active' => true,
-        ]);
+    $response = $this->putJson("/api/family/{$family->uuid}", $data);
+    
+    // Ver el error
+    if ($response->status() !== 200) {
+        dd($response->json());
     }
+    
+    $response->assertStatus(200);
+    $json = $response->json();
+    $this->assertEquals($family->uuid, $json['id']);
+    $this->assertEquals('NuevoNombre', $json['name']);
+    $this->assertTrue($json['active']);
+    $restaurantIdKey = isset($json['restaurantId']) ? 'restaurantId' : 'restaurant_id';
+    $this->assertEquals($this->restaurant->id, $json[$restaurantIdKey]);
+
+    $this->assertDatabaseHas('families', [
+        'uuid'   => $family->uuid,
+        'name'   => 'NuevoNombre',
+        'active' => true,
+    ]);
+}
 
     #[Test]
     public function user_cannot_update_family_from_another_restaurant(): void

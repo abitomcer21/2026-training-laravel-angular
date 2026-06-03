@@ -25,7 +25,7 @@ class UpdateFamilyHandler
 
         $updatedFamily = $this->familyUpdater->update(
             family: $family,
-            name:   $command->name,
+            name: $command->name,
             active: $command->active,
         );
 

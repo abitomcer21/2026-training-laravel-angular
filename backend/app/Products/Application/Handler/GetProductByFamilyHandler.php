@@ -14,8 +14,8 @@ class GetProductByFamilyHandler
 
     public function __invoke(GetProductByFamilyQuery $query): GetProductByFamilyResponse
     {
-        $products = $this->productRepository->findByFamilyId($query->familyId);
+        $products = $this->productRepository->findByFamilyId($query->familyId, $query->restaurantId);
 
-        return GetProductByFamilyResponse::create($products);
+        return GetProductByFamilyResponse::fromProducts($products);
     }
 }

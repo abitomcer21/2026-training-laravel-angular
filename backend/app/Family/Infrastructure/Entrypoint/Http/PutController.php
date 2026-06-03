@@ -29,17 +29,23 @@ class PutController
         }
 
         try {
-            $command = UpdateFamilyCommand::create(
-                id: $id,
-                name: $validated['name'] ?? null,
-                active: $validated['active'] ?? null,
-            );
+    $command = UpdateFamilyCommand::create(
+        id: $id,
+        name: $validated['name'] ?? null,
+        active: $validated['active'] ?? null,
+    );
 
-            $response = ($this->updateFamily)($command);
+    $response = ($this->updateFamily)($command);
 
-            return new JsonResponse($response->toArray(), 200);
-        } catch (\Throwable $e) {
-            return new JsonResponse(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 500);
-        }
+    return new JsonResponse($response->toArray(), 200);
+} catch (\Throwable $e) {
+    return new JsonResponse([
+        'error_class' => get_class($e),
+        'message' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+        'trace' => $e->getTraceAsString()
+    ], 500);
+}
     }
 }

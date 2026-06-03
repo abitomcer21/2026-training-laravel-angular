@@ -15,7 +15,7 @@ class GetProductByNameHandler
 
     public function __invoke(GetProductByNameQuery $query): GetProductByNameResponse
     {
-        $product = $this->productRepository->findByName($query->name);
+        $product = $this->productRepository->findByName($query->name, $query->restaurantId);
 
         if ($product === null) {
             throw new ProductNotFoundException($query->name);

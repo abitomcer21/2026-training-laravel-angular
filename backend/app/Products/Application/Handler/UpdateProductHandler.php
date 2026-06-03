@@ -17,21 +17,24 @@ class UpdateProductHandler
 
     public function __invoke(UpdateProductCommand $command): UpdateProductResponse
     {
-        $product = $this->productRepository->findById($command->id->value());
+        $product = $this->productRepository->findById(
+            $command->id->value(),
+            $command->restaurantId
+        );
 
         if ($product === null) {
             throw new ProductNotFoundException($command->id->value());
         }
 
         $updatedProduct = $this->productUpdater->update(
-            product:  $product,
+            product: $product,
             familyId: $command->familyId,
-            taxId:    $command->taxId,
-            name:     $command->name,
-            price:    $command->price,
-            stock:    $command->stock,
+            taxId: $command->taxId,
+            name: $command->name,
+            price: $command->price,
+            stock: $command->stock,
             imageSrc: $command->imageSrc,
-            active:   $command->active,
+            active: $command->active,
         );
 
         return UpdateProductResponse::create($updatedProduct);

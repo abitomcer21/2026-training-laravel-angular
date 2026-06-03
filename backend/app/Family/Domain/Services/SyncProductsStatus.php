@@ -11,9 +11,9 @@ class SyncProductsStatus
         private ProductRepositoryInterface $productRepository,
     ) {}
 
-    public function sync(string $familyId, bool $active): void
+    public function sync(string $familyId, bool $active, int $restaurantId): void
     {
-        $products = $this->productRepository->findByFamilyId($familyId);
+        $products = $this->productRepository->findByFamilyId($familyId,$restaurantId);
 
         foreach ($products as $product) {
             $updatedProduct = $product->updateData(
@@ -24,6 +24,7 @@ class SyncProductsStatus
                 stock:    $product->stock(),
                 imageSrc: $product->imageSrc(),
                 status:   ProductStatus::create($active),
+                restaurant: $restaurantId,
             );
 
             $this->productRepository->save($updatedProduct);

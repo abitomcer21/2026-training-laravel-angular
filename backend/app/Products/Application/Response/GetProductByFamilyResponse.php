@@ -31,6 +31,7 @@ class GetProductByFamilyResponse
     {
         return [
             'products' => $this->products,
+            'total' => count($this->products),
         ];
     }
 }

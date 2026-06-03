@@ -15,7 +15,10 @@ class GetProductByIdHandler
 
     public function __invoke(GetProductByIdQuery $query): GetProductByIdResponse
     {
-        $product = $this->productRepository->findById($query->id);
+        $product = $this->productRepository->findById(
+            $query->id,
+            $query->restaurantId
+        );
 
         if ($product === null) {
             throw new ProductNotFoundException($query->id);

@@ -16,7 +16,7 @@ final readonly class GetAllProductsResponse
         $productsData = array_map(
             static fn (Product $product): array => [
                 'id' => $product->id()->value(),
-                'family_id' => $product->familyId()->value(),
+                'family_id' => $product->FamilyId()->value(),
                 'tax_id' => $product->taxId()->value(),
                 'name' => $product->name()->value(),
                 'price' => $product->price()->value(),

@@ -29,14 +29,15 @@ class PutController
             $validated = $request->validate(self::REGLAS_VALIDACION);
 
             $command = UpdateProductCommand::create(
-                id:       $id,
-                familyId: $validated['family_id'] ?? null,
-                taxId:    $validated['tax_id'] ?? null,
-                name:     $validated['name'] ?? null,
-                price:    $validated['price'] ?? null,
-                stock:    $validated['stock'] ?? null,
-                imageSrc: $validated['image_src'] ?? null,
-                active:   $validated['active'] ?? null,
+                id:           $id,
+                familyId:     $validated['family_id'] ?? null,
+                taxId:        $validated['tax_id'] ?? null,
+                name:         $validated['name'] ?? null,
+                price:        $validated['price'] ?? null,
+                stock:        $validated['stock'] ?? null,
+                imageSrc:     $validated['image_src'] ?? null,
+                active:       $validated['active'] ?? null,
+                restaurantId: $request->user()->restaurant_id,
             );
 
             $response = ($this->updateProduct)($command);

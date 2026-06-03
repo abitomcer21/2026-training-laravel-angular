@@ -19,6 +19,7 @@ final readonly class UpdateProductCommand
         public ?ProductStock $stock,
         public ?ProductImageSrc $imageSrc,
         public ?bool $active,
+        public int $restaurantId
     ) {}
 
     public static function create(
@@ -30,6 +31,7 @@ final readonly class UpdateProductCommand
         ?int $stock,
         ?string $imageSrc,
         ?bool $active,
+        int $restaurantId,
     ): self {
         return new self(
             id:       Uuid::create($id),
@@ -40,6 +42,7 @@ final readonly class UpdateProductCommand
             stock:    $stock !== null ? ProductStock::create($stock) : null,
             imageSrc: $imageSrc !== null ? ProductImageSrc::create($imageSrc) : null,
             active:   $active,
+            restaurantId : $restaurantId,
         );
     }
 }

@@ -5,16 +5,16 @@ namespace App\Products\Application\Response;
 use App\Products\Domain\Entity\Product;
 
 final readonly class GetProductByNameResponse
-{
-    public function __construct(
+    {
+        public function __construct(
         public string $id,
         public string $name,
         public int $price,
         public int $stock,
         public bool $active,
         public int $restaurantId,
-        public int $familyId,
-        public int $taxId,
+        public string $familyId,
+        public string $taxId,
         public ?string $imageSrc,
         public string $createdAt,
         public string $updatedAt,
@@ -23,17 +23,17 @@ final readonly class GetProductByNameResponse
     public static function create(Product $product): self
     {
         return new self(
-            id: $product->id()->value(),
-            name: $product->name()->value(),
-            price: $product->price()->value(),
-            stock: $product->stock()->value(),
-            active: $product->status()->value(),
+            id:           $product->id()->value(),
+            name:         $product->name()->value(),
+            price:        $product->price()->value(),
+            stock:        $product->stock()->value(),
+            active:       $product->status()->isActive(),
             restaurantId: $product->restaurantId(),
-            familyId: $product->familyId(),
-            taxId: $product->taxId(),
-            imageSrc: $product->imageSrc()->value(),
-            createdAt: $product->createdAt()->format(\DateTimeInterface::ATOM),
-            updatedAt: $product->updatedAt()->format(\DateTimeInterface::ATOM),
+            familyId:     $product->familyId()->value(),
+            taxId:        $product->taxId()->value(),
+            imageSrc:     $product->imageSrc()->value(),
+            createdAt:    $product->createdAt()->format(\DateTimeInterface::ATOM),
+            updatedAt:    $product->updatedAt()->format(\DateTimeInterface::ATOM),
         );
     }
 

@@ -28,7 +28,8 @@ class FamilyUpdater
             $this->familyRepository->save($updatedFamily);
 
             if ($active !== null) {
-                $this->syncProductsStatus->sync($family->id()->value(), $active);
+                $restaurantId = $family->restaurantId();
+                $this->syncProductsStatus->sync($family->id()->value(), $active, $restaurantId);
             }
 
             $this->familyRepository->commit();
