@@ -13,8 +13,10 @@ class ExceptionResponseResolver
 
     public static function resolve(\Throwable $e): JsonResponse
     {
-        foreach (self::EXCEPTION_MAP as $exceptionClass => $statusCode) {
+        foreach (self::EXCEPTION_MAP as $exceptionClass => $defaultStatusCode) {
             if ($e instanceof $exceptionClass) {
+                $statusCode = $e->getCode() > 0 ? (int) $e->getCode() : $defaultStatusCode;
+
                 return new JsonResponse(['message' => $e->getMessage()], $statusCode);
             }
         }

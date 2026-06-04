@@ -11,11 +11,18 @@ export class TicketService {
 
   generarYGuardarNumeroTicket(): string {
     const ultimo = localStorage.getItem('ultimoNumeroTicket');
-    const numero = ultimo ? parseInt(ultimo) + 1 : 1;
-    localStorage.setItem('ultimoNumeroTicket', numero.toString());
-    this.numeroTicketActual = `T-${numero.toString().padStart(3, '0')}`;
+    const numero = ultimo ? parseInt(ultimo, 10) + 1 : 1;
+    this.setNumeroTicketActual(numero);
 
-    return this.numeroTicketActual;
+    return this.numeroTicketActual ?? '';
+  }
+
+  setNumeroTicketActual(numero: number | string): void {
+    const valor = Number(numero);
+    if (!Number.isFinite(valor) || valor < 1) return;
+
+    localStorage.setItem('ultimoNumeroTicket', valor.toString());
+    this.numeroTicketActual = `T-${valor.toString().padStart(3, '0')}`;
   }
 
   resetNumeroTicket(): void {
@@ -24,6 +31,10 @@ export class TicketService {
 
   generarTicket(order: CurrentOrder, tipoTicket?: 'PROVISIONAL'): string {
     const items: OrderItem[] = order?.items ?? [];
+
+    if (tipoTicket !== 'PROVISIONAL' && !this.numeroTicketActual) {
+      this.generarYGuardarNumeroTicket();
+    }
 
     let ticket = '================================\n';
     ticket += '           RESTAURANTE\n';

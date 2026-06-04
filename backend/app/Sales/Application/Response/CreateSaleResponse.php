@@ -11,6 +11,7 @@ final readonly class CreateSaleResponse
         private string $id,
         private string $orderId,
         private string $userId,
+        private int $ticketNumber,
         private int $total,
         private array $salesLines,
     ) {}
@@ -29,22 +30,24 @@ final readonly class CreateSaleResponse
         ], $sale->salesLines());
 
         return new self(
-            id:         $sale->id()->value(),
-            orderId:    $sale->orderId()->value(),
-            userId:     $sale->userId(),
-            total:      $sale->total()->cents(),
-            salesLines: $lines,
+            id:           $sale->id()->value(),
+            orderId:      $sale->orderId()->value(),
+            userId:       $sale->userId(),
+            ticketNumber: $sale->ticketNumber()?->value() ?? 0,
+            total:        $sale->total()->cents(),
+            salesLines:   $lines,
         );
     }
 
     public function toArray(): array
     {
         return [
-            'id'          => $this->id,
-            'order_id'    => $this->orderId,
-            'user_id'     => $this->userId,
-            'total'       => $this->total,
-            'sales_lines' => $this->salesLines,
+            'id'            => $this->id,
+            'order_id'      => $this->orderId,
+            'user_id'       => $this->userId,
+            'ticket_number' => $this->ticketNumber,
+            'total'         => $this->total,
+            'sales_lines'   => $this->salesLines,
         ];
     }
 }

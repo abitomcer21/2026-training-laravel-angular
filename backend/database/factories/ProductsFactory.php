@@ -38,7 +38,7 @@ class ProductsFactory extends Factory
         return [
             'uuid' => (string) Str::uuid(),
             'restaurant_id' => EloquentRestaurant::factory(),
-            'family_id' => EloquentFamily::factory(),
+            'family_id' => fn () => EloquentFamily::factory()->create()->uuid,
             'tax_id' => fn () => EloquentTax::factory()->create()->uuid,
             'image_src' => fake()->imageUrl(),
             'name' => fake()->word(),

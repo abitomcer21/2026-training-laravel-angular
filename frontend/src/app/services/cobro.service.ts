@@ -87,14 +87,14 @@ export class CobroService {
     return { articulosPagados: pagados, totalCobrado };
   }
 
-  registrarVenta(orderId: string, userId: string | number): Promise<void> {
+  registrarVenta(orderId: string, userId: string | number): Promise<any> {
     return new Promise((resolve, reject) => {
       this.salesService
         .createSale({ order_id: orderId, user_id: userId as number })
         .subscribe({
-          next: () => {
+          next: (sale) => {
             this.salesUpdateService.notificarVentaCreada();
-            resolve();
+            resolve(sale);
           },
           error: reject,
         });

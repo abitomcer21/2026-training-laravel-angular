@@ -4,6 +4,7 @@ namespace App\Products\Infrastructure\Entrypoint\Http;
 
 use App\Products\Application\Command\UpdateProductCommand;
 use App\Products\Application\Handler\UpdateProductHandler;
+use App\Shared\Infrastructure\Http\ExceptionResponseResolver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -45,7 +46,7 @@ class PutController
             return new JsonResponse($response->toArray(), 200);
 
         } catch (\Throwable $e) {
-            return new JsonResponse(['message' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()], 500);
+            return ExceptionResponseResolver::resolve($e);
         }
     }
 }

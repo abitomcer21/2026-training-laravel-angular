@@ -32,13 +32,14 @@ class GetProductByFamilyHandlerTest extends TestCase
 
         $this->productRepository->expects($this->once())
             ->method('findByFamilyId')
-            ->with($familiaId)  // ← solo 1 argumento
+            ->with($familiaId)
             ->willReturn($productos);
 
         $respuesta = ($this->handler)($consulta);
         $array = $respuesta->toArray();
-        
+
         $this->assertCount(2, $array['products']);
+        $this->assertEquals(2, $array['total']);
     }
 
     public function test_devuelve_array_vacio_si_la_familia_no_tiene_productos(): void
@@ -48,12 +49,12 @@ class GetProductByFamilyHandlerTest extends TestCase
 
         $this->productRepository->expects($this->once())
             ->method('findByFamilyId')
-            ->with($familiaId)  // ← solo 1 argumento
+            ->with($familiaId)
             ->willReturn([]);
 
         $respuesta = ($this->handler)($consulta);
         $array = $respuesta->toArray();
-        
+
         $this->assertEmpty($array['products']);
         $this->assertEquals(0, $array['total']);
     }

@@ -252,7 +252,11 @@ export class ProductosComponent implements OnInit {
   private cargarProductosConTaxes(restaurantId: string) {
     this.productService.getProducts().subscribe({
       next: (res: any) => {
-        this.productosOriginales = (res.products || [])
+        const productos = Array.isArray(res)
+          ? res
+          : (res?.products ?? res?.data ?? []);
+
+        this.productosOriginales = productos
           .filter((p: any) => p.restaurant_id === restaurantId)
           .map((p: any) => ({
             ...p,
@@ -621,10 +625,15 @@ export class ProductosComponent implements OnInit {
     const orderId = this.orderStateService.getOrderIdValue();
     if (this.currentOrder.user?.id && orderId) {
       try {
-        await this.cobroService.registrarVenta(
+        const sale = await this.cobroService.registrarVenta(
           orderId,
           this.currentOrder.user.id,
         );
+
+        if (sale?.ticket_number != null) {
+          this.ticketService.setNumeroTicketActual(sale.ticket_number);
+        }
+
         this.mostrarToast('Venta registrada correctamente', 'success', 2000);
       } catch {
         this.mostrarToast('Error al registrar la venta', 'danger');

@@ -8,13 +8,14 @@ final readonly class CreateProductResponse
 {
     public function __construct(
         public string $id,
-        public string $FamilyId,
+        public string $familyId,
         public string $taxId,
         public string $name,
         public int $price,
         public int $stock,
         public ?string $imageSrc,
         public bool $active,
+        public int $restaurantId,
         public string $createdAt,
         public string $updatedAt,
     ) {}
@@ -23,13 +24,14 @@ final readonly class CreateProductResponse
     {
         return new self(
             id: $product->id()->value(),
-            FamilyId: $product->FamilyId()->value(),
+            familyId: $product->FamilyId()->value(),
             taxId: $product->taxId()->value(),
             name: $product->name()->value(),
             price: $product->price()->value(),
             stock: $product->stock()->value(),
             imageSrc: $product->imageSrc()->value(),
             active: $product->status()->isActive(),
+            restaurantId: $product->restaurantId(),
             createdAt: $product->createdAt()->format(\DateTimeInterface::ATOM),
             updatedAt: $product->updatedAt()->format(\DateTimeInterface::ATOM),
         );
@@ -39,13 +41,14 @@ final readonly class CreateProductResponse
     {
         return [
             'id' => $this->id,
-            'Family_id' => $this->FamilyId,
+            'family_id' => $this->familyId,
             'tax_id' => $this->taxId,
             'name' => $this->name,
             'price' => $this->price,
             'stock' => $this->stock,
             'image_src' => $this->imageSrc,
             'active' => $this->active,
+            'restaurant_id' => $this->restaurantId,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
         ];

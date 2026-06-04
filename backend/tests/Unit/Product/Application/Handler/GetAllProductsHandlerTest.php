@@ -36,7 +36,10 @@ class GetAllProductsHandlerTest extends TestCase
             ->willReturn($productos);
 
         $respuesta = ($this->handler)($consulta);
-        $this->assertCount(2, $respuesta->toArray());
+        $array = $respuesta->toArray();
+
+        $this->assertCount(2, $array['products']);
+        $this->assertEquals(2, $array['total']);
     }
 
     public function test_devuelve_array_vacio_cuando_no_hay_productos(): void
@@ -51,7 +54,7 @@ class GetAllProductsHandlerTest extends TestCase
 
         $respuesta = ($this->handler)($consulta);
         $array = $respuesta->toArray();
-        
+
         $this->assertEmpty($array['products']);
         $this->assertEquals(0, $array['total']);
     }

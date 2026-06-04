@@ -7,14 +7,14 @@ use App\Products\Domain\Interfaces\ProductRepositoryInterface;
 class UniqueProductName
 {
     public function __construct(
-        private ProductRepositoryInterface $productRepository
+        private ProductRepositoryInterface $productRepository,
     ) {}
 
     public function check(string $name, string $familyId, int $restaurantId): void
     {
-        $existing = $this->productRepository->findByNameAndFamily($name, $familyId, $restaurantId);
+        $product = $this->productRepository->findByName($name, $restaurantId);
         
-        if ($existing !== null) {
+        if ($product !== null && $product->familyId()->value() === $familyId) {
             throw new \InvalidArgumentException('El nombre del producto ya existe en esta familia');
         }
     }

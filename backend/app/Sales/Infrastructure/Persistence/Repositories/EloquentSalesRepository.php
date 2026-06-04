@@ -237,7 +237,12 @@ class EloquentSalesRepository implements SalesRepositoryInterface
 
     public function nextTicketNumber(): int
     {
-        return (int)($this->model->newQuery()->max('ticket_number') ?? 0) + 1;
+        return (int) (
+            $this->model
+                ->newQuery()
+                ->withTrashed()
+                ->max('ticket_number') ?? 0
+        ) + 1;
     }
 
     public function cancelSale(string $id): void
