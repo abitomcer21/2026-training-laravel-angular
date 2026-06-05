@@ -26,11 +26,14 @@ class EloquentTaxRepository implements TaxRepositoryInterface
         );
     }
 
-    public function findById(string $id): ?Tax
+        public function findById(string $id, int $restaurantId): ?Tax
     {
-        $eloquentTax = $this->model->newQuery()->where('uuid', $id)->first();
+        $eloquentTax = $this->model->newQuery()
+            ->where('uuid', $id)
+            ->where('restaurant_id', $restaurantId)
+            ->first();
 
-        if (! $eloquentTax) {
+        if (!$eloquentTax) {
             return null;
         }
 
@@ -79,4 +82,26 @@ class EloquentTaxRepository implements TaxRepositoryInterface
             ),
         )->toArray();
     }
+
+    public function findByName(string $name, int $restaurantId): ?Tax
+    {
+        $eloquentTax = $this->model->newQuery()
+            ->where('name', $name)
+            ->where('restaurant_id', $restaurantId)
+            ->first();
+
+        if (!$eloquentTax) {
+            return null;
+        }
+
+        return Tax::fromPersistence(
+            $eloquentTax->uuid,
+            $eloquentTax->name,
+            $eloquentTax->percentage,
+            $eloquentTax->restaurant_id,
+            $eloquentTax->created_at->toDateTimeImmutable(),
+            $eloquentTax->updated_at->toDateTimeImmutable(),
+        );
+    }
+
 }

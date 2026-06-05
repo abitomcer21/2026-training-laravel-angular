@@ -15,7 +15,7 @@ class GetTaxByIdHandler
 
     public function __invoke(GetTaxByIdQuery $query): GetTaxByIdResponse
     {
-        $tax = $this->taxRepository->findById($query->id);
+        $tax = $this->taxRepository->findById($query->id, $query->restaurantId);
 
         if ($tax === null) {
             throw new TaxNotFoundException($query->id);

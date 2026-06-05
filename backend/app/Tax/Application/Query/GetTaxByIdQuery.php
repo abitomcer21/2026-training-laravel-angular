@@ -8,4 +8,4 @@ final readonly class GetTaxByIdQuery
         public string $id,
         public int $restaurantId,
     ) {}
-}
+}   

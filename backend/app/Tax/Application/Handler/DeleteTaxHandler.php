@@ -14,8 +14,7 @@ class DeleteTaxHandler
 
     public function __invoke(DeleteTaxCommand $command): void
     {
-        $tax = $this->taxRepository->findById($command->id->value());
-
+        $tax = $this->taxRepository->findById($command->id->value(), $command->restaurantId);
         if ($tax === null) {
             throw new TaxNotFoundException($command->id->value());
         }

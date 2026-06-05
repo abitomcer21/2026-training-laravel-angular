@@ -3,6 +3,8 @@
 namespace App\Shared\Infrastructure\Http;
 
 use Illuminate\Http\JsonResponse;
+use App\Tax\Domain\Exceptions\TaxNotFoundException;
+
 
 class ExceptionResponseResolver
 {
@@ -13,12 +15,21 @@ class ExceptionResponseResolver
 
     public static function resolve(\Throwable $e): JsonResponse
     {
-        foreach (self::EXCEPTION_MAP as $exceptionClass => $defaultStatusCode) {
-            if ($e instanceof $exceptionClass) {
-                $statusCode = $e->getCode() > 0 ? (int) $e->getCode() : $defaultStatusCode;
 
-                return new JsonResponse(['message' => $e->getMessage()], $statusCode);
-            }
+        if ($e instanceof TaxNotFoundException) {
+        return new JsonResponse(['message' => $e->getMessage()], 404);
+        }
+        if ($e instanceof \InvalidArgumentException) {
+            return new JsonResponse([
+                'message' => 'Validation failed',
+                'errors'  => ['name' => [$e->getMessage()]],
+            ], 422);
+        }
+
+        if ($e instanceof \DomainException) {
+            $status = $e->getCode() > 0 ? (int) $e->getCode() : 400;
+
+            return new JsonResponse(['message' => $e->getMessage()], $status);
         }
 
         return new JsonResponse(['message' => 'Server error'], 500);
